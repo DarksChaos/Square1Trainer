@@ -5,7 +5,7 @@ body {
     padding: 0;
     overflow: hidden;
     font-family: Arial, sans-serif;
-    background-color: #121212;
+    background-color: #6f5737;
     color: #e0e0e0;
     user-select: none;
     -webkit-touch-callout: none;
@@ -127,13 +127,13 @@ input[type="checkbox"] {
 
 /* When checkbox is checked, style the parent label */
 .case.checked {
-    border-color: #4c6dff;
-    background-color: #32374a;
+    border-color: #ff4cff;
+    background-color: #412d51;
 }
 
 .case.checked:hover {
-    border-color: #4c6dff;
-    background-color: #3f4764;
+    border-color: #ff4cff;
+    background-color: #412d51;
 }
 
 /* Colonne droite */
@@ -148,7 +148,7 @@ input[type="checkbox"] {
 .filter-input:focus,
 .case:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #4c6dff;
+    box-shadow: 0 0 0 2px #ff4cff;
 }
 
 .selection-grid {
@@ -171,8 +171,8 @@ button {
 }
 
 button:hover {
-    background-color: #3a3a3a;
-    border-color: #4c6dff;
+    background-color: #412d51;
+    border-color: #ff4cff;
 }
 
 .top-bar {
@@ -196,8 +196,8 @@ button:hover {
 }
 
 .bar-btn:hover {
-    background-color: #3a3a3a;
-    border-color: #4c6dff;
+    background-color: #412d51;
+    border-color: #ff4cff;
 }
 
 .bar-scramble {
