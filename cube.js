@@ -562,6 +562,26 @@ function findPLL(layer, top, full = false) {
     return false;
 }
 
+
+// KARNOTATION
+
+
+
+function karnify(scramble) {
+    // scramble: e.g. "A/-3,0/-1,2/1,-2/-1,2/3,3/-2,-2/3,3/-3,0/-1,2/3,3/3,3/-2,4/A"
+    // returns "A U' d3 e m' e U' d e e T' A"
+    scramble = scramble.split("/");
+    // first level karnify; skip the A and a
+    for (let i = 1; i < scramble.length-1; i++) {
+        if (scramble[i] in KARN) scramble[i] = KARN[scramble[i]];
+        else {scramble[i] = scramble[i].replace(",", "")}
+    }
+    // second level karnify
+    scramble = scramble.join(" ")
+    scramble = replaceWithDict(scramble, HIGHKARN)
+    return scramble
+}
+
 // [top?, color (1st clockwise for corners), corner?]
 const pieceProperties = [
     [true, 0, true],
@@ -838,17 +858,22 @@ class Cube {
     }
 }
 
+
+
 // Variables
 const evenPLL = Object.keys(TPLL).slice(0, 22);
 const oddPLL = Object.keys(TPLL).slice(22);
+
 let possiblePBL = [];
 let selectedPBL = [];
-let scrambleList = [];
+let scrambleList = []; // [[normal, karn], etc.]
 
 let previousScramble = null;
 
 let remainingPBL = [];
 let eachCase = 0; // 0 = random, n = get each case n times before moving on
+let usingKarn = 0;
+
 const MIN_EACHCASE = 2;
 const MAX_EACHCASE = 4;
 
@@ -873,6 +898,9 @@ let readyToStart = false;
 let otherKeyPressed = 0;
 const startDelay = 0;
 
+let currentCase = "";
+let previousCase = "";
+
 // HTML elements
 
 // Top bar buttons
@@ -888,6 +916,9 @@ const pblListEl = document.getElementById("results");
 const filterInputEl = document.getElementById("filter");
 
 const eachCaseEl = document.getElementById("allcases");
+const karnEl = document.getElementById("karn");
+
+const removeLastEl = document.getElementById("unselprev")
 
 // Selection buttons
 const selectAllEl = document.getElementById("sela");
@@ -1126,6 +1157,9 @@ function generateScramble() {
 
     pblChoice += "-+"[randInt(0, 1)];
 
+    previousCase = currentCase
+    currentCase = pblChoice
+
     scramble = generators[pblChoice];
     // Add random begin and end layer moves
     let s = scramble[0];
@@ -1150,8 +1184,8 @@ function generateScramble() {
     ).replaceAll("/", " / ");
     if (scrambleList.length != 0) {
         previousScramble = scrambleList[scrambleList.length - 1];
-        previousScrambleEl.textContent =
-            "Previous scramble : " + previousScramble;
+        previousScrambleEl.innerHTML =
+            "Previous : " + previousScramble + ' <span style="white-space: nowrap;">( ' + previousCase + ' )</span>';
         hasPreviousScramble = true;
     }
     if (!hasActiveScramble) {
@@ -1193,6 +1227,9 @@ function deselectPBL(pbl) {
     }
     if (eachCase && remainingPBL.includes(pbl)) {
         remainingPBL = remainingPBL.filter((a) => a != pbl);
+    }
+    if(currentCase.startsWith(pbl)) {
+        generateScramble()
     }
 }
 
@@ -1681,6 +1718,22 @@ eachCaseEl.addEventListener("change", (e) => {
         enableGoEachCase(eachCase);
     }
 });
+
+karnEl.addEventListener("change", (e) => {
+    usingKarn ^= 1; // switches between 0 and 1 with XOR
+    currentScrambleEl.textContent = scrambleList.at(-1-scrambleOffset)[usingKarn];
+    if (scrambleList.at(-2-scrambleOffset) !== undefined) {
+        // we have a prev scram to display
+        previousScrambleEl.textContent = "Previous scramble : " + 
+        scrambleList.at(-2-scrambleOffset)[usingKarn];
+    }
+});
+
+removeLastEl.addEventListener("click", () => {
+    if(previousCase != "") {
+        deselectPBL(previousCase.slice(0, previousCase.length - 1)) // remove barflip indicator
+    }
+})
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {
