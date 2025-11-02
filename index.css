@@ -1,3 +1,8 @@
+:root {
+    --border-col: #99fd99;
+    --button-col: #263631bf;
+}
+
 body {
     width: 100%;
     height: 100%;
@@ -5,7 +10,7 @@ body {
     padding: 0;
     overflow: hidden;
     font-family: Arial, sans-serif;
-    background-color: #6f5737;
+    background-color: #121212;
     color: #e0e0e0;
     user-select: none;
     -webkit-touch-callout: none;
@@ -127,13 +132,13 @@ input[type="checkbox"] {
 
 /* When checkbox is checked, style the parent label */
 .case.checked {
-    border-color: #ff4cff;
-    background-color: #412d51;
+    border-color: var(--border-col);
+    background-color: var(--button-col);
 }
 
 .case.checked:hover {
-    border-color: #ff4cff;
-    background-color: #412d51;
+    border-color: var(--border-col);
+    background-color: var(--button-col);
 }
 
 /* Colonne droite */
@@ -148,7 +153,7 @@ input[type="checkbox"] {
 .filter-input:focus,
 .case:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #ff4cff;
+    box-shadow: 0 0 0 2px var(--border-col);
 }
 
 .selection-grid {
@@ -171,8 +176,8 @@ button {
 }
 
 button:hover {
-    background-color: #412d51;
-    border-color: #ff4cff;
+    background-color: var(--button-col);
+    border-color: var(--border-col);
 }
 
 .top-bar {
@@ -196,8 +201,8 @@ button:hover {
 }
 
 .bar-btn:hover {
-    background-color: #412d51;
-    border-color: #ff4cff;
+    background-color: var(--button-col);
+    border-color: var(--border-col);
 }
 
 .bar-scramble {
@@ -361,7 +366,7 @@ button:hover {
 }
 
 .list-item.highlighted {
-    border: 3px solid #c8d4ff !important;
+    border: 3px solid var(--border-col) !important;
 }
 
 .list-item.selected {
@@ -372,7 +377,7 @@ button:hover {
     font-size: 18px;
     border-width: 2px;
     margin: 5px;
-    width: 100px;
+    min-width: 100px;
 }
 
 .list-btn.right {

@@ -562,24 +562,23 @@ function findPLL(layer, top, full = false) {
     return false;
 }
 
-
 // KARNOTATION
-
-
 
 function karnify(scramble) {
     // scramble: e.g. "A/-3,0/-1,2/1,-2/-1,2/3,3/-2,-2/3,3/-3,0/-1,2/3,3/3,3/-2,4/A"
     // returns "A U' d3 e m' e U' d e e T' A"
     scramble = scramble.split("/");
     // first level karnify; skip the A and a
-    for (let i = 1; i < scramble.length-1; i++) {
+    for (let i = 1; i < scramble.length - 1; i++) {
         if (scramble[i] in KARN) scramble[i] = KARN[scramble[i]];
-        else {scramble[i] = scramble[i].replace(",", "")}
+        else {
+            scramble[i] = scramble[i].replace(",", "");
+        }
     }
     // second level karnify
-    scramble = scramble.join(" ")
-    scramble = replaceWithDict(scramble, HIGHKARN)
-    return scramble
+    scramble = scramble.join(" ");
+    scramble = replaceWithDict(scramble, HIGHKARN);
+    return scramble;
 }
 
 // [top?, color (1st clockwise for corners), corner?]
@@ -858,8 +857,6 @@ class Cube {
     }
 }
 
-
-
 // Variables
 const evenPLL = Object.keys(TPLL).slice(0, 22);
 const oddPLL = Object.keys(TPLL).slice(22);
@@ -918,7 +915,7 @@ const filterInputEl = document.getElementById("filter");
 const eachCaseEl = document.getElementById("allcases");
 const karnEl = document.getElementById("karn");
 
-const removeLastEl = document.getElementById("unselprev")
+const removeLastEl = document.getElementById("unselprev");
 
 // Selection buttons
 const selectAllEl = document.getElementById("sela");
@@ -934,6 +931,7 @@ const userListsEl = document.getElementById("userlists");
 const defaultListsEl = document.getElementById("defaultlists");
 const newListEl = document.getElementById("newlist");
 const deleteListEl = document.getElementById("dellist");
+const overwriteListEl = document.getElementById("overwritelist");
 const selectListEl = document.getElementById("sellist");
 const trainListEl = document.getElementById("trainlist");
 
@@ -1157,8 +1155,8 @@ function generateScramble() {
 
     pblChoice += "-+"[randInt(0, 1)];
 
-    previousCase = currentCase
-    currentCase = pblChoice
+    previousCase = currentCase;
+    currentCase = pblChoice;
 
     scramble = generators[pblChoice];
     // Add random begin and end layer moves
@@ -1185,7 +1183,11 @@ function generateScramble() {
     if (scrambleList.length != 0) {
         previousScramble = scrambleList[scrambleList.length - 1];
         previousScrambleEl.innerHTML =
-            "Previous : " + previousScramble + ' <span style="white-space: nowrap;">( ' + previousCase + ' )</span>';
+            "Previous : " +
+            previousScramble +
+            ' <span style="white-space: nowrap;">( ' +
+            previousCase +
+            " )</span>";
         hasPreviousScramble = true;
     }
     if (!hasActiveScramble) {
@@ -1228,8 +1230,8 @@ function deselectPBL(pbl) {
     if (eachCase && remainingPBL.includes(pbl)) {
         remainingPBL = remainingPBL.filter((a) => a != pbl);
     }
-    if(currentCase.startsWith(pbl)) {
-        generateScramble()
+    if (currentCase.startsWith(pbl)) {
+        generateScramble();
     }
 }
 
@@ -1274,8 +1276,8 @@ function resetTimer() {
         timerEl.textContent = "--:--";
     }
     setColor("");
-    console.log("Reset timer");
 }
+
 function timerBeginTouch(spaceEquivalent) {
     if (!hasActiveScramble) return;
     if (document.activeElement == filterInputEl) return;
@@ -1576,15 +1578,6 @@ newListEl.addEventListener("click", () => {
     setHighlightedList(newListName);
 });
 
-selectListEl.addEventListener("click", () => {
-    if (highlightedList == null) {
-        alert("Please click on a list");
-        return;
-    }
-    selectList(highlightedList, false);
-    closePopup();
-});
-
 deleteListEl.addEventListener("click", () => {
     if (highlightedList == null) {
         return;
@@ -1601,6 +1594,48 @@ deleteListEl.addEventListener("click", () => {
         return;
     }
     alert("Error");
+});
+
+overwriteListEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    if (highlightedList == null) {
+        alert("Please click on a list");
+        return;
+    } else if (Object.keys(defaultLists).includes(highlightedList)) {
+        alert("You cannot overwrite a default list");
+        return;
+    }
+    if (selectedPBL.length == 0) {
+        alert("Please select PBLs to create a list!");
+        return;
+    }
+
+    // valid request
+    if (confirm("You are about to overwrite list " + highlightedList)) {
+        let newList = {};
+        for (pbl of possiblePBL) {
+            const n = pblname(pbl);
+            if (selectedPBL.includes(n)) {
+                newList[n] = 1;
+            } else {
+                newList[n] = 0;
+            }
+            userLists[highlightedList] = newList;
+        }
+        addUserLists();
+        selectList(highlightedList, false);
+        highlightedList = null;
+        closePopup();
+    }
+});
+
+selectListEl.addEventListener("click", () => {
+    if (highlightedList == null) {
+        alert("Please click on a list");
+        return;
+    }
+    selectList(highlightedList, false);
+    closePopup();
 });
 
 trainListEl.addEventListener("click", () => {
@@ -1721,21 +1756,46 @@ eachCaseEl.addEventListener("change", (e) => {
 
 karnEl.addEventListener("change", (e) => {
     usingKarn ^= 1; // switches between 0 and 1 with XOR
-    currentScrambleEl.textContent = scrambleList.at(-1-scrambleOffset)[usingKarn];
-    if (scrambleList.at(-2-scrambleOffset) !== undefined) {
+    currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
+        usingKarn
+    ];
+    if (scrambleList.at(-2 - scrambleOffset) !== undefined) {
         // we have a prev scram to display
-        previousScrambleEl.textContent = "Previous scramble : " + 
-        scrambleList.at(-2-scrambleOffset)[usingKarn];
+        previousScrambleEl.textContent =
+            "Previous scramble : " +
+            scrambleList.at(-2 - scrambleOffset)[usingKarn];
     }
 });
 
 removeLastEl.addEventListener("click", () => {
-    if(previousCase != "") {
-        deselectPBL(previousCase.slice(0, previousCase.length - 1)) // remove barflip indicator
+    if (previousCase != "") {
+        deselectPBL(previousCase.slice(0, previousCase.length - 1)); // remove barflip indicator
     }
-})
+});
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {
     cross.addEventListener("click", () => closePopup());
 }
+
+// fun little thing
+function updateColors() {
+    const now = new Date();
+    const hours = now.getHours() + now.getMinutes() / 60;
+    
+    // Cycle hue 0–360 throughout the day
+    const hue = (hours / 12) * 360;
+
+    document.documentElement.style.setProperty(
+        "--border-col",
+        `hsl(${hue}, 80%, 70%)`
+    );
+
+    document.documentElement.style.setProperty(
+        "--button-col",
+        `hsla(${hue}, 30%, 15%, 0.5)`
+    );
+}
+
+updateColors();
+setInterval(updateColors, 60 * 1000);
