@@ -931,6 +931,7 @@ let previousScramble = null;
 let remainingPBL = [];
 let eachCase = 0; // 0 = random, n = get each case n times before moving on
 let usingKarn = 0; // 0 = not using karn, etc.
+let usingWeight = false;
 const MIN_EACHCASE = 2;
 const MAX_EACHCASE = 4;
 
@@ -947,6 +948,21 @@ let isPopupOpen = false;
 let cubeCenter, cubeScale;
 let lastRemoved;
 let selectedCount = 0;
+
+let weight = {
+    "-": 1,
+    "E": 2,
+    "H": 1,
+    "Na": 1,
+    "Nm": 1,
+    "Opp": 2,
+    "Ol": 1,
+    "Or": 1,
+    "pN": 2,
+    "Q": 1,
+    "X": 1,
+    "Z": 2
+}
 
 let pressStartTime = null;
 let holdTimeout = null;
@@ -977,6 +993,7 @@ const filterInputEl = document.getElementById("filter");
 
 const eachCaseEl = document.getElementById("allcases");
 const karnEl = document.getElementById("karn");
+const weightEl = document.getElementById("weight");
 
 const removeLastEl = document.getElementById("unselprev");
 
@@ -1047,11 +1064,9 @@ function getLocalStorageData() {
             selectedCount++;
             updateSelCount();
         }
-        if (eachCaseEl.checked) {
-            enableGoEachCase(1);
-        } else {
-            enableGoEachCase(randInt(MIN_EACHCASE, MAX_EACHCASE));
-        }
+        if (eachCaseEl.checked) eachCase = 1;
+        else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
+        enableGoEachCase();
         generateScramble();
         // if (selectedPBL.length != 0) {
         //     for (let pbl of possiblePBL) {
@@ -1227,10 +1242,7 @@ function generateScramble(regen=false) {
     }
     if (remainingPBL.length === 0) {
         // start a new cycle
-        let number = eachCaseEl.checked
-            ? 1
-            : randInt(MIN_EACHCASE, MAX_EACHCASE);
-        enableGoEachCase(number);
+        enableGoEachCase();
     }
     let caseNum = randInt(0, remainingPBL.length - 1);
     pblChoice = remainingPBL.splice(caseNum, 1)[0];
@@ -1549,9 +1561,18 @@ function canInteractTimer() {
     );
 }
 
-function enableGoEachCase(count) {
-    eachCase = count;
-    remainingPBL = selectedPBL.flatMap((el) => Array(eachCase).fill(el));
+function getWeight(pbl) {
+    // pbl: "Al/Ar"
+    pbl = pbl.split("/");
+    let uWeight = pbl[0] in weight ? weight[pbl[0]] : 4;
+    let dWeight = pbl[1] in weight ? weight[pbl[1]] : 4;
+    return uWeight*dWeight;
+}
+
+function enableGoEachCase() {
+    remainingPBL = selectedPBL.flatMap((el) => Array(eachCase * 
+        (usingWeight ? getWeight(el) : 1)
+    ).fill(el));
 }
 
 init();
@@ -1979,7 +2000,7 @@ fileEl.addEventListener("change", (e) => {
 eachCaseEl.addEventListener("change", (e) => {
     eachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     if (eachCase == 1) {
-        enableGoEachCase(eachCase);
+        enableGoEachCase();
     }
 });
 
@@ -1997,6 +2018,11 @@ karnEl.addEventListener("change", (e) => {
     usingKarn ^= 1; // switches between 0 and 1 with XOR
     if (hasActiveScramble) currentScrambleEl.textContent = scrambleList.at(-1-scrambleOffset)[usingKarn];
     displayPrevScram()
+});
+
+weightEl.addEventListener("change", (e) => {
+    usingWeight = !usingWeight;
+    enableGoEachCase()
 });
 
 // Enable crosses
