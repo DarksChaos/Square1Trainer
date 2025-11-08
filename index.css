@@ -31,7 +31,7 @@ body {
     background-color: #1f1f1f;
     color: #ffffff;
     padding: 0.5rem;
-    text-align: center;
+    text-align: top;
     font-size: 1.2rem;
     border-bottom: 2px solid #333;
     display: flex;
@@ -158,9 +158,24 @@ input[type="checkbox"] {
 
 .selection-grid {
     display: grid;
+    justify-content: center;
+    align-items: center;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
     padding: .5rem 0;
+}
+
+.selection-text {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    width: 80%;
+    align-self: center;
 }
 
 button {
@@ -377,7 +392,7 @@ button:hover {
     font-size: 18px;
     border-width: 2px;
     margin: 5px;
-    min-width: 100px;
+    width: 100px;
 }
 
 .list-btn.right {
@@ -407,6 +422,11 @@ button:hover {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.help p {
+    margin-left: 50px;
+    font-size: 1.5v*;
 }
 
 @media screen and (max-width: 800px) {

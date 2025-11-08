@@ -6,6 +6,7 @@ function mod(n, m) {
 }
 
 function randInt(min, max) {
+    // max included
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -44,6 +45,14 @@ function shuffle(array) {
             array[currentIndex],
         ];
     }
+}
+
+function replaceWithDict(str, dict) {
+    // keys are already sorted longest → shortest
+    const pattern = new RegExp(Object.keys(dict).join("|"), "g");
+    while (str.replace(pattern, match => dict[match]) !== str)
+        str = str.replace(pattern, match => dict[match]);
+    return str;
 }
 
 const compareCS = (a, b) =>
@@ -498,30 +507,84 @@ let BPLL = {
     X: "7F6E5H8G",
 };
 
-let KARN = {
-    U: Move.Move(3, 0),
-    "U'": Move.Move(-3, 0),
-    D: Move.Move(0, 3),
-    "D'": Move.Move(0, -3),
-    u: Move.Move(2, -1),
-    "u'": Move.Move(-2, 1),
-    d: Move.Move(-1, 2),
-    "d'": Move.Move(1, -2),
-    M: Move.Move(1, 1),
-    "M'": Move.Move(-1, -1),
-    m: Move.Move(2, 2),
-    "m'": Move.Move(-2, -2),
-    F: Move.Move(4, 1),
-    "F'": Move.Move(-4, -1),
-    f: Move.Move(1, 4),
-    "f'": Move.Move(-1, -4),
-    T: Move.Move(2, -4),
-    "T'": Move.Move(-2, 4),
-    t: Move.Move(-4, 2),
-    "t'": Move.Move(4, -2),
+const KARN = {
+    "3,0":"U",
+    "-3,0":"U'",
+    "0,3":"D",
+    "0,-3":"D'",
+    "3,3":"e",
+    "2,-1":"u",
+    "-1,2":"d",
+    "-4,-1":"F'",
+    "-1,-4":"f'",
+    "2,-4":"T",
+    "-4,2":"t'",
+    "2,2":"m",
+    "-1,-1": "M'",
+    "5,-1":"u2",
+    "1,-5":"d2'",
+    "-2,1":"u'",
+    "1,-2":"d'",
+    "4,1":"F",
+    "1,4":"f",
+    "-2,4":"T'",
+    "4,-2":"t",
+    "-2,-2":"m'",
+    "1,1": "M",
+    "-5,1": "u2'",
+    "-1,5": "d2"
 };
 
-const kmoves = Object.entries(KARN);
+const HIGHKARN = {
+    // add spaces for de-ambiguity
+    " U U' U U' ": " U4 ",
+    " U' U U' U ": " U4' ",
+    " D D' D D' ": " D4 ",
+    " D' D D' D ": " D4' ",
+    " u u' u u' ": " u4 ",
+    " u' u u' u ": " u4' ",
+    " d d' d d' ": " d4 ",
+    " d' d d' d ": " d4' ",
+
+    " U U' U ": " U3 ",
+    " U' U U' ": " U3' ",
+    " D D' D ": " D3 ",
+    " D' D D' ": " D3' ",
+    " u u' u ": " u3 ",
+    " u' u u' ": " u3' ",
+    " d d' d ": " d3 ",
+    " d' d d' ": " d3' ",
+    " F F' F ": " F3 ",
+    " F' F F' ": " F3' ",
+    " f f' f ": " f3 ",
+    " f' f f' ": " f3' ",
+
+    " U U' ": " W ",
+    " U' U ": " W' ",
+    " D D' ": " B ",
+    " D' D ": " B' ",
+    " u u' ": " w ",
+    " u' u ": " w' ",
+    " d d' ": " b ",
+    " d' d ": " b' ",
+    " F F' ": " F2 ",
+    " F' F ": " F2' ",
+    " f f' ": " f2 ",
+    " f' f ": " f2' ",
+
+    " U U ": " UU ",
+    " U' U' ": " UU' ",
+    " D D ": " DD ",
+    " D' D' ": " DD' ",
+
+    " 60 ": " U2 ",
+    " 63 ": " U2D ",
+    " 6-3 ": " U2D' ",
+    " 66 ": " U2D2 ",
+    " 06 ": " D2 ",
+    " 36 ": " UD2",
+    " -36 ": " U'D2"
+};
 
 function testPLL(layer, list) {
     for (let [name, value] of Object.entries(list)) {
@@ -569,11 +632,9 @@ function karnify(scramble) {
     // returns "A U' d3 e m' e U' d e e T' A"
     scramble = scramble.split("/");
     // first level karnify; skip the A and a
-    for (let i = 1; i < scramble.length - 1; i++) {
+    for (let i = 1; i < scramble.length-1; i++) {
         if (scramble[i] in KARN) scramble[i] = KARN[scramble[i]];
-        else {
-            scramble[i] = scramble[i].replace(",", "");
-        }
+        else {scramble[i] = scramble[i].replace(",", "")}
     }
     // second level karnify
     scramble = scramble.join(" ");
@@ -869,8 +930,7 @@ let previousScramble = null;
 
 let remainingPBL = [];
 let eachCase = 0; // 0 = random, n = get each case n times before moving on
-let usingKarn = 0;
-
+let usingKarn = 0; // 0 = not using karn, etc.
 const MIN_EACHCASE = 2;
 const MAX_EACHCASE = 4;
 
@@ -881,10 +941,12 @@ let highlightedList = null;
 let scrambleOffset = 0;
 let generators;
 let hasActiveScramble = false;
-let hasPreviousScramble = false;
+// let hasPreviousScramble = false; // will be replaced with scrambleList.at(-2-scrambleOffset) !== undefined
 let isPopupOpen = false;
 
 let cubeCenter, cubeScale;
+let lastRemoved;
+let selectedCount = 0;
 
 let pressStartTime = null;
 let holdTimeout = null;
@@ -902,6 +964,7 @@ let previousCase = "";
 
 // Top bar buttons
 const toggleUiEl = document.getElementById("toggleui");
+const openHelpEl = document.getElementById("open-help")
 const uploadEl = document.getElementById("uploaddata");
 const downloadEl = document.getElementById("downloaddata");
 const fileEl = document.getElementById("fileinput");
@@ -924,6 +987,7 @@ const selectTheseEl = document.getElementById("selt");
 const deselectTheseEl = document.getElementById("deselt");
 const showSelectionEl = document.getElementById("showselected");
 const showAllEl = document.getElementById("showall");
+const selCountEl = document.getElementById("selcount");
 
 // List buttons
 const openListsEl = document.getElementById("openlists");
@@ -946,6 +1010,8 @@ const listPopupEl = document.getElementById("list-popup");
 // initialize canvas declared at the very top of the file
 canvas = document.getElementById("scram-canvas");
 ctx = canvas.getContext("2d");
+
+const helpPopupEl = document.getElementById("help-popup");
 
 // Main page elements (scrambles and timer)
 const currentScrambleEl = document.getElementById("cur-scram");
@@ -978,6 +1044,8 @@ function getLocalStorageData() {
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
             selectPBL(k);
+            selectedCount++;
+            updateSelCount();
         }
         if (eachCaseEl.checked) {
             enableGoEachCase(1);
@@ -985,14 +1053,14 @@ function getLocalStorageData() {
             enableGoEachCase(randInt(MIN_EACHCASE, MAX_EACHCASE));
         }
         generateScramble();
-        if (selectedPBL.length != 0) {
-            for (let pbl of possiblePBL) {
-                hidePBL(pblname(pbl));
-            }
-            for (let pbl of selectedPBL) {
-                showPBL(pbl);
-            }
-        }
+        // if (selectedPBL.length != 0) {
+        //     for (let pbl of possiblePBL) {
+        //         hidePBL(pblname(pbl));
+        //     }
+        //     for (let pbl of selectedPBL) {
+        //         showPBL(pbl);
+        //     }
+        // }
     }
 
     // userLists
@@ -1005,7 +1073,14 @@ function getLocalStorageData() {
 
 function saveSelectedPBL() {
     localStorage.setItem("selectedPBL", JSON.stringify(selectedPBL));
+    // this is === 0 cuz genScram() has a if statement that deletes the scram if so
     if (!hasActiveScramble || selectedPBL.length == 0) generateScramble();
+    else if (!(selectedPBL.includes(currentCase.slice(0,currentCase.length-1))) &&
+            currentCase != "") generateScramble(true);
+}
+
+function updateSelCount() {
+    selCountEl.textContent = "Selected: "+selectedCount;
 }
 
 function saveUserLists() {
@@ -1048,6 +1123,8 @@ async function init() {
         }
     }
 
+    // Add buttons to the page for each pbl choice
+    // Stored to a temp variable so we edit the page only once, and prevent a lag spike
     possiblePBL.splice(0, 1);
     let buttons = "";
     for ([t, b] of possiblePBL) {
@@ -1071,8 +1148,9 @@ async function init() {
             getLocalStorageData();
         })
         .catch((error) => console.error("Failed to fetch data:", error));
-    // Add buttons to the page for each pbl choice
-    // Stored to a temp variable so we edit the page only once, and prevent a lag spike
+
+    lastRemoved = "";
+
 
     // Add event listener to each button, so we can click it
     document.querySelectorAll(".case").forEach((caseEl) => {
@@ -1131,31 +1209,35 @@ function passesFilter(pbl, filter) {
     return isPll(u, filter) || isPll(d, filter);
 }
 
-function generateScramble() {
-    scrambleOffset = 0;
-    if (selectedPBL.length == 0) {
+function generateScramble(regen=false) {
+    if (scrambleOffset > 0 && !regen) {
+        // user probably timed one of the prev scrams
+        displayPrevScram();
+        currentScrambleEl.textContent = scrambleList.at(-1-scrambleOffset)[usingKarn];
+        return;
+    }
+    else if (scrambleOffset <= 0) scrambleOffset = 0;
+    if (selectedPBL.length === 0) {
         timerEl.textContent = "--:--";
         currentScrambleEl.textContent = "Scramble will show up here";
+        previousScrambleEl.textContent = "Last scramble will show up here";
         hasActiveScramble = false;
         scrambleList = [];
         return;
     }
-    if (eachCase > 0) {
-        if (remainingPBL.length == 0) {
-            let number = eachCaseEl.checked
-                ? 1
-                : randInt(MIN_EACHCASE, MAX_EACHCASE);
-            enableGoEachCase(number);
-        }
-        let caseNum = randInt(0, remainingPBL.length - 1);
-        pblChoice = remainingPBL.splice(caseNum, 1)[0];
-    } else {
-        pblChoice = selectedPBL[randInt(0, selectedPBL.length - 1)];
+    if (remainingPBL.length === 0) {
+        // start a new cycle
+        let number = eachCaseEl.checked
+            ? 1
+            : randInt(MIN_EACHCASE, MAX_EACHCASE);
+        enableGoEachCase(number);
     }
+    let caseNum = randInt(0, remainingPBL.length - 1);
+    pblChoice = remainingPBL.splice(caseNum, 1)[0];
 
     pblChoice += "-+"[randInt(0, 1)];
 
-    previousCase = currentCase;
+    previousCase = currentCase; // e.g. "Al/Ar+"
     currentCase = pblChoice;
 
     scramble = generators[pblChoice];
@@ -1164,44 +1246,63 @@ function generateScramble() {
     let e = scramble[scramble.length - 1];
     let start;
     let end;
-    if (s == "A") {
-        start = `${randrange(-5, 5, 3)},${randrange(-3, 7, 3)}`;
+    if (s === "A") {
+        start = [randrange(-5, 5, 3),randrange(-3, 7, 3)];
     } else {
-        start = `${randrange(-3, 7, 3)},${randrange(-4, 6, 3)}`;
+        start = [randrange(-3, 7, 3),randrange(-4, 6, 3)];
     }
-    if (e == "A") {
-        end = `${randrange(-4, 6, 3)},${randrange(-3, 7, 3)}`;
+    if (e === "A") {
+        end = [randrange(-4, 6, 3),randrange(-3, 7, 3)];
     } else {
-        end = `${randrange(-3, 7, 3)},${randrange(-5, 5, 3)}`;
+        end = [randrange(-3, 7, 3),randrange(-5, 5, 3)];
     }
 
-    let final = (
-        start +
-        scramble.slice(1, scramble.length - 1) +
-        end
-    ).replaceAll("/", " / ");
-    if (scrambleList.length != 0) {
-        previousScramble = scrambleList[scrambleList.length - 1];
-        previousScrambleEl.innerHTML =
-            "Previous : " +
-            previousScramble +
-            ' <span style="white-space: nowrap;">( ' +
-            previousCase +
-            " )</span>";
-        hasPreviousScramble = true;
+    let final = [
+        (start.join(",") + 
+            scramble.slice(1, -1) + 
+            end.join(",")).replaceAll("/", " / "),
+        start.join("") + 
+            karnify(scramble).slice(1, -1) + 
+            end.join(""),
+        currentCase
+    ];
+
+    if (regen) {
+        scrambleList[scrambleList.length-1] = final;
+        // set current scram only if we are on the current scram
+        if (scrambleOffset === 0) currentScrambleEl.textContent = final[usingKarn];
     }
-    if (!hasActiveScramble) {
-        timerEl.textContent = "0.00";
+    else {
+        if (scrambleList.length != 0) {
+            previousScramble = scrambleList[scrambleList.length - 1];
+            previousScrambleEl.textContent = "Previous scramble: " + 
+                scrambleList.at(-1)[usingKarn] + " (" +
+                scrambleList.at(-1)[2] + ")";
+        }
+        currentScrambleEl.textContent = final[usingKarn];
+        scrambleList.push(final);
     }
-    currentScrambleEl.textContent = final;
-    scrambleList.push(final);
+    if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram
     hasActiveScramble = true;
+}
+
+function displayPrevScram() {
+    if (scrambleList.at(-2-scrambleOffset) !== undefined) {
+        // we have a prev scram to display
+        previousScrambleEl.textContent = "Previous scramble: " + 
+            scrambleList.at(-2-scrambleOffset)[usingKarn] + " (" +
+            scrambleList.at(-2-scrambleOffset)[2] + ")";
+    }
+    else {
+        previousScrambleEl.textContent = "Last scramble will show up here"
+    }
 }
 
 function showAll() {
     for (let pbl of possiblePBL) {
         showPBL(pblname(pbl));
     }
+    updateSelCount();
 }
 
 function hidePBL(text) {
@@ -1216,6 +1317,8 @@ function selectPBL(pbl) {
     document.getElementById(pbl).classList.add("checked");
     if (!selectedPBL.includes(pbl)) {
         selectedPBL.push(pbl);
+        selectedCount++;
+        updateSelCount();
     }
     if (eachCase > 0 && !remainingPBL.includes(pbl)) {
         remainingPBL = remainingPBL.concat(Array(eachCase).fill(pbl));
@@ -1226,12 +1329,11 @@ function deselectPBL(pbl) {
     document.getElementById(pbl).classList.remove("checked");
     if (selectedPBL.includes(pbl)) {
         selectedPBL = selectedPBL.filter((a) => a != pbl);
+        selectedCount--;
+        updateSelCount();
     }
     if (eachCase && remainingPBL.includes(pbl)) {
         remainingPBL = remainingPBL.filter((a) => a != pbl);
-    }
-    if (currentCase.startsWith(pbl)) {
-        generateScramble();
     }
 }
 
@@ -1262,7 +1364,7 @@ function stopTimer() {
     isRunning = false;
 }
 
-function resetTimer() {
+function resetTimer(hidden) {
     stopTimer();
     pressStartTime = null;
     holdTimeout = null;
@@ -1270,9 +1372,10 @@ function resetTimer() {
     intervalId = null;
     readyToStart = false;
     otherKeyPressed = 0;
-    if (canInteractTimer()) {
+    if (canInteractTimer() && !hidden) {
         timerEl.textContent = "0.00";
-    } else {
+    }
+    else if (!hidden) {
         timerEl.textContent = "--:--";
     }
     setColor("");
@@ -1284,6 +1387,7 @@ function timerBeginTouch(spaceEquivalent) {
     if (isRunning) {
         // Stop timer
         stopTimer();
+        scrambleOffset--;
         generateScramble();
         if (!spaceEquivalent) otherKeyPressed += 1;
     } else if (spaceEquivalent && otherKeyPressed <= 0) {
@@ -1360,15 +1464,16 @@ function selectList(listName, setSelection) {
     if (setSelection) {
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
-                showPBL(pbl);
+                // showPBL(pbl);
                 selectPBL(pbl);
             } else {
-                hidePBL(pbl);
+                // hidePBL(pbl);
                 deselectPBL(pbl);
             }
         }
 
         saveSelectedPBL();
+        selCountEl.textContent = "Selected list: "+listName;
     } else {
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
@@ -1377,6 +1482,7 @@ function selectList(listName, setSelection) {
                 hidePBL(pbl);
             }
         }
+        selCountEl.textContent = "Viewing list: "+listName;
     }
     saveUserLists();
 }
@@ -1394,7 +1500,7 @@ function validName(n) {
     return true;
 }
 
-function openScramblePopup(scramble) {
+function openScramblePopup(scramble) { // scramble: [not karn, karn]
     if (usingTimer()) return;
     isPopupOpen = true;
     scramblePopupEl.classList.add("open");
@@ -1409,10 +1515,10 @@ function openScramblePopup(scramble) {
     cubeScale = parseInt(w / 7);
 
     let displayCube = new Cube(solved);
-    displayCube.applySequence(new Sequence(scramble));
+    displayCube.applySequence(new Sequence(scramble[0]));
     displayCube.draw(cubeCenter, cubeScale);
 
-    displayScramEl.textContent = scramble;
+    displayScramEl.textContent = scramble[usingKarn];
     displayPBLname.textContent = displayCube.pblCase();
 }
 
@@ -1422,10 +1528,17 @@ function openListPopup() {
     listPopupEl.classList.add("open");
 }
 
+function openHelpPopup() {
+    if (usingTimer()) return;
+    isPopupOpen = true;
+    helpPopupEl.classList.add("open");
+}
+
 function closePopup() {
     isPopupOpen = false;
     scramblePopupEl.classList.remove("open");
     listPopupEl.classList.remove("open");
+    helpPopupEl.classList.remove("open");
 }
 
 function canInteractTimer() {
@@ -1454,25 +1567,30 @@ filterInputEl.addEventListener("input", () => {
             hidePBL(n);
         }
     }
+    updateSelCount();
 });
 
-selectAllEl.addEventListener("click", () => {
+function selectAll() {
     if (usingTimer()) return;
     for (let pbl of possiblePBL) {
         selectPBL(pblname(pbl));
     }
     saveSelectedPBL();
-});
+};
 
-deselectAllEl.addEventListener("click", () => {
+selectAllEl.addEventListener("click", selectAll);
+
+function deselectAll() {
     if (usingTimer()) return;
     for (let pbl of possiblePBL) {
         deselectPBL(pblname(pbl));
     }
     saveSelectedPBL();
-});
+};
 
-selectTheseEl.addEventListener("click", () => {
+deselectAllEl.addEventListener("click", deselectAll);
+
+function selectThese() {
     if (usingTimer()) return;
     for (i of pblListEl.children) {
         if (!i.classList.contains("hidden")) {
@@ -1480,9 +1598,11 @@ selectTheseEl.addEventListener("click", () => {
         }
     }
     saveSelectedPBL();
-});
+};
 
-deselectTheseEl.addEventListener("click", () => {
+selectTheseEl.addEventListener("click", selectThese);
+
+function deselectThese() {
     if (usingTimer()) return;
     for (i of pblListEl.children) {
         if (!i.classList.contains("hidden")) {
@@ -1490,14 +1610,18 @@ deselectTheseEl.addEventListener("click", () => {
         }
     }
     saveSelectedPBL();
-});
+};
 
-showAllEl.addEventListener("click", () => {
+deselectTheseEl.addEventListener("click", deselectThese);
+
+function showAllClick() {
     if (usingTimer()) return;
     showAll();
-});
+}
 
-showSelectionEl.addEventListener("click", () => {
+showAllEl.addEventListener("click", showAllClick);
+
+function showSelection() {
     if (usingTimer()) return;
     for (pbl of possiblePBL) {
         const n = pblname(pbl);
@@ -1507,33 +1631,47 @@ showSelectionEl.addEventListener("click", () => {
             hidePBL(n);
         }
     }
-});
+    updateSelCount();
+}
 
-prevScrambleButton.addEventListener("click", () => {
+showSelectionEl.addEventListener("click", showSelection);
+
+function prevScram() {
     if (usingTimer()) return;
     if (scrambleList.length == 0) return;
     scrambleOffset = Math.min(scrambleOffset + 1, scrambleList.length - 1);
     currentScrambleEl.textContent =
-        scrambleList[scrambleList.length - 1 - scrambleOffset];
-});
+        scrambleList.at(-1-scrambleOffset)[usingKarn];
+    displayPrevScram()
+}
 
-nextScrambleButton.addEventListener("click", () => {
+prevScrambleButton.addEventListener("click", prevScram);
+
+function nextScram() {
     if (usingTimer()) return;
     if (scrambleList.length == 0) return;
     scrambleOffset--;
     if (scrambleOffset < 0) {
-        scrambleOffset = 0;
+        // scrambleOffset = 0;: this is already set in the function below
         generateScramble();
     } else {
         currentScrambleEl.textContent =
-            scrambleList[scrambleList.length - 1 - scrambleOffset];
+            scrambleList.at(-1-scrambleOffset)[usingKarn];
+        displayPrevScram()
     }
-});
+}
+
+nextScrambleButton.addEventListener("click", nextScram);
 
 openListsEl.addEventListener("click", () => {
     if (usingTimer()) return;
     openListPopup();
 });
+
+openHelpEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    openHelpPopup();
+})
 
 newListEl.addEventListener("click", () => {
     if (usingTimer()) return;
@@ -1578,31 +1716,14 @@ newListEl.addEventListener("click", () => {
     setHighlightedList(newListName);
 });
 
-deleteListEl.addEventListener("click", () => {
-    if (highlightedList == null) {
-        return;
-    }
-    if (Object.keys(userLists).includes(highlightedList)) {
-        if (confirm("You are about to delete list " + highlightedList)) {
-            delete userLists[highlightedList];
-            highlightedList = null;
-            addUserLists();
-        }
-        return;
-    }
-    if (Object.keys(defaultLists).includes(highlightedList)) {
-        return;
-    }
-    alert("Error");
-});
-
 overwriteListEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (highlightedList == null) {
         alert("Please click on a list");
         return;
-    } else if (Object.keys(defaultLists).includes(highlightedList)) {
-        alert("You cannot overwrite a default list");
+    }
+    else if (Object.keys(defaultLists).includes(highlightedList)) {
+        alert("You cannot overwrite a default list")
         return;
     }
     if (selectedPBL.length == 0) {
@@ -1638,6 +1759,25 @@ selectListEl.addEventListener("click", () => {
     closePopup();
 });
 
+deleteListEl.addEventListener("click", () => {
+    if (highlightedList == null) {
+        return;
+    }
+    if (Object.keys(userLists).includes(highlightedList)) {
+        if (confirm("You are about to delete list " + highlightedList)) {
+            delete userLists[highlightedList];
+            highlightedList = null;
+            addUserLists();
+        }
+        return;
+    }
+    if (Object.keys(defaultLists).includes(highlightedList)) {
+        alert("You cannot overwrite a default list")
+        return;
+    }
+    alert("Error");
+});
+
 trainListEl.addEventListener("click", () => {
     if (highlightedList == null) {
         alert("Please click on a list");
@@ -1647,17 +1787,106 @@ trainListEl.addEventListener("click", () => {
     closePopup();
 });
 
+function isMac() {
+  if (navigator.userAgentData) {
+    // Newer, privacy-preserving API
+    return navigator.userAgentData.platform === "macOS";
+  }
+  // Fallback for older browsers
+  return navigator.userAgent.toUpperCase().includes("MAC");
+}
+
 window.addEventListener("keydown", (e) => {
+    const inInput = document.activeElement === filterInputEl;
     if (e.code == "Escape") {
         if (isPopupOpen) {
             closePopup();
         }
         if (usingTimer()) {
-            resetTimer();
+            resetTimer(false);
         }
+        if (inInput) filterInputEl.blur()
         return;
     }
 
+    // ctrl F (search cases); ctrl Z (undo remove last); ctrl Y (redo remove last)
+    const ctrl = isMac() ? e.metaKey : e.ctrlKey;
+    if (ctrl && !e.altKey) {
+        if (e.shiftKey) {
+            // ctrl + shift +
+            switch (e.key.toLowerCase()) {
+                case "a":
+                    e.preventDefault();
+                    deselectAll();
+                    return;
+                case "s":
+                    e.preventDefault();
+                    deselectThese();
+                    return;
+            }
+        }
+        else {
+            // ctrl + 
+            switch (e.key.toLowerCase()) {
+                case "a":
+                    e.preventDefault();
+                    selectAll();
+                    return;
+                case "s":
+                    e.preventDefault();
+                    selectThese();
+                    return;
+
+                case "f":
+                    e.preventDefault(); // stop the browser’s find box
+                    filterInputEl.focus();
+                    return;
+                case "z":
+                    e.preventDefault();
+                    selectPBL(lastRemoved);
+                    saveSelectedPBL();
+                    return;
+                case "y":
+                    e.preventDefault();
+                    deselectPBL(lastRemoved);
+                    saveSelectedPBL();
+                    return;
+            }
+        }
+    }
+    else if (!ctrl && e.altKey && !e.shiftKey) {
+        // alt + 
+        switch (e.key.toLowerCase()) {
+            case "a":
+                e.preventDefault();
+                showAll();
+                return;
+            case "s":
+                e.preventDefault();
+                showSelection();
+                return;
+        }
+    }
+
+    // backspace (remove last); left arrow (prev scram); right arrow (next scram)
+    if (!inInput) {
+        switch (e.key) {
+            case "Backspace":
+                e.preventDefault();
+                removeLast();
+                return;
+            case "ArrowLeft":
+                e.preventDefault();
+                prevScram();
+                return;
+            case "ArrowRight":
+                e.preventDefault();
+                nextScram();
+                return;
+        }
+    }
+
+    // space (start timer)
     if (!canInteractTimer()) return;
     let isSpace = e.code == "Space";
     timerBeginTouch(isSpace);
@@ -1673,7 +1902,7 @@ window.addEventListener("keyup", (e) => {
 
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState == "hidden") {
-        resetTimer();
+        resetTimer(true);
     }
 });
 
@@ -1691,13 +1920,13 @@ timerBoxEl.addEventListener("touchend", (e) => {
 currentScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (isPopupOpen || !hasActiveScramble) return;
-    openScramblePopup(currentScrambleEl.innerText);
+    openScramblePopup(scrambleList.at(-1-scrambleOffset));
 });
 
 previousScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
-    if (isPopupOpen || !hasPreviousScramble) return;
-    openScramblePopup(previousScramble);
+    if (isPopupOpen || scrambleList.at(-2-scrambleOffset) === undefined) return;
+    openScramblePopup(scrambleList.at(-2-scrambleOffset));
 });
 
 toggleUiEl.addEventListener("click", () => {
@@ -1754,23 +1983,20 @@ eachCaseEl.addEventListener("change", (e) => {
     }
 });
 
+function removeLast() {
+    if (scrambleList.at(-2-scrambleOffset) !== undefined) {
+        deselectPBL(previousCase.slice(0, previousCase.length - 1));
+        lastRemoved = previousCase.slice(0, previousCase.length - 1);
+        saveSelectedPBL();
+    }
+}
+
+removeLastEl.addEventListener("click", removeLast)
+
 karnEl.addEventListener("change", (e) => {
     usingKarn ^= 1; // switches between 0 and 1 with XOR
-    currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
-        usingKarn
-    ];
-    if (scrambleList.at(-2 - scrambleOffset) !== undefined) {
-        // we have a prev scram to display
-        previousScrambleEl.textContent =
-            "Previous scramble : " +
-            scrambleList.at(-2 - scrambleOffset)[usingKarn];
-    }
-});
-
-removeLastEl.addEventListener("click", () => {
-    if (previousCase != "") {
-        deselectPBL(previousCase.slice(0, previousCase.length - 1)); // remove barflip indicator
-    }
+    if (hasActiveScramble) currentScrambleEl.textContent = scrambleList.at(-1-scrambleOffset)[usingKarn];
+    displayPrevScram()
 });
 
 // Enable crosses

@@ -18,6 +18,7 @@
             </div>
             <div>PBL TRAINER</div>
             <div>
+                <button id="open-help">?</button>
                 <button id="uploaddata">&#8593;</button>
                 <button id="downloaddata">&#8595;</button>
             </div>
@@ -59,7 +60,30 @@
                         <button class="list-btn" id="dellist">Delete</button>
                         <button class="list-btn right" id="overwritelist">Overwrite</button>
                         <button class="list-btn" id="sellist">View</button>
-                        <button class="list-btn" id="trainlist">Train</button>
+                        <button class="list-btn" id="trainlist">Select</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup" id="help-popup">
+                <div class="popup-inner">
+                    <div class="list-bar">
+                        <div class="list-name">Help</div>
+                        <div class="cross">&#10005;</div>
+                    </div>
+                    <div class="help">
+                        <p><b>←:</b> previous scramble</p>
+                        <p><b>→:</b> next scramble</p>
+                        <p><b>backspace:</b> remove last case</p>
+                        <p><b>Ctrl + F:</b> focus on search box</p>
+                        <p><b>Ctrl + Z:</b> undo remove last</p>
+                        <p><b>Ctrl + Y:</b> redo remove last</p>
+                        <p><b>Ctrl + A:</b> select all</p>
+                        <p><b>Ctrl + Shift + A:</b> deselect all</p>
+                        <p><b>Ctrl + S:</b> select these</p>
+                        <p><b>Ctrl + Shift + S:</b> deselect these</p>
+                        <p><b>Alt + A:</b> show all</p>
+                        <p><b>Alt + S:</b> show selection</p>
                     </div>
                 </div>
             </div>
@@ -69,7 +93,7 @@
                     <input type="checkbox" id="allcases">
                     <span class="checkboxtext"><b>Go through each case once</b></span>
                 </div>
-                <div class="checkbox-wrapper"style="display: none">
+                <div class="checkbox-wrapper">
                     <input type="checkbox" id="karn">
                     <span class="checkboxtext"><b>Use karnotation</b></span>
                 </div>
@@ -78,31 +102,18 @@
                 class="filter-input"
                 id="filter"
                 maxlength="10"
-                placeholder="Filter cases"
+                placeholder="Filter cases (Ctrl+F)"
                 />
+                <p class="selection-text" id="selcount">Selected: 0</p>
                 <div class="selection-grid">
-                    <button class="selection-btn" id="sela">
-                        Select <b>ALL</b>
-                    </button>
-                    <button class="selection-btn" id="desela">
-                        Deselect <b>ALL</b>
-                    </button>
-                    <button class="selection-btn" id="selt">
-                        Select these
-                    </button>
-                    <button class="selection-btn" id="deselt">
-                        Deselect these
-                    </button>
-                    <button class="selection-btn" id="showselected">
-                        Show selected
-                    </button>
+                    <button class="selection-btn" id="sela">Select <b>ALL</b></button>
+                    <button class="selection-btn" id="desela">Deselect <b>ALL</b></button>
+                    <button class="selection-btn" id="selt">Select these</button>
+                    <button class="selection-btn" id="deselt">Deselect these</button>
+                    <button class="selection-btn" id="showselected">Show selected</button>
                     <button class="selection-btn" id="showall">Show ALL</button>
-                    <button class="selection-btn" id="openlists">
-                        Select list
-                    </button>
-                    <button class="selection-btn" id="newlist">
-                        Create list
-                    </button>
+                    <button class="selection-btn" id="openlists">Select list</button>
+                    <button class="selection-btn" id="newlist">Create list</button>
                 </div>
                 <div class="pbl-grid" id="results">
                     <!-- Cases -->
