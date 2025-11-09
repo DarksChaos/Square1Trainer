@@ -8,6 +8,9 @@
         />
         <title>PBL Trainer</title>
         <link rel="stylesheet" href="index.css" />
+        
+        <!-- for upload/download icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <script defer="defer" src="cube.js"></script>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     </head>
@@ -18,9 +21,12 @@
             </div>
             <div>PBL TRAINER</div>
             <div>
-                <button id="open-help">?</button>
-                <button id="uploaddata">&#8593;</button>
-                <button id="downloaddata">&#8595;</button>
+                <button id="open-help">
+                    <div class="hidden-mobile">?</div>
+                    <div class="visible-mobile">&equiv;</div>
+                </button>
+                <button id="uploaddata"><i class="fa fa-upload"></i></button>
+                <button id="downloaddata"><i class="fa fa-download"></i></button>
             </div>
             <input
                 type="file"
@@ -72,8 +78,18 @@
                         <div class="cross">&#10005;</div>
                     </div>
                     <div class="help">
-                        <p><b>←:</b> previous scramble</p>
-                        <p><b>→:</b> next scramble</p>
+                    <div class="visible-mobile help-checkboxes">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" class="karn">
+                            <span class="checkboxtext"><b>Use karnotation</b></span>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" class="weight">
+                            <span class="checkboxtext"><b>Use realistic weights</b></span>
+                        </div>
+                    </div>
+                        <p><b>← :</b> previous scramble</p>
+                        <p><b>→ :</b> next scramble</p>
                         <p><b>backspace:</b> remove last case</p>
                         <p><b>Ctrl + F:</b> focus on search box</p>
                         <p><b>Ctrl + Z:</b> undo remove last</p>
@@ -93,14 +109,17 @@
                     <input type="checkbox" id="allcases">
                     <span class="checkboxtext"><b>Go through each case once</b></span>
                 </div>
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="karn">
+
+                <!-- On mobile, these two are visible in the help menu instead -->
+                <div class="checkbox-wrapper hidden-mobile">
+                    <input type="checkbox" class="karn">
                     <span class="checkboxtext"><b>Use karnotation</b></span>
                 </div>
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="weight">
-                    <span class="checkboxtext"><b>Enable case weights</b></span>
+                <div class="checkbox-wrapper hidden-mobile">
+                    <input type="checkbox" class="weight">
+                    <span class="checkboxtext"><b>Use realistic weights</b></span>
                 </div>
+                
                 <input
                 type="text"
                 class="filter-input"

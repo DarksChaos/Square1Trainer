@@ -992,8 +992,8 @@ const pblListEl = document.getElementById("results");
 const filterInputEl = document.getElementById("filter");
 
 const eachCaseEl = document.getElementById("allcases");
-const karnEl = document.getElementById("karn");
-const weightEl = document.getElementById("weight");
+const karnEls = document.querySelectorAll(".karn")
+const weightEls = document.querySelectorAll(".weight")
 
 const removeLastEl = document.getElementById("unselprev");
 
@@ -1064,6 +1064,8 @@ function getLocalStorageData() {
             selectedCount++;
             updateSelCount();
         }
+        showSelection();
+
         if (eachCaseEl.checked) eachCase = 1;
         else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
         enableGoEachCase();
@@ -1294,7 +1296,7 @@ function generateScramble(regen=false) {
         currentScrambleEl.textContent = final[usingKarn];
         scrambleList.push(final);
     }
-    if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram
+    if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob)
     hasActiveScramble = true;
 }
 
@@ -1740,7 +1742,6 @@ newListEl.addEventListener("click", () => {
 overwriteListEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (highlightedList == null) {
-        alert("Please click on a list");
         return;
     }
     else if (Object.keys(defaultLists).includes(highlightedList)) {
@@ -1748,7 +1749,7 @@ overwriteListEl.addEventListener("click", () => {
         return;
     }
     if (selectedPBL.length == 0) {
-        alert("Please select PBLs to create a list!");
+        alert("Please select PBLs to overwrite the list!");
         return;
     }
 
@@ -1777,6 +1778,7 @@ selectListEl.addEventListener("click", () => {
         return;
     }
     selectList(highlightedList, false);
+    showSelection();
     closePopup();
 });
 
@@ -1805,6 +1807,7 @@ trainListEl.addEventListener("click", () => {
         return;
     }
     selectList(highlightedList, true);
+    showSelection();
     closePopup();
 });
 
@@ -2014,16 +2017,16 @@ function removeLast() {
 
 removeLastEl.addEventListener("click", removeLast)
 
-karnEl.addEventListener("change", (e) => {
+karnEls.forEach(btn => btn.addEventListener("change", (e) => {
     usingKarn ^= 1; // switches between 0 and 1 with XOR
     if (hasActiveScramble) currentScrambleEl.textContent = scrambleList.at(-1-scrambleOffset)[usingKarn];
     displayPrevScram()
-});
+}));
 
-weightEl.addEventListener("change", (e) => {
+weightEls.forEach(btn => btn.addEventListener("change", (e) => {
     usingWeight = !usingWeight;
     enableGoEachCase()
-});
+}));
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {
@@ -2036,7 +2039,7 @@ function updateColors() {
     const hours = now.getHours() + now.getMinutes() / 60;
     
     // Cycle hue 0–360 throughout the day
-    const hue = (hours / 12) * 360;
+    const hue = (hours / 24) * 360;
 
     document.documentElement.style.setProperty(
         "--border-col",

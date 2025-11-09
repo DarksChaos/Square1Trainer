@@ -26,19 +26,18 @@ body {
     touch-action: pan-y !important;
 }
 
-/* Navbar sombre */
+/* Navbar */
 .navbar {
     background-color: #1f1f1f;
     color: #ffffff;
     padding: 0.5rem;
-    text-align: top;
     font-size: 1.2rem;
     border-bottom: 2px solid #333;
     display: flex;
     justify-content: space-between;
 }
 
-/* Conteneur principal */
+/* Main container */
 .main {
     display: flex;
     height: calc(100vh - 60px);
@@ -63,7 +62,6 @@ input[type="checkbox"] {
     display: inline;
 }
 
-/* Colonne gauche */
 .sidebar {
     width: 23%;
     border-right: 2px solid #333;
@@ -75,7 +73,6 @@ input[type="checkbox"] {
     flex-direction: column;
 }
 
-/* Input sombre */
 .filter-input {
     width: 100%;
     padding: 0.5rem;
@@ -86,7 +83,6 @@ input[type="checkbox"] {
     border-radius: 4px;
 }
 
-/* Grille de cases */
 .pbl-grid {
     display: grid;
     flex: 1;
@@ -96,7 +92,7 @@ input[type="checkbox"] {
 
     max-height: calc(
         100vh - 200px
-    ); /* Ajuste cette valeur selon l’espace que tu veux */
+    );
     overflow-y: auto;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE 10+ */
@@ -141,7 +137,6 @@ input[type="checkbox"] {
     background-color: var(--button-col);
 }
 
-/* Colonne droite */
 .content {
     flex: 1;
     padding: 1rem;
@@ -172,8 +167,8 @@ input[type="checkbox"] {
     font-size: 1rem;
     background-color: #1a1a1a;
     color: #e0e0e0;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.9rem;
+    margin-bottom: 0.4rem;
     width: 80%;
     align-self: center;
 }
@@ -392,7 +387,7 @@ button:hover {
     font-size: 18px;
     border-width: 2px;
     margin: 5px;
-    width: 100px;
+    min-width: 80px;
 }
 
 .list-btn.right {
@@ -424,28 +419,48 @@ button:hover {
     align-items: center;
 }
 
-.help p {
-    margin-left: 50px;
-    font-size: 1.5v*;
+.help {
+    overflow: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE & Edge (legacy) */
 }
 
-@media screen and (max-width: 800px) {
+.help::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge (new) */
+}
+
+.help p, .help > div {
+    margin-left: 50px;
+    font-size: 2vh;
+}
+
+.help .help-checkboxes {
+    width: fit-content;
+    padding-bottom: 13px;
+    border-bottom: 3px solid #555555;
+}
+
+/* Switch to full width display*/
+.visible-mobile {
+    display: none;
+}
+
+@media screen and (max-width: 900px) {
     .popup-inner {
         width: 100%;
         height: 100%;
     }
-}
 
-@media screen and (max-width: 900px) {
     .sidebar {
         width: 35%;
     }
 
     .hidden-mobile {
-        visibility: hidden;
-        width: 0;
-        margin: 0;
-        padding: 0;
+        display: none;
+    }
+
+    .visible-mobile {
+        display: block;
     }
 
     .full-width-mobile {
