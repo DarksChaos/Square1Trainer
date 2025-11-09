@@ -431,13 +431,11 @@ button:hover {
 
 .help p, .help > div {
     margin-left: 50px;
-    font-size: 2vh;
 }
+
 
 .help .help-checkboxes {
     width: fit-content;
-    padding-bottom: 13px;
-    border-bottom: 3px solid #555555;
 }
 
 /* Switch to full width display*/
