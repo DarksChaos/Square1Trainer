@@ -643,11 +643,9 @@ function karnify(scramble) {
             newMoves.push(move.replace(",", ""));
         }
     }
-    // second level karnify
     firstKarn = newMoves.join(" ");
+    // second level karnify
     secondKarn = replaceWithDict(firstKarn, HIGHKARN);
-    
-    console.log(newMoves, firstKarn, "|", secondKarn);
     return secondKarn;
 }
 
@@ -1495,16 +1493,17 @@ function selectList(listName, setSelection) {
     if (setSelection) {
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
-                // showPBL(pbl);
+                showPBL(pbl);
                 selectPBL(pbl);
             } else {
-                // hidePBL(pbl);
+                hidePBL(pbl);
                 deselectPBL(pbl);
             }
         }
 
         saveSelectedPBL();
         selCountEl.textContent = "Selected list: " + listName;
+        console.log("HEHHEHHE")
     } else {
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
@@ -1825,7 +1824,6 @@ trainListEl.addEventListener("click", () => {
         return;
     }
     selectList(highlightedList, true);
-    showSelection();
     closePopup();
 });
 
