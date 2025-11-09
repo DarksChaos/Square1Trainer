@@ -577,7 +577,7 @@ const KARN = {
     "1,1": "M",
     "-5,1": "u2'",
     "-1,5": "d2",
-    
+
     " 60 ": " U2 ",
     " 63 ": " U2D ",
     " 6-3 ": " U2D' ",
@@ -1140,6 +1140,13 @@ function addListItemEvent(item) {
 }
 
 async function init() {
+    // uncheck everything
+    for (x in [0, 1]) {
+        karnEls[x].checked = false
+        weightEls[x].checked = false
+        eachCaseEls[x].checked = false
+    }
+
     // Compute possible pbls
     for (let t of evenPLL) {
         for (let b of evenPLL) possiblePBL.push([t, b]);
@@ -1503,7 +1510,7 @@ function selectList(listName, setSelection) {
 
         saveSelectedPBL();
         selCountEl.textContent = "Selected list: " + listName;
-        console.log("HEHHEHHE")
+        console.log("HEHHEHHE");
     } else {
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
@@ -2015,13 +2022,6 @@ fileEl.addEventListener("change", (e) => {
     reader.readAsText(file);
 });
 
-eachCaseEls.forEach(el => el.addEventListener("change", (e) => {
-    eachCase = el.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
-    if (eachCase == 1) {
-        enableGoEachCase();
-    }
-}));
-
 function removeLast() {
     if (scrambleList.at(-2 - scrambleOffset) !== undefined) {
         deselectPBL(previousCase.slice(0, previousCase.length - 1));
@@ -2032,23 +2032,60 @@ function removeLast() {
 
 removeLastEl.addEventListener("click", removeLast);
 
+function onCheckEachCase(el) {
+    eachCase = el.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+    enableGoEachCase();
+}
+
+function onCheckKarn() {
+    usingKarn ^= 1; // switches between 0 and 1 with XOR
+    if (hasActiveScramble)
+        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
+            usingKarn
+        ];
+    displayPrevScram();
+}
+
+function onCheckWeights() {
+    usingWeight = !usingWeight;
+    enableGoEachCase();
+}
+
+eachCaseEls.forEach((el) =>
+    el.addEventListener("change", (e) => {
+        onCheckEachCase(el);
+    })
+);
+
 karnEls.forEach((btn) =>
     btn.addEventListener("change", (e) => {
-        usingKarn ^= 1; // switches between 0 and 1 with XOR
-        if (hasActiveScramble)
-            currentScrambleEl.textContent = scrambleList.at(
-                -1 - scrambleOffset
-            )[usingKarn];
-        displayPrevScram();
+        onCheckKarn();
     })
 );
 
 weightEls.forEach((btn) =>
     btn.addEventListener("change", (e) => {
-        usingWeight = !usingWeight;
-        enableGoEachCase();
+        onCheckWeights();
     })
 );
+
+// we have to take [1] because the ones that are visible on pc
+// (on the side bar) are further down in the html file
+document.addEventListener("keydown", (e) => {
+    if (e.key == "e") {
+        let el = eachCaseEls[1];
+        el.checked = !el.checked;
+        onCheckEachCase(el);
+    } else if (e.key == "k") {
+        let el = karnEls[1];
+        el.checked = !el.checked;
+        onCheckKarn();
+    } else if (e.key == "r") {
+        let el = weightEls[1];
+        el.checked = !el.checked;
+        onCheckWeights();
+    }
+});
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {
