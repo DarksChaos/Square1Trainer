@@ -1061,17 +1061,37 @@ function listLength(list) {
     return l;
 }
 
-function getLocalStorageData() {
+function getLocalStorageData(fillSidebar=false) {
     // selectedPBL
     const storageSelectedPBL = localStorage.getItem("selectedPBL");
     if (storageSelectedPBL !== null) {
+        if(fillSidebar) {
+            // Add buttons to the page for each pbl choice
+            // Stored to a temp variable so we edit the 
+            // page only once, and avoid a lag spike
+            
+            // Do it here, just before shoing/hiding pbls, 
+            // so that they don't all appear then disappear
+            // when loading the page with already selected cases
+            possiblePBL.splice(0, 1);
+            let buttons = "";
+            for ([t, b] of possiblePBL) {
+                buttons += `
+                <div class="case" id="${t}/${b}">${t} / ${b}</div>`;
+            }
+            pblListEl.innerHTML += buttons;
+        }
+        
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
             selectPBL(k);
             selectedCount++;
             updateSelCount();
         }
-        showSelection();
+                
+        if (selectedPBL.length > 0) {
+            showSelection();
+        }
 
         if (eachCaseEls[0].checked || eachCaseEls[1].checked) eachCase = 1;
         else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
@@ -1157,16 +1177,6 @@ async function init() {
         }
     }
 
-    // Add buttons to the page for each pbl choice
-    // Stored to a temp variable so we edit the page only once, and prevent a lag spike
-    possiblePBL.splice(0, 1);
-    let buttons = "";
-    for ([t, b] of possiblePBL) {
-        buttons += `
-        <div class="case" id="${t}/${b}">${t} / ${b}</div>`;
-    }
-    pblListEl.innerHTML += buttons;
-
     // Load generators
     await fetch("./generators.json")
         .then((response) => {
@@ -1179,13 +1189,13 @@ async function init() {
             generators = data;
             // Load local storage data only after generators
             // have been loaded, so we can generate a scramble
-            getLocalStorageData();
+            getLocalStorageData(true);
         })
         .catch((error) => console.error("Failed to fetch data:", error));
 
     lastRemoved = "";
 
-    // Add event listener to each button, so we can click it
+    // Add event listener to all case buttons, so we can click them
     document.querySelectorAll(".case").forEach((caseEl) => {
         caseEl.addEventListener("click", () => {
             const isChecked = caseEl.classList.contains("checked");
