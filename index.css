@@ -431,8 +431,8 @@ button:hover {
 
 .help p, .help > div {
     margin-left: 50px;
+    font-size: 15px;
 }
-
 
 .help .help-checkboxes {
     width: fit-content;
