@@ -1869,6 +1869,10 @@ window.addEventListener("keydown", (e) => {
                 case "s":
                     e.preventDefault();
                     deselectThese();
+                case "z": // made this work for ctrl + y as well bc why not
+                    e.preventDefault();
+                    deselectPBL(lastRemoved);
+                    saveSelectedPBL();
                     return;
             }
         } else {
