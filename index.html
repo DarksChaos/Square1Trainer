@@ -8,11 +8,14 @@
         />
         <title>PBL Trainer</title>
         <link rel="stylesheet" href="index.css" />
-        
+
         <!-- for upload/download icons -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        />
         <script defer="defer" src="cube.js"></script>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>
         <div class="navbar">
@@ -26,7 +29,9 @@
                     <div class="visible-mobile">&equiv;</div>
                 </button>
                 <button id="uploaddata"><i class="fa fa-upload"></i></button>
-                <button id="downloaddata"><i class="fa fa-download"></i></button>
+                <button id="downloaddata">
+                    <i class="fa fa-download"></i>
+                </button>
             </div>
             <input
                 type="file"
@@ -64,8 +69,12 @@
                     </div>
                     <div class="list-buttons">
                         <button class="list-btn" id="dellist">Delete</button>
-                        <button class="list-btn right" id="overwritelist">Overwrite</button>
-                        <button class="list-btn" id="sellist">View</button>
+                        <button class="list-btn" id="overwritelist">
+                            Overwrite
+                        </button>
+                        <button class="list-btn right" id="sellist">
+                            View
+                        </button>
                         <button class="list-btn" id="trainlist">Select</button>
                     </div>
                 </div>
@@ -74,69 +83,99 @@
             <div class="popup" id="help-popup">
                 <div class="popup-inner">
                     <div class="list-bar">
-                        <div class="list-name">Help</div>
+                        <div class="list-name">
+                            <div class="hidden-mobile">Help</div>
+                            <div class="visible-mobile">Settings</div>
+                        </div>
                         <div class="cross">&#10005;</div>
                     </div>
                     <div class="help">
-                    <div class="visible-mobile help-checkboxes">
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" class="karn">
-                            <span class="checkboxtext"><b>Use karnotation</b></span>
+                        <div class="visible-mobile help-checkboxes">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" class="allcases" />
+                                <span class="checkboxtext"
+                                    ><b>Go through each case once</b></span
+                                >
+                            </div>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" class="karn" />
+                                <span class="checkboxtext"
+                                    ><b>Use karnotation</b></span
+                                >
+                            </div>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" class="weight" />
+                                <span class="checkboxtext"
+                                    ><b>Use realistic weights</b></span
+                                >
+                            </div>
                         </div>
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" class="weight">
-                            <span class="checkboxtext"><b>Use realistic weights</b></span>
+                        <div class="hidden-mobile">
+                            <p><b>← :</b> previous scramble</p>
+                            <p><b>→ :</b> next scramble</p>
+                            <p><b>backspace:</b> remove last case</p>
+                            <p><b>Ctrl + F:</b> focus on search box</p>
+                            <p><b>Ctrl + Z:</b> undo remove last</p>
+                            <p><b>Ctrl + Y:</b> redo remove last</p>
+                            <p><b>Ctrl + A:</b> select all</p>
+                            <p><b>Ctrl + Shift + A:</b> deselect all</p>
+                            <p><b>Ctrl + S:</b> select these</p>
+                            <p><b>Ctrl + Shift + S:</b> deselect these</p>
+                            <p><b>Alt + A:</b> show all</p>
+                            <p><b>Alt + S:</b> show selection</p>
                         </div>
-                    </div>
-                        <p><b>← :</b> previous scramble</p>
-                        <p><b>→ :</b> next scramble</p>
-                        <p><b>backspace:</b> remove last case</p>
-                        <p><b>Ctrl + F:</b> focus on search box</p>
-                        <p><b>Ctrl + Z:</b> undo remove last</p>
-                        <p><b>Ctrl + Y:</b> redo remove last</p>
-                        <p><b>Ctrl + A:</b> select all</p>
-                        <p><b>Ctrl + Shift + A:</b> deselect all</p>
-                        <p><b>Ctrl + S:</b> select these</p>
-                        <p><b>Ctrl + Shift + S:</b> deselect these</p>
-                        <p><b>Alt + A:</b> show all</p>
-                        <p><b>Alt + S:</b> show selection</p>
                     </div>
                 </div>
             </div>
 
             <div class="sidebar full-width-mobile" id="sidebar">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="allcases">
+                <!-- On mobile, these are visible in the help menu instead -->
+                <div class="checkbox-wrapper hidden-mobile">
+                    <input type="checkbox" class="allcases" />
                     <span class="checkboxtext"><b>Go through each case once</b></span>
                 </div>
-
-                <!-- On mobile, these two are visible in the help menu instead -->
                 <div class="checkbox-wrapper hidden-mobile">
-                    <input type="checkbox" class="karn">
+                    <input type="checkbox" class="karn" />
                     <span class="checkboxtext"><b>Use karnotation</b></span>
                 </div>
                 <div class="checkbox-wrapper hidden-mobile">
-                    <input type="checkbox" class="weight">
-                    <span class="checkboxtext"><b>Use realistic weights</b></span>
+                    <input type="checkbox" class="weight" />
+                    <span class="checkboxtext"
+                        ><b>Use realistic weights</b></span
+                    >
                 </div>
-                
+
                 <input
-                type="text"
-                class="filter-input"
-                id="filter"
-                maxlength="10"
-                placeholder="Filter cases (Ctrl+F)"
+                    type="text"
+                    class="filter-input"
+                    id="filter"
+                    maxlength="10"
+                    placeholder="Filter cases (Ctrl+F)"
                 />
                 <p class="selection-text" id="selcount">Selected: 0</p>
                 <div class="selection-grid">
-                    <button class="selection-btn" id="sela">Select <b>ALL</b></button>
-                    <button class="selection-btn" id="desela">Deselect <b>ALL</b></button>
-                    <button class="selection-btn" id="selt">Select these</button>
-                    <button class="selection-btn" id="deselt">Deselect these</button>
-                    <button class="selection-btn" id="showselected">Show selected</button>
+                    <button class="selection-btn" id="sela">
+                        Select <b>ALL</b>
+                    </button>
+                    <button class="selection-btn" id="desela">
+                        Deselect <b>ALL</b>
+                    </button>
+                    <button class="selection-btn" id="selt">
+                        Select these
+                    </button>
+                    <button class="selection-btn" id="deselt">
+                        Deselect these
+                    </button>
+                    <button class="selection-btn" id="showselected">
+                        Show selected
+                    </button>
                     <button class="selection-btn" id="showall">Show ALL</button>
-                    <button class="selection-btn" id="openlists">Select list</button>
-                    <button class="selection-btn" id="newlist">Create list</button>
+                    <button class="selection-btn" id="openlists">
+                        Select list
+                    </button>
+                    <button class="selection-btn" id="newlist">
+                        Create list
+                    </button>
                 </div>
                 <div class="pbl-grid" id="results">
                     <!-- Cases -->
@@ -150,7 +189,9 @@
                     </div>
                     <div style="margin-top: 10px">
                         <button class="bar-btn" id="prev"><- Previous</button>
-                        <button class="bar-btn" id="unselprev">Remove last</button>
+                        <button class="bar-btn" id="unselprev">
+                            Remove last
+                        </button>
                         <button class="bar-btn" id="next">Next -></button>
                     </div>
                 </div>

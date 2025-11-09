@@ -998,7 +998,7 @@ const contentEl = document.getElementById("content");
 const pblListEl = document.getElementById("results");
 const filterInputEl = document.getElementById("filter");
 
-const eachCaseEl = document.getElementById("allcases");
+const eachCaseEls = document.querySelectorAll(".allcases");
 const karnEls = document.querySelectorAll(".karn");
 const weightEls = document.querySelectorAll(".weight");
 
@@ -1073,7 +1073,7 @@ function getLocalStorageData() {
         }
         showSelection();
 
-        if (eachCaseEl.checked) eachCase = 1;
+        if (eachCaseEls[0].checked || eachCaseEls[1].checked) eachCase = 1;
         else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
         enableGoEachCase();
         generateScramble();
@@ -2015,12 +2015,12 @@ fileEl.addEventListener("change", (e) => {
     reader.readAsText(file);
 });
 
-eachCaseEl.addEventListener("change", (e) => {
-    eachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+eachCaseEls.forEach(el => el.addEventListener("change", (e) => {
+    eachCase = el.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     if (eachCase == 1) {
         enableGoEachCase();
     }
-});
+}));
 
 function removeLast() {
     if (scrambleList.at(-2 - scrambleOffset) !== undefined) {

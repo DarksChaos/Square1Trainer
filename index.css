@@ -443,6 +443,12 @@ button:hover {
     display: none;
 }
 
+@media screen and (max-width: 1167px) {
+    .sidebar {
+        width: 30%;
+    }
+}
+
 @media screen and (max-width: 900px) {
     .popup-inner {
         width: 100%;
