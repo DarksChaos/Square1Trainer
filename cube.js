@@ -978,7 +978,7 @@ let intervalId = null;
 let isRunning = false;
 let readyToStart = false;
 let otherKeyPressed = 0;
-const startDelay = 0;
+const startDelay = 200;
 
 let currentCase = "";
 let previousCase = "";
@@ -1253,6 +1253,7 @@ function passesFilter(pbl, filter) {
 }
 
 function generateScramble(regen = false) {
+    let eachCaseAlert = false;
     if (scrambleOffset > 0 && !regen) {
         // user probably timed one of the prev scrams
         displayPrevScram();
@@ -1271,6 +1272,7 @@ function generateScramble(regen = false) {
     }
     if (remainingPBL.length === 0) {
         // start a new cycle
+        if (eachCase === 1) eachCaseAlert = true;
         enableGoEachCase();
     }
     let caseNum = randInt(0, remainingPBL.length - 1);
@@ -1327,6 +1329,8 @@ function generateScramble(regen = false) {
     }
     if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob)
     hasActiveScramble = true;
+    if (eachCaseAlert)
+        setTimeout(function() {alert("You have gone through each case!");}, 50);
 }
 
 function displayPrevScram() {
