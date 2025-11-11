@@ -91,7 +91,7 @@ input[type="checkbox"] {
     gap: 0.5rem;
 
     max-height: calc(
-        100vh - 200px
+        100dvh - 200px
     );
     overflow-y: auto;
     scrollbar-width: none; /* Firefox */
