@@ -1889,8 +1889,10 @@ window.addEventListener("keydown", (e) => {
             // ctrl +
             switch (e.key.toLowerCase()) {
                 case "a":
-                    e.preventDefault();
-                    selectAll();
+                    if (!inInput) {
+                        e.preventDefault();
+                        selectAll();
+                    }
                     return;
                 case "s":
                     e.preventDefault();
