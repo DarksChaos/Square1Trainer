@@ -1931,18 +1931,36 @@ window.addEventListener("keydown", (e) => {
 
     // backspace (remove last); left arrow (prev scram); right arrow (next scram)
     if (!inInput) {
-        switch (e.key) {
-            case "Backspace":
+        let el;
+        switch (e.key.toLowerCase()) {
+            case "backspace":
                 e.preventDefault();
                 removeLast();
                 return;
-            case "ArrowLeft":
+            case "arrowleft":
                 e.preventDefault();
                 prevScram();
                 return;
-            case "ArrowRight":
+            case "arrowright":
                 e.preventDefault();
                 nextScram();
+                return;
+            // we have to take [1] because the ones that are visible on pc
+            // (on the side bar) are further down in the html file
+            case "e":
+                el = eachCaseEls[1];
+                el.checked = !el.checked;
+                onCheckEachCase(el);
+                return;
+            case "k":
+                el = karnEls[1];
+                el.checked = !el.checked;
+                onCheckKarn();
+                return;
+            case "r":
+                el = weightEls[1];
+                el.checked = !el.checked;
+                onCheckWeights();
                 return;
         }
     }
@@ -2084,24 +2102,6 @@ weightEls.forEach((btn) =>
         onCheckWeights();
     })
 );
-
-// we have to take [1] because the ones that are visible on pc
-// (on the side bar) are further down in the html file
-document.addEventListener("keydown", (e) => {
-    if (e.key == "e") {
-        let el = eachCaseEls[1];
-        el.checked = !el.checked;
-        onCheckEachCase(el);
-    } else if (e.key == "k") {
-        let el = karnEls[1];
-        el.checked = !el.checked;
-        onCheckKarn();
-    } else if (e.key == "r") {
-        let el = weightEls[1];
-        el.checked = !el.checked;
-        onCheckWeights();
-    }
-});
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {
