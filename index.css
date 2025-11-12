@@ -438,6 +438,10 @@ button:hover {
     width: fit-content;
 }
 
+.visible-both {
+    line-height: 1.5;
+}
+
 /* Switch to full width display*/
 .visible-mobile {
     display: none;
@@ -467,7 +471,6 @@ button:hover {
         margin-left: 0px;
         margin-right: 20px;
         width: fit-content;
-        line-height: 1.5;
     }
 
     .visible-mobile {
