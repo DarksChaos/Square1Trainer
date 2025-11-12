@@ -956,7 +956,7 @@ let cubeCenter, cubeScale;
 let lastRemoved;
 let selectedCount = 0;
 
-let weight = {
+const weight = {
     "-": 1,
     E: 2,
     H: 1,
@@ -970,6 +970,39 @@ let weight = {
     X: 1,
     Z: 2,
 };
+
+const unextendedPLLs = {
+    "-": ["-"],
+    "A": ["Al", "Ar"],
+    "E": ["E"],
+    "F": ["F"],
+    "G": ["Gal", "Gol", "Gor", "Gar"],
+    "H": ["H"],
+    "J": ["Ja, Jm"],
+    "N": ["Na", "Nm"],
+    "R": ["Rl", "Rr"],
+    "T": ["T"],
+    "U": ["Ul", "Ur"],
+    "V": ["V"],
+    "Y": ["Y"],
+    "Z": ["Z"],
+
+    "Adj": ["Adj"],
+    "Opp": ["Opp"],
+    "pJ": ["pJ"],
+    "pN": ["pN"],
+    "B": ["Ba", "Bm"],
+    "C": ["Cl", "Cr"],
+    "D": ["Da", "Dm"],
+    "K": ["Ka", "Km"],
+    "M": ["M"],
+    "O": ["Ol", "Or"],
+    "P": ["Pl", "Pr"],
+    "Q": ["Q"],
+    "S": ["Sa", "Sm"],
+    "W": ["W"],
+    "X": ["X"]
+}
 
 let pressStartTime = null;
 let holdTimeout = null;
@@ -1609,6 +1642,12 @@ function getWeight(pbl) {
     return uWeight * dWeight;
 }
 
+function getCaseCount(pbl) {
+    // pbl: "Al/Ar"
+    pbl = pbl.split("/");
+    return unextendedPLLs[pbl[0]].length * unextendedPLLs[pbl[1]].length
+}
+
 function enableGoEachCase() {
     remainingPBL = selectedPBL.flatMap((el) =>
         Array(eachCase * (usingWeight ? getWeight(el) : 1)).fill(el)
@@ -1618,8 +1657,27 @@ function enableGoEachCase() {
 init();
 
 filterInputEl.addEventListener("input", () => {
-    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z/\- ]+/g, "");
+    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\- ]+/g, "");
     setHighlightedList(null);
+    if (filterInputEl.value.slice(0,9).toLowerCase() === "frequency") {
+        if (!(filterInputEl.value.slice(9).trim() in ["1", "2", "4", "8", "16", "32", "64"])) {
+            // no pbl is the given frequency
+            for (pbl of possiblePBL) {
+                const n = pblname(pbl);
+                hidePBL(n);
+            }
+        }
+        else {
+            let freq = parseInt(filterInputEl.value.slice(9).trim(), 10);
+            for (pbl of possiblePBL) {
+                if (getWeight(pbl) * getCaseCount(pbl) === freq) {
+                    showPBL(n);
+                } else {
+                    hidePBL(n);
+                }
+            }
+        }
+    }
     for (pbl of possiblePBL) {
         const n = pblname(pbl);
         if (passesFilter(pbl, filterInputEl.value)) {
