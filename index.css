@@ -463,6 +463,13 @@ button:hover {
         display: none;
     }
 
+    .help .visible-both {
+        margin-left: 0px;
+        margin-right: 20px;
+        width: fit-content;
+        line-height: 1.5;
+    }
+
     .visible-mobile {
         display: block;
     }
