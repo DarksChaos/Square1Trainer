@@ -1103,35 +1103,27 @@ function pblname(pbl) {
     return `${pbl[0]}/${pbl[1]}`;
 }
 
-function listLength(list) {
-    let l = 0;
-    for (let i of Object.values(list)) {
-        l += i;
-    }
-    return l;
-}
-
 function getLocalStorageData(fillSidebar = false) {
     // selectedPBL
     const storageSelectedPBL = localStorage.getItem("selectedPBL");
 
-    if (storageSelectedPBL !== null) {
-        if (fillSidebar) {
-            // Add buttons to the page for each pbl choice
-            // Stored to a temp variable so we edit the
-            // page only once, and avoid a lag spike
+    if (fillSidebar) {
+        // Add buttons to the page for each pbl choice
+        // Stored to a temp variable so we edit the
+        // page only once, and avoid a lag spike
 
-            // Do it here, just before shoing/hiding pbls,
-            // so that they don't all appear then disappear
-            // when loading the page with already selected cases
-            possiblePBL.splice(0, 1);
-            let buttons = "";
-            for ([t, b] of possiblePBL) {
-                buttons += `
-                <div class="case" id="${t}/${b}">${t} / ${b}</div>`;
-            }
-            pblListEl.innerHTML += buttons;
+        // Do it here, just before shoing/hiding pbls,
+        // so that they don't all appear then disappear
+        // when loading the page with already selected cases
+        possiblePBL.splice(0, 1);
+        let buttons = "";
+        for ([t, b] of possiblePBL) {
+            buttons += `
+            <div class="case" id="${t}/${b}">${t} / ${b}</div>`;
         }
+        pblListEl.innerHTML += buttons;
+    }
+    if (storageSelectedPBL !== null) {
 
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
@@ -1167,6 +1159,21 @@ function getLocalStorageData(fillSidebar = false) {
     const storageUserLists = localStorage.getItem("userLists");
     if (storageUserLists !== null) {
         userLists = JSON.parse(storageUserLists);
+
+        // LEGACY: convert list to new array format
+        for(list of Object.keys(userLists)) {
+            if(!Array.isArray(userLists[list])) {
+                console.log("Non array")
+                formattedList = []
+                for(i of possiblePBL) {
+                    if(userLists[list][pblname(i)] == 1) {
+                        formattedList.push(pblname(i))
+                    }
+                }
+                userLists[list] = formattedList.copyWithin()
+            }
+        }
+
         addUserLists();
     }
 }
@@ -1386,7 +1393,9 @@ function generateScramble(regen = false) {
     if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob)
     hasActiveScramble = true;
     if (eachCaseAlert)
-        setTimeout(function() {alert("You have gone through each case!");}, 50);
+        setTimeout(function () {
+            alert("You have gone through each case!");
+        }, 50);
 }
 
 function displayPrevScram() {
@@ -1529,9 +1538,9 @@ function addUserLists() {
     let content = "";
     for (k of Object.keys(userLists)) {
         content += `
-        <div id="${k}" class=\"list-item\">${k} (${listLength(
-            userLists[k]
-        )})</div>`;
+        <div id="${k}" class=\"list-item\">${k} (${
+            userLists[k].length
+        })</div>`;
     }
     userListsEl.innerHTML = content;
     for (let item of document.querySelectorAll("#userlists>.list-item")) {
@@ -1544,9 +1553,9 @@ function addDefaultLists() {
     let content = "";
     for (k of Object.keys(defaultLists)) {
         content += `
-        <div id="${k}" class=\"list-item\">${k} (${listLength(
-            defaultLists[k]
-        )})</div>`;
+        <div id="${k}" class=\"list-item\">${k} (${
+            defaultLists[k].length
+        })</div>`;
     }
     defaultListsEl.innerHTML = content;
     for (let item of document.querySelectorAll("#defaultlists>.list-item")) {
@@ -1561,34 +1570,38 @@ function selectList(listName, setSelection) {
         showAll();
         return;
     }
+
     let list;
     if (Object.keys(defaultLists).includes(listName)) {
         list = defaultLists[listName];
     } else {
         list = userLists[listName];
     }
-    if (setSelection) {
+
+    if (Array.isArray(list)) {
+        for (pbl of possiblePBL) {
+            hidePBL(pblname(pbl));
+        }
+        for (pbl of list) {
+            showPBL(pbl);
+        }
+    } else {
+        // Legacy handling
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
                 showPBL(pbl);
-                selectPBL(pbl);
             } else {
                 hidePBL(pbl);
-                deselectPBL(pbl);
             }
         }
+    }
 
+    if (setSelection) {
+        deselectAll()
+        selectThese();
         saveSelectedPBL();
         selCountEl.textContent = "Selected list: " + listName;
-        console.log("HEHHEHHE");
     } else {
-        for (let [pbl, inlist] of Object.entries(list)) {
-            if (inlist) {
-                showPBL(pbl);
-            } else {
-                hidePBL(pbl);
-            }
-        }
         selCountEl.textContent = "Viewing list: " + listName;
     }
     saveUserLists();
@@ -1667,7 +1680,7 @@ function getWeight(pbl) {
 
 function getCaseCount(pbl) {
     // pbl: ["Al", "Ar"]
-    return PLLextndlen[pbl[0]] * PLLextndlen[pbl[1]]
+    return PLLextndlen[pbl[0]] * PLLextndlen[pbl[1]];
 }
 
 function enableGoEachCase() {
@@ -1681,15 +1694,18 @@ init();
 filterInputEl.addEventListener("input", () => {
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\- ]+/g, "");
     setHighlightedList(null);
-    if (filterInputEl.value.slice(0,4).toLowerCase() === "freq") {
-        if (!["1", "2", "4", "8", "16", "32", "64", "128", "256"].includes(filterInputEl.value.slice(4).trim())) {
+    if (filterInputEl.value.slice(0, 4).toLowerCase() === "freq") {
+        if (
+            !["1", "2", "4", "8", "16", "32", "64", "128", "256"].includes(
+                filterInputEl.value.slice(4).trim()
+            )
+        ) {
             // no pbl is the given frequency
             for (pbl of possiblePBL) {
                 const n = pblname(pbl);
                 hidePBL(n);
             }
-        }
-        else {
+        } else {
             let freq = parseInt(filterInputEl.value.slice(4).trim(), 10);
             for (pbl of possiblePBL) {
                 const n = pblname(pbl);
@@ -1700,8 +1716,7 @@ filterInputEl.addEventListener("input", () => {
                 }
             }
         }
-    }
-    else {
+    } else {
         for (pbl of possiblePBL) {
             const n = pblname(pbl);
             if (passesFilter(pbl, filterInputEl.value)) {
@@ -1848,16 +1863,9 @@ newListEl.addEventListener("click", () => {
         alert("You can't give this name to a list (id taken)");
         return;
     }
-    let newList = {};
-    for (pbl of possiblePBL) {
-        const n = pblname(pbl);
-        if (selectedPBL.includes(n)) {
-            newList[n] = 1;
-        } else {
-            newList[n] = 0;
-        }
-        userLists[newListName] = newList;
-    }
+    // New way of creating a list
+    let newList = selectedPBL.copyWithin()
+    userLists[newListName] = newList;
     addUserLists();
     setHighlightedList(newListName);
 });
