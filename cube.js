@@ -577,14 +577,6 @@ const KARN = {
     "1,1": "M",
     "-5,1": "u2'",
     "-1,5": "d2",
-
-    " 60 ": " U2 ",
-    " 63 ": " U2D ",
-    " 6-3 ": " U2D' ",
-    " 66 ": " U2D2 ",
-    " 06 ": " D2 ",
-    " 36 ": " UD2",
-    " -36 ": " U'D2",
 };
 
 const HIGHKARN = {
@@ -623,6 +615,14 @@ const HIGHKARN = {
     " F' F ": " F2' ",
     " f f' ": " f2 ",
     " f' f ": " f2' ",
+
+    " 60 ": " U2 ",
+    " 63 ": " U2D ",
+    " 6-3 ": " U2D' ",
+    " 66 ": " U2D2 ",
+    " 06 ": " D2 ",
+    " 36 ": " UD2 ",
+    " -36 ": " U'D2 ",
 
     " U U ": " UU ",
     " U' U' ": " UU' ",
@@ -956,7 +956,7 @@ let cubeCenter, cubeScale;
 let lastRemoved;
 let selectedCount = 0;
 
-let weight = {
+const weight = {
     "-": 1,
     E: 2,
     H: 1,
@@ -971,6 +971,56 @@ let weight = {
     Z: 2,
 };
 
+const PLLextndlen = {
+    // NO DP
+    "-": 1,
+    Al: 2,
+    Ar: 2,
+    E: 1,
+    F: 1,
+    Gal: 4,
+    Gar: 4,
+    Gol: 4,
+    Gor: 4,
+    H: 1,
+    Ja: 2,
+    Jm: 2,
+    Na: 2,
+    Nm: 2,
+    Rl: 2,
+    Rr: 2,
+    T: 1,
+    Ul: 2,
+    Ur: 2,
+    V: 1,
+    Y: 1,
+    Z: 1,
+
+    // DP
+    Adj: 1,
+    Opp: 1,
+    pJ: 1,
+    pN: 1,
+    Ba: 2,
+    Bm: 2,
+    Cl: 2,
+    Cr: 2,
+    Da: 2,
+    Dm: 2,
+    Ka: 2,
+    Km: 2,
+    M: 1,
+    Ol: 2,
+    Or: 2,
+    Pl: 2,
+    Pr: 2,
+    Q: 1,
+    Sa: 2,
+    Sm: 2,
+    W: 1,
+    X: 1,
+};
+
 let pressStartTime = null;
 let holdTimeout = null;
 let timerStart = null;
@@ -978,7 +1028,7 @@ let intervalId = null;
 let isRunning = false;
 let readyToStart = false;
 let otherKeyPressed = 0;
-const startDelay = 0;
+const startDelay = 200;
 
 let currentCase = "";
 let previousCase = "";
@@ -1259,6 +1309,7 @@ function passesFilter(pbl, filter) {
 }
 
 function generateScramble(regen = false) {
+    let eachCaseAlert = false;
     if (scrambleOffset > 0 && !regen) {
         // user probably timed one of the prev scrams
         displayPrevScram();
@@ -1277,6 +1328,7 @@ function generateScramble(regen = false) {
     }
     if (remainingPBL.length === 0) {
         // start a new cycle
+        if (eachCase === 1) eachCaseAlert = true;
         enableGoEachCase();
     }
     let caseNum = randInt(0, remainingPBL.length - 1);
@@ -1333,6 +1385,8 @@ function generateScramble(regen = false) {
     }
     if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob)
     hasActiveScramble = true;
+    if (eachCaseAlert)
+        setTimeout(function() {alert("You have gone through each case!");}, 50);
 }
 
 function displayPrevScram() {
@@ -1611,6 +1665,11 @@ function getWeight(pbl) {
     return uWeight * dWeight;
 }
 
+function getCaseCount(pbl) {
+    // pbl: ["Al", "Ar"]
+    return PLLextndlen[pbl[0]] * PLLextndlen[pbl[1]]
+}
+
 function enableGoEachCase() {
     remainingPBL = selectedPBL.flatMap((el) =>
         Array(eachCase * (usingWeight ? getWeight(el) : 1)).fill(el)
@@ -1620,14 +1679,36 @@ function enableGoEachCase() {
 init();
 
 filterInputEl.addEventListener("input", () => {
-    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z/\- ]+/g, "");
+    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\- ]+/g, "");
     setHighlightedList(null);
-    for (pbl of possiblePBL) {
-        const n = pblname(pbl);
-        if (passesFilter(pbl, filterInputEl.value)) {
-            showPBL(n);
-        } else {
-            hidePBL(n);
+    if (filterInputEl.value.slice(0,4).toLowerCase() === "freq") {
+        if (!["1", "2", "4", "8", "16", "32", "64", "128", "256"].includes(filterInputEl.value.slice(4).trim())) {
+            // no pbl is the given frequency
+            for (pbl of possiblePBL) {
+                const n = pblname(pbl);
+                hidePBL(n);
+            }
+        }
+        else {
+            let freq = parseInt(filterInputEl.value.slice(4).trim(), 10);
+            for (pbl of possiblePBL) {
+                const n = pblname(pbl);
+                if (getWeight(n) * getCaseCount(pbl) === freq) {
+                    showPBL(n);
+                } else {
+                    hidePBL(n);
+                }
+            }
+        }
+    }
+    else {
+        for (pbl of possiblePBL) {
+            const n = pblname(pbl);
+            if (passesFilter(pbl, filterInputEl.value)) {
+                showPBL(n);
+            } else {
+                hidePBL(n);
+            }
         }
     }
     updateSelCount();
@@ -1895,8 +1976,10 @@ window.addEventListener("keydown", (e) => {
             // ctrl +
             switch (e.key.toLowerCase()) {
                 case "a":
-                    e.preventDefault();
-                    selectAll();
+                    if (!inInput) {
+                        e.preventDefault();
+                        selectAll();
+                    }
                     return;
                 case "s":
                     e.preventDefault();
@@ -1935,18 +2018,36 @@ window.addEventListener("keydown", (e) => {
 
     // backspace (remove last); left arrow (prev scram); right arrow (next scram)
     if (!inInput) {
-        switch (e.key) {
-            case "Backspace":
+        let el;
+        switch (e.key.toLowerCase()) {
+            case "backspace":
                 e.preventDefault();
                 removeLast();
                 return;
-            case "ArrowLeft":
+            case "arrowleft":
                 e.preventDefault();
                 prevScram();
                 return;
-            case "ArrowRight":
+            case "arrowright":
                 e.preventDefault();
                 nextScram();
+                return;
+            // we have to take [1] because the ones that are visible on pc
+            // (on the side bar) are further down in the html file
+            case "e":
+                el = eachCaseEls[1];
+                el.checked = !el.checked;
+                onCheckEachCase(el);
+                return;
+            case "k":
+                el = karnEls[1];
+                el.checked = !el.checked;
+                onCheckKarn();
+                return;
+            case "r":
+                el = weightEls[1];
+                el.checked = !el.checked;
+                onCheckWeights();
                 return;
         }
     }
@@ -2089,24 +2190,6 @@ weightEls.forEach((btn) =>
         onCheckWeights();
     })
 );
-
-// we have to take [1] because the ones that are visible on pc
-// (on the side bar) are further down in the html file
-document.addEventListener("keydown", (e) => {
-    if (e.key == "e") {
-        let el = eachCaseEls[1];
-        el.checked = !el.checked;
-        onCheckEachCase(el);
-    } else if (e.key == "k") {
-        let el = karnEls[1];
-        el.checked = !el.checked;
-        onCheckKarn();
-    } else if (e.key == "r") {
-        let el = weightEls[1];
-        el.checked = !el.checked;
-        onCheckWeights();
-    }
-});
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {

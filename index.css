@@ -40,7 +40,7 @@ body, html {
 /* Main container */
 .main {
     display: flex;
-    height: calc(100vh - 52px);
+    height: calc(100dvh - 52px);
 }
 
 .checkbox-wrapper {
@@ -91,7 +91,7 @@ input[type="checkbox"] {
     gap: 0.5rem;
 
     max-height: calc(
-        100vh - 200px
+        100dvh - 200px
     );
     overflow-y: auto;
     scrollbar-width: none; /* Firefox */
@@ -438,6 +438,10 @@ button:hover {
     width: fit-content;
 }
 
+.visible-both {
+    line-height: 1.5;
+}
+
 /* Switch to full width display*/
 .visible-mobile {
     display: none;
@@ -461,6 +465,12 @@ button:hover {
 
     .hidden-mobile {
         display: none;
+    }
+
+    .help .visible-both {
+        margin-left: 0px;
+        margin-right: 20px;
+        width: fit-content;
     }
 
     .visible-mobile {
