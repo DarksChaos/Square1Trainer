@@ -1061,16 +1061,17 @@ function listLength(list) {
     return l;
 }
 
-function getLocalStorageData(fillSidebar=false) {
+function getLocalStorageData(fillSidebar = false) {
     // selectedPBL
     const storageSelectedPBL = localStorage.getItem("selectedPBL");
+
     if (storageSelectedPBL !== null) {
-        if(fillSidebar) {
+        if (fillSidebar) {
             // Add buttons to the page for each pbl choice
-            // Stored to a temp variable so we edit the 
+            // Stored to a temp variable so we edit the
             // page only once, and avoid a lag spike
-            
-            // Do it here, just before shoing/hiding pbls, 
+
+            // Do it here, just before shoing/hiding pbls,
             // so that they don't all appear then disappear
             // when loading the page with already selected cases
             possiblePBL.splice(0, 1);
@@ -1081,16 +1082,20 @@ function getLocalStorageData(fillSidebar=false) {
             }
             pblListEl.innerHTML += buttons;
         }
-        
+
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
             selectPBL(k);
             selectedCount++;
             updateSelCount();
         }
-                
+
         if (selectedPBL.length > 0) {
             showSelection();
+        } else {
+            // Needed when uploading a save with nothing selected,
+            // while some cases were selected
+            showAll();
         }
 
         if (eachCaseEls[0].checked || eachCaseEls[1].checked) eachCase = 1;
@@ -1106,6 +1111,7 @@ function getLocalStorageData(fillSidebar=false) {
         //     }
         // }
     }
+    updateSelCount();
 
     // userLists
     const storageUserLists = localStorage.getItem("userLists");
@@ -1162,9 +1168,9 @@ function addListItemEvent(item) {
 async function init() {
     // uncheck everything
     for (x in [0, 1]) {
-        karnEls[x].checked = false
-        weightEls[x].checked = false
-        eachCaseEls[x].checked = false
+        karnEls[x].checked = false;
+        weightEls[x].checked = false;
+        eachCaseEls[x].checked = false;
     }
 
     // Compute possible pbls
@@ -1829,7 +1835,7 @@ deleteListEl.addEventListener("click", () => {
         return;
     }
     if (Object.keys(defaultLists).includes(highlightedList)) {
-        alert("You cannot overwrite a default list");
+        alert("You cannot delete a default list");
         return;
     }
     alert("Error");
@@ -2025,6 +2031,7 @@ fileEl.addEventListener("change", (e) => {
     const reader = new FileReader();
     reader.onload = () => {
         try {
+            deselectAll();
             jsonData = JSON.parse(reader.result);
             localStorage.setItem("selectedPBL", jsonData["selectedPBL"]);
             localStorage.setItem("userLists", jsonData["userLists"]);
