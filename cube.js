@@ -1684,6 +1684,7 @@ function getCaseCount(pbl) {
 }
 
 function enableGoEachCase() {
+    eachCase = eachCase === 0 ? randInt(MIN_EACHCASE, MAX_EACHCASE) : eachCase;
     remainingPBL = selectedPBL.flatMap((el) =>
         Array(eachCase * (usingWeight ? getWeight(el) : 1)).fill(el)
     );
