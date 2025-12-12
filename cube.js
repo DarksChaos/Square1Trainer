@@ -1886,16 +1886,8 @@ overwriteListEl.addEventListener("click", () => {
 
     // valid request
     if (confirm("You are about to overwrite list " + highlightedList)) {
-        let newList = {};
-        for (pbl of possiblePBL) {
-            const n = pblname(pbl);
-            if (selectedPBL.includes(n)) {
-                newList[n] = 1;
-            } else {
-                newList[n] = 0;
-            }
-            userLists[highlightedList] = newList;
-        }
+        let newList = selectedPBL.copyWithin();
+        userLists[highlightedList] = newList;
         addUserLists();
         selectList(highlightedList, false);
         highlightedList = null;
