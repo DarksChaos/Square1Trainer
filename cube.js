@@ -546,7 +546,7 @@ function findPLL(layer, top, full = false) {
     return false;
 }
 
-// KARNOTATION
+// OBL TRAINER IMPORTS
 
 const KARN = {
     "3,0": "U",
@@ -629,12 +629,29 @@ const HIGHKARN = {
     " D D ": " DD ",
     " D' D' ": " DD' ",
 };
+// if the following moves accur, replace them with optimized ones
+// UPDATE THIS
+const OPTIM = {
+    "/0,0/": "", // special case, handled in optimize()
+    "/3,3/3,3/": "-3,-3/-3,-3",
+    "/-3,-3/-3,-3/": "3,3/3,3",
+    "/2,2/-2,-2/": "2,2/-2,-2",
+    "/-2,-2/2,2/": "-2,-2/2,2",
+    "/1,1/-1,-1/": "1,1/-1,-1",
+    "/-1,-1/1,1/": "-1,-1/1,1",
+    "/2,-4/-2,4/2,-4/": "2,-4/-2,4/2,-4",
+    "/-2,4/2,-4/-2,4/": "-2,4/2,-4/-2,4",
+    "/5,-1/-5,1/5,-1/": "5,-1/-5,1/5,-1",
+    "/-5,1/5,-1/-5,1/": "-5,1/5,-1/-5,1"
+}
+
+const OPTIM_KEYS = Array.from(Object.keys(OPTIM)); // array of keys
 
 function karnify(scramble) {
     // scramble: e.g. "A/-3,0/-1,2/1,-2/-1,2/3,3/-2,-2/3,3/-3,0/-1,2/3,3/3,3/-2,4/A"
     // returns "A U' d3 e m' e U' d e e T' A"
     scramble = scramble.split("/");
-    newMoves = [];
+    let newMoves = [];
     // first level karnify; skip the A and a
     for (let move of scramble) {
         if (move in KARN) {
@@ -643,10 +660,87 @@ function karnify(scramble) {
             newMoves.push(move.replace(",", ""));
         }
     }
-    firstKarn = newMoves.join(" ");
+    let firstKarn = newMoves.join(" ");
     // second level karnify
-    secondKarn = replaceWithDict(firstKarn, HIGHKARN);
+    let secondKarn = replaceWithDict(firstKarn, HIGHKARN);
     return secondKarn;
+}
+
+function legalMove(move) {
+    // move: (int) -10 ~ 12 (i think)
+    // returns: -5 ~ 6
+    if (move < -5) {
+        return move + 12;
+    }
+    else if (move > 6) {
+        return move - 12;
+    }
+    return move;
+}
+
+function addMoves(move1, move2) {
+    // move1/2: "3,-3" or "A", "a"; cannot both be alignments
+    let alignments = false;
+    let startA;
+    if (move1.toLowerCase() === "a" || move2.toLowerCase() === "a") {
+        alignments = true;
+        let Atranslation = {"A": "a", "a": "A"};
+        if (move1 in Atranslation) {
+            return changesAlignment(parseInt(move2.split(",")[0], 10)) ? Atranslation[move1] : move1;
+        }
+        if (move2 in Atranslation) {
+            return changesAlignment(parseInt(move1.split(",")[0], 10)) ? Atranslation[move2] : move2;
+        }
+    }
+    move1 = move1.split(",");
+    move2 = move2.split(",");
+    result = [legalMove(parseInt(move1[0],10) + parseInt(move2[0],10)),
+                legalMove(parseInt(move1[1],10) + parseInt(move2[1],10))];
+    return result.join(",");
+}
+
+function optimize(scramble) {
+    // scramble: "A/-3,-3/0,3/0,-3/-1,-4/-3,0/3,0/0,-3/0,3/a"
+    while (replaceWithDict(scramble, OPTIM) !== scramble) {
+        // optimize needed
+        console.log(`preoptim: ${scramble}`);
+        let moves = scramble.split("/");
+        // moves now in ["A","3,-3", "3,0", "a"]
+        let atSlice = 0; // the index of the next move in "moves"
+        let cycleCompleted = false;
+        for (let i = 0; i < scramble.length; i++) {
+            // going over every character of scramble
+            if (cycleCompleted) break;
+            if (scramble.at(i) !== "/") continue;
+            atSlice++;
+            for (let optimable of OPTIM_KEYS) {
+                // avoid getting the last "a" also
+                if (scramble.length - 1-i < optimable.length) continue;
+                if (scramble.slice(i, i+optimable.length) === optimable) {
+                    // match!!
+                    if (optimable === "/0,0/") {
+                        // special case
+                        moves[atSlice-1] = addMoves(moves[atSlice-1], moves[atSlice+1]);
+                        moves.splice(atSlice, 2);
+                        scramble = moves.join("/")
+                        cycleCompleted = true;
+                        break;
+                    }
+                    let optimableLen = optimable.split("/").length;
+                    let optimTo = OPTIM[optimable].split("/"); // no slice at beginning/end
+                    let delSliceNum = optimableLen - 2;
+                    moves[atSlice-1] = addMoves(moves[atSlice-1], optimTo.shift());
+                    moves[atSlice+optimableLen-2] = addMoves(moves[atSlice+optimableLen-2], optimTo.pop());
+                    // now optimTo has the two merged moves removed
+                    moves.splice(atSlice, delSliceNum, ...optimTo);
+                    scramble = moves.join("/")
+                    cycleCompleted = true;
+                    break;
+                }
+            }
+        }
+    }
+    return scramble;
 }
 
 // [top?, color (1st clockwise for corners), corner?]
@@ -1018,7 +1112,7 @@ const PLLextndlen = {
     Sa: 2,
     Sm: 2,
     W: 1,
-    X: 1,
+    X: 1
 };
 
 let pressStartTime = null;
@@ -1029,6 +1123,7 @@ let isRunning = false;
 let readyToStart = false;
 let otherKeyPressed = 0;
 const startDelay = 200;
+let checkboxIdx;
 
 let currentCase = "";
 let previousCase = "";
@@ -1048,9 +1143,11 @@ const contentEl = document.getElementById("content");
 const pblListEl = document.getElementById("results");
 const filterInputEl = document.getElementById("filter");
 
+// the first element is for mobile, the second is for pc
 const eachCaseEls = document.querySelectorAll(".allcases");
 const karnEls = document.querySelectorAll(".karn");
 const weightEls = document.querySelectorAll(".weight");
+const settingList = [eachCaseEls, karnEls, weightEls];
 
 const removeLastEl = document.getElementById("unselprev");
 
@@ -1117,20 +1214,19 @@ function getLocalStorageData(fillSidebar = false) {
         // when loading the page with already selected cases
         possiblePBL.splice(0, 1);
         let buttons = "";
-        for ([t, b] of possiblePBL) {
+        for (let [t, b] of possiblePBL) {
             buttons += `
             <div class="case" id="${t}/${b}">${t} / ${b}</div>`;
         }
         pblListEl.innerHTML += buttons;
     }
     if (storageSelectedPBL !== null) {
-
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
             selectPBL(k);
             selectedCount++;
-            updateSelCount();
         }
+        updateSelCount();
 
         if (selectedPBL.length > 0) {
             showSelection();
@@ -1144,14 +1240,6 @@ function getLocalStorageData(fillSidebar = false) {
         else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
         enableGoEachCase();
         generateScramble();
-        // if (selectedPBL.length != 0) {
-        //     for (let pbl of possiblePBL) {
-        //         hidePBL(pblname(pbl));
-        //     }
-        //     for (let pbl of selectedPBL) {
-        //         showPBL(pbl);
-        //     }
-        // }
     }
     updateSelCount();
 
@@ -1176,6 +1264,20 @@ function getLocalStorageData(fillSidebar = false) {
 
         addUserLists();
     }
+
+    // settings; in a string, 0 and 1 represent (un)checked, in order of preferenceList
+    const storageSettings = localStorage.getItem("settings");
+    let isMobile = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
+    checkboxIdx = 1 - Number(isMobile);
+    if (storageSettings === null)
+        // legacy
+        localStorage.setItem("settings", "0".repeat(settingList.length));
+    else {
+        for (let i = 0; i < settingList.length; i++)
+            if (storageSettings[i] === "1") {
+                settingList[i][checkboxIdx].click();
+            }
+    }
 }
 
 function saveSelectedPBL() {
@@ -1195,6 +1297,16 @@ function updateSelCount() {
 
 function saveUserLists() {
     localStorage.setItem("userLists", JSON.stringify(userLists));
+}
+
+function saveSettings() {
+    let store = "";
+    for (let els of settingList)
+        if (els[checkboxIdx].checked)
+            store += "1";
+        else
+            store += "0";
+    localStorage.setItem("settings", store);
 }
 
 function setHighlightedList(id) {
@@ -1224,7 +1336,7 @@ function addListItemEvent(item) {
 
 async function init() {
     // uncheck everything
-    for (x in [0, 1]) {
+    for (let x in [0, 1]) {
         karnEls[x].checked = false;
         weightEls[x].checked = false;
         eachCaseEls[x].checked = false;
@@ -1262,7 +1374,7 @@ async function init() {
     document.querySelectorAll(".case").forEach((caseEl) => {
         caseEl.addEventListener("click", () => {
             const isChecked = caseEl.classList.contains("checked");
-            n = caseEl.id;
+            let n = caseEl.id;
             if (isChecked) {
                 deselectPBL(n);
             } else {
@@ -1288,7 +1400,7 @@ async function init() {
 }
 
 function isPll(pll, filter) {
-    special = ["opp", "adj", "pn", "pj"];
+    const special = ["opp", "adj", "pn", "pj"];
     if (special.includes(pll)) {
         return filter == pll;
     }
@@ -1339,38 +1451,42 @@ function generateScramble(regen = false) {
         enableGoEachCase();
     }
     let caseNum = randInt(0, remainingPBL.length - 1);
-    pblChoice = remainingPBL.splice(caseNum, 1)[0];
+    let pblChoice = remainingPBL.splice(caseNum, 1)[0];
 
-    pblChoice += "-+"[randInt(0, 1)];
+    let barflip = "-+"[randInt(0, 1)]
+    let scramble = optimize(window.scrambler.getScramble(pblChoice, barflip));
+    pblChoice += barflip;
 
     previousCase = currentCase; // e.g. "Al/Ar+"
     currentCase = pblChoice;
 
-    scramble = generators[pblChoice];
-    // Add random begin and end layer moves
-    let s = scramble[0];
-    let e = scramble[scramble.length - 1];
-    let start;
-    let end;
-    if (s === "A") {
-        start = [randrange(-5, 5, 3), randrange(-3, 7, 3)];
-    } else {
-        start = [randrange(-3, 7, 3), randrange(-4, 6, 3)];
-    }
-    if (e === "A") {
-        end = [randrange(-4, 6, 3), randrange(-3, 7, 3)];
-    } else {
-        end = [randrange(-3, 7, 3), randrange(-5, 5, 3)];
-    }
 
-    let final = [
-        (start.join(",") + scramble.slice(1, -1) + end.join(",")).replaceAll(
-            "/",
-            " / "
-        ),
-        start.join("") + karnify(scramble).slice(1, -1) + end.join(""),
-        currentCase,
-    ];
+    // scramble = generators[pblChoice];
+    // Add random begin and end layer moves
+    // let s = scramble[0];
+    // let e = scramble[scramble.length - 1];
+    // let start;
+    // let end;
+    // if (s === "A") {
+    //     start = [randrange(-5, 5, 3), randrange(-3, 7, 3)];
+    // } else {
+    //     start = [randrange(-3, 7, 3), randrange(-4, 6, 3)];
+    // }
+    // if (e === "A") {
+    //     end = [randrange(-4, 6, 3), randrange(-3, 7, 3)];
+    // } else {
+    //     end = [randrange(-3, 7, 3), randrange(-5, 5, 3)];
+    // }
+
+    // let final = [
+    //     (start.join(",") + scramble.slice(1, -1) + end.join(",")).replaceAll(
+    //         "/",
+    //         " / "
+    //     ),
+    //     start.join("") + karnify(scramble).slice(1, -1) + end.join(""),
+    //     currentCase,
+    // ];
+    let final = [scramble.replaceAll("/", " / "), karnify(scramble), currentCase];
 
     if (regen) {
         scrambleList[scrambleList.length - 1] = final;
@@ -1390,7 +1506,7 @@ function generateScramble(regen = false) {
         currentScrambleEl.textContent = final[usingKarn];
         scrambleList.push(final);
     }
-    if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob)
+    if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob, idk)
     hasActiveScramble = true;
     if (eachCaseAlert)
         setTimeout(function () {
@@ -1536,7 +1652,7 @@ function timerEndTouch(spaceEquivalent) {
 
 function addUserLists() {
     let content = "";
-    for (k of Object.keys(userLists)) {
+    for (let k of Object.keys(userLists)) {
         content += `
         <div id="${k}" class=\"list-item\">${k} (${
             userLists[k].length
@@ -1551,7 +1667,7 @@ function addUserLists() {
 
 function addDefaultLists() {
     let content = "";
-    for (k of Object.keys(defaultLists)) {
+    for (let k of Object.keys(defaultLists)) {
         content += `
         <div id="${k}" class=\"list-item\">${k} (${
             defaultLists[k].length
@@ -1579,10 +1695,10 @@ function selectList(listName, setSelection) {
     }
 
     if (Array.isArray(list)) {
-        for (pbl of possiblePBL) {
+        for (let pbl of possiblePBL) {
             hidePBL(pblname(pbl));
         }
-        for (pbl of list) {
+        for (let pbl of list) {
             showPBL(pbl);
         }
     } else {
@@ -1702,13 +1818,13 @@ filterInputEl.addEventListener("input", () => {
             )
         ) {
             // no pbl is the given frequency
-            for (pbl of possiblePBL) {
+            for (let pbl of possiblePBL) {
                 const n = pblname(pbl);
                 hidePBL(n);
             }
         } else {
             let freq = parseInt(filterInputEl.value.slice(4).trim(), 10);
-            for (pbl of possiblePBL) {
+            for (let pbl of possiblePBL) {
                 const n = pblname(pbl);
                 if (getWeight(n) * getCaseCount(pbl) === freq) {
                     showPBL(n);
@@ -1718,7 +1834,7 @@ filterInputEl.addEventListener("input", () => {
             }
         }
     } else {
-        for (pbl of possiblePBL) {
+        for (let pbl of possiblePBL) {
             const n = pblname(pbl);
             if (passesFilter(pbl, filterInputEl.value)) {
                 showPBL(n);
@@ -1752,7 +1868,7 @@ deselectAllEl.addEventListener("click", deselectAll);
 
 function selectThese() {
     if (usingTimer()) return;
-    for (i of pblListEl.children) {
+    for (let i of pblListEl.children) {
         if (!i.classList.contains("hidden")) {
             selectPBL(i.id);
         }
@@ -1764,7 +1880,7 @@ selectTheseEl.addEventListener("click", selectThese);
 
 function deselectThese() {
     if (usingTimer()) return;
-    for (i of pblListEl.children) {
+    for (let i of pblListEl.children) {
         if (!i.classList.contains("hidden")) {
             deselectPBL(i.id);
         }
@@ -1783,7 +1899,7 @@ showAllEl.addEventListener("click", showAllClick);
 
 function showSelection() {
     if (usingTimer()) return;
-    for (pbl of possiblePBL) {
+    for (let pbl of possiblePBL) {
         const n = pblname(pbl);
         if (selectedPBL.includes(n)) {
             showPBL(n);
@@ -2018,7 +2134,7 @@ window.addEventListener("keydown", (e) => {
     }
 
     // backspace (remove last); left arrow (prev scram); right arrow (next scram)
-    if (!inInput) {
+    if (!inInput && !ctrl && !e.altKey && !e.shiftKey) {
         let el;
         switch (e.key.toLowerCase()) {
             case "backspace":
@@ -2137,6 +2253,8 @@ fileEl.addEventListener("change", (e) => {
             jsonData = JSON.parse(reader.result);
             localStorage.setItem("selectedPBL", jsonData["selectedPBL"]);
             localStorage.setItem("userLists", jsonData["userLists"]);
+            if ("settings" in jsonData) localStorage.setItem("settings", jsonData["settings"]);
+            else alert("file formatting is outdated, re-export recommended.")
             getLocalStorageData();
         } catch (e) {
             console.error("Error:", e);
@@ -2158,6 +2276,7 @@ removeLastEl.addEventListener("click", removeLast);
 function onCheckEachCase(el) {
     eachCase = el.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     enableGoEachCase();
+    saveSettings();
 }
 
 function onCheckKarn() {
@@ -2167,11 +2286,13 @@ function onCheckKarn() {
             usingKarn
         ];
     displayPrevScram();
+    saveSettings();
 }
 
 function onCheckWeights() {
     usingWeight = !usingWeight;
     enableGoEachCase();
+    saveSettings();
 }
 
 eachCaseEls.forEach((el) =>
