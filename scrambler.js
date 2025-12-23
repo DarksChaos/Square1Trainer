@@ -445,7 +445,7 @@ class Search {
             m = topEdgeFirstx ? 1 : 2;
             prun1 = SquarePrun[edgex << 1 | ml];
             prun2 = SquarePrun[cornerx << 1 | ml];
-            while (m < 12 && prun1 <= maxl && prun1 <= maxl) {
+            while (m < 12 && prun1 <= maxl && prun2 <= maxl) {
                 if (prun1 < maxl && prun2 < maxl) {
                     this.Search_move[depth] = m;
                     if (this.solvePhase2(edgex, cornerx, topEdgeFirstx, botEdgeFirst, ml, maxl - 1, depth + 1, 1)) {
@@ -471,7 +471,7 @@ class Search {
             m = botEdgeFirstx ? 1 : 2;
             prun1 = SquarePrun[edgex << 1 | ml];
             prun2 = SquarePrun[cornerx << 1 | ml];
-            while (m < 5 && prun1 <= maxl && prun1 <= maxl) { // restrict to max 4 D move
+            while (m < 5 && prun1 <= maxl && prun2 <= maxl) { // restrict to max 4 D move
                 if (prun1 < maxl && prun2 < maxl) {
                     this.Search_move[depth] = -m;
                     if (this.solvePhase2(edgex, cornerx, topEdgeFirst, botEdgeFirstx, ml, maxl - 1, depth + 1, 2)) {

@@ -1,5 +1,5 @@
-let canvas; //= document.getElementById("canvas")
-let ctx; //= canvas.getContext("2d")
+let canvas;
+let ctx;
 
 function mod(n, m) {
     return ((n % m) + m) % m;
@@ -648,11 +648,11 @@ const OPTIM = {
 const OPTIM_KEYS = Array.from(Object.keys(OPTIM)); // array of keys
 
 function karnify(scramble) {
-    // scramble: e.g. "A/-3,0/-1,2/1,-2/-1,2/3,3/-2,-2/3,3/-3,0/-1,2/3,3/3,3/-2,4/A"
-    // returns "A U' d3 e m' e U' d e e T' A"
+    // scramble: e.g. "4,-3/-3,0/-1,2/1,-2/-1,2/3,3/-2,-2/3,3/-3,0/-1,2/3,3/3,3/-2,4/-1,0"
+    // returns "4-3 U' d3 e m' e U' d e e T' -10"
     scramble = scramble.split("/");
     let newMoves = [];
-    // first level karnify; skip the A and a
+    // first level karnify
     for (let move of scramble) {
         if (move in KARN) {
             newMoves.push(KARN[move]);
@@ -1043,7 +1043,6 @@ let highlightedList = null;
 let scrambleOffset = 0;
 let generators;
 let hasActiveScramble = false;
-// let hasPreviousScramble = false; // will be replaced with scrambleList.at(-2-scrambleOffset) !== undefined
 let isPopupOpen = false;
 
 let cubeCenter, cubeScale;
@@ -1123,7 +1122,7 @@ let isRunning = false;
 let readyToStart = false;
 let otherKeyPressed = 0;
 const startDelay = 200;
-let checkboxIdx;
+let checkboxIdx; // checkbox index. 0 = on mobile; 1 = on pc
 
 let currentCase = "";
 let previousCase = "";
@@ -1209,7 +1208,7 @@ function getLocalStorageData(fillSidebar = false) {
         // Stored to a temp variable so we edit the
         // page only once, and avoid a lag spike
 
-        // Do it here, just before shoing/hiding pbls,
+        // Do it here, just before showing/hiding pbls,
         // so that they don't all appear then disappear
         // when loading the page with already selected cases
         possiblePBL.splice(0, 1);
@@ -1220,13 +1219,34 @@ function getLocalStorageData(fillSidebar = false) {
         }
         pblListEl.innerHTML += buttons;
     }
+
+    // uncheck everything
+    for (let x in [0, 1]) {
+        karnEls[x].checked = false;
+        weightEls[x].checked = false;
+        eachCaseEls[x].checked = false;
+    }
+    // settings; in a string, 0 and 1 represent (un)checked, in order of settingList
+    const storageSettings = localStorage.getItem("settings");
+    let isMobile = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
+    checkboxIdx = 1 - Number(isMobile);
+    if (storageSettings === null)
+        // legacy
+        localStorage.setItem("settings", "0".repeat(settingList.length));
+    else {
+        for (let i = 0; i < settingList.length; i++)
+            if (storageSettings[i] === "1") {
+                settingList[i][checkboxIdx].click();
+            }
+    }
+
+    // select stored pbl
     if (storageSelectedPBL !== null) {
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
             selectPBL(k);
             selectedCount++;
         }
-        updateSelCount();
 
         if (selectedPBL.length > 0) {
             showSelection();
@@ -1264,20 +1284,6 @@ function getLocalStorageData(fillSidebar = false) {
 
         addUserLists();
     }
-
-    // settings; in a string, 0 and 1 represent (un)checked, in order of preferenceList
-    const storageSettings = localStorage.getItem("settings");
-    let isMobile = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
-    checkboxIdx = 1 - Number(isMobile);
-    if (storageSettings === null)
-        // legacy
-        localStorage.setItem("settings", "0".repeat(settingList.length));
-    else {
-        for (let i = 0; i < settingList.length; i++)
-            if (storageSettings[i] === "1") {
-                settingList[i][checkboxIdx].click();
-            }
-    }
 }
 
 function saveSelectedPBL() {
@@ -1287,7 +1293,7 @@ function saveSelectedPBL() {
     else if (
         !selectedPBL.includes(currentCase.slice(0, currentCase.length - 1)) &&
         currentCase != ""
-    )
+    ) // regenerate the scram if the scram's case was deselected
         generateScramble(true);
 }
 
@@ -1335,13 +1341,6 @@ function addListItemEvent(item) {
 }
 
 async function init() {
-    // uncheck everything
-    for (let x in [0, 1]) {
-        karnEls[x].checked = false;
-        weightEls[x].checked = false;
-        eachCaseEls[x].checked = false;
-    }
-
     // Compute possible pbls
     for (let t of evenPLL) {
         for (let b of evenPLL) possiblePBL.push([t, b]);
@@ -1353,20 +1352,22 @@ async function init() {
     }
 
     // Load generators
-    await fetch("./generators.json")
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            generators = data;
-            // Load local storage data only after generators
-            // have been loaded, so we can generate a scramble
-            getLocalStorageData(true);
-        })
-        .catch((error) => console.error("Failed to fetch data:", error));
+    // await fetch("./generators.json")
+    //     .then((response) => {
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! Status: ${response.status}`);
+    //         }
+    //         return response.json();
+    //     })
+    //     .then((data) => {
+    //         generators = data;
+    //         // Load local storage data only after generators
+    //         // have been loaded, so we can generate a scramble
+    //         getLocalStorageData(true);
+    //     })
+    //     .catch((error) => console.error("Failed to fetch data:", error));
+    
+    getLocalStorageData(true);
 
     lastRemoved = "";
 
@@ -1511,7 +1512,7 @@ function generateScramble(regen = false) {
     if (eachCaseAlert)
         setTimeout(function () {
             alert("You have gone through each case!");
-        }, 50);
+        }, 100);
 }
 
 function displayPrevScram() {
@@ -1679,8 +1680,8 @@ function addDefaultLists() {
     }
 }
 
-// setSelection = True => will select and show the cases
-//              = False => will only show the cases
+// setSelection = true => will select and show the cases
+//              = false => will only show the cases
 function selectList(listName, setSelection) {
     if (listName == null) {
         showAll();
@@ -1724,7 +1725,7 @@ function selectList(listName, setSelection) {
 }
 
 function validName(n) {
-    for (l of n) {
+    for (let l of n) {
         if (
             l.toLowerCase() == l.toUpperCase() &&
             isNaN(parseInt(l)) &&
