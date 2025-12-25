@@ -494,6 +494,47 @@ button:hover {
     }
 }
 
+@media screen and (max-width: 500px) {
+    .navbar {
+        display: grid;
+        grid-template-areas: 
+            "center"
+            "buttons";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        row-gap: 0.5rem;
+        justify-items: center;
+        align-items: center;
+    }
+
+    .nav-center { 
+        grid-area: center; 
+        width: 100%;
+        text-align: center;
+    }
+    
+    .nav-left { 
+        grid-area: buttons;
+        display: flex;
+        gap: 0.3rem;
+        justify-content: flex-start;
+        margin-right: auto;
+    }
+    
+    .nav-right { 
+        grid-area: buttons;
+        display: flex;
+        gap: 0.3rem;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+
+    .nav-left button, 
+    .nav-right button {
+        flex-shrink: 0;
+    }
+}
+
 @media screen and (max-width: 290px) {
     .selection-grid {
         grid-template-columns: repeat(1, 1fr);
