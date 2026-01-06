@@ -1238,6 +1238,10 @@ function getLocalStorageData(fillSidebar = false) {
             if (storageSettings[i] === "1") {
                 settingList[i][checkboxIdx].click();
             }
+        // add 0s if the settings is too short
+        while (localStorage.getItem("settings").length !== settingList.length) {
+            localStorage.setItem("settings", localStorage.getItem("settings") + "0")
+        }
     }
 
     // select stored pbl
@@ -1807,8 +1811,6 @@ function enableGoEachCase() {
     );
 }
 
-init();
-
 filterInputEl.addEventListener("input", () => {
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\- ]+/g, "");
     setHighlightedList(null);
@@ -2340,3 +2342,5 @@ function updateColors() {
 
 updateColors();
 setInterval(updateColors, 60 * 1000);
+
+init();
