@@ -1140,7 +1140,7 @@ const sidebarEl = document.getElementById("sidebar");
 const contentEl = document.getElementById("content");
 
 const pblListEl = document.getElementById("results");
-const filterInputEl = document.getElementById("filter");
+const filterInputEl = document.getElementById("obl-filter");
 
 // the first element is for mobile, the second is for pc
 const eachCaseEls = document.querySelectorAll(".allcases");
