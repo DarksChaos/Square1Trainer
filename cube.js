@@ -2073,6 +2073,15 @@ window.addEventListener("keydown", (e) => {
         return;
     }
 
+    // space (start timer)
+    if (canInteractTimer()) {
+        let isSpace = e.code == "Space";
+        let runningTemp = isRunning;
+        timerBeginTouch(isSpace);
+        if (isSpace) e.preventDefault();
+        if (runningTemp) return;
+    }
+
     // ctrl F (search cases); ctrl Z (undo remove last); ctrl Y (redo remove last)
     const ctrl = isMac() ? e.metaKey : e.ctrlKey;
     if (ctrl && !e.altKey) {
@@ -2171,12 +2180,6 @@ window.addEventListener("keydown", (e) => {
                 return;
         }
     }
-
-    // space (start timer)
-    if (!canInteractTimer()) return;
-    let isSpace = e.code == "Space";
-    timerBeginTouch(isSpace);
-    if (isSpace) e.preventDefault();
 });
 
 window.addEventListener("keyup", (e) => {
