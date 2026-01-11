@@ -1434,14 +1434,14 @@ function passesFilter(pbl, filter) {
 
 function generateScramble(regen = false) {
     let eachCaseAlert = false;
-    if (scrambleOffset > 0 && !regen) {
+    if (scrambleOffset >= 0 && !regen && scrambleList.length > 0) {
         // user probably timed one of the prev scrams
         displayPrevScram();
         currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
             usingKarn
         ];
         return;
-    } else if (scrambleOffset <= 0) scrambleOffset = 0;
+    } else if (scrambleOffset < 0) scrambleOffset = 0;
     if (selectedPBL.length === 0) {
         timerEl.textContent = "--:--";
         currentScrambleEl.textContent = "Scramble will show up here";
