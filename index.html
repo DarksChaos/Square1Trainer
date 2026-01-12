@@ -17,6 +17,47 @@
         <script src="scrambler.js"></script>
         <script defer="defer" src="cube.js"></script>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <script>
+            if ('serviceWorker' in navigator) {
+                let refreshing = false;
+                
+                // Detect when a new service worker is waiting
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        console.log('[SW] New service worker activated, reloading page');
+                        window.location.reload();
+                    }
+                });
+
+                navigator.serviceWorker.register('/serviceworker.js')
+                    .then((registration) => {
+                        console.log('[SW] Service Worker registered:', registration);
+                        
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60000); // Check every minute
+                        
+                        // If there's an update waiting, activate it
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('[SW] New service worker found');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('[SW] New service worker installed, will activate on next page load');
+                                    // Optionally show a notification to the user
+                                    // You could add a banner here saying "Update available, please refresh"
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('[SW] Service Worker registration failed:', error);
+                    });
+            }
+        </script>
     </head>
     <body>
         <div class="navbar">
