@@ -1199,9 +1199,42 @@ function pblname(pbl) {
     return `${pbl[0]}/${pbl[1]}`;
 }
 
+// localStorage wrapper with PBL suffix
+const STORAGE_SUFFIX = 'PBL';
+
+const storage = {
+    getItem: (key) => localStorage.getItem(key + STORAGE_SUFFIX),
+    setItem: (key, value) => localStorage.setItem(key + STORAGE_SUFFIX, value),
+    removeItem: (key) => localStorage.removeItem(key + STORAGE_SUFFIX)
+};
+
+// Migration function for legacy data
+function migrateLegacyData() {
+    const legacyKeys = ['settings', 'selected', 'userLists'];
+    let migrated = false;
+    
+    for (let key of legacyKeys) {
+        const legacyData = localStorage.getItem(key);
+        const newData = storage.getItem(key);
+        
+        // Only migrate if legacy data exists and new data doesn't
+        if (legacyData !== null && newData === null) {
+            storage.setItem(key, legacyData);
+            localStorage.removeItem(key); // Clean up old data
+            migrated = true;
+        }
+    }
+    
+    if (migrated) {
+        console.log('Migrated legacy PBL data to new storage format');
+    }
+}
+
 function getLocalStorageData(fillSidebar = false) {
+    // Call migration before any other localStorage access
+    migrateLegacyData();
     // selectedPBL
-    const storageSelectedPBL = localStorage.getItem("selectedPBL");
+    const storageSelectedPBL = storage.getItem("selected");
 
     if (fillSidebar) {
         // Add buttons to the page for each pbl choice
@@ -1221,26 +1254,26 @@ function getLocalStorageData(fillSidebar = false) {
     }
 
     // uncheck everything
-    for (let x in [0, 1]) {
-        karnEls[x].checked = false;
-        weightEls[x].checked = false;
-        eachCaseEls[x].checked = false;
-    }
+    // for (let x in [0, 1]) {
+    //     karnEls[x].checked = false;
+    //     weightEls[x].checked = false;
+    //     eachCaseEls[x].checked = false;
+    // }
     // settings; in a string, 0 and 1 represent (un)checked, in order of settingList
-    const storageSettings = localStorage.getItem("settings");
+    const storageSettings = storage.getItem("settings");
     let isMobile = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
     checkboxIdx = 1 - Number(isMobile);
     if (storageSettings === null)
         // legacy
-        localStorage.setItem("settings", "0".repeat(settingList.length));
+        storage.setItem("settings", "0".repeat(settingList.length));
     else {
         for (let i = 0; i < settingList.length; i++)
             if (storageSettings[i] === "1") {
                 settingList[i][checkboxIdx].click();
             }
         // add 0s if the settings is too short
-        while (localStorage.getItem("settings").length !== settingList.length) {
-            localStorage.setItem("settings", localStorage.getItem("settings") + "0")
+        while (storage.getItem("settings").length !== settingList.length) {
+            storage.setItem("settings", storage.getItem("settings") + "0")
         }
     }
 
@@ -1268,7 +1301,7 @@ function getLocalStorageData(fillSidebar = false) {
     updateSelCount();
 
     // userLists
-    const storageUserLists = localStorage.getItem("userLists");
+    const storageUserLists = storage.getItem("userLists");
     if (storageUserLists !== null) {
         userLists = JSON.parse(storageUserLists);
 
@@ -1291,7 +1324,7 @@ function getLocalStorageData(fillSidebar = false) {
 }
 
 function saveSelectedPBL() {
-    localStorage.setItem("selectedPBL", JSON.stringify(selectedPBL));
+    storage.setItem("selected", JSON.stringify(selectedPBL));
     // this is === 0 cuz genScram() has a if statement that deletes the scram if so
     if (!hasActiveScramble || selectedPBL.length == 0) generateScramble();
     else if (
@@ -1306,7 +1339,7 @@ function updateSelCount() {
 }
 
 function saveUserLists() {
-    localStorage.setItem("userLists", JSON.stringify(userLists));
+    storage.setItem("userLists", JSON.stringify(userLists));
 }
 
 function saveSettings() {
@@ -1316,7 +1349,7 @@ function saveSettings() {
             store += "1";
         else
             store += "0";
-    localStorage.setItem("settings", store);
+    storage.setItem("settings", store);
 }
 
 function setHighlightedList(id) {
@@ -1434,7 +1467,7 @@ function passesFilter(pbl, filter) {
 
 function generateScramble(regen = false) {
     let eachCaseAlert = false;
-    if (scrambleOffset >= 0 && !regen && scrambleList.length > 0) {
+    if (scrambleOffset >= 0 && !regen && scrambleList.length > 0 && selectedPBL.length === 0) {
         // user probably timed one of the prev scrams
         displayPrevScram();
         currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
@@ -2234,7 +2267,11 @@ toggleUiEl.addEventListener("click", () => {
 
 downloadEl.addEventListener("click", () => {
     if (usingTimer()) return;
-    const data = JSON.stringify(localStorage);
+    const data = JSON.stringify({
+        'settingsPBL': storage.getItem('settings'),
+        'selectedPBL': storage.getItem('selected'),
+        'userListsPBL': storage.getItem('userLists')
+    });
     const blob = new Blob([data], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -2257,13 +2294,28 @@ fileEl.addEventListener("change", (e) => {
         try {
             deselectAll();
             jsonData = JSON.parse(reader.result);
-            localStorage.setItem("selectedPBL", jsonData["selectedPBL"]);
-            localStorage.setItem("userLists", jsonData["userLists"]);
-            if ("settings" in jsonData) localStorage.setItem("settings", jsonData["settings"]);
-            else alert("file formatting is outdated, re-export recommended.")
+            storage.setItem("selected", jsonData["selectedPBL"]);
+            
+            let outdated = false;
+            if ("userListsPBL" in jsonData) storage.setItem("userLists", jsonData["userListsPBL"]);
+            else if ("userLists" in jsonData) {
+                storage.setItem("userLists", jsonData["userLists"]);
+                outdated = true;
+            }
+            if ("settingsPBL" in jsonData) storage.setItem("settings", jsonData["settingsPBL"]);
+            else if ("settings" in jsonData) {
+                storage.setItem("settings", jsonData["settings"]);
+                outdated = true;
+            }
+            if (outdated) {
+                alert("File formatting is outdated, re-export recommended.");
+            }
             getLocalStorageData();
         } catch (e) {
             console.error("Error:", e);
+        } finally {
+            // Clear the file input so the same file can be selected again
+            e.target.value = '';
         }
     };
     reader.readAsText(file);
