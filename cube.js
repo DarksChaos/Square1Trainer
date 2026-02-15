@@ -1253,14 +1253,12 @@ function getLocalStorageData(fillSidebar = false) {
         pblListEl.innerHTML += buttons;
     }
 
-    // uncheck everything
-    // for (let x in [0, 1]) {
-    //     karnEls[x].checked = false;
-    //     weightEls[x].checked = false;
-    //     eachCaseEls[x].checked = false;
-    // }
     // settings; in a string, 0 and 1 represent (un)checked, in order of settingList
     const storageSettings = storage.getItem("settings");
+    // uncheck everything
+    for (let el of settingList) {
+        if (el[0].checked) el[0].click();
+    }
     let isMobile = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
     checkboxIdx = 1 - Number(isMobile);
     if (storageSettings === null)
@@ -2353,21 +2351,27 @@ function onCheckWeights() {
     saveSettings();
 }
 
-eachCaseEls.forEach((el) =>
-    el.addEventListener("change", (e) => {
-        onCheckEachCase(el);
+eachCaseEls.forEach((btn) =>
+    btn.addEventListener("change", (e) => {
+        onCheckEachCase(btn);
+        let otherEl = eachCaseEls[0] === btn ? eachCaseEls[1] : eachCaseEls[0];
+        otherEl.checked = !otherEl.checked;
     })
 );
 
 karnEls.forEach((btn) =>
     btn.addEventListener("change", (e) => {
         onCheckKarn();
+        let otherEl = karnEls[0] === btn ? karnEls[1] : karnEls[0];
+        otherEl.checked = !otherEl.checked;
     })
 );
 
 weightEls.forEach((btn) =>
     btn.addEventListener("change", (e) => {
         onCheckWeights();
+        let otherEl = weightEls[0] === btn ? weightEls[1] : weightEls[0];
+        otherEl.checked = !otherEl.checked;
     })
 );
 
