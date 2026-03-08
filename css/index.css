@@ -434,6 +434,65 @@ button:hover {
     font-size: 15px;
 }
 
+/* Settings popup */
+.settings-popup-inner {
+    width: 420px;
+    max-width: 95vw;
+    height: auto !important;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.settings-body {
+    padding: 20px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background-color 0.15s ease;
+}
+
+.settings-row:hover {
+    background-color: rgba(255,255,255,0.07);
+}
+
+.settings-row input[type="checkbox"] {
+    flex-shrink: 0;
+}
+
+.settings-divider {
+    border: none;
+    border-top: 1px solid #444;
+    margin: 4px 0;
+}
+
+.settings-action-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1px solid #555;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.settings-action-btn:hover {
+    background-color: var(--button-col);
+    border-color: var(--border-col);
+}
+
 .help .help-checkboxes {
     width: fit-content;
 }
@@ -461,6 +520,10 @@ button:hover {
 
     .sidebar {
         width: 35%;
+    }
+
+    .hidden-on-mobile {
+        display: none !important;
     }
 
     .hidden-mobile {

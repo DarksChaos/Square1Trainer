@@ -1,6 +1,3 @@
-let canvas;
-let ctx;
-
 function mod(n, m) {
     return ((n % m) + m) % m;
 }
@@ -62,27 +59,6 @@ const compareCS = (a, b) =>
             (element >= 0 && b[index] >= 0) ||
             (element == -1 && element == b[index])
     );
-
-const LAYER_DEG = 15;
-const EDGE_DEG = 30;
-const CORNER_DEG = 60;
-
-// colorscheme
-let TOPCOL = "#444";
-let BOTCOL = "white";
-let BLANKCOL = "#888";
-let TSIDECOLS = ["red", "#0f5fff", "orange", "#00db33"];
-let BSIDECOLS = ["red", "#00db33", "orange", "#0f5fff"];
-
-function rad(deg) {
-    return (deg * Math.PI) / 180;
-}
-
-const LAYER_RAD = rad(LAYER_DEG);
-const EDGE_RAD = rad(EDGE_DEG);
-const CORNER_RAD = rad(CORNER_DEG);
-
-const PADDING = 0.3;
 
 class Move {
     static Slice = 0b11111111;
@@ -173,235 +149,6 @@ class Sequence {
         }
         return str;
     }
-}
-
-class Point {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    rotateAround(center, angleRad) {
-        // Translation relative au centre
-        const dx = this.x - center.x;
-        const dy = this.y - center.y;
-
-        // Rotation
-        const rotatedX = dx * Math.cos(angleRad) - dy * Math.sin(angleRad);
-        const rotatedY = dx * Math.sin(angleRad) + dy * Math.cos(angleRad);
-
-        // Mise à jour des coordonnées
-        this.x = rotatedX + center.x;
-        this.y = rotatedY + center.y;
-    }
-
-    addC(dx, dy) {
-        this.x += dx;
-        this.y += dy;
-    }
-
-    addP(point) {
-        this.x += point.x;
-        this.y += point.y;
-    }
-
-    toString() {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)})`;
-    }
-}
-
-const P0 = new Point(0, 0);
-
-function drawPolygon(points, fillColor, strokeColor = "black") {
-    if (points.length < 3) return;
-
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-
-    for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
-    }
-
-    ctx.closePath();
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-}
-
-function drawPoint(point, color = "black", radius = 3) {
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = color;
-    ctx.fill();
-}
-
-function drawSlice(center, color = "#ff5500", scale = 100) {
-    let padding = scale * PADDING * 1.5;
-    ctx.beginPath();
-    ctx.moveTo(center.x, center.y - scale - padding);
-    ctx.lineTo(center.x, center.y + scale + padding);
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-}
-
-function drawEquator(center, flipped, scale = 100) {
-    let l = center.x - (scale * 2) / 3;
-    let r = flipped ? center.x + (scale * 2) / 3 : center.x + (scale * 4) / 3;
-    let t = center.y - scale / 4;
-    let b = center.y + scale / 4;
-
-    let TL = new Point(l, t);
-    let TM = new Point(center.x, center.y - scale / 4);
-    let TR = new Point(r, t);
-
-    let BL = new Point(l, b);
-    let BM = new Point(center.x, center.y + scale / 4);
-    let BR = new Point(r, b);
-
-    drawPolygon([TL, TM, BM, BL], TSIDECOLS[0]);
-    drawPolygon([TR, TM, BM, BR], TSIDECOLS[flipped * 2]);
-}
-
-function drawEdge(
-    center,
-    step,
-    sideCol,
-    isTopColor,
-    isTopLayer,
-    scale = 100,
-    sideBlank = false,
-    topBlank = false
-) {
-    let padding = scale * PADDING;
-    let innerLength = scale - padding;
-    let offRad = step * EDGE_RAD;
-    let sideColors = isTopColor ? TSIDECOLS : BSIDECOLS;
-    // define points
-    // il, ir = inner outer corners (end of top area)
-    // ol, or = outer corners (side color points) (tingman reference)
-    // All coords relative to 0 for now
-    let il = new Point(innerLength * Math.tan(LAYER_RAD), innerLength);
-    let ir = new Point(-innerLength * Math.tan(LAYER_RAD), innerLength);
-
-    let ol = new Point(scale * Math.tan(LAYER_RAD), scale);
-    let or = new Point(-scale * Math.tan(LAYER_RAD), scale);
-    // adjust alignment based on layer, and flip if bottom layer
-    if (isTopLayer) offRad += LAYER_RAD;
-    else offRad += Math.PI + LAYER_RAD;
-
-    il.rotateAround(P0, offRad);
-    ir.rotateAround(P0, offRad);
-    ol.rotateAround(P0, offRad);
-    or.rotateAround(P0, offRad);
-
-    il.addP(center);
-    ir.addP(center);
-    ol.addP(center);
-    or.addP(center);
-
-    // draw
-    let layerColor, sideColor;
-    if (sideBlank) sideColor = BLANKCOL;
-    else sideColor = sideColors[sideCol];
-    if (topBlank) layerColor = BLANKCOL;
-    else layerColor = isTopColor ? TOPCOL : BOTCOL;
-    // Top part
-    drawPolygon([center, il, ir], layerColor);
-    drawPolygon([il, ir, or, ol], sideColor);
-}
-
-function drawCorner(
-    center,
-    step,
-    leftCol,
-    isTopColor,
-    isTopLayer,
-    scale = 100,
-    sideBlank = false,
-    topBlank = false
-) {
-    let padding = scale * PADDING;
-    let innerLength = scale - padding;
-    let offRad = step * EDGE_RAD;
-    let sideColors = isTopColor ? TSIDECOLS : BSIDECOLS;
-
-    // points
-    // Just like edges, except we add im, om
-    // ir and or are a rotation of il and ol by CORNER_RAD:
-    let il = new Point(-innerLength * Math.tan(LAYER_RAD), innerLength);
-    let ol = new Point(-scale * Math.tan(LAYER_RAD), scale);
-    let im = new Point(
-        -innerLength * Math.tan(LAYER_RAD + EDGE_RAD),
-        innerLength
-    );
-    let om = new Point(-scale * Math.tan(LAYER_RAD + EDGE_RAD), scale);
-    let ir = new Point(-innerLength * Math.tan(LAYER_RAD), innerLength);
-    let or = new Point(-scale * Math.tan(LAYER_RAD), scale);
-    ir.rotateAround(P0, CORNER_RAD);
-    or.rotateAround(P0, CORNER_RAD);
-
-    // adjust alignment based on layer
-    if (isTopLayer) offRad -= LAYER_RAD;
-    else offRad -= LAYER_RAD + Math.PI;
-
-    il.rotateAround(P0, offRad);
-    ol.rotateAround(P0, offRad);
-    im.rotateAround(P0, offRad);
-    om.rotateAround(P0, offRad);
-    ir.rotateAround(P0, offRad);
-    or.rotateAround(P0, offRad);
-
-    il.addP(center);
-    im.addP(center);
-    ir.addP(center);
-    ol.addP(center);
-    om.addP(center);
-    or.addP(center);
-
-    // draw
-    let layerColor, sideColor0, sideColor1;
-    if (topBlank) layerColor = BLANKCOL;
-    else layerColor = isTopColor ? TOPCOL : BOTCOL;
-    if (sideBlank) {
-        sideColor0 = sideColor1 = BLANKCOL;
-    } else {
-        let rightCol = mod(leftCol + 1, 4);
-        sideColor0 = sideColors[leftCol];
-        sideColor1 = sideColors[rightCol];
-    }
-
-    drawPolygon([center, il, im, ir], layerColor);
-    drawPolygon([il, ol, om, im], sideColor0);
-    drawPolygon([im, om, or, ir], sideColor1);
-}
-
-function drawCursor(center, step, scale = 100) {
-    // outer cursor
-    let offRad = step * EDGE_RAD;
-    let distance = scale * (1 + PADDING * 1.5);
-    let radius = scale / 8;
-    let touchPt = new Point(center.x, center.y - scale);
-    let cedgePt = new Point(center.x, center.y - distance + radius);
-    let cursor = new Point(center.x, center.y - distance);
-    touchPt.rotateAround(center, offRad);
-    cursor.rotateAround(center, offRad);
-    cedgePt.rotateAround(center, offRad);
-    ctx.beginPath();
-    ctx.lineWidth = 1;
-    ctx.arc(cursor.x, cursor.y, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "black";
-    ctx.fill();
-    ctx.lineWidth = scale / 20;
-    ctx.strokeStyle = "red";
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cedgePt.x, cedgePt.y);
-    ctx.lineTo(touchPt.x, touchPt.y);
-    ctx.lineWidth = scale / 30;
-    ctx.stroke();
 }
 
 const solved = "A1B2C3D45E6F7G8H-";
@@ -743,27 +490,6 @@ function optimize(scramble) {
     return scramble;
 }
 
-// [top?, color (1st clockwise for corners), corner?]
-const pieceProperties = [
-    [true, 0, true],
-    [true, 1, false],
-    [true, 1, true],
-    [true, 2, false],
-    [true, 2, true],
-    [true, 3, false],
-    [true, 3, true],
-    [true, 0, false],
-
-    [false, 0, false],
-    [false, 0, true],
-    [false, 1, false],
-    [false, 1, true],
-    [false, 2, false],
-    [false, 2, true],
-    [false, 3, false],
-    [false, 3, true],
-];
-
 class Cube {
     constructor(descriptor) {
         this.setPosition(descriptor);
@@ -793,50 +519,6 @@ class Cube {
             }
         }
         this.barflip = position[16] == "/" || position[16] == "+";
-    }
-
-    draw(center, scale = 100, blanks = false) {
-        const topCenter = new Point(
-            center.x - scale * 1.5,
-            center.y - scale / 2
-        );
-        const botCenter = new Point(
-            center.x + scale * 1.5,
-            center.y - scale / 2
-        );
-        const barCenter = new Point(center.x, center.y + scale);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // top layer
-        for (let i = 0; i < 12; i++) {
-            let piece = this.topPieces[i];
-            if (piece == -1) continue;
-            const props = pieceProperties[piece];
-            if (props[2]) {
-                // corner
-                drawCorner(topCenter, i, props[1], props[0], true, scale);
-            } else {
-                drawEdge(topCenter, i, props[1], props[0], true, scale);
-            }
-        }
-        // bottom layer
-        for (let i = 0; i < 12; i++) {
-            let piece = this.botPieces[i];
-            if (piece == -1) continue;
-            const props = pieceProperties[piece];
-            if (props[2]) {
-                // corner
-                drawCorner(botCenter, i, props[1], props[0], false, scale);
-            } else {
-                drawEdge(botCenter, i, props[1], props[0], false, scale);
-            }
-        }
-        // equator
-        drawEquator(barCenter, this.barflip, scale);
-        // slice lines
-        // drawSlice(topCenter, scale);
-        // drawSlice(botCenter, scale);
-
-        // temp
     }
 
     topLayerString() {
@@ -1045,7 +727,6 @@ let generators;
 let hasActiveScramble = false;
 let isPopupOpen = false;
 
-let cubeCenter, cubeScale;
 let lastRemoved;
 let selectedCount = 0;
 
@@ -1122,8 +803,6 @@ let isRunning = false;
 let readyToStart = false;
 let otherKeyPressed = 0;
 const startDelay = 200;
-let checkboxIdx; // checkbox index. 0 = on mobile; 1 = on pc
-
 let currentCase = "";
 let previousCase = "";
 
@@ -1131,7 +810,6 @@ let previousCase = "";
 
 // Top bar buttons
 const toggleUiEl = document.getElementById("toggleui");
-const openHelpEl = document.getElementById("open-help");
 const uploadEl = document.getElementById("uploaddata");
 const downloadEl = document.getElementById("downloaddata");
 const fileEl = document.getElementById("fileinput");
@@ -1168,20 +846,10 @@ const deleteListEl = document.getElementById("dellist");
 const overwriteListEl = document.getElementById("overwritelist");
 const selectListEl = document.getElementById("sellist");
 const trainListEl = document.getElementById("trainlist");
-
-// Popup
-const scramblePopupEl = document.getElementById("scram-popup");
-const displayScramEl = document.getElementById("display-scram");
-const canvasWrapperEl = document.getElementById("canvas-wrapper");
-const displayPBLname = document.getElementById("pblname");
-
 const listPopupEl = document.getElementById("list-popup");
-
-// initialize canvas declared at the very top of the file
-canvas = document.getElementById("scram-canvas");
-ctx = canvas.getContext("2d");
-
 const helpPopupEl = document.getElementById("help-popup");
+const settingsPopupEl = document.getElementById("settings-popup");
+const openSettingsEl = document.getElementById("open-settings");
 
 // Main page elements (scrambles and timer)
 const currentScrambleEl = document.getElementById("cur-scram");
@@ -1231,19 +899,10 @@ function migrateLegacyData() {
 }
 
 function getLocalStorageData(fillSidebar = false) {
-    // Call migration before any other localStorage access
     migrateLegacyData();
-    // selectedPBL
     const storageSelectedPBL = storage.getItem("selected");
 
     if (fillSidebar) {
-        // Add buttons to the page for each pbl choice
-        // Stored to a temp variable so we edit the
-        // page only once, and avoid a lag spike
-
-        // Do it here, just before showing/hiding pbls,
-        // so that they don't all appear then disappear
-        // when loading the page with already selected cases
         possiblePBL.splice(0, 1);
         let buttons = "";
         for (let [t, b] of possiblePBL) {
@@ -1253,70 +912,61 @@ function getLocalStorageData(fillSidebar = false) {
         pblListEl.innerHTML += buttons;
     }
 
-    // settings; in a string, 0 and 1 represent (un)checked, in order of settingList
     const storageSettings = storage.getItem("settings");
-    // uncheck everything
     for (let el of settingList) {
         if (el[0].checked) el[0].click();
     }
-    let isMobile = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
-    checkboxIdx = 1 - Number(isMobile);
     if (storageSettings === null)
-        // legacy
         storage.setItem("settings", "0".repeat(settingList.length));
     else {
         for (let i = 0; i < settingList.length; i++)
             if (storageSettings[i] === "1") {
-                settingList[i][checkboxIdx].click();
+                settingList[i][0].click();
             }
-        // add 0s if the settings is too short
         while (storage.getItem("settings").length !== settingList.length) {
             storage.setItem("settings", storage.getItem("settings") + "0")
         }
     }
 
-    // select stored pbl
     if (storageSelectedPBL !== null) {
         selectedPBL = JSON.parse(storageSelectedPBL);
         for (let k of selectedPBL) {
             selectPBL(k);
             selectedCount++;
         }
-
         if (selectedPBL.length > 0) {
             showSelection();
         } else {
-            // Needed when uploading a save with nothing selected,
-            // while some cases were selected
             showAll();
         }
-
-        if (eachCaseEls[0].checked || eachCaseEls[1].checked) eachCase = 1;
+        if (eachCaseEls[0].checked) eachCase = 1;
         else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
         enableGoEachCase();
         generateScramble();
+    } else if (fillSidebar) {
+        // First ever load — select all cases
+        for (let pbl of possiblePBL) {
+            selectPBL(pblname(pbl));
+        }
+        saveSelectedPBL();
     }
     updateSelCount();
 
-    // userLists
     const storageUserLists = storage.getItem("userLists");
     if (storageUserLists !== null) {
         userLists = JSON.parse(storageUserLists);
-
-        // LEGACY: convert list to new array format
-        for(list of Object.keys(userLists)) {
-            if(!Array.isArray(userLists[list])) {
+        for (list of Object.keys(userLists)) {
+            if (!Array.isArray(userLists[list])) {
                 console.log("Non array")
                 formattedList = []
-                for(i of possiblePBL) {
-                    if(userLists[list][pblname(i)] == 1) {
+                for (i of possiblePBL) {
+                    if (userLists[list][pblname(i)] == 1) {
                         formattedList.push(pblname(i))
                     }
                 }
                 userLists[list] = formattedList.copyWithin()
             }
         }
-
         addUserLists();
     }
 }
@@ -1343,7 +993,7 @@ function saveUserLists() {
 function saveSettings() {
     let store = "";
     for (let els of settingList)
-        if (els[checkboxIdx].checked)
+        if (els[0].checked)
             store += "1";
         else
             store += "0";
@@ -1772,29 +1422,6 @@ function validName(n) {
     return true;
 }
 
-function openScramblePopup(scramble) {
-    // scramble: [not karn, karn]
-    if (usingTimer()) return;
-    isPopupOpen = true;
-    scramblePopupEl.classList.add("open");
-
-    // Change canvas size
-    const w = canvasWrapperEl.offsetWidth;
-    const h = canvasWrapperEl.offsetHeight;
-
-    canvas.width = w;
-    canvas.height = h;
-    cubeCenter = new Point(parseInt(w / 2), parseInt(h / 2));
-    cubeScale = parseInt(w / 7);
-
-    let displayCube = new Cube(solved);
-    displayCube.applySequence(new Sequence(scramble[0]));
-    displayCube.draw(cubeCenter, cubeScale);
-
-    displayScramEl.textContent = scramble[usingKarn];
-    displayPBLname.textContent = displayCube.pblCase();
-}
-
 function openListPopup() {
     if (usingTimer()) return;
     isPopupOpen = true;
@@ -1807,11 +1434,17 @@ function openHelpPopup() {
     helpPopupEl.classList.add("open");
 }
 
+function openSettingsPopup() {
+    if (usingTimer()) return;
+    isPopupOpen = true;
+    settingsPopupEl.classList.add("open");
+}
+
 function closePopup() {
     isPopupOpen = false;
-    scramblePopupEl.classList.remove("open");
     listPopupEl.classList.remove("open");
     helpPopupEl.classList.remove("open");
+    settingsPopupEl.classList.remove("open");
 }
 
 function canInteractTimer() {
@@ -1980,9 +1613,14 @@ openListsEl.addEventListener("click", () => {
     openListPopup();
 });
 
-openHelpEl.addEventListener("click", () => {
+document.getElementById("open-help").addEventListener("click", () => {
     if (usingTimer()) return;
     openHelpPopup();
+});
+
+openSettingsEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    openSettingsPopup();
 });
 
 newListEl.addEventListener("click", () => {
@@ -2195,17 +1833,17 @@ window.addEventListener("keydown", (e) => {
             // we have to take [1] because the ones that are visible on pc
             // (on the side bar) are further down in the html file
             case "e":
-                el = eachCaseEls[1];
+                el = eachCaseEls[0];
                 el.checked = !el.checked;
                 onCheckEachCase(el);
                 return;
             case "k":
-                el = karnEls[1];
+                el = karnEls[0];
                 el.checked = !el.checked;
                 onCheckKarn();
                 return;
             case "r":
-                el = weightEls[1];
+                el = weightEls[0];
                 el.checked = !el.checked;
                 onCheckWeights();
                 return;
@@ -2237,29 +1875,25 @@ timerBoxEl.addEventListener("touchend", (e) => {
     timerEndTouch(true);
 });
 
-currentScrambleEl.addEventListener("click", () => {
-    if (usingTimer()) return;
-    if (isPopupOpen || !hasActiveScramble) return;
-    openScramblePopup(scrambleList.at(-1 - scrambleOffset));
-});
-
-previousScrambleEl.addEventListener("click", () => {
-    if (usingTimer()) return;
-    if (isPopupOpen || scrambleList.at(-2 - scrambleOffset) === undefined)
-        return;
-    openScramblePopup(scrambleList.at(-2 - scrambleOffset));
-});
-
 toggleUiEl.addEventListener("click", () => {
     if (usingTimer()) return;
-    if (sidebarEl.classList.contains("hidden")) {
-        sidebarEl.classList.remove("hidden");
-        sidebarEl.classList.add("full-width-mobile");
-        contentEl.classList.add("hidden-mobile");
+    const isMobileView = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
+    if (isMobileView) {
+        if (sidebarEl.classList.contains("hidden-on-mobile")) {
+            sidebarEl.classList.remove("hidden-on-mobile");
+            sidebarEl.classList.add("full-width-mobile");
+            contentEl.classList.add("hidden-mobile");
+        } else {
+            sidebarEl.classList.add("hidden-on-mobile");
+            sidebarEl.classList.remove("full-width-mobile");
+            contentEl.classList.remove("hidden-mobile");
+        }
     } else {
-        sidebarEl.classList.add("hidden");
-        sidebarEl.classList.remove("full-width-mobile");
-        contentEl.classList.remove("hidden-mobile");
+        if (sidebarEl.classList.contains("hidden")) {
+            sidebarEl.classList.remove("hidden");
+        } else {
+            sidebarEl.classList.add("hidden");
+        }
     }
 });
 
@@ -2352,27 +1986,15 @@ function onCheckWeights() {
 }
 
 eachCaseEls.forEach((btn) =>
-    btn.addEventListener("change", (e) => {
-        onCheckEachCase(btn);
-        let otherEl = eachCaseEls[0] === btn ? eachCaseEls[1] : eachCaseEls[0];
-        otherEl.checked = !otherEl.checked;
-    })
+    btn.addEventListener("change", () => onCheckEachCase(btn))
 );
 
 karnEls.forEach((btn) =>
-    btn.addEventListener("change", (e) => {
-        onCheckKarn();
-        let otherEl = karnEls[0] === btn ? karnEls[1] : karnEls[0];
-        otherEl.checked = !otherEl.checked;
-    })
+    btn.addEventListener("change", () => onCheckKarn())
 );
 
 weightEls.forEach((btn) =>
-    btn.addEventListener("change", (e) => {
-        onCheckWeights();
-        let otherEl = weightEls[0] === btn ? weightEls[1] : weightEls[0];
-        otherEl.checked = !otherEl.checked;
-    })
+    btn.addEventListener("change", () => onCheckWeights())
 );
 
 // Enable crosses
