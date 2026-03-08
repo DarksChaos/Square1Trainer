@@ -1421,7 +1421,7 @@ async function init() {
     });
 
     // Load default lists
-    await fetch("./defaultlists.json")
+    await fetch("./json/defaultlists.json")
         .then((response) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
