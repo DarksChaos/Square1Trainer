@@ -187,68 +187,89 @@ function hasAlgData(algs) {
     return algs && algs.some(a => a.angle?.trim() || a.notation?.trim());
 }
 
+function nab(text) {
+    // this stands for normalize_angled_brackets. too long a name to be used 100 times.
+    return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+function indent(text) {
+    return;
+}
+
 function formatLumpAsText(lump, lumpTitle) {
     let lines = [];
 
     // Title
-    lines.push(`<b><u>${lumpTitle}${lump["Optimal-slicecount"] ? " (" + lump["Optimal-slicecount"] + ")" : ""}</u></b>`);
+    lines.push(
+        `<span class="lump-title">${lumpTitle}${lump["Optimal-slicecount"] ? " (" + lump["Optimal-slicecount"] + ")" : ""}</span>`,
+    );
     lines.push("");
 
     // Distinction help
     if (lump.Matt?.["Distinction-help"]?.trim()) {
-        lines.push(`<i>${lump.Matt["Distinction-help"]}</i>`);
+        lines.push(`<i><span>${nab(lump.Matt["Distinction-help"])}</span></i>`);
     }
 
     // Matt solution groups
     const sgs = lump.Matt?.["solution-groups"] || [];
     for (const sg of sgs) {
-        const hasContent = sg["Solution-Overview"]?.trim() ||
-            sg["alg-blocks"]?.some(ab =>
-                ab["Alg-explanation"]?.trim() || ab["angle-explanation"]?.trim() ||
-                ab.cases?.some(c => hasAlgData(c.algs))
+        const hasContent =
+            sg["Solution-Overview"]?.trim() ||
+            sg["alg-blocks"]?.some(
+                (ab) =>
+                    ab["Alg-explanation"]?.trim() ||
+                    ab["angle-explanation"]?.trim() ||
+                    ab.cases?.some((c) => hasAlgData(c.algs)),
             );
         if (!hasContent) continue;
 
         lines.push("");
-        const slices = sg["Solution-Slicecount"] ? ` (${sg["Solution-Slicecount"]})` : "";
+        const slices = sg["Solution-Slicecount"]
+            ? ` (${sg["Solution-Slicecount"]})`
+            : "";
         if (sg["Solution-Overview"]?.trim()) {
-            lines.push(`<b>${sg["Solution-Overview"]}${slices}</b>`);
+            lines.push(`<span><b>${nab(sg["Solution-Overview"])}${slices}</b></span>`);
         }
 
-        for (const ab of (sg["alg-blocks"] || [])) {
-            if (ab["angle-explanation"]?.trim()) lines.push(`&lt;${ab["angle-explanation"]}&gt;`);
-            if (ab["Alg-explanation"]?.trim()) lines.push(ab["Alg-explanation"]);
+        for (const ab of sg["alg-blocks"] || []) {
+            if (ab["angle-explanation"]?.trim()) lines.push(`<span>${nab(ab["angle-explanation"])}</span>`);
+            if (ab["Alg-explanation"]?.trim()) lines.push(`<span>${nab(ab["Alg-explanation"])}</span>`);
 
-            for (const c of (ab.cases || [])) {
+            for (const c of ab.cases || []) {
                 if (!hasAlgData(c.algs)) continue;
                 for (const alg of c.algs) {
                     if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                    const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                    lines.push(`&nbsp;&nbsp;&nbsp;&nbsp;${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span>`);
+                    const angle = alg.angle?.trim()
+                        ? `&lt;${alg.angle}&gt; `
+                        : "";
+                    lines.push(
+                        `<span class="alg-line">${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
+                    );
                 }
             }
-        }
-
-        if (sg.Footer?.trim()) {
-            lines.push(`<i>${sg.Footer}</i>`);
         }
     }
 
     // Derpy
-    const filledDerpy = (lump.derpy || []).filter(c => hasAlgData(c.algs));
+    const filledDerpy = (lump.derpy || []).filter((c) => hasAlgData(c.algs));
     if (filledDerpy.length) {
         lines.push("");
-        lines.push("<b>Derpy</b>");
+        lines.push(`<span class="section-label"><b>Derpy</b></span>`);
         for (const c of filledDerpy) {
             for (const alg of c.algs) {
                 if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
                 const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                lines.push(`&nbsp;&nbsp;&nbsp;&nbsp;${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span>`);
+                lines.push(
+                    `<span class="alg-line">${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
+                );
+                lines.push(
+                    `<span class="alg-line">${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
+                );
             }
         }
     }
 
-    return lines.join("<br>");
+    return lines.join("");
 }
 
 let hasOfferedDownload = false;

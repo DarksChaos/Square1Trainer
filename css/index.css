@@ -43,6 +43,40 @@ body, html {
     height: calc(100dvh - 52px);
 }
 
+/* Lump text display */
+.lump-text {
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+}
+
+.lump-text .lump-title {
+    margin-left: 0;
+    text-indent: 0;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 0.8em;
+    font-size: large;
+}
+
+.lump-text .alg-line {
+    display: block;
+    text-indent: 0em;
+    margin-left: 5em;
+}
+
+.lump-text .section-label {
+    display: block;
+    margin-top: 0.5em;
+}
+
+.lump-text > span {
+    display: block;
+    text-indent: 2.5em;
+    /* base indent for all non-title lines */
+}
+
 .checkbox-wrapper {
     margin-bottom: 10px;
 }
@@ -241,7 +275,7 @@ button:hover {
 
 .bottom-bar .bar-scramble {
     font-size: 1.3rem;
-    
+
 }
 
 .timer-box {
@@ -597,7 +631,7 @@ button:hover {
 
     .selection-grid {
         grid-template-columns: repeat(4, 1fr);
-        
+
     }
 }
 
@@ -610,7 +644,7 @@ button:hover {
 @media screen and (max-width: 500px) {
     .navbar {
         display: grid;
-        grid-template-areas: 
+        grid-template-areas:
             "center"
             "buttons";
         grid-template-columns: 1fr;
@@ -620,21 +654,21 @@ button:hover {
         align-items: center;
     }
 
-    .nav-center { 
-        grid-area: center; 
+    .nav-center {
+        grid-area: center;
         width: 100%;
         text-align: center;
     }
-    
-    .nav-left { 
+
+    .nav-left {
         grid-area: buttons;
         display: flex;
         gap: 0.3rem;
         justify-content: flex-start;
         margin-right: auto;
     }
-    
-    .nav-right { 
+
+    .nav-right {
         grid-area: buttons;
         display: flex;
         gap: 0.3rem;
@@ -642,7 +676,7 @@ button:hover {
         margin-left: auto;
     }
 
-    .nav-left button, 
+    .nav-left button,
     .nav-right button {
         flex-shrink: 0;
     }
