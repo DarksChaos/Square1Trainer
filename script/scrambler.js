@@ -324,28 +324,28 @@ class Search {
         return s;
     }
 
-    init2() {
-        var corner, edge, i, j, ml, prun;
-        this.Search_d.copy(this.Search_c);
-        for (i = 0; i < this.Search_length1; ++i) {
-            this.Search_d.doMove(this.Search_move[i]);
-        }
-        this.fullCubeGetSquare(this.Search_d, this.Search_sq);
-        edge = this.Search_sq.edgeperm;
-        corner = this.Search_sq.cornperm;
-        ml = this.Search_sq.ml;
-        prun = Math.max(SquarePrun[this.Search_sq.edgeperm << 1 | ml], SquarePrun[this.Search_sq.cornperm << 1 | ml]);
-        for (i = prun; i < this.Search_maxlen2; ++i) {
-            if (this.solvePhase2(edge, corner, this.Search_sq.topEdgeFirst, this.Search_sq.botEdgeFirst, ml, i, this.Search_length1, 0)) {
-                for (j = 0; j < i; ++j) {
-                    this.Search_d.doMove(this.Search_move[this.Search_length1 + j]);
-                }
-                this.Search_sol_string = this.move2string(i + this.Search_length1);
-                return true;
-            }
-        }
-        return false;
+    init2(allowBottom56 = false) {
+    var corner, edge, i, j, ml, prun;
+    this.Search_d.copy(this.Search_c);
+    for (i = 0; i < this.Search_length1; ++i) {
+        this.Search_d.doMove(this.Search_move[i]);
     }
+    this.fullCubeGetSquare(this.Search_d, this.Search_sq);
+    edge = this.Search_sq.edgeperm;
+    corner = this.Search_sq.cornperm;
+    ml = this.Search_sq.ml;
+    prun = Math.max(SquarePrun[this.Search_sq.edgeperm << 1 | ml], SquarePrun[this.Search_sq.cornperm << 1 | ml]);
+    for (i = prun; i < this.Search_maxlen2; ++i) {
+        if (this.solvePhase2(edge, corner, this.Search_sq.topEdgeFirst, this.Search_sq.botEdgeFirst, ml, i, this.Search_length1, 0, allowBottom56)) {
+            for (j = 0; j < i; ++j) {
+                this.Search_d.doMove(this.Search_move[this.Search_length1 + j]);
+            }
+            this.Search_sol_string = this.move2string(i + this.Search_length1);
+            return true;
+        }
+    }
+    return false;
+}
 
     solvePhase1() {
         let topEdgeFirst = this.topEdgeFirst;
@@ -423,87 +423,108 @@ class Search {
         return this.init2();
     }
 
-    solvePhase2(edge, corner, topEdgeFirst, botEdgeFirst, ml, maxl, depth, lm) {
-        var botEdgeFirstx, cornerx, edgex, m, prun1, prun2, topEdgeFirstx;
-        if (maxl == 0 && !topEdgeFirst && botEdgeFirst) {
-            return true;
+    solvePhase2(edge, corner, topEdgeFirst, botEdgeFirst, ml, maxl, depth, lm, allowBottom56 = false) {
+    var botEdgeFirstx, cornerx, edgex, m, prun1, prun2, topEdgeFirstx;
+    if (maxl == 0 && !topEdgeFirst && botEdgeFirst) {
+        return true;
+    }
+    if (lm != 0 && topEdgeFirst == botEdgeFirst) {
+        edgex = Square_TwistMove[edge];
+        cornerx = Square_TwistMove[corner];
+        if (SquarePrun[edgex << 1 | 1 - ml] < maxl && SquarePrun[cornerx << 1 | 1 - ml] < maxl) {
+            this.Search_move[depth] = 0;
+            if (this.solvePhase2(edgex, cornerx, topEdgeFirst, botEdgeFirst, 1 - ml, maxl - 1, depth + 1, 0, allowBottom56)) {
+                return true;
+            }
         }
-        if (lm != 0 && topEdgeFirst == botEdgeFirst) {
-            edgex = Square_TwistMove[edge];
-            cornerx = Square_TwistMove[corner];
-            if (SquarePrun[edgex << 1 | 1 - ml] < maxl && SquarePrun[cornerx << 1 | 1 - ml] < maxl) {
-                this.Search_move[depth] = 0;
-                if (this.solvePhase2(edgex, cornerx, topEdgeFirst, botEdgeFirst, 1 - ml, maxl - 1, depth + 1, 0)) {
+    }
+    if (lm <= 0) {
+        topEdgeFirstx = !topEdgeFirst;
+        edgex = topEdgeFirstx ? Square_TopMove[edge] : edge;
+        cornerx = topEdgeFirstx ? corner : Square_TopMove[corner];
+        m = topEdgeFirstx ? 1 : 2;
+        prun1 = SquarePrun[edgex << 1 | ml];
+        prun2 = SquarePrun[cornerx << 1 | ml];
+        while (m < 12 && prun1 <= maxl && prun2 <= maxl) {
+            if (prun1 < maxl && prun2 < maxl) {
+                this.Search_move[depth] = m;
+                if (this.solvePhase2(edgex, cornerx, topEdgeFirstx, botEdgeFirst, ml, maxl - 1, depth + 1, 1, allowBottom56)) {
                     return true;
                 }
             }
-        }
-        if (lm <= 0) {
-            topEdgeFirstx = !topEdgeFirst;
-            edgex = topEdgeFirstx ? Square_TopMove[edge] : edge;
-            cornerx = topEdgeFirstx ? corner : Square_TopMove[corner];
-            m = topEdgeFirstx ? 1 : 2;
-            prun1 = SquarePrun[edgex << 1 | ml];
-            prun2 = SquarePrun[cornerx << 1 | ml];
-            while (m < 12 && prun1 <= maxl && prun2 <= maxl) {
-                if (prun1 < maxl && prun2 < maxl) {
-                    this.Search_move[depth] = m;
-                    if (this.solvePhase2(edgex, cornerx, topEdgeFirstx, botEdgeFirst, ml, maxl - 1, depth + 1, 1)) {
-                        return true;
-                    }
-                }
-                topEdgeFirstx = !topEdgeFirstx;
-                if (topEdgeFirstx) {
-                    edgex = Square_TopMove[edgex];
-                    prun1 = SquarePrun[edgex << 1 | ml];
-                    m += 1;
-                } else {
-                    cornerx = Square_TopMove[cornerx];
-                    prun2 = SquarePrun[cornerx << 1 | ml];
-                    m += 2;
-                }
+            topEdgeFirstx = !topEdgeFirstx;
+            if (topEdgeFirstx) {
+                edgex = Square_TopMove[edgex];
+                prun1 = SquarePrun[edgex << 1 | ml];
+                m += 1;
+            } else {
+                cornerx = Square_TopMove[cornerx];
+                prun2 = SquarePrun[cornerx << 1 | ml];
+                m += 2;
             }
         }
-        if (lm <= 1) {
-            botEdgeFirstx = !botEdgeFirst;
-            edgex = botEdgeFirstx ? Square_BottomMove[edge] : edge;
-            cornerx = botEdgeFirstx ? corner : Square_BottomMove[corner];
-            m = botEdgeFirstx ? 1 : 2;
-            prun1 = SquarePrun[edgex << 1 | ml];
-            prun2 = SquarePrun[cornerx << 1 | ml];
-            while (m < 5 && prun1 <= maxl && prun2 <= maxl) { // restrict to max 4 D move
-                if (prun1 < maxl && prun2 < maxl) {
-                    this.Search_move[depth] = -m;
-                    if (this.solvePhase2(edgex, cornerx, topEdgeFirst, botEdgeFirstx, ml, maxl - 1, depth + 1, 2)) {
-                        return true;
-                    }
-                }
-                botEdgeFirstx = !botEdgeFirstx;
-                if (botEdgeFirstx) {
-                    edgex = Square_BottomMove[edgex];
-                    prun1 = SquarePrun[edgex << 1 | ml];
-                    m += 1;
-                } else {
-                    cornerx = Square_BottomMove[cornerx];
-                    prun2 = SquarePrun[cornerx << 1 | ml];
-                    m += 2;
-                }
-            }
-        }
-        return false;
     }
+    if (lm <= 1) {
+        botEdgeFirstx = !botEdgeFirst;
+        edgex = botEdgeFirstx ? Square_BottomMove[edge] : edge;
+        cornerx = botEdgeFirstx ? corner : Square_BottomMove[corner];
+        m = botEdgeFirstx ? 1 : 2;
+        prun1 = SquarePrun[edgex << 1 | ml];
+        prun2 = SquarePrun[cornerx << 1 | ml];
+        const bottomLimit = allowBottom56 ? (maxl > 6 ? 6 : 12) : 5;
+        while (m < bottomLimit && prun1 <= maxl && prun2 <= maxl) {
+            if (prun1 < maxl && prun2 < maxl) {
+                this.Search_move[depth] = -m;
+                if (this.solvePhase2(edgex, cornerx, topEdgeFirst, botEdgeFirstx, ml, maxl - 1, depth + 1, 2, allowBottom56)) {
+                    return true;
+                }
+            }
+            botEdgeFirstx = !botEdgeFirstx;
+            if (botEdgeFirstx) {
+                edgex = Square_BottomMove[edgex];
+                prun1 = SquarePrun[edgex << 1 | ml];
+                m += 1;
+            } else {
+                cornerx = Square_BottomMove[cornerx];
+                prun2 = SquarePrun[cornerx << 1 | ml];
+                m += 2;
+            }
+        }
+    }
+    return false;
+}
 
-    findSolution(c) {
-        this.Search_c = c;
-        do {
-            this.topEdgeFirst = false;
-            this.botEdgeFirst = true;
+    findSolution(c, scrambleMode = 'long', allowBottom56 = false) {
+    this.Search_c = c;
+    if (scrambleMode === 'small') {
+        this.Search_length1 = 0;
+        this.Search_maxlen2 = 99;
+        this.Search_move = [];
+        if (this.init2(allowBottom56)) {
+            return this.Search_sol_string;
+        }
+        return null;
+    }
+    do {
+        this.topEdgeFirst = false;
+        this.botEdgeFirst = true;
+        if (scrambleMode === 'medium') {
+            this.Search_length1 = 3 * (Math.floor(Math.random() * 4) + 3);
+            this.Search_maxlen2 = 13;
+        } else {
             this.Search_length1 = 3 * (Math.floor(Math.random() * 5) + 3);
             this.Search_maxlen2 = Math.min(45 - this.Search_length1, 18);
-            this.Search_move = [];
-        } while (!this.solvePhase1() || this.Search_sol_string.split("/").length-1 < 9)
-        return this.Search_sol_string;
-    }
+        }
+        this.Search_move = [];
+    } while (
+        !this.solvePhase1() ||
+        (scrambleMode === 'medium'
+            ? this.Search_sol_string.split("/").length - 1 < 8 ||
+              this.Search_sol_string.split("/").length - 1 > 12
+            : this.Search_sol_string.split("/").length - 1 < 9)
+    );
+    return this.Search_sol_string;
+}
 }
 
 // Initialize Square tables
@@ -516,8 +537,8 @@ const search = new Search();
 // Public API
 // ============================================================================
 
-function scrambleFromState(cubie) {
-    return search.findSolution(cubie);
+function scrambleFromState(cubie, scrambleMode = 'long', allowBottom56 = false) {
+    return search.findSolution(cubie, scrambleMode, allowBottom56);
 }
 
 // Parse hex format
@@ -680,35 +701,25 @@ function generateRandomCase(selectedCases, equatorMode = 'random') {
 // MAIN cube.js USAGE
 // ============================================================================
 
-function getScramble(caseName, mlMode) {
-    // caseName: e.g. "Al/Ar"
-    // mlMode: "+", "-", or "random"
+function getScramble(caseName, mlMode, scrambleMode = 'long', allowBottom56 = false) {
     let equatorMode;
     switch (mlMode) {
-        case "+":
-            equatorMode = 'slash';
-            break;
-        case "-":
-            equatorMode = 'bar';
-            break;
-        default:
-            equatorMode = 'random';
-            break;
+        case "+": equatorMode = 'slash'; break;
+        case "-": equatorMode = 'bar'; break;
+        default:  equatorMode = 'random'; break;
     }
-    
     const result = generateRandomCase([caseName], equatorMode).finalHex;
-    const solution = scrambleFromState(parseHexFormat(result));
-    
+    const solution = scrambleFromState(parseHexFormat(result), scrambleMode, allowBottom56);
     if (solution && solution !== '(solved)') {
         return solution.replace(/ \(|\)/g, "");
     } else {
-        throw new Error("caseName: "+caseName+"; mlMode: "+mlMode+ "; no solution found or already solved")
+        throw new Error("caseName: " + caseName + "; mlMode: " + mlMode + "; no solution found or already solved");
     }
 }
 
 // Export for browser use
-if (typeof window !== 'undefined') {
-    window.scrambler = {
+if (typeof self !== 'undefined') {
+    self.scrambler = {
         getScramble: getScramble
     };
 }

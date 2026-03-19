@@ -1,225 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        />
-        <title>PBL Trainer</title>
-        <link rel="stylesheet" href="css/index.css" />
 
-        <!-- for upload/download icons -->
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-        />
-        <script src="script/scrambler.js"></script>
-        <script defer="defer" src="script/cube.js"></script>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-        <script>
-            if ('serviceWorker' in navigator) {
-                let refreshing = false;
-                
-                // Detect when a new service worker is waiting
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    if (!refreshing) {
-                        refreshing = true;
-                        console.log('[SW] New service worker activated, reloading page');
-                        window.location.reload();
-                    }
-                });
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>PBL Trainer</title>
+    <link rel="stylesheet" href="css/index.css" />
 
-                navigator.serviceWorker.register('/serviceworker.js')
-                    .then((registration) => {
-                        console.log('[SW] Service Worker registered:', registration);
-                        
-                        // Check for updates periodically
-                        setInterval(() => {
-                            registration.update();
-                        }, 60000); // Check every minute
-                        
-                        // If there's an update waiting, activate it
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            console.log('[SW] New service worker found');
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('[SW] New service worker installed, will activate on next page load');
-                                    // Optionally show a notification to the user
-                                    // You could add a banner here saying "Update available, please refresh"
-                                }
-                            });
+    <!-- for upload/download icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script/pbl_group_maps.js"></script>
+    <script src="script/pbl-data.js"></script>
+    <script src="script/karnify.js"></script>
+    <script src="script/optimizer.js"></script>
+    <script src="script/filter.js"></script>
+    <script defer="defer" src="script/cube.js"></script>
+
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+        if ('serviceWorker' in navigator) {
+            let refreshing = false;
+
+            // Detect when a new service worker is waiting
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    console.log('[SW] New service worker activated, reloading page');
+                    window.location.reload();
+                }
+            });
+
+            navigator.serviceWorker.register('/serviceworker.js')
+                .then((registration) => {
+                    console.log('[SW] Service Worker registered:', registration);
+
+                    // Check for updates periodically
+                    setInterval(() => {
+                        registration.update();
+                    }, 60000); // Check every minute
+
+                    // If there's an update waiting, activate it
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('[SW] New service worker found');
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[SW] New service worker installed, will activate on next page load');
+                                // Optionally show a notification to the user
+                                // You could add a banner here saying "Update available, please refresh"
+                            }
                         });
-                    })
-                    .catch((error) => {
-                        console.error('[SW] Service Worker registration failed:', error);
                     });
-            }
-        </script>
-    </head>
-    <body>
-        <div class="navbar">
-            <div class="nav-left">
-                <button onclick="location.href='https://squan-trainers.web.app/'">← Home</button>
-                <button id="toggleui">Toggle selector</button>
+                })
+                .catch((error) => {
+                    console.error('[SW] Service Worker registration failed:', error);
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="nav-left">
+            <button onclick="location.href='https://squan-trainers.web.app/'">← Home</button>
+            <button id="toggleui">Toggle selector</button>
+        </div>
+        <div>PBL TRAINER</div>
+        <div class="nav-right">
+            <button id="open-help">?</button>
+            <button id="open-settings">&#9881;</button>
+        </div>
+        <input type="file" id="fileinput" style="display: none" accept=".json" />
+
+        <div id="lump-modal"
+            style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);overflow-y:auto;padding:32px 20px;"
+            onclick="closeLumpModal(event)">
+            <div id="lump-modal-inner"
+                style="max-width:640px;margin:0 auto;font-family:Arial,sans-serif;color:#e0e0e0;line-height:1.6;cursor:default;"
+                onclick="event.stopPropagation()">
+                <div id="lump-modal-content"></div>
+                <div style="margin-top:32px;text-align:center;font-size:0.85rem;opacity:0.4;">click outside to close
+                </div>
             </div>
-            <div>PBL TRAINER</div>
-            <div class="nav-right">
-                <button id="open-help">?</button>
-                <button id="open-settings">&#9881;</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="popup" id="settings-popup">
+            <div class="popup-inner settings-popup-inner">
+                <div class="list-bar">
+                    <div class="list-name">Settings</div>
+                    <div class="cross">&#10005;</div>
+                </div>
+                <div class="settings-body">
+                    <label class="settings-row">
+                        <input type="checkbox" class="karn" />
+                        <span>Use karnotation <b>(K)</b></span>
+                    </label>
+                    <div class="settings-row" id="scramble-length-row">
+                        <span>Scramble length:</span>
+                        <div class="equator-options">
+                            <label><input type="radio" name="scramlen" value="long" checked /> Long</label>
+                            <label><input type="radio" name="scramlen" value="medium" /> Medium</label>
+                            <label><input type="radio" name="scramlen" value="small" /> Small</label>
+                        </div>
+                    </div>
+                    <label class="settings-row" id="bottom56-row" style="display:none">
+                        <input type="checkbox" id="allow-bottom56" />
+                        <span>Allow bottom 5s and 6s</span>
+                    </label>
+                    <label class="settings-row">
+                        <input type="checkbox" class="weight" />
+                        <span>Use realistic weights <b>(R)</b></span>
+                    </label>
+                    <hr class="settings-divider" />
+                    <button class="settings-action-btn" id="uploaddata"><i class="fa fa-upload"></i> Upload
+                        data</button>
+                    <button class="settings-action-btn" id="downloaddata"><i class="fa fa-download"></i> Download
+                        data</button>
+                </div>
             </div>
-            <input
-                type="file"
-                id="fileinput"
-                style="display: none"
-                accept=".json"
-            />
         </div>
 
-        <div class="main">
-            <div class="popup" id="settings-popup">
-                <div class="popup-inner settings-popup-inner">
-                    <div class="list-bar">
-                        <div class="list-name">Settings</div>
-                        <div class="cross">&#10005;</div>
-                    </div>
-                    <div class="settings-body">
-                        <label class="settings-row">
-                            <input type="checkbox" class="allcases" />
-                            <span>Go through each case once <b>(E)</b></span>
-                        </label>
-                        <label class="settings-row">
-                            <input type="checkbox" class="karn" />
-                            <span>Use karnotation <b>(K)</b></span>
-                        </label>
-                        <label class="settings-row">
-                            <input type="checkbox" class="weight" />
-                            <span>Use realistic weights <b>(R)</b></span>
-                        </label>
-                        <hr class="settings-divider" />
-                        <button class="settings-action-btn" id="uploaddata"><i class="fa fa-upload"></i> Upload data</button>
-                        <button class="settings-action-btn" id="downloaddata"><i class="fa fa-download"></i> Download data</button>
-                    </div>
+        <div class="popup" id="list-popup">
+            <div class="popup-inner">
+                <div class="list-bar">
+                    <div class="list-name">Manage lists</div>
+                    <div class="cross">&#10005;</div>
+                </div>
+                <div class="list-menu" id="list-menu">
+                    <div class="sublist-name">Default lists</div>
+                    <div id="defaultlists" class="sublist-menu"></div>
+                    <div class="sublist-name">Your lists</div>
+                    <div id="userlists" class="sublist-menu"></div>
+                </div>
+                <div class="list-buttons">
+                    <button class="list-btn" id="dellist">Delete</button>
+                    <button class="list-btn" id="overwritelist">
+                        Overwrite
+                    </button>
+                    <button class="list-btn right" id="sellist">
+                        View
+                    </button>
+                    <button class="list-btn" id="trainlist">Select</button>
+                    <button class="list-btn" id="newlist">Create New list</button>
                 </div>
             </div>
-
-            <div class="popup" id="list-popup">
-                <div class="popup-inner">
-                    <div class="list-bar">
-                        <div class="list-name">Manage lists</div>
-                        <div class="cross">&#10005;</div>
-                    </div>
-                    <div class="list-menu" id="list-menu">
-                        <div class="sublist-name">Default lists</div>
-                        <div id="defaultlists" class="sublist-menu"></div>
-                        <div class="sublist-name">Your lists</div>
-                        <div id="userlists" class="sublist-menu"></div>
-                    </div>
-                    <div class="list-buttons">
-                        <button class="list-btn" id="dellist">Delete</button>
-                        <button class="list-btn" id="overwritelist">
-                            Overwrite
-                        </button>
-                        <button class="list-btn right" id="sellist">
-                            View
-                        </button>
-                        <button class="list-btn" id="trainlist">Select</button>
-                    </div>
+        </div>
+        <div class="popup" id="help-popup">
+            <div class="popup-inner">
+                <div class="list-bar">
+                    <div class="list-name">Help</div>
+                    <div class="cross">&#10005;</div>
                 </div>
-            </div>
-            <div class="popup" id="help-popup">
-                <div class="popup-inner">
-                    <div class="list-bar">
-                        <div class="list-name">Help</div>
-                        <div class="cross">&#10005;</div>
+                <div class="help">
+                    <div class="visible-both">
+                        <p>Type <b>"freq" + number</b> (e.g. "freq 2") into the filter box to filter by frequency.
+                            (valid frequencies are: 1, 2, 4, 8, 16, 32, 64, 128, 256)</p>
                     </div>
-                    <div class="help">
-                        <div class="visible-both">
-                            <p>Type <b>"freq" + number</b> (e.g. "freq 2") into the filter box to filter by frequency. (valid frequencies are: 1, 2, 4, 8, 16, 32, 64, 128, 256)</p>
-                        </div>
-                        <div>
-                            <p><b>← :</b> previous scramble</p>
-                            <p><b>→ :</b> next scramble</p>
-                            <p><b>backspace:</b> remove last case</p>
-                            <p><b>Ctrl + F:</b> focus on search box</p>
-                            <p><b>Ctrl + Z:</b> undo remove last</p>
-                            <p><b>Ctrl + Y:</b> redo remove last</p>
-                            <p><b>Ctrl + A:</b> select all</p>
-                            <p><b>Ctrl + Shift + A:</b> deselect all</p>
-                            <p><b>Ctrl + S:</b> select these</p>
-                            <p><b>Ctrl + Shift + S:</b> deselect these</p>
-                            <p><b>Alt + A:</b> show all</p>
-                            <p><b>Alt + S:</b> show selection</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar hidden-on-mobile" id="sidebar">
-                <input
-                    type="text"
-                    class="filter-input"
-                    id="obl-filter"
-                    maxlength="10"
-                    autocomplete="new-obl-filter"
-                    placeholder='Filter cases (Ctrl+F)'
-                />
-                <p class="selection-text" id="selcount">Selected: -</p>
-                <div class="selection-grid">
-                    <button class="selection-btn" id="sela">
-                        Select <b>ALL</b>
-                    </button>
-                    <button class="selection-btn" id="desela">
-                        Deselect <b>ALL</b>
-                    </button>
-                    <button class="selection-btn" id="selt">
-                        Select these
-                    </button>
-                    <button class="selection-btn" id="deselt">
-                        Deselect these
-                    </button>
-                    <button class="selection-btn" id="showselected">
-                        Show selected
-                    </button>
-                    <button class="selection-btn" id="showall">Show ALL</button>
-                    <button class="selection-btn" id="openlists">
-                        Select list
-                    </button>
-                    <button class="selection-btn" id="newlist">
-                        Create list
-                    </button>
-                </div>
-                <div class="pbl-grid" id="results">
-                    <!-- Cases -->
-                </div>
-            </div>
-
-            <div class="content hidden-mobile" id="content">
-                <div class="top-bar">
-                    <div class="bar-scramble" id="cur-scram">
-                        Scramble will show up here
-                    </div>
-                    <div style="margin-top: 10px">
-                        <button class="bar-btn" id="prev"><- Previous</button>
-                        <button class="bar-btn" id="unselprev">
-                            Remove last
-                        </button>
-                        <button class="bar-btn" id="next">Next -></button>
-                    </div>
-                </div>
-
-                <div class="timer-box" id="timerbox">
-                    <div class="timer-display" id="timer">--:--</div>
-                </div>
-
-                <div class="bottom-bar">
-                    <div class="bar-scramble" id="prev-scram">
-                        Last scramble will show up here
+                    <div>
+                        <p><b>← :</b> previous scramble</p>
+                        <p><b>→ :</b> next scramble</p>
+                        <p><b>backspace:</b> remove last case</p>
+                        <p><b>Ctrl + F:</b> focus on search box</p>
+                        <p><b>Ctrl + Z:</b> undo remove last</p>
+                        <p><b>Ctrl + Y:</b> redo remove last</p>
+                        <p><b>Ctrl + A:</b> select all</p>
+                        <p><b>Ctrl + Shift + A:</b> deselect all</p>
+                        <p><b>Ctrl + S:</b> select these</p>
+                        <p><b>Ctrl + Shift + S:</b> deselect these</p>
+                        <p><b>Alt + A:</b> show all</p>
+                        <p><b>Alt + S:</b> show selection</p>
                     </div>
                 </div>
             </div>
         </div>
-    </body>
+
+        <div class="sidebar hidden-on-mobile" id="sidebar">
+            <label class="sidebar-check-row">
+                <input type="checkbox" class="allcases" />
+                <span>Go through each case once <b>(E)</b></span>
+            </label>
+            <div class="equator-row">
+                <span>Equator:</span>
+                <div class="equator-options">
+                    <label><input type="radio" name="equator" value="random" checked /> Both</label>
+                    <label><input type="radio" name="equator" value="bar" /> Solved</label>
+                    <label><input type="radio" name="equator" value="slash" /> Flipped</label>
+                </div>
+            </div>
+            <input type="text" class="filter-input" id="obl-filter" maxlength="10" autocomplete="new-obl-filter"
+                placeholder='Filter cases (Ctrl+F)' />
+            <p class="selection-text" id="selcount">Selected: -</p>
+            <div class="selection-grid">
+                <button class="selection-btn" id="sela">Select ALL</button>
+                <button class="selection-btn" id="desela">Deselect ALL</button>
+                <button class="selection-btn" id="showtoggle">Showing: all</button>
+                <button class="selection-btn" id="openlists">Select list</button>
+            </div>
+            <div class="pbl-grid" id="results">
+                <!-- Cases -->
+            </div>
+        </div>
+
+        <div class="content" id="content">
+            <div class="top-bar">
+                <div class="bar-scramble" id="cur-scram">
+                    Scramble will show up here
+                </div>
+                <div style="margin-top: 10px">
+                    <button class="bar-btn" id="prev"><- Previous</button>
+                            <button class="bar-btn" id="unselprev">
+                                Remove last
+                            </button>
+                            <button class="bar-btn" id="next">Next -></button>
+                </div>
+            </div>
+
+            <div class="timer-box" id="timerbox">
+                <div class="timer-display" id="timer">--:--</div>
+            </div>
+
+            <div class="bottom-bar">
+                <div class="bar-scramble" id="prev-scram">
+                    Last scramble will show up here
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>

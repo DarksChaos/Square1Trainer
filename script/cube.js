@@ -23,688 +23,6 @@ function randrange(start, stop, step = 1) {
     return start + index * step;
 }
 
-function allCharsIn(str1, str2) {
-    return [...str1].every((char) => str2.includes(char));
-}
-
-function shuffle(array) {
-    let currentIndex = array.length;
-
-    // While there remain elements to shuffle...
-    while (currentIndex != 0) {
-        // Pick a remaining element...
-        let randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-
-        // And swap it with the current element.
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-        ];
-    }
-}
-
-function replaceWithDict(str, dict) {
-    // keys are already sorted longest → shortest
-    const pattern = new RegExp(Object.keys(dict).join("|"), "g");
-    while (str.replace(pattern, (match) => dict[match]) !== str)
-        str = str.replace(pattern, (match) => dict[match]);
-    return str;
-}
-
-const compareCS = (a, b) =>
-    a.length === b.length &&
-    a.every(
-        (element, index) =>
-            (element >= 0 && b[index] >= 0) ||
-            (element == -1 && element == b[index])
-    );
-
-class Move {
-    static Slice = 0b11111111;
-    static U = 0b11110000;
-    static D = 0b00001111;
-    static Move(u, d) {
-        return (mod(u, 12) << 4) + mod(d, 12);
-    }
-    static isSlice(move) {
-        return move == this.Slice;
-    }
-    static Up(move) {
-        return (move & this.U) >> 4;
-    }
-    static Down(move) {
-        return move & this.D;
-    }
-    static Add(a, b) {
-        u1 = this.Up(a);
-        u2 = this.Up(b);
-        d1 = this.Down(a);
-        d2 = this.Down(b);
-        return this.Move(u1 + u2, d1 + d2);
-    }
-    static Sub(a, b) {
-        u1 = this.Up(a);
-        u2 = this.Up(b);
-        d1 = this.Down(a);
-        d2 = this.Down(b);
-        return this.Move(u1 - u2, d1 - d2);
-    }
-    static toString(move, short = false) {
-        if (this.isSlice(move)) return "/";
-        let u = this.Up(move);
-        let d = this.Down(move);
-        if (u > 6) u -= 12;
-        if (d > 6) d -= 12;
-        if (short) return u + d;
-        return "(" + u + ", " + d + ")";
-    }
-}
-
-class Sequence {
-    static parseMove(move) {
-        move = move.replace(/[^0-9\/,\-]/g, "");
-        if (move == "/") return Move.Slice;
-        if (move.includes(",")) {
-            // There is a separator
-            let nums = move.split(",");
-            return Move.Move(parseInt(nums[0]), parseInt(nums[1]));
-        } else {
-            switch (move.length) {
-                case 2:
-                    return Move.Move(parseInt(move[0]), parseInt(move[1]));
-                case 3:
-                    if (move[0] == "-")
-                        return Move.Move(
-                            parseInt(move.slice(0, 2)),
-                            parseInt(move[2])
-                        );
-                    return Move.Move(
-                        parseInt(move[0]),
-                        parseInt(move.slice(1))
-                    );
-                case 4:
-                    return Move.Move(
-                        parseInt(move.slice(0, 2)),
-                        parseInt(move.slice(2))
-                    );
-            }
-        }
-    }
-
-    constructor(string) {
-        this.moves = [];
-        string = string.replace(/[^0-9\/,\-]/g, "");
-        let moveTxt = string.split(/(\/)/).filter((part) => part !== "");
-        for (let i = 0; i < moveTxt.length; i++) {
-            if (moveTxt[i] == "") continue;
-            this.moves.push(Sequence.parseMove(moveTxt[i]));
-        }
-    }
-
-    toString(karn = false) {
-        let str = "";
-        for (let i = 0; i < this.moves.length; i++) {
-            str += Move.toString(this.moves[i]);
-        }
-        return str;
-    }
-}
-
-const solved = "A1B2C3D45E6F7G8H-";
-
-// headlights/bars in the back, or FR angle
-const TPLL = {
-    // NO DP
-    "-": "A1B2C3D4",
-    Al: "A1C2D3B4",
-    Ar: "C1A2B3D4",
-    E: "D1C2B3A4",
-    F: "D3B2C1A4",
-    Gal: "A1C4D2B3",
-    Gar: "C2A4B3D1",
-    Gol: "A3C1D2B4",
-    Gor: "C2A3B1D4",
-    H: "A3B4C1D2",
-    Ja: "D4B2C3A1",
-    Jm: "D1B2C4A3",
-    Na: "D4C3B2A1",
-    Nm: "B4A3D2C1",
-    Rl: "D1B3C2A4",
-    Rr: "B4D3A1C2",
-    T: "D1B4C3A2",
-    Ul: "A3B2C4D1",
-    Ur: "A4B2C1D3",
-    V: "C2B1A3D4",
-    Y: "A2D1C3B4",
-    Z: "A2B1C4D3",
-
-    // DP
-    Adj: "A1B2C4D3",
-    Opp: "A3B2C1D4",
-    pJ: "D1B2C3A4",
-    pN: "A1D2C3B4",
-    Ba: "D4B1C3A2",
-    Bm: "D1B3C4A2",
-    Cl: "D2B3C1A4",
-    Cr: "D3B1C2A4",
-    Da: "D2B4C3A1",
-    Dm: "D1B4C2A3",
-    Ka: "D4B3C2A1",
-    Km: "D2B1C4A3",
-    M: "D3B4C1A2",
-    Ol: "A2B3C4D1",
-    Or: "A4B1C2D3",
-    Pl: "D4B2C1A3",
-    Pr: "D3B2C4A1",
-    Q: "D1C4B3A2",
-    Sa: "D4C2B3A1",
-    Sm: "D1C2B4A3",
-    W: "C2D1A3B4",
-    X: "D3C2B1A4",
-};
-
-let BPLL = {
-    // NO DP
-    "-": "5E6F7G8H",
-    Al: "5G6E7F8H",
-    Ar: "5E6G7H8F",
-    E: "5H6G7F8E",
-    F: "6E5G8H7F",
-    Gal: "8E5G7H6F",
-    Gar: "8E6G5H7F",
-    Gol: "7E5G6H8F",
-    Gor: "5E8G6H7F",
-    H: "8F5G6H7E",
-    Ja: "5E7G8H6F",
-    Jm: "7E6G8H5F",
-    Na: "7G6F5E8H",
-    Nm: "7E6H5G8F",
-    Rl: "7F5H8E6G",
-    Rr: "7F8H6E5G",
-    T: "5F8H7E6G",
-    Ul: "6G7H5E8F",
-    Ur: "8G6H5E7F",
-    V: "7G8F6E5H",
-    Y: "7E8H6G5F",
-    Z: "8G7H6E5F",
-
-    // DP
-    Adj: "8G7H5E6F",
-    Opp: "5E8F7G6H",
-    pJ: "7F8H5E6G",
-    pN: "7E8H5G6F",
-    Ba: "5F8H6E7G",
-    Bm: "5F7H8E6G",
-    Cl: "7F6H8E5G",
-    Cr: "7F5H6E8G",
-    Da: "6F8H7E5G",
-    Dm: "8F5H7E6G",
-    Ka: "6F5H8E7G",
-    Km: "8F7H6E5G",
-    M: "5F6H7E8G",
-    Ol: "6G7H8E5F",
-    Or: "8G5H6E7F",
-    Pl: "6H8F7G5E",
-    Pr: "8H5F7G6E",
-    Q: "7H6G5F8E",
-    Sa: "8H6G7F5E",
-    Sm: "6H5G7F8E",
-    W: "7E8F6G5H",
-    X: "7F6E5H8G",
-};
-
-function testPLL(layer, list) {
-    for (let [name, value] of Object.entries(list)) {
-        if (layer == value) return name;
-    }
-    return 0;
-}
-
-function rotateLayer(layer, full) {
-    const n = 6 + full;
-    return layer.slice(n) + layer.slice(0, n);
-}
-
-function offsetLayer(layer, top) {
-    const a = top ? "A".charCodeAt(0) : "E".charCodeAt(0);
-    const offnum = top ? 0 : 4;
-    let str = "";
-    for (const s of layer) {
-        if (isNaN(s))
-            str += String.fromCharCode(mod(s.charCodeAt(0) - a + 1, 4) + a);
-        else str += (mod(parseInt(s), 4) + 1 + offnum).toString();
-    }
-    return str;
-}
-
-function findPLL(layer, top, full = false) {
-    const list = top ? TPLL : BPLL;
-    const limit = 4 + 4 * full;
-    for (let i = 0; i < limit; i++) {
-        let base = layer;
-        for (let j = 0; j < 4; j++) {
-            let pllName = testPLL(base, list);
-            if (pllName) return pllName;
-            base = offsetLayer(base, top);
-        }
-        layer = rotateLayer(layer, full);
-    }
-    return false;
-}
-
-// OBL TRAINER IMPORTS
-
-const KARN = {
-    "3,0": "U",
-    "-3,0": "U'",
-    "0,3": "D",
-    "0,-3": "D'",
-    "3,3": "e",
-    "-3,-3": "e'",
-    "3,-3": "E",
-    "-3,3": "E'",
-    "2,-1": "u",
-    "-1,2": "d",
-    "-4,-1": "F'",
-    "-1,-4": "f'",
-    "2,-4": "T",
-    "-4,2": "t'",
-    "2,2": "m",
-    "-1,-1": "M'",
-    "5,-1": "u2",
-    "1,-5": "d2'",
-    "-2,1": "u'",
-    "1,-2": "d'",
-    "4,1": "F",
-    "1,4": "f",
-    "-2,4": "T'",
-    "4,-2": "t",
-    "-2,-2": "m'",
-    "1,1": "M",
-    "-5,1": "u2'",
-    "-1,5": "d2",
-};
-
-const HIGHKARN = {
-    // add spaces for de-ambiguity
-    " U U' U U' ": " U4 ",
-    " U' U U' U ": " U4' ",
-    " D D' D D' ": " D4 ",
-    " D' D D' D ": " D4' ",
-    " u u' u u' ": " u4 ",
-    " u' u u' u ": " u4' ",
-    " d d' d d' ": " d4 ",
-    " d' d d' d ": " d4' ",
-
-    " U U' U ": " U3 ",
-    " U' U U' ": " U3' ",
-    " D D' D ": " D3 ",
-    " D' D D' ": " D3' ",
-    " u u' u ": " u3 ",
-    " u' u u' ": " u3' ",
-    " d d' d ": " d3 ",
-    " d' d d' ": " d3' ",
-    " F F' F ": " F3 ",
-    " F' F F' ": " F3' ",
-    " f f' f ": " f3 ",
-    " f' f f' ": " f3' ",
-
-    " U U' ": " W ",
-    " U' U ": " W' ",
-    " D D' ": " B ",
-    " D' D ": " B' ",
-    " u u' ": " w ",
-    " u' u ": " w' ",
-    " d d' ": " b ",
-    " d' d ": " b' ",
-    " F F' ": " F2 ",
-    " F' F ": " F2' ",
-    " f f' ": " f2 ",
-    " f' f ": " f2' ",
-
-    " 60 ": " U2 ",
-    " 63 ": " U2D ",
-    " 6-3 ": " U2D' ",
-    " 66 ": " U2D2 ",
-    " 06 ": " D2 ",
-    " 36 ": " UD2 ",
-    " -36 ": " U'D2 ",
-
-    " U U ": " UU ",
-    " U' U' ": " UU' ",
-    " D D ": " DD ",
-    " D' D' ": " DD' ",
-};
-// if the following moves accur, replace them with optimized ones
-// UPDATE THIS
-const OPTIM = {
-    "/0,0/": "", // special case, handled in optimize()
-    "/3,3/3,3/": "-3,-3/-3,-3",
-    "/-3,-3/-3,-3/": "3,3/3,3",
-    "/2,2/-2,-2/": "2,2/-2,-2",
-    "/-2,-2/2,2/": "-2,-2/2,2",
-    "/1,1/-1,-1/": "1,1/-1,-1",
-    "/-1,-1/1,1/": "-1,-1/1,1",
-    "/2,-4/-2,4/2,-4/": "2,-4/-2,4/2,-4",
-    "/-2,4/2,-4/-2,4/": "-2,4/2,-4/-2,4",
-    "/5,-1/-5,1/5,-1/": "5,-1/-5,1/5,-1",
-    "/-5,1/5,-1/-5,1/": "-5,1/5,-1/-5,1"
-}
-
-const OPTIM_KEYS = Array.from(Object.keys(OPTIM)); // array of keys
-
-function karnify(scramble) {
-    // scramble: e.g. "4,-3/-3,0/-1,2/1,-2/-1,2/3,3/-2,-2/3,3/-3,0/-1,2/3,3/3,3/-2,4/-1,0"
-    // returns "4-3 U' d3 e m' e U' d e e T' -10"
-    scramble = scramble.split("/");
-    let newMoves = [];
-    // first level karnify
-    for (let move of scramble) {
-        if (move in KARN) {
-            newMoves.push(KARN[move]);
-        } else {
-            newMoves.push(move.replace(",", ""));
-        }
-    }
-    let firstKarn = newMoves.join(" ");
-    // second level karnify
-    let secondKarn = replaceWithDict(firstKarn, HIGHKARN);
-    return secondKarn;
-}
-
-function legalMove(move) {
-    // move: (int) -10 ~ 12 (i think)
-    // returns: -5 ~ 6
-    if (move < -5) {
-        return move + 12;
-    }
-    else if (move > 6) {
-        return move - 12;
-    }
-    return move;
-}
-
-function addMoves(move1, move2) {
-    // move1/2: "3,-3" or "A", "a"; cannot both be alignments
-    let alignments = false;
-    let startA;
-    if (move1.toLowerCase() === "a" || move2.toLowerCase() === "a") {
-        alignments = true;
-        let Atranslation = {"A": "a", "a": "A"};
-        if (move1 in Atranslation) {
-            return changesAlignment(parseInt(move2.split(",")[0], 10)) ? Atranslation[move1] : move1;
-        }
-        if (move2 in Atranslation) {
-            return changesAlignment(parseInt(move1.split(",")[0], 10)) ? Atranslation[move2] : move2;
-        }
-    }
-    move1 = move1.split(",");
-    move2 = move2.split(",");
-    result = [legalMove(parseInt(move1[0],10) + parseInt(move2[0],10)),
-                legalMove(parseInt(move1[1],10) + parseInt(move2[1],10))];
-    return result.join(",");
-}
-
-function optimize(scramble) {
-    // scramble: "A/-3,-3/0,3/0,-3/-1,-4/-3,0/3,0/0,-3/0,3/a"
-    while (replaceWithDict(scramble, OPTIM) !== scramble) {
-        // optimize needed
-        console.log(`preoptim: ${scramble}`);
-        let moves = scramble.split("/");
-        // moves now in ["A","3,-3", "3,0", "a"]
-        let atSlice = 0; // the index of the next move in "moves"
-        let cycleCompleted = false;
-        for (let i = 0; i < scramble.length; i++) {
-            // going over every character of scramble
-            if (cycleCompleted) break;
-            if (scramble.at(i) !== "/") continue;
-            atSlice++;
-            for (let optimable of OPTIM_KEYS) {
-                // avoid getting the last "a" also
-                if (scramble.length - 1-i < optimable.length) continue;
-                if (scramble.slice(i, i+optimable.length) === optimable) {
-                    // match!!
-                    if (optimable === "/0,0/") {
-                        // special case
-                        moves[atSlice-1] = addMoves(moves[atSlice-1], moves[atSlice+1]);
-                        moves.splice(atSlice, 2);
-                        scramble = moves.join("/")
-                        cycleCompleted = true;
-                        break;
-                    }
-                    let optimableLen = optimable.split("/").length;
-                    let optimTo = OPTIM[optimable].split("/"); // no slice at beginning/end
-                    let delSliceNum = optimableLen - 2;
-                    moves[atSlice-1] = addMoves(moves[atSlice-1], optimTo.shift());
-                    moves[atSlice+optimableLen-2] = addMoves(moves[atSlice+optimableLen-2], optimTo.pop());
-                    // now optimTo has the two merged moves removed
-                    moves.splice(atSlice, delSliceNum, ...optimTo);
-                    scramble = moves.join("/")
-                    cycleCompleted = true;
-                    break;
-                }
-            }
-        }
-    }
-    return scramble;
-}
-
-class Cube {
-    constructor(descriptor) {
-        this.setPosition(descriptor);
-    }
-
-    setPosition(position) {
-        const l = position.length;
-        // top layer
-        this.topPieces = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-        let tcorners = 0;
-        let i = 0;
-        for (; i + tcorners < 12; i++) {
-            let l = position[i];
-            this.topPieces[i + tcorners] = solved.indexOf(l);
-            if (isNaN(l)) {
-                tcorners++;
-            }
-        }
-        this.botPieces = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-        let bcorners = 0;
-        for (let i = 12 - tcorners; i + bcorners + tcorners < 24; i++) {
-            let l = position[i];
-            let idx = i + bcorners + tcorners - 12;
-            this.botPieces[idx] = solved.indexOf(l);
-            if (isNaN(l)) {
-                bcorners++;
-            }
-        }
-        this.barflip = position[16] == "/" || position[16] == "+";
-    }
-
-    topLayerString() {
-        let str = "";
-        for (let i = 0; i < 12; i++) {
-            let number = this.topPieces[i];
-            if (number == -1) continue;
-            str += solved[number];
-        }
-        return str;
-    }
-
-    botLayerString() {
-        let str = "";
-        for (let i = 0; i < 12; i++) {
-            let number = this.botPieces[i];
-            if (number == -1) continue;
-            str += solved[number];
-        }
-        return str;
-    }
-
-    barChar(flip = this.barflip) {
-        return (flip ? "+" : "-").toString();
-    }
-
-    isOblSolved() {
-        return (
-            this.topPieces.every((n) => n < 8) &&
-            this.botPieces.every((n) => n > 7 || n == -1)
-        );
-    }
-
-    pblCase(full = true) {
-        const top = findPLL(this.topLayerString(), true, full);
-        const bot = findPLL(this.botLayerString(), false, full);
-        const bf = (this.barflip ? "+" : "-").toString();
-        if (top == "-") return ":" + bot + bf;
-        if (bot == "-") return top + ":" + bf;
-        return top + "/" + bot + bf;
-    }
-
-    setPBL(top, bot, preU, preD, u, d, flip) {
-        preU = mod(preU, 4);
-        preD = mod(preD, 4);
-        u = mod(u, 8);
-        d = mod(d, 8);
-        let topStr = TPLL[top];
-        let botStr = BPLL[bot];
-        for (; preU > 0; preU--) topStr = offsetLayer(topStr, true);
-        for (; preD > 0; preD--) botStr = offsetLayer(botStr, false);
-        for (; u > 0; u--) topStr = rotateLayer(topStr, true);
-        for (; d > 0; d--) botStr = rotateLayer(botStr, true);
-        this.setPosition(topStr + botStr + this.barChar(flip));
-    }
-
-    descriptor() {
-        return this.topLayerString() + this.botLayerString() + this.barChar();
-    }
-
-    isStrictCubeShape() {
-        // aligned
-        return (
-            compareCS(
-                this.topPieces,
-                [0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0]
-            ) &&
-            compareCS(this.botPieces, [0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1])
-        );
-    }
-
-    isSliceable(u, d) {
-        if (
-            this.topPieces[mod(-u, 12)] == -1 ||
-            this.topPieces[mod(-u + 6, 12)] == -1
-        ) {
-            return false;
-        }
-        if (
-            this.botPieces[mod(-d, 12)] == -1 ||
-            this.botPieces[mod(-d + 6, 12)] == -1
-        ) {
-            return false;
-        }
-        return true;
-    }
-
-    nextSliceables() {
-        let tp = 6,
-            tn = -6,
-            bp = 6,
-            bn = -6;
-        for (let i = 1; i <= 6; i++) {
-            if (this.isSliceable(i, 0)) {
-                tp = i;
-                break;
-            }
-        }
-        for (let i = -1; i >= -6; i--) {
-            if (this.isSliceable(i, 0)) {
-                tn = i;
-                break;
-            }
-        }
-        for (let i = 1; i <= 6; i++) {
-            if (this.isSliceable(0, i)) {
-                bp = i;
-                break;
-            }
-        }
-        for (let i = -1; i >= -6; i--) {
-            if (this.isSliceable(0, i)) {
-                bn = i;
-                break;
-            }
-        }
-        return [tp, tn, bp, bn];
-    }
-
-    applySequence(sequence) {
-        for (let i = 0; i < sequence.moves.length; i++) {
-            this.applyMove(sequence.moves[i]);
-        }
-    }
-
-    applyMove(move) {
-        if (Move.isSlice(move)) {
-            this.slice();
-            return;
-        }
-        this.turn(Move.Up(move), Move.Down(move));
-    }
-
-    turn(u, d) {
-        if (!this.isSliceable(u, d)) {
-            console.error("destination unsliceable");
-            return;
-        }
-        // top
-        let tempPieces = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-        for (let i = 0; i < 12; i++) {
-            tempPieces[i] = this.topPieces[mod(i - u, 12)];
-        }
-        for (let i = 0; i < 12; i++) {
-            this.topPieces[i] = tempPieces[i];
-        }
-        // bottom
-        tempPieces = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-
-        for (let i = 0; i < 12; i++) {
-            tempPieces[i] = this.botPieces[mod(i - d, 12)];
-        }
-        for (let i = 0; i < 12; i++) {
-            this.botPieces[i] = tempPieces[i];
-        }
-    }
-
-    slice() {
-        if (this.topPieces[0] == -1 || this.topPieces[6] == -1) {
-            console.error("Unsliceable on top layer");
-            return;
-        }
-        if (this.botPieces[0] == -1 || this.botPieces[6] == -1) {
-            console.error("Unsliceable on bottom layer");
-            return;
-        }
-        // swap top[6:11] with bot[0:5]
-        // Save all values
-        let lt = this.topPieces.slice(0, 6);
-        let rt = this.topPieces.slice(6);
-        let lb = this.botPieces.slice(6);
-        let rb = this.botPieces.slice(0, 6);
-
-        // Assign new values
-        this.topPieces = lt.concat(rb);
-        this.botPieces = rt.concat(lb);
-
-        // change barflip
-        this.barflip = !this.barflip;
-    }
-}
-
-// Variables
-const evenPLL = Object.keys(TPLL).slice(0, 22);
-const oddPLL = Object.keys(TPLL).slice(22);
-
 let possiblePBL = [];
 let selectedPBL = [];
 let scrambleList = []; // [[normal, karn], etc.]
@@ -723,6 +41,12 @@ let userLists = {};
 let highlightedList = null;
 
 let scrambleOffset = 0;
+let equatorMode = 'random';
+let scrambleMode = 'long';
+let allowBottom56 = false;
+let pendingScramble = null;
+let workerBusy = false;
+let worker = null;
 let generators;
 let hasActiveScramble = false;
 let isPopupOpen = false;
@@ -730,70 +54,8 @@ let isPopupOpen = false;
 let lastRemoved;
 let selectedCount = 0;
 
-const weight = {
-    "-": 1,
-    E: 2,
-    H: 1,
-    Na: 1,
-    Nm: 1,
-    Opp: 2,
-    Ol: 1,
-    Or: 1,
-    pN: 2,
-    Q: 1,
-    X: 1,
-    Z: 2,
-};
-
-const PLLextndlen = {
-    // NO DP
-    "-": 1,
-    Al: 2,
-    Ar: 2,
-    E: 1,
-    F: 1,
-    Gal: 4,
-    Gar: 4,
-    Gol: 4,
-    Gor: 4,
-    H: 1,
-    Ja: 2,
-    Jm: 2,
-    Na: 2,
-    Nm: 2,
-    Rl: 2,
-    Rr: 2,
-    T: 1,
-    Ul: 2,
-    Ur: 2,
-    V: 1,
-    Y: 1,
-    Z: 1,
-
-    // DP
-    Adj: 1,
-    Opp: 1,
-    pJ: 1,
-    pN: 1,
-    Ba: 2,
-    Bm: 2,
-    Cl: 2,
-    Cr: 2,
-    Da: 2,
-    Dm: 2,
-    Ka: 2,
-    Km: 2,
-    M: 1,
-    Ol: 2,
-    Or: 2,
-    Pl: 2,
-    Pr: 2,
-    Q: 1,
-    Sa: 2,
-    Sm: 2,
-    W: 1,
-    X: 1
-};
+let currentShowMode = 'all'; // 'all' | 'selected' | 'searched' | 'list'
+let preSearchMode = 'all';
 
 let pressStartTime = null;
 let holdTimeout = null;
@@ -820,7 +82,6 @@ const contentEl = document.getElementById("content");
 const pblListEl = document.getElementById("results");
 const filterInputEl = document.getElementById("obl-filter");
 
-// the first element is for mobile, the second is for pc
 const eachCaseEls = document.querySelectorAll(".allcases");
 const karnEls = document.querySelectorAll(".karn");
 const weightEls = document.querySelectorAll(".weight");
@@ -831,10 +92,11 @@ const removeLastEl = document.getElementById("unselprev");
 // Selection buttons
 const selectAllEl = document.getElementById("sela");
 const deselectAllEl = document.getElementById("desela");
-const selectTheseEl = document.getElementById("selt");
-const deselectTheseEl = document.getElementById("deselt");
+const selectTheseEl = null; //idk, claude set it to null
+const deselectTheseEl = null;
 const showSelectionEl = document.getElementById("showselected");
 const showAllEl = document.getElementById("showall");
+const showToggleEl = document.getElementById("showtoggle");
 const selCountEl = document.getElementById("selcount");
 
 // List buttons
@@ -853,6 +115,7 @@ const openSettingsEl = document.getElementById("open-settings");
 
 // Main page elements (scrambles and timer)
 const currentScrambleEl = document.getElementById("cur-scram");
+currentScrambleEl.style.cursor = "pointer";
 const previousScrambleEl = document.getElementById("prev-scram");
 const prevScrambleButton = document.getElementById("prev");
 const nextScrambleButton = document.getElementById("next");
@@ -867,7 +130,170 @@ function pblname(pbl) {
     return `${pbl[0]}/${pbl[1]}`;
 }
 
-// localStorage wrapper with PBL suffix
+// ─── LUMP MODAL ───────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://bubvugdjwryhcawrwhxa.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1YnZ1Z2Rqd3J5aGNhd3J3aHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMjUzOTEsImV4cCI6MjA4ODcwMTM5MX0.KgsJCFeBDmIRkyNbOA0VpPc7biTflZo2Pbuh7SPfiH8";
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const lumpCache = {}; // lump_index → data
+
+function findLumpForCase(caseName) {
+    // caseName like "Al/Ar" (strip trailing + or -)
+    const clean = caseName.replace(/[+-]$/, "");
+    for (const [lumpTitle, cases] of Object.entries(PBL_LUMP_MAP)) {
+        if (cases.includes(clean)) return lumpTitle;
+    }
+    return null;
+}
+
+function findLumpIndex(lumpTitle) {
+    const keys = Object.keys(PBL_LUMP_MAP);
+    return keys.indexOf(lumpTitle);
+}
+
+const SB_CACHE_KEY = "pblLumpCache";
+
+function saveLocalCache(cache) {
+    try { localStorage.setItem(SB_CACHE_KEY, JSON.stringify(cache)); } catch (e) { }
+}
+
+function loadLocalCache() {
+    try { const d = localStorage.getItem(SB_CACHE_KEY); return d ? JSON.parse(d) : {}; } catch (e) { return {}; }
+}
+
+// Populate lumpCache from localStorage on startup
+Object.assign(lumpCache, loadLocalCache());
+
+async function downloadAllLumps() {
+    const { data, error } = await sbClient.from("pbl_lumps").select("lump_index, data");
+    if (error || !data) return;
+    data.forEach(row => { lumpCache[row.lump_index] = row.data; });
+    saveLocalCache(lumpCache);
+    toast && toast("Alg data cached locally.");
+}
+
+async function fetchLump(lumpIndex) {
+    if (lumpCache[lumpIndex]) return lumpCache[lumpIndex];
+    // try single fetch from supabase
+    const { data, error } = await sbClient.from("pbl_lumps").select("data").eq("lump_index", lumpIndex).single();
+    if (!error && data) {
+        lumpCache[lumpIndex] = data.data;
+        saveLocalCache(lumpCache);
+        return data.data;
+    }
+    return null;
+}
+
+function hasAlgData(algs) {
+    return algs && algs.some(a => a.angle?.trim() || a.notation?.trim());
+}
+
+function formatLumpAsText(lump, lumpTitle) {
+    let lines = [];
+
+    // Title
+    lines.push(`<b><u>${lumpTitle}${lump["Optimal-slicecount"] ? " (" + lump["Optimal-slicecount"] + ")" : ""}</u></b>`);
+    lines.push("");
+
+    // Distinction help
+    if (lump.Matt?.["Distinction-help"]?.trim()) {
+        lines.push(`<i>${lump.Matt["Distinction-help"]}</i>`);
+    }
+
+    // Matt solution groups
+    const sgs = lump.Matt?.["solution-groups"] || [];
+    for (const sg of sgs) {
+        const hasContent = sg["Solution-Overview"]?.trim() ||
+            sg["alg-blocks"]?.some(ab =>
+                ab["Alg-explanation"]?.trim() || ab["angle-explanation"]?.trim() ||
+                ab.cases?.some(c => hasAlgData(c.algs))
+            );
+        if (!hasContent) continue;
+
+        lines.push("");
+        const slices = sg["Solution-Slicecount"] ? ` (${sg["Solution-Slicecount"]})` : "";
+        if (sg["Solution-Overview"]?.trim()) {
+            lines.push(`<b>${sg["Solution-Overview"]}${slices}</b>`);
+        }
+
+        for (const ab of (sg["alg-blocks"] || [])) {
+            if (ab["angle-explanation"]?.trim()) lines.push(`&lt;${ab["angle-explanation"]}&gt;`);
+            if (ab["Alg-explanation"]?.trim()) lines.push(ab["Alg-explanation"]);
+
+            for (const c of (ab.cases || [])) {
+                if (!hasAlgData(c.algs)) continue;
+                for (const alg of c.algs) {
+                    if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+                    const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                    lines.push(`&nbsp;&nbsp;&nbsp;&nbsp;${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span>`);
+                }
+            }
+        }
+
+        if (sg.Footer?.trim()) {
+            lines.push(`<i>${sg.Footer}</i>`);
+        }
+    }
+
+    // Derpy
+    const filledDerpy = (lump.derpy || []).filter(c => hasAlgData(c.algs));
+    if (filledDerpy.length) {
+        lines.push("");
+        lines.push("<b>Derpy</b>");
+        for (const c of filledDerpy) {
+            for (const alg of c.algs) {
+                if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+                const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                lines.push(`&nbsp;&nbsp;&nbsp;&nbsp;${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span>`);
+            }
+        }
+    }
+
+    return lines.join("<br>");
+}
+
+let hasOfferedDownload = false;
+
+async function openLumpModal() {
+    if (!hasActiveScramble) return;
+    if (!hasOfferedDownload && Object.keys(lumpCache).length === 0) {
+        hasOfferedDownload = true;
+        if (confirm("Download alg data for offline use? (~1MB, one time only)")) {
+            await downloadAllLumps();
+        }
+    }
+    const raw = currentCase; // e.g. "Al/Ar+"
+    const caseName = raw.replace(/[+-]$/, "");
+    const lumpTitle = findLumpForCase(caseName);
+    if (!lumpTitle) return;
+    const lumpIndex = findLumpIndex(lumpTitle);
+
+    const modal = document.getElementById("lump-modal");
+    const content = document.getElementById("lump-modal-content");
+    modal.style.display = "block";
+    isPopupOpen = true;
+    content.innerHTML = `<span style="opacity:0.4">Loading…</span>`;
+
+    let lump = await fetchLump(lumpIndex);
+
+    // fallback: build from pbl-data.js if available and supabase has nothing
+    if (!lump && typeof PBL_DATA !== "undefined") {
+        lump = PBL_DATA[lumpTitle];
+    }
+
+    if (!lump) {
+        content.innerHTML = `<span style="opacity:0.4">No data found for "${lumpTitle}".</span>`;
+        return;
+    }
+
+    content.innerHTML = formatLumpAsText(lump, lumpTitle);
+}
+
+function closeLumpModal(e) {
+    document.getElementById("lump-modal").style.display = "none";
+    isPopupOpen = false;
+}
+
+// ─── localStorage wrapper with PBL suffix
 const STORAGE_SUFFIX = 'PBL';
 
 const storage = {
@@ -880,11 +306,11 @@ const storage = {
 function migrateLegacyData() {
     const legacyKeys = ['settings', 'selected', 'userLists'];
     let migrated = false;
-    
+
     for (let key of legacyKeys) {
         const legacyData = localStorage.getItem(key);
         const newData = storage.getItem(key);
-        
+
         // Only migrate if legacy data exists and new data doesn't
         if (legacyData !== null && newData === null) {
             storage.setItem(key, legacyData);
@@ -892,7 +318,7 @@ function migrateLegacyData() {
             migrated = true;
         }
     }
-    
+
     if (migrated) {
         console.log('Migrated legacy PBL data to new storage format');
     }
@@ -926,6 +352,28 @@ function getLocalStorageData(fillSidebar = false) {
         while (storage.getItem("settings").length !== settingList.length) {
             storage.setItem("settings", storage.getItem("settings") + "0")
         }
+    }
+
+    const storedEquator = storage.getItem("equatorMode");
+    if (storedEquator) {
+        equatorMode = storedEquator;
+        const radio = document.querySelector(`input[name="equator"][value="${equatorMode}"]`);
+        if (radio) radio.checked = true;
+    }
+
+    const storedScrambleMode = storage.getItem("scrambleMode");
+    if (storedScrambleMode) {
+        scrambleMode = storedScrambleMode;
+        const radio = document.querySelector(`input[name="scramlen"][value="${scrambleMode}"]`);
+        if (radio) radio.checked = true;
+        document.getElementById('bottom56-row').style.display =
+            scrambleMode === 'small' ? 'flex' : 'none';
+    }
+
+    const storedBottom56 = storage.getItem("allowBottom56");
+    if (storedBottom56) {
+        allowBottom56 = storedBottom56 === "1";
+        document.getElementById('allow-bottom56').checked = allowBottom56;
     }
 
     if (storageSelectedPBL !== null) {
@@ -998,6 +446,9 @@ function saveSettings() {
         else
             store += "0";
     storage.setItem("settings", store);
+    storage.setItem("equatorMode", equatorMode);
+    storage.setItem("scrambleMode", scrambleMode);
+    storage.setItem("allowBottom56", allowBottom56 ? "1" : "0");
 }
 
 function setHighlightedList(id) {
@@ -1051,7 +502,7 @@ async function init() {
     //         getLocalStorageData(true);
     //     })
     //     .catch((error) => console.error("Failed to fetch data:", error));
-    
+
     getLocalStorageData(true);
 
     lastRemoved = "";
@@ -1085,42 +536,11 @@ async function init() {
         .catch((error) => console.error("Failed to fetch data:", error));
 }
 
-function isPll(pll, filter) {
-    const special = ["opp", "adj", "pn", "pj"];
-    if (special.includes(pll)) {
-        return filter == pll;
-    }
-    return pll.startsWith(filter);
-}
-
-function passesFilter(pbl, filter) {
-    let u = pbl[0].toLowerCase();
-    let d = pbl[1].toLowerCase();
-    filter = filter.replace("/", " ").toLowerCase();
-    if (filter.includes(" ")) {
-        arr = filter.match(/[^ ]+/g);
-        if (arr != null) {
-            arr = arr.slice(0, 2);
-            [a, b] = arr.slice(0, 2);
-            if (a && b) {
-                return (
-                    (isPll(u, a) && isPll(d, b)) || (isPll(u, b) && isPll(d, a))
-                );
-            }
-            filter = a; //  if we type 'Pl/' take 'Pl' as the filter
-        }
-    }
-    return isPll(u, filter) || isPll(d, filter);
-}
-
 function generateScramble(regen = false) {
     let eachCaseAlert = false;
     if (scrambleOffset >= 0 && !regen && scrambleList.length > 0 && selectedPBL.length === 0) {
-        // user probably timed one of the prev scrams
         displayPrevScram();
-        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
-            usingKarn
-        ];
+        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[usingKarn];
         return;
     } else if (scrambleOffset < 0) scrambleOffset = 0;
     if (selectedPBL.length === 0) {
@@ -1129,75 +549,105 @@ function generateScramble(regen = false) {
         previousScrambleEl.textContent = "Last scramble will show up here";
         hasActiveScramble = false;
         scrambleList = [];
+        pendingScramble = null;
         return;
     }
     if (remainingPBL.length === 0) {
-        // start a new cycle
         if (eachCase === 1) eachCaseAlert = true;
         enableGoEachCase();
     }
-    let caseNum = randInt(0, remainingPBL.length - 1);
-    let pblChoice = remainingPBL.splice(caseNum, 1)[0];
 
-    let barflip = "-+"[randInt(0, 1)]
-    let scramble = optimize(window.scrambler.getScramble(pblChoice, barflip));
-    pblChoice += barflip;
-
-    previousCase = currentCase; // e.g. "Al/Ar+"
-    currentCase = pblChoice;
-
-
-    // scramble = generators[pblChoice];
-    // Add random begin and end layer moves
-    // let s = scramble[0];
-    // let e = scramble[scramble.length - 1];
-    // let start;
-    // let end;
-    // if (s === "A") {
-    //     start = [randrange(-5, 5, 3), randrange(-3, 7, 3)];
-    // } else {
-    //     start = [randrange(-3, 7, 3), randrange(-4, 6, 3)];
-    // }
-    // if (e === "A") {
-    //     end = [randrange(-4, 6, 3), randrange(-3, 7, 3)];
-    // } else {
-    //     end = [randrange(-3, 7, 3), randrange(-5, 5, 3)];
-    // }
-
-    // let final = [
-    //     (start.join(",") + scramble.slice(1, -1) + end.join(",")).replaceAll(
-    //         "/",
-    //         " / "
-    //     ),
-    //     start.join("") + karnify(scramble).slice(1, -1) + end.join(""),
-    //     currentCase,
-    // ];
-    let final = [scramble.replaceAll("/", " / "), karnify(scramble), currentCase];
+    // Pick the next case
+    const caseNum = randInt(0, remainingPBL.length - 1);
+    const pblChoice = remainingPBL.splice(caseNum, 1)[0];
 
     if (regen) {
-        scrambleList[scrambleList.length - 1] = final;
-        // set current scram only if we are on the current scram
-        if (scrambleOffset === 0)
-            currentScrambleEl.textContent = final[usingKarn];
-    } else {
-        if (scrambleList.length != 0) {
+        // Regen: fire worker and wait, replace current scramble when done
+        pendingScramble = 'waiting';
+        workerBusy = false; // force allow
+        requestNextScramble(pblChoice);
+        // worker.onmessage will call flushPendingScramble which will update scrambleList tail
+        // but for regen we need to overwrite, so we handle it differently:
+        worker.onmessage = function (e) {
+            workerBusy = false;
+            if (e.data.error) { console.error(e.data.error); return; }
+            const data = e.data;
+            previousCase = currentCase;
+            currentCase = data.caseName;
+            const final = [data.scramble, data.karn, data.caseName];
+            scrambleList[scrambleList.length - 1] = final;
+            if (scrambleOffset === 0)
+                currentScrambleEl.textContent = final[usingKarn];
+            // restore normal handler
+            worker.onmessage = normalWorkerHandler;
+        };
+        if (eachCaseAlert) setTimeout(() => alert("You have gone through each case!"), 100);
+        return;
+    }
+
+    // Normal generate: use pending if ready, else wait
+    if (pendingScramble && pendingScramble !== 'waiting') {
+        const data = pendingScramble;
+        pendingScramble = null;
+
+        previousCase = currentCase;
+        currentCase = data.caseName;
+        const final = [data.scramble, data.karn, data.caseName];
+
+        if (scrambleList.length !== 0) {
             previousScramble = scrambleList[scrambleList.length - 1];
             previousScrambleEl.textContent =
                 "Previous scramble: " +
                 scrambleList.at(-1)[usingKarn] +
-                " (" +
-                scrambleList.at(-1)[2] +
-                ")";
+                " (" + scrambleList.at(-1)[2] + ")";
         }
         currentScrambleEl.textContent = final[usingKarn];
         scrambleList.push(final);
+        if (!hasActiveScramble) timerEl.textContent = "0.00";
+        hasActiveScramble = true;
+
+        // Pre-generate next
+        if (remainingPBL.length > 0) {
+            const nextCaseNum = randInt(0, remainingPBL.length - 1);
+            const nextChoice = remainingPBL[nextCaseNum]; // peek, don't splice yet
+            requestNextScramble(nextChoice);
+        }
+    } else {
+        // Worker busy or no pending — show loading, wait
+        currentScrambleEl.classList.add("generating");
+        pendingScramble = 'waiting';
+        if (!workerBusy) requestNextScramble(pblChoice);
+        worker.onmessage = function (e) {
+            workerBusy = false;
+            if (e.data.error) { console.error(e.data.error); return; }
+            const data = e.data;
+            previousCase = currentCase;
+            currentCase = data.caseName;
+            const final = [data.scramble, data.karn, data.caseName];
+            if (scrambleList.length !== 0) {
+                previousScramble = scrambleList[scrambleList.length - 1];
+                previousScrambleEl.textContent =
+                    "Previous scramble: " +
+                    scrambleList.at(-1)[usingKarn] +
+                    " (" + scrambleList.at(-1)[2] + ")";
+            }
+            currentScrambleEl.textContent = final[usingKarn];
+            currentScrambleEl.classList.remove("generating");
+            scrambleList.push(final);
+            if (!hasActiveScramble) timerEl.textContent = "0.00";
+            hasActiveScramble = true;
+            pendingScramble = null;
+            worker.onmessage = normalWorkerHandler;
+        };
     }
-    if (!hasActiveScramble) timerEl.textContent = "0.00"; // prob for first scram (who is prob, idk)
-    hasActiveScramble = true;
-    if (eachCaseAlert)
-        setTimeout(function () {
-            alert("You have gone through each case!");
-        }, 100);
+
+    if (eachCaseAlert) setTimeout(() => alert("You have gone through each case!"), 100);
+}
+
+function normalWorkerHandler(e) {
+    workerBusy = false;
+    if (e.data.error) { console.error('Worker error:', e.data.error); return; }
+    pendingScramble = e.data;
 }
 
 function displayPrevScram() {
@@ -1273,6 +723,13 @@ function startTimer() {
     }, 10);
     isRunning = true;
     setColor();
+
+    // Pre-generate next scramble while timer is running
+    if (remainingPBL.length > 0 && !workerBusy && !pendingScramble) {
+        const nextCaseNum = randInt(0, remainingPBL.length - 1);
+        const nextChoice = remainingPBL[nextCaseNum];
+        requestNextScramble(nextChoice);
+    }
 }
 
 function stopTimer() {
@@ -1340,9 +797,8 @@ function addUserLists() {
     let content = "";
     for (let k of Object.keys(userLists)) {
         content += `
-        <div id="${k}" class=\"list-item\">${k} (${
-            userLists[k].length
-        })</div>`;
+        <div id="${k}" class=\"list-item\">${k} (${userLists[k].length
+            })</div>`;
     }
     userListsEl.innerHTML = content;
     for (let item of document.querySelectorAll("#userlists>.list-item")) {
@@ -1355,9 +811,8 @@ function addDefaultLists() {
     let content = "";
     for (let k of Object.keys(defaultLists)) {
         content += `
-        <div id="${k}" class=\"list-item\">${k} (${
-            defaultLists[k].length
-        })</div>`;
+        <div id="${k}" class=\"list-item\">${k} (${defaultLists[k].length
+            })</div>`;
     }
     defaultListsEl.innerHTML = content;
     for (let item of document.querySelectorAll("#defaultlists>.list-item")) {
@@ -1399,12 +854,14 @@ function selectList(listName, setSelection) {
     }
 
     if (setSelection) {
-        deselectAll()
+        deselectAll();
         selectThese();
         saveSelectedPBL();
-        selCountEl.textContent = "Selected list: " + listName;
+        currentShowMode = 'list';
+        updateShowToggleBtn();
     } else {
-        selCountEl.textContent = "Viewing list: " + listName;
+        currentShowMode = 'list';
+        updateShowToggleBtn();
     }
     saveUserLists();
 }
@@ -1475,42 +932,134 @@ function enableGoEachCase() {
     );
 }
 
+// Init worker
+worker = new Worker('/script/worker.js');
+
+function restartWorker() {
+    if (worker) worker.terminate();
+    worker = new Worker('/script/worker.js');
+    worker.onmessage = normalWorkerHandler;
+    workerBusy = false;
+}
+
+function requestNextScramble(pblChoice) {
+    if (workerBusy) return;
+    workerBusy = true;
+    pendingScramble = null;
+    worker.postMessage({
+        caseName: pblChoice,
+        equatorMode,
+        scrambleMode,
+        allowBottom56
+    });
+}
+
+function pendingConflicts(newEquatorMode, newScrambleMode, newAllowBottom56) {
+    if (!pendingScramble || pendingScramble === 'waiting') return false;
+    const equator = pendingScramble.caseName.at(-1); // '+' or '-'
+    if (newEquatorMode === 'bar' && equator === '+') return true;
+    if (newEquatorMode === 'slash' && equator === '-') return true;
+    if (newScrambleMode !== scrambleMode) return true;
+    if (newAllowBottom56 !== allowBottom56) return true;
+    return false;
+}
+
+function cancelAndRegenerateIfNeeded(newEquatorMode, newScrambleMode, newAllowBottom56) {
+    const conflicts = pendingConflicts(newEquatorMode, newScrambleMode, newAllowBottom56);
+    const workerSettingChanged = newScrambleMode !== scrambleMode || newAllowBottom56 !== allowBottom56;
+    // If worker is busy generating with old settings, restart it
+    if (workerBusy && workerSettingChanged) {
+        restartWorker();
+        pendingScramble = null;
+    } else if (conflicts) {
+        pendingScramble = null;
+    }
+}
+
+function flushPendingScramble() {
+    if (!pendingScramble || pendingScramble === 'waiting') return;
+    const data = pendingScramble;
+    pendingScramble = null;
+
+    previousCase = currentCase;
+    currentCase = data.caseName;
+    const final = [data.scramble, data.karn, data.caseName];
+
+    if (scrambleList.length !== 0) {
+        previousScramble = scrambleList[scrambleList.length - 1];
+        previousScrambleEl.textContent =
+            "Previous scramble: " +
+            scrambleList.at(-1)[usingKarn] +
+            " (" + scrambleList.at(-1)[2] + ")";
+    }
+    currentScrambleEl.textContent = final[usingKarn];
+    scrambleList.push(final);
+    if (!hasActiveScramble) timerEl.textContent = "0.00";
+    hasActiveScramble = true;
+}
+
+document.querySelectorAll('input[name="equator"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+        const newEquatorMode = radio.value;
+        cancelAndRegenerateIfNeeded(newEquatorMode, scrambleMode, allowBottom56);
+        equatorMode = newEquatorMode;
+        if (!hasActiveScramble) return;
+        const currentEquator = currentCase.at(-1);
+        const mismatch =
+            (equatorMode === 'bar' && currentEquator === '+') ||
+            (equatorMode === 'slash' && currentEquator === '-');
+        if (mismatch) generateScramble(true);
+        saveSettings();
+    });
+});
+
+document.querySelectorAll('input[name="scramlen"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+        const newScrambleMode = radio.value;
+        cancelAndRegenerateIfNeeded(equatorMode, newScrambleMode, allowBottom56);
+        scrambleMode = newScrambleMode;
+        document.getElementById('bottom56-row').style.display =
+            scrambleMode === 'small' ? 'flex' : 'none';
+        generateScramble(true);
+        saveSettings();
+    });
+});
+
+document.getElementById('allow-bottom56').addEventListener("change", function () {
+    const newAllowBottom56 = this.checked;
+    cancelAndRegenerateIfNeeded(equatorMode, scrambleMode, newAllowBottom56);
+    allowBottom56 = newAllowBottom56;
+    if (scrambleMode === 'small') generateScramble(true);
+    saveSettings();
+});
+
 filterInputEl.addEventListener("input", () => {
-    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\- ]+/g, "");
+    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!*&() ]+/g, "");
     setHighlightedList(null);
-    if (filterInputEl.value.slice(0, 4).toLowerCase() === "freq") {
-        if (
-            !["1", "2", "4", "8", "16", "32", "64", "128", "256"].includes(
-                filterInputEl.value.slice(4).trim()
-            )
-        ) {
-            // no pbl is the given frequency
-            for (let pbl of possiblePBL) {
-                const n = pblname(pbl);
-                hidePBL(n);
-            }
-        } else {
-            let freq = parseInt(filterInputEl.value.slice(4).trim(), 10);
-            for (let pbl of possiblePBL) {
-                const n = pblname(pbl);
-                if (getWeight(n) * getCaseCount(pbl) === freq) {
-                    showPBL(n);
-                } else {
-                    hidePBL(n);
-                }
-            }
+    applyFilter(filterInputEl.value);
+    updateSelectBtn();
+    updateDeselectBtn();
+
+    const hasFilter = filterInputEl.value.trim() !== '';
+
+    if (hasFilter) {
+        if (currentShowMode !== 'searched') {
+            preSearchMode = (currentShowMode === 'list') ? 'all' : currentShowMode;
+            currentShowMode = 'searched';
         }
     } else {
-        for (let pbl of possiblePBL) {
-            const n = pblname(pbl);
-            if (passesFilter(pbl, filterInputEl.value)) {
-                showPBL(n);
-            } else {
-                hidePBL(n);
-            }
+        // clearing the search
+        if (currentShowMode === 'selected') {
+            showSelection();
+        } else {
+            // currentShowMode is 'searched'
+            currentShowMode = preSearchMode;
+            if (currentShowMode === 'selected') showSelection();
+            else showAll();
         }
     }
-    updateSelCount();
+
+    updateShowToggleBtn();
 });
 
 function selectAll() {
@@ -1521,7 +1070,33 @@ function selectAll() {
     saveSelectedPBL();
 }
 
-selectAllEl.addEventListener("click", selectAll);
+function updateShowToggleBtn() {
+    if (currentShowMode === 'list' && highlightedList == null) {
+        currentShowMode = 'selected';
+    }
+    let state;
+    if (currentShowMode === 'list') state = `List: ${highlightedList}`;
+    else if (currentShowMode === 'searched') state = 'searched';
+    else if (currentShowMode === 'selected') state = 'selected';
+    else state = 'all';
+
+    showToggleEl.innerHTML = `<span style="font-size:0.65em;opacity:0.8;font-weight:normal;letter-spacing:0.05em">SHOWING:</span><span>${state}</span>`;
+}
+
+function updateSelectBtn() {
+    const hasFilter = filterInputEl.value.trim() !== '';
+    selectAllEl.textContent = hasFilter ? 'Select these' : 'Select ALL';
+}
+
+function updateDeselectBtn() {
+    const hasFilter = filterInputEl.value.trim() !== '';
+    deselectAllEl.textContent = hasFilter ? 'Deselect these' : 'Deselect ALL';
+}
+
+selectAllEl.addEventListener("click", () => {
+    if (filterInputEl.value.trim() !== '') selectThese();
+    else selectAll();
+});
 
 function deselectAll() {
     if (usingTimer()) return;
@@ -1531,7 +1106,10 @@ function deselectAll() {
     saveSelectedPBL();
 }
 
-deselectAllEl.addEventListener("click", deselectAll);
+deselectAllEl.addEventListener("click", () => {
+    if (filterInputEl.value.trim() !== '') deselectThese();
+    else deselectAll();
+});
 
 function selectThese() {
     if (usingTimer()) return;
@@ -1543,8 +1121,6 @@ function selectThese() {
     saveSelectedPBL();
 }
 
-selectTheseEl.addEventListener("click", selectThese);
-
 function deselectThese() {
     if (usingTimer()) return;
     for (let i of pblListEl.children) {
@@ -1555,14 +1131,40 @@ function deselectThese() {
     saveSelectedPBL();
 }
 
-deselectTheseEl.addEventListener("click", deselectThese);
-
 function showAllClick() {
     if (usingTimer()) return;
     showAll();
+    currentShowMode = 'all';
+    updateShowToggleBtn();
 }
 
-showAllEl.addEventListener("click", showAllClick);
+showToggleEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    const hasFilter = filterInputEl.value.trim() !== '';
+    if (hasFilter) {
+        // can only toggle between searched and selected
+        if (currentShowMode === 'searched') {
+            currentShowMode = 'selected';
+            showSelection();
+        } else {
+            currentShowMode = 'searched';
+            showAll();
+            applyFilter(filterInputEl.value);
+        }
+    } else {
+        if (currentShowMode === 'list') {
+            currentShowMode = 'selected';
+            showSelection();
+        } else if (currentShowMode === 'selected') {
+            currentShowMode = 'all';
+            showAll();
+        } else {
+            currentShowMode = 'selected';
+            showSelection();
+        }
+    }
+    updateShowToggleBtn();
+});
 
 function showSelection() {
     if (usingTimer()) return;
@@ -1575,9 +1177,9 @@ function showSelection() {
         }
     }
     updateSelCount();
+    currentShowMode = 'selected';
+    updateShowToggleBtn();
 }
-
-showSelectionEl.addEventListener("click", showSelection);
 
 function prevScram() {
     if (usingTimer()) return;
@@ -1590,6 +1192,11 @@ function prevScram() {
 }
 
 prevScrambleButton.addEventListener("click", prevScram);
+
+currentScrambleEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    openLumpModal();
+});
 
 function nextScram() {
     if (usingTimer()) return;
@@ -1732,6 +1339,10 @@ function isMac() {
 window.addEventListener("keydown", (e) => {
     const inInput = document.activeElement === filterInputEl;
     if (e.code == "Escape") {
+        if (document.getElementById("lump-modal").style.display === "block") {
+            closeLumpModal();
+            return;
+        }
         if (isPopupOpen) {
             closePopup();
         }
@@ -1877,7 +1488,7 @@ timerBoxEl.addEventListener("touchend", (e) => {
 
 toggleUiEl.addEventListener("click", () => {
     if (usingTimer()) return;
-    const isMobileView = window.getComputedStyle(document.querySelector('.visible-mobile')).display !== 'none';
+    const isMobileView = window.innerWidth <= 900;
     if (isMobileView) {
         if (sidebarEl.classList.contains("hidden-on-mobile")) {
             sidebarEl.classList.remove("hidden-on-mobile");
@@ -1927,7 +1538,7 @@ fileEl.addEventListener("change", (e) => {
             deselectAll();
             jsonData = JSON.parse(reader.result);
             storage.setItem("selected", jsonData["selectedPBL"]);
-            
+
             let outdated = false;
             if ("userListsPBL" in jsonData) storage.setItem("userLists", jsonData["userListsPBL"]);
             else if ("userLists" in jsonData) {
@@ -2025,3 +1636,9 @@ updateColors();
 setInterval(updateColors, 60 * 1000);
 
 init();
+updateSelectBtn();
+updateDeselectBtn();
+updateShowToggleBtn();
+
+/*
+the showing: $showing is too long and cannot be contained in one line... so it is breaking line, and making the whole thing look pretty weird. can you think of any idea that'd preserve the aesthetics without jeopardizing the affordance of the button (like, i can literally nuke the text : "showing:"... but that'd confuse soo many people what's the button about)...?*/
