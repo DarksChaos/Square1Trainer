@@ -57,6 +57,46 @@ let selectedCount = 0;
 let currentShowMode = 'all'; // 'all' | 'selected' | 'searched' | 'list'
 let preSearchMode = 'all';
 
+// ─── BARFLIP MODE HELPERS ─────────────────────────────────────────────────────
+
+// Migrate legacy selectedPBL (no suffix) → ["Al/Al+","Al/Al-"] format
+function legacyMigrateSelected(arr) {
+    if (arr.some(s => !s.endsWith('+') && (!s.endsWith('-') || s.endsWith('/-')))) {
+        const result = [];
+        for (const s of arr) {
+            if (s.endsWith('+') || (s.endsWith('-') && !s.endsWith('/-'))) {
+                result.push(s);
+            } else {
+                result.push(s + '+', s + '-');
+            }
+        }
+        return result;
+    }
+    return arr;
+}
+
+// Returns 'none'|'both'|'plus'|'minus' for a base case name (no suffix)
+function getCaseMode(base) {
+    const hasPlus = selectedPBL.includes(base + '+');
+    const hasMinus = selectedPBL.includes(base + '-');
+    if (hasPlus && hasMinus) return 'both';
+    if (hasPlus) return 'plus';
+    if (hasMinus) return 'minus';
+    return 'none';
+}
+
+// Updates the DOM class on a .case element to reflect its current mode
+function setCaseDomClass(el, mode) {
+    el.classList.remove('checked-both', 'checked-plus', 'checked-minus');
+    if (mode === 'both')  el.classList.add('checked-both');
+    else if (mode === 'plus')  el.classList.add('checked-plus');
+    else if (mode === 'minus') el.classList.add('checked-minus');
+}
+
+// State for the Select ALL / Select these button cycling
+// 'none'|'both'|'plus'|'minus'
+let selectBtnState = 'none';
+
 let pressStartTime = null;
 let holdTimeout = null;
 let timerStart = null;
@@ -398,10 +438,11 @@ function getLocalStorageData(fillSidebar = false) {
     }
 
     if (storageSelectedPBL !== null) {
-        selectedPBL = JSON.parse(storageSelectedPBL);
+        selectedPBL = legacyMigrateSelected(JSON.parse(storageSelectedPBL));
+        // Save back so legacy format is not repeated on next load
+        storage.setItem("selected", JSON.stringify(selectedPBL));
         for (let k of selectedPBL) {
             selectPBL(k);
-            selectedCount++;
         }
         if (selectedPBL.length > 0) {
             showSelection();
@@ -413,9 +454,11 @@ function getLocalStorageData(fillSidebar = false) {
         enableGoEachCase();
         generateScramble();
     } else if (fillSidebar) {
-        // First ever load — select all cases
+        // First ever load — select all cases in 'both' mode
         for (let pbl of possiblePBL) {
-            selectPBL(pblname(pbl));
+            const base = pblname(pbl);
+            selectPBL(base + '+');
+            selectPBL(base + '-');
         }
         saveSelectedPBL();
     }
@@ -424,18 +467,27 @@ function getLocalStorageData(fillSidebar = false) {
     const storageUserLists = storage.getItem("userLists");
     if (storageUserLists !== null) {
         userLists = JSON.parse(storageUserLists);
-        for (list of Object.keys(userLists)) {
+        let needsSave = false;
+        for (let list of Object.keys(userLists)) {
             if (!Array.isArray(userLists[list])) {
                 console.log("Non array")
-                formattedList = []
-                for (i of possiblePBL) {
+                let formattedList = []
+                for (let i of possiblePBL) {
                     if (userLists[list][pblname(i)] == 1) {
                         formattedList.push(pblname(i))
                     }
                 }
-                userLists[list] = formattedList.copyWithin()
+                userLists[list] = formattedList.copyWithin();
+                needsSave = true;
+            }
+            // Legacy migration: expand entries without suffix
+            const migrated = legacyMigrateSelected(userLists[list]);
+            if (migrated !== userLists[list]) {
+                userLists[list] = migrated;
+                needsSave = true;
             }
         }
+        if (needsSave) saveUserLists();
         addUserLists();
     }
 }
@@ -445,14 +497,16 @@ function saveSelectedPBL() {
     // this is === 0 cuz genScram() has a if statement that deletes the scram if so
     if (!hasActiveScramble || selectedPBL.length == 0) generateScramble();
     else if (
-        !selectedPBL.includes(currentCase.slice(0, currentCase.length - 1)) &&
+        !selectedPBL.includes(currentCase) &&
         currentCase != ""
     ) // regenerate the scram if the scram's case was deselected
         generateScramble(true);
 }
 
 function updateSelCount() {
-    selCountEl.textContent = "Selected: " + selectedCount;
+    const unique = new Set(selectedPBL.map(s => s.slice(0, -1))).size;
+    selectedCount = unique;
+    selCountEl.textContent = "Selected: " + unique;
 }
 
 function saveUserLists() {
@@ -508,35 +562,46 @@ async function init() {
         }
     }
 
-    // Load generators
-    // await fetch("./generators.json")
-    //     .then((response) => {
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! Status: ${response.status}`);
-    //         }
-    //         return response.json();
-    //     })
-    //     .then((data) => {
-    //         generators = data;
-    //         // Load local storage data only after generators
-    //         // have been loaded, so we can generate a scramble
-    //         getLocalStorageData(true);
-    //     })
-    //     .catch((error) => console.error("Failed to fetch data:", error));
-
     getLocalStorageData(true);
 
     lastRemoved = "";
 
     // Add event listener to all case buttons, so we can click them
     document.querySelectorAll(".case").forEach((caseEl) => {
+        const base = caseEl.id;
+
         caseEl.addEventListener("click", () => {
-            const isChecked = caseEl.classList.contains("checked");
-            let n = caseEl.id;
-            if (isChecked) {
-                deselectPBL(n);
+            if (usingTimer()) return;
+            const mode = getCaseMode(base);
+            if (mode === 'none' || mode === 'plus' || mode === 'minus') {
+                // left click → select as 'both'
+                selectPBL(base + '+');
+                selectPBL(base + '-');
             } else {
-                selectPBL(n);
+                // mode === 'both' → deselect
+                deselectPBL(base + '+');
+                deselectPBL(base + '-');
+            }
+            saveSelectedPBL();
+        });
+
+        caseEl.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            if (usingTimer()) return;
+            const mode = getCaseMode(base);
+            if (mode === 'none') {
+                // right click from unselected → +
+                selectPBL(base + '+');
+            } else if (mode === 'both') {
+                // right click from both → +
+                deselectPBL(base + '-');
+            } else if (mode === 'plus') {
+                // right click from + → -
+                deselectPBL(base + '+');
+                selectPBL(base + '-');
+            } else {
+                // mode === 'minus' → deselect
+                deselectPBL(base + '-');
             }
             saveSelectedPBL();
         });
@@ -552,6 +617,10 @@ async function init() {
         })
         .then((data) => {
             defaultLists = data;
+            // Legacy migration: expand non-suffixed entries at runtime
+            for (const k of Object.keys(defaultLists)) {
+                defaultLists[k] = legacyMigrateSelected(defaultLists[k]);
+            }
             addDefaultLists();
         })
         .catch((error) => console.error("Failed to fetch data:", error));
@@ -700,28 +769,29 @@ function showPBL(text) {
     document.getElementById(text).classList.remove("hidden");
 }
 
-function selectPBL(pbl) {
-    document.getElementById(pbl).classList.add("checked");
-    if (!selectedPBL.includes(pbl)) {
-        selectedPBL.push(pbl);
-        selectedCount++;
-        updateSelCount();
+function selectPBL(s) {
+    // s must end with '+' or '-'
+    const base = s.slice(0, -1);
+    const el = document.getElementById(base);
+    if (!selectedPBL.includes(s)) {
+        selectedPBL.push(s);
     }
-    if (eachCase > 0 && !remainingPBL.includes(pbl)) {
-        remainingPBL = remainingPBL.concat(Array(eachCase).fill(pbl));
+    if (eachCase > 0 && !remainingPBL.includes(s)) {
+        remainingPBL = remainingPBL.concat(Array(eachCase).fill(s));
     }
+    if (el) setCaseDomClass(el, getCaseMode(base));
+    updateSelCount();
 }
 
-function deselectPBL(pbl) {
-    document.getElementById(pbl).classList.remove("checked");
-    if (selectedPBL.includes(pbl)) {
-        selectedPBL = selectedPBL.filter((a) => a != pbl);
-        selectedCount--;
-        updateSelCount();
-    }
-    if (eachCase && remainingPBL.includes(pbl)) {
-        remainingPBL = remainingPBL.filter((a) => a != pbl);
-    }
+function deselectPBL(s) {
+    // s must end with '+' or '-'
+    if (!selectedPBL.includes(s)) return;
+    const base = s.slice(0, -1);
+    const el = document.getElementById(base);
+    selectedPBL = selectedPBL.filter(a => a !== s);
+    remainingPBL = remainingPBL.filter(a => a !== s);
+    if (el) setCaseDomClass(el, getCaseMode(base));
+    updateSelCount();
 }
 
 function formatTime(ms) {
@@ -817,9 +887,9 @@ function timerEndTouch(spaceEquivalent) {
 function addUserLists() {
     let content = "";
     for (let k of Object.keys(userLists)) {
+        const uniqueCount = new Set(userLists[k].map(s => s.slice(0, -1))).size;
         content += `
-        <div id="${k}" class=\"list-item\">${k} (${userLists[k].length
-            })</div>`;
+        <div id="${k}" class=\"list-item\">${k} (${uniqueCount})</div>`;
     }
     userListsEl.innerHTML = content;
     for (let item of document.querySelectorAll("#userlists>.list-item")) {
@@ -831,9 +901,9 @@ function addUserLists() {
 function addDefaultLists() {
     let content = "";
     for (let k of Object.keys(defaultLists)) {
+        const uniqueCount = new Set(defaultLists[k].map(s => s.slice(0, -1))).size;
         content += `
-        <div id="${k}" class=\"list-item\">${k} (${defaultLists[k].length
-            })</div>`;
+        <div id="${k}" class=\"list-item\">${k} (${uniqueCount})</div>`;
     }
     defaultListsEl.innerHTML = content;
     for (let item of document.querySelectorAll("#defaultlists>.list-item")) {
@@ -856,15 +926,21 @@ function selectList(listName, setSelection) {
         list = userLists[listName];
     }
 
+    // Hide all, then show cases from the list (strip suffix for DOM lookup)
     if (Array.isArray(list)) {
         for (let pbl of possiblePBL) {
             hidePBL(pblname(pbl));
         }
+        const shownBases = new Set();
         for (let pbl of list) {
-            showPBL(pbl);
+            const base = pbl.replace(/[+-]$/, '');
+            if (!shownBases.has(base)) {
+                showPBL(base);
+                shownBases.add(base);
+            }
         }
     } else {
-        // Legacy handling
+        // Legacy object format
         for (let [pbl, inlist] of Object.entries(list)) {
             if (inlist) {
                 showPBL(pbl);
@@ -876,7 +952,10 @@ function selectList(listName, setSelection) {
 
     if (setSelection) {
         deselectAll();
-        selectThese();
+        // Select each entry with its stored barflip mode
+        for (let entry of list) {
+            selectPBL(entry);
+        }
         saveSelectedPBL();
         currentShowMode = 'list';
         updateShowToggleBtn();
@@ -934,8 +1013,8 @@ function canInteractTimer() {
 }
 
 function getWeight(pbl) {
-    // pbl: "Al/Ar"
-    pbl = pbl.split("/");
+    // pbl may be "Al/Ar" or "Al/Ar+"/"Al/Ar-"
+    pbl = pbl.replace(/[+-]$/, '').split("/");
     let uWeight = pbl[0] in weight ? weight[pbl[0]] : 4;
     let dWeight = pbl[1] in weight ? weight[pbl[1]] : 4;
     return uWeight * dWeight;
@@ -967,9 +1046,14 @@ function requestNextScramble(pblChoice) {
     if (workerBusy) return;
     workerBusy = true;
     pendingScramble = null;
+    // pblChoice ends in '+' or '-' — extract the per-case equator override
+    const suffix = pblChoice.at(-1);
+    if (!['+', '-'].includes(suffix)) throw new Error(`suffix: ${suffix} is not valid.`)
+    const caseName = pblChoice.slice(0, -1);
+    const caseEquatorMode = suffix === '+' ? 'slash' : 'bar';
     worker.postMessage({
-        caseName: pblChoice,
-        equatorMode,
+        caseName,
+        equatorMode: caseEquatorMode,
         scrambleMode,
         allowBottom56
     });
@@ -977,9 +1061,6 @@ function requestNextScramble(pblChoice) {
 
 function pendingConflicts(newEquatorMode, newScrambleMode, newAllowBottom56) {
     if (!pendingScramble || pendingScramble === 'waiting') return false;
-    const equator = pendingScramble.caseName.at(-1); // '+' or '-'
-    if (newEquatorMode === 'bar' && equator === '+') return true;
-    if (newEquatorMode === 'slash' && equator === '-') return true;
     if (newScrambleMode !== scrambleMode) return true;
     if (newAllowBottom56 !== allowBottom56) return true;
     return false;
@@ -1024,12 +1105,6 @@ document.querySelectorAll('input[name="equator"]').forEach(radio => {
         const newEquatorMode = radio.value;
         cancelAndRegenerateIfNeeded(newEquatorMode, scrambleMode, allowBottom56);
         equatorMode = newEquatorMode;
-        if (!hasActiveScramble) return;
-        const currentEquator = currentCase.at(-1);
-        const mismatch =
-            (equatorMode === 'bar' && currentEquator === '+') ||
-            (equatorMode === 'slash' && currentEquator === '-');
-        if (mismatch) generateScramble(true);
         saveSettings();
     });
 });
@@ -1083,12 +1158,105 @@ filterInputEl.addEventListener("input", () => {
     updateShowToggleBtn();
 });
 
-function selectAll() {
-    if (usingTimer()) return;
-    for (let pbl of possiblePBL) {
-        selectPBL(pblname(pbl));
+// Returns the list of visible (non-hidden) base case names
+function getVisibleBases() {
+    const bases = [];
+    for (let i of pblListEl.children) {
+        if (!i.classList.contains("hidden")) bases.push(i.id);
+    }
+    return bases;
+}
+
+// Apply a target mode ('both'|'plus'|'minus'|'none') to a list of base names
+function applyModeToList(bases, mode) {
+    for (const base of bases) {
+        deselectPBL(base + '+');
+        deselectPBL(base + '-');
+        if (mode === 'both') {
+            selectPBL(base + '+');
+            selectPBL(base + '-');
+        } else if (mode === 'plus') {
+            selectPBL(base + '+');
+        } else if (mode === 'minus') {
+            selectPBL(base + '-');
+        }
     }
     saveSelectedPBL();
+}
+
+// Next mode in left-click cycle: none/plus/minus → both → plus → minus → both
+function nextModeLeft(current) {
+    if (current === 'none') return 'both';
+    if (current === 'both') return 'plus';
+    if (current === 'plus') return 'minus';
+    return 'both'; // minus → both
+}
+
+// Next mode in right-click cycle
+function nextModeRight(current) {
+    if (current === 'none' || current === 'both') return 'plus';
+    if (current === 'plus') return 'minus';
+    return 'plus'; // minus → plus
+}
+
+function selectAll(isRightClick = false) {
+    if (usingTimer()) return;
+    const bases = possiblePBL.map(pbl => pblname(pbl));
+    selectBtnState = isRightClick ? nextModeRight(selectBtnState) : nextModeLeft(selectBtnState);
+    applyModeToList(bases, selectBtnState);
+}
+
+function deselectAll() {
+    if (usingTimer()) return;
+    selectBtnState = 'none';
+    for (let pbl of possiblePBL) {
+        const base = pblname(pbl);
+        deselectPBL(base + '+');
+        deselectPBL(base + '-');
+    }
+    saveSelectedPBL();
+}
+
+selectAllEl.addEventListener("click", () => {
+    if (filterInputEl.value.trim() !== '') selectThese(false);
+    else selectAll(false);
+});
+
+selectAllEl.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    if (filterInputEl.value.trim() !== '') selectThese(true);
+    else selectAll(true);
+});
+
+deselectAllEl.addEventListener("click", () => {
+    if (filterInputEl.value.trim() !== '') deselectThese();
+    else deselectAll();
+});
+
+function selectThese(isRightClick = false) {
+    if (usingTimer()) return;
+    const bases = getVisibleBases();
+    selectBtnState = isRightClick ? nextModeRight(selectBtnState) : nextModeLeft(selectBtnState);
+    applyModeToList(bases, selectBtnState);
+}
+
+function deselectThese() {
+    if (usingTimer()) return;
+    selectBtnState = 'none';
+    for (let i of pblListEl.children) {
+        if (!i.classList.contains("hidden")) {
+            deselectPBL(i.id + '+');
+            deselectPBL(i.id + '-');
+        }
+    }
+    saveSelectedPBL();
+}
+
+function showAllClick() {
+    if (usingTimer()) return;
+    showAll();
+    currentShowMode = 'all';
+    updateShowToggleBtn();
 }
 
 function updateShowToggleBtn() {
@@ -1112,51 +1280,6 @@ function updateSelectBtn() {
 function updateDeselectBtn() {
     const hasFilter = filterInputEl.value.trim() !== '';
     deselectAllEl.textContent = hasFilter ? 'Deselect these' : 'Deselect ALL';
-}
-
-selectAllEl.addEventListener("click", () => {
-    if (filterInputEl.value.trim() !== '') selectThese();
-    else selectAll();
-});
-
-function deselectAll() {
-    if (usingTimer()) return;
-    for (let pbl of possiblePBL) {
-        deselectPBL(pblname(pbl));
-    }
-    saveSelectedPBL();
-}
-
-deselectAllEl.addEventListener("click", () => {
-    if (filterInputEl.value.trim() !== '') deselectThese();
-    else deselectAll();
-});
-
-function selectThese() {
-    if (usingTimer()) return;
-    for (let i of pblListEl.children) {
-        if (!i.classList.contains("hidden")) {
-            selectPBL(i.id);
-        }
-    }
-    saveSelectedPBL();
-}
-
-function deselectThese() {
-    if (usingTimer()) return;
-    for (let i of pblListEl.children) {
-        if (!i.classList.contains("hidden")) {
-            deselectPBL(i.id);
-        }
-    }
-    saveSelectedPBL();
-}
-
-function showAllClick() {
-    if (usingTimer()) return;
-    showAll();
-    currentShowMode = 'all';
-    updateShowToggleBtn();
 }
 
 showToggleEl.addEventListener("click", () => {
@@ -1191,7 +1314,7 @@ function showSelection() {
     if (usingTimer()) return;
     for (let pbl of possiblePBL) {
         const n = pblname(pbl);
-        if (selectedPBL.includes(n)) {
+        if (selectedPBL.some(s => s.slice(0, -1) === n)) {
             showPBL(n);
         } else {
             hidePBL(n);
@@ -1587,8 +1710,8 @@ fileEl.addEventListener("change", (e) => {
 
 function removeLast() {
     if (scrambleList.at(-2 - scrambleOffset) !== undefined) {
-        deselectPBL(previousCase.slice(0, previousCase.length - 1));
-        lastRemoved = previousCase.slice(0, previousCase.length - 1);
+        deselectPBL(previousCase); // previousCase already ends in '+'/'-'
+        lastRemoved = previousCase;
         saveSelectedPBL();
     }
 }
@@ -1634,13 +1757,8 @@ for (let cross of document.querySelectorAll(".cross")) {
     cross.addEventListener("click", () => closePopup());
 }
 
-// fun little thing
-function updateColors() {
-    const now = new Date();
-    const hours = now.getHours() + now.getMinutes() / 60;
-
-    // Cycle hue 0–360 throughout the day
-    const hue = (hours / 24) * 360;
+function updateColors(hue) {
+    // 40 is orange, 90 is grass green, 120 is pure green, 180 cyan, 210 is nice, 270 purple, 300 pink, 330 magenta
 
     document.documentElement.style.setProperty(
         "--border-col",
@@ -1652,9 +1770,6 @@ function updateColors() {
         `hsla(${hue}, 30%, 15%, 0.5)`
     );
 }
-
-updateColors();
-setInterval(updateColors, 60 * 1000);
 
 init();
 updateSelectBtn();

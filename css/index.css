@@ -161,14 +161,31 @@ input[type="checkbox"] {
 }
 
 /* When checkbox is checked, style the parent label */
-.case.checked {
-    border-color: var(--border-col);
-    background-color: var(--button-col);
+.case.checked-both {
+    border-color: hsl(210, 80%, 70%);
+    background-color: hsla(210, 30%, 15%, 0.5);
 }
 
-.case.checked:hover {
-    border-color: var(--border-col);
-    background-color: var(--button-col);
+.case.checked-both:hover {
+    background-color: color-mix(in srgb, hsla(210, 30%, 15%, 0.5), white 15%);
+}
+
+.case.checked-plus {
+    border-color: hsl(40, 80%, 70%);
+    background-color: hsla(40, 30%, 15%, 0.5);
+}
+
+.case.checked-plus:hover {
+    background-color: color-mix(in srgb, hsla(40, 30%, 15%, 0.5), white 15%);
+}
+
+.case.checked-minus {
+    border-color: hsl(110, 80%, 70%);
+    background-color: hsla(110, 30%, 15%, 0.5);
+}
+
+.case.checked-minus:hover {
+    background-color: color-mix(in srgb, hsla(110, 30%, 15%, 0.5), white 15%);
 }
 
 .content {
