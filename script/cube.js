@@ -97,6 +97,11 @@ function setCaseDomClass(el, mode) {
 // 'none'|'both'|'plus'|'minus'
 let selectBtnState = 'none';
 
+// Global barflip override: null | '+' | '-'
+// Only applied when showBarflipUI === true
+let globalBarflipOverride = null;
+let showBarflipUI = false;
+
 let pressStartTime = null;
 let holdTimeout = null;
 let timerStart = null;
@@ -120,12 +125,13 @@ const sidebarEl = document.getElementById("sidebar");
 const contentEl = document.getElementById("content");
 
 const pblListEl = document.getElementById("results");
-const filterInputEl = document.getElementById("obl-filter");
+const filterInputEl = document.getElementById("pbl-filter");
 
 const eachCaseEls = document.querySelectorAll(".allcases");
 const karnEls = document.querySelectorAll(".karn");
 const weightEls = document.querySelectorAll(".weight");
-const settingList = [eachCaseEls, karnEls, weightEls];
+const globalBarflipEls = document.querySelectorAll(".showbarflip");
+const settingList = [eachCaseEls, karnEls, weightEls, globalBarflipEls];
 
 const removeLastEl = document.getElementById("unselprev");
 
@@ -232,8 +238,16 @@ function nab(text) {
     return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
-function indent(text) {
-    return;
+function getTextWidth(text, font) {
+    // Create a temporary canvas element
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    context.font = font || getComputedStyle(document.body).font;
+
+    // Measure the text and return its width
+    const metrics = context.measureText(text);
+    return metrics.width;
 }
 
 function formatLumpAsText(lump, lumpTitle) {
@@ -244,10 +258,11 @@ function formatLumpAsText(lump, lumpTitle) {
         `<span class="lump-title">${lumpTitle}${lump["Optimal-slicecount"] ? " (" + lump["Optimal-slicecount"] + ")" : ""}</span>`,
     );
     lines.push("");
+    lines.push(`<span class="section-label"><b><a href="https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit" target="blank">from Matt's PBL Doc</a></b></span>`);
 
     // Distinction help
     if (lump.Matt?.["Distinction-help"]?.trim()) {
-        lines.push(`<i><span>${nab(lump.Matt["Distinction-help"])}</span></i>`);
+        lines.push(`<span style="text-indent: 2.5em;">${nab(lump.Matt["Distinction-help"])}</span>`);
     }
 
     // Matt solution groups
@@ -268,22 +283,23 @@ function formatLumpAsText(lump, lumpTitle) {
             ? ` (${sg["Solution-Slicecount"]})`
             : "";
         if (sg["Solution-Overview"]?.trim()) {
-            lines.push(`<span><b>${nab(sg["Solution-Overview"])}${slices}</b></span>`);
+            lines.push(`<span style="text-indent: 2.5em;"><b>${nab(sg["Solution-Overview"])}${slices}</b></span>`);
         }
 
         for (const ab of sg["alg-blocks"] || []) {
-            if (ab["angle-explanation"]?.trim()) lines.push(`<span>${nab(ab["angle-explanation"])}</span>`);
-            if (ab["Alg-explanation"]?.trim()) lines.push(`<span>${nab(ab["Alg-explanation"])}</span>`);
+            if (ab["angle-explanation"]?.trim()) lines.push(`<span style="text-indent: 2.5em;">${nab(ab["angle-explanation"])}</span>`);
+            if (ab["Alg-explanation"]?.trim()) lines.push(`<span style="text-indent: 2.5em;">${nab(ab["Alg-explanation"])}</span>`);
 
             for (const c of ab.cases || []) {
                 if (!hasAlgData(c.algs)) continue;
-                for (const alg of c.algs) {
+                for (let i = 0; i < c.algs.length; i++) {
+                    let additional = 0; // additional indent
+                    const alg = c.algs[i];
                     if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                    const angle = alg.angle?.trim()
-                        ? `&lt;${alg.angle}&gt; `
-                        : "";
+                    const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                    if (i > 0) additional = getTextWidth(c["case-name"]+alg.sign+" ", "11pt Arial");
                     lines.push(
-                        `<span class="alg-line">${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
+                        `<span style="text-indent: 0em;margin-left: calc(5em + ${additional}px);">${i === 0 ? c["case-name"] + alg.sign + " " : ""}${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
                     );
                 }
             }
@@ -294,16 +310,16 @@ function formatLumpAsText(lump, lumpTitle) {
     const filledDerpy = (lump.derpy || []).filter((c) => hasAlgData(c.algs));
     if (filledDerpy.length) {
         lines.push("");
-        lines.push(`<span class="section-label"><b>Derpy</b></span>`);
+        lines.push(`<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit" target="blank">Optimal (from Derpy's PBL Sheet)</a></b></span>`);
         for (const c of filledDerpy) {
-            for (const alg of c.algs) {
+            for (let i = 0; i < c.algs.length; i++) {
+                let additional = 0; // additional indent
+                const alg = c.algs[i];
                 if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
                 const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                if (i > 0) additional = getTextWidth(c["case-name"]+" ", "11pt Arial");
                 lines.push(
-                    `<span class="alg-line">${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
-                );
-                lines.push(
-                    `<span class="alg-line">${c["case-name"]}+ ${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
+                    `<span style="text-indent: 0em;margin-left: calc(5em + ${additional}px);">${i === 0 ? (c["case-name"] + " ") : ""}${angle}<span style="font-family:monospace">${alg.notation}</span></span>`,
                 );
             }
         }
@@ -314,7 +330,7 @@ function formatLumpAsText(lump, lumpTitle) {
 
 let hasOfferedDownload = false;
 
-async function openLumpModal() {
+async function openLumpModal(caseOverride) {
     if (!hasActiveScramble) return;
     if (!hasOfferedDownload && Object.keys(lumpCache).length === 0) {
         hasOfferedDownload = true;
@@ -322,7 +338,7 @@ async function openLumpModal() {
             await downloadAllLumps();
         }
     }
-    const raw = currentCase; // e.g. "Al/Ar+"
+    const raw = caseOverride ?? currentCase; // e.g. "Al/Ar+"
     const caseName = raw.replace(/[+-]$/, "");
     const lumpTitle = findLumpForCase(caseName);
     if (!lumpTitle) return;
@@ -330,7 +346,7 @@ async function openLumpModal() {
 
     const modal = document.getElementById("lump-modal");
     const content = document.getElementById("lump-modal-content");
-    modal.style.display = "block";
+    modal.style.display = "flex";
     isPopupOpen = true;
     content.innerHTML = `<span style="opacity:0.4">Loading…</span>`;
 
@@ -437,6 +453,12 @@ function getLocalStorageData(fillSidebar = false) {
         document.getElementById('allow-bottom56').checked = allowBottom56;
     }
 
+    // Load saved barflip override (stored separately from the binary settings string)
+    const storedBarflip = storage.getItem("barflipOverride");
+    if (storedBarflip !== null) {
+        globalBarflipOverride = storedBarflip === '+' ? '+' : storedBarflip === '-' ? '-' : null;
+    }
+
     if (storageSelectedPBL !== null) {
         selectedPBL = legacyMigrateSelected(JSON.parse(storageSelectedPBL));
         // Save back so legacy format is not repeated on next load
@@ -511,6 +533,10 @@ function updateSelCount() {
 
 function saveUserLists() {
     storage.setItem("userLists", JSON.stringify(userLists));
+}
+
+function saveBarflipOverride() {
+    storage.setItem("barflipOverride", globalBarflipOverride ?? '');
 }
 
 function saveSettings() {
@@ -769,6 +795,23 @@ function showPBL(text) {
     document.getElementById(text).classList.remove("hidden");
 }
 
+function getEffectiveOverride() {
+    return showBarflipUI ? globalBarflipOverride : null;
+}
+
+function recolorAllCases() {
+    const override = getEffectiveOverride();
+    document.querySelectorAll('.case').forEach(el => {
+        const base = el.id;
+        const mode = getCaseMode(base);
+        if (override !== null && mode !== 'none') {
+            setCaseDomClass(el, override === '+' ? 'plus' : 'minus');
+        } else {
+            setCaseDomClass(el, mode);
+        }
+    });
+}
+
 function selectPBL(s) {
     // s must end with '+' or '-'
     const base = s.slice(0, -1);
@@ -779,7 +822,15 @@ function selectPBL(s) {
     if (eachCase > 0 && !remainingPBL.includes(s)) {
         remainingPBL = remainingPBL.concat(Array(eachCase).fill(s));
     }
-    if (el) setCaseDomClass(el, getCaseMode(base));
+    if (el) {
+        const override = getEffectiveOverride();
+        const mode = getCaseMode(base);
+        if (override !== null && mode !== 'none') {
+            setCaseDomClass(el, override === '+' ? 'plus' : 'minus');
+        } else {
+            setCaseDomClass(el, mode);
+        }
+    }
     updateSelCount();
 }
 
@@ -790,7 +841,15 @@ function deselectPBL(s) {
     const el = document.getElementById(base);
     selectedPBL = selectedPBL.filter(a => a !== s);
     remainingPBL = remainingPBL.filter(a => a !== s);
-    if (el) setCaseDomClass(el, getCaseMode(base));
+    if (el) {
+        const override = getEffectiveOverride();
+        const mode = getCaseMode(base);
+        if (override !== null && mode !== 'none') {
+            setCaseDomClass(el, override === '+' ? 'plus' : 'minus');
+        } else {
+            setCaseDomClass(el, mode);
+        }
+    }
     updateSelCount();
 }
 
@@ -1046,9 +1105,10 @@ function requestNextScramble(pblChoice) {
     if (workerBusy) return;
     workerBusy = true;
     pendingScramble = null;
-    // pblChoice ends in '+' or '-' — extract the per-case equator override
-    const suffix = pblChoice.at(-1);
-    if (!['+', '-'].includes(suffix)) throw new Error(`suffix: ${suffix} is not valid.`)
+    // pblChoice ends in '+' or '-' — per-case barflip, but global override takes precedence
+    const effectiveOverride = getEffectiveOverride();
+    const suffix = effectiveOverride ?? pblChoice.at(-1);
+    if (!['+', '-'].includes(suffix)) throw new Error(`suffix: ${suffix} is not valid.`);
     const caseName = pblChoice.slice(0, -1);
     const caseEquatorMode = suffix === '+' ? 'slash' : 'bar';
     worker.postMessage({
@@ -1602,6 +1662,11 @@ window.addEventListener("keydown", (e) => {
                 el.checked = !el.checked;
                 onCheckWeights();
                 return;
+            case "g":
+                el = globalBarflipEls[0];
+                el.checked = !el.checked;
+                onCheckGlobalBarflip();
+                return;
         }
     }
 });
@@ -1740,6 +1805,56 @@ function onCheckWeights() {
     saveSettings();
 }
 
+// ─── BARFLIP OVERRIDE UI ──────────────────────────────────────────────────────
+
+const barflipOverrideRowEl = document.getElementById('barflip-override-row');
+const globalFlippedBtn = document.getElementById('barflip-flipped');
+const globalSolvedBtn  = document.getElementById('barflip-solved');
+
+function applyBarflipUI() {
+    if (barflipOverrideRowEl) {
+        barflipOverrideRowEl.classList.toggle('hidden', !showBarflipUI);
+    }
+    if (globalFlippedBtn) globalFlippedBtn.classList.toggle('active', showBarflipUI && globalBarflipOverride === '+');
+    if (globalSolvedBtn)  globalSolvedBtn.classList.toggle('active',  showBarflipUI && globalBarflipOverride === '-');
+}
+
+function setGlobalBarflipOverride(value) {
+    globalBarflipOverride = value;
+    applyBarflipUI();
+    recolorAllCases();
+    saveBarflipOverride();
+    if (hasActiveScramble) {
+        pendingScramble = null;
+        generateScramble(true);
+    }
+}
+
+function onCheckGlobalBarflip() {
+    showBarflipUI = globalBarflipEls[0].checked;
+    globalBarflipEls.forEach(el => { el.checked = showBarflipUI; });
+    applyBarflipUI();
+    recolorAllCases();
+    if (hasActiveScramble) {
+        pendingScramble = null;
+        generateScramble(true);
+    }
+    saveSettings();
+}
+
+if (globalFlippedBtn) {
+    globalFlippedBtn.addEventListener('click', () => {
+        if (usingTimer()) return;
+        setGlobalBarflipOverride(globalBarflipOverride === '+' ? null : '+');
+    });
+}
+if (globalSolvedBtn) {
+    globalSolvedBtn.addEventListener('click', () => {
+        if (usingTimer()) return;
+        setGlobalBarflipOverride(globalBarflipOverride === '-' ? null : '-');
+    });
+}
+
 eachCaseEls.forEach((btn) =>
     btn.addEventListener("change", () => onCheckEachCase(btn))
 );
@@ -1751,6 +1866,21 @@ karnEls.forEach((btn) =>
 weightEls.forEach((btn) =>
     btn.addEventListener("change", () => onCheckWeights())
 );
+
+globalBarflipEls.forEach((btn) =>
+    btn.addEventListener("change", () => onCheckGlobalBarflip())
+);
+
+// ─── CLOSE POPUPS ON BACKDROP CLICK ──────────────────────────────────────────
+
+const listPopupEl2    = document.getElementById("list-popup");
+const helpPopupEl2    = document.getElementById("help-popup");
+const settingsPopupEl2 = document.getElementById("settings-popup");
+[listPopupEl2, helpPopupEl2, settingsPopupEl2].forEach(popupEl => {
+    popupEl.addEventListener('click', (e) => {
+        if (e.target === popupEl) closePopup();
+    });
+});
 
 // Enable crosses
 for (let cross of document.querySelectorAll(".cross")) {
@@ -1775,6 +1905,16 @@ init();
 updateSelectBtn();
 updateDeselectBtn();
 updateShowToggleBtn();
+// Apply barflip UI after init so showBarflipUI + globalBarflipOverride are both loaded
+applyBarflipUI();
+
+// Open alg reference for the previous scramble's case
+previousScrambleEl.style.cursor = "pointer";
+previousScrambleEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    if (!previousCase) return;
+    openLumpModal(previousCase);
+});
 
 /*
 the showing: $showing is too long and cannot be contained in one line... so it is breaking line, and making the whole thing look pretty weird. can you think of any idea that'd preserve the aesthetics without jeopardizing the affordance of the button (like, i can literally nuke the text : "showing:"... but that'd confuse soo many people what's the button about)...?*/

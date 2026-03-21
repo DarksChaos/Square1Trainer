@@ -67,22 +67,21 @@
             <button onclick="location.href='https://squan-trainers.web.app/'">← Home</button>
             <button id="toggleui">Toggle selector</button>
         </div>
-        <div>PBL TRAINER</div>
+        <div class="nav-center">PBL TRAINER</div>
         <div class="nav-right">
             <button id="open-help">?</button>
             <button id="open-settings">&#9881;</button>
         </div>
         <input type="file" id="fileinput" style="display: none" accept=".json" />
 
-        <div id="lump-modal"
-            style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);overflow-y:auto;padding:32px 20px;"
-            onclick="closeLumpModal(event)">
-            <div id="lump-modal-inner"
-                style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;color:#e0e0e0;line-height:1.6;cursor:default;"
-                onclick="event.stopPropagation()">
-                <div id="lump-modal-content" class="lump-text"></div>
-                <div style="margin-top:32px;text-align:center;font-size:0.85rem;opacity:0.4;">click outside to close
+        <div id="lump-modal" class="lump-overlay"
+            style="display:none;" onclick="closeLumpModal(event)">
+            <div id="lump-modal-inner" class="lump-window" onclick="event.stopPropagation()">
+                <div class="lump-header">
+                    <span class="lump-window-title">Alg reference</span>
+                    <button class="lump-close-btn" onclick="closeLumpModal()">✕</button>
                 </div>
+                <div id="lump-modal-content" class="lump-text"></div>
             </div>
         </div>
     </div>
@@ -95,26 +94,30 @@
                     <div class="cross">&#10005;</div>
                 </div>
                 <div class="settings-body">
-                    <label class="settings-row">
+                    <label class="settings-row settings-checkbox">
                         <input type="checkbox" class="karn" />
                         <span>Use karnotation <b>(K)</b></span>
+                    </label>
+                    <label class="settings-row settings-checkbox">
+                        <input type="checkbox" class="showbarflip" />
+                        <span>Show global barflip override <b>(G)</b></span>
+                    </label>
+                    <label class="settings-row settings-checkbox" id="bottom56-row" style="display:none">
+                        <input type="checkbox" id="allow-bottom56" />
+                        <span>Allow bottom 5s and 6s</span>
+                    </label>
+                    <label class="settings-row settings-checkbox">
+                        <input type="checkbox" class="weight" />
+                        <span>Use realistic weights <b>(R)</b></span>
                     </label>
                     <div class="settings-row" id="scramble-length-row">
                         <span>Scramble length:</span>
                         <div class="equator-options">
                             <label><input type="radio" name="scramlen" value="long" checked /> Long</label>
                             <label><input type="radio" name="scramlen" value="medium" /> Medium</label>
-                            <label><input type="radio" name="scramlen" value="small" /> Small</label>
+                            <label><input type="radio" name="scramlen" value="small" /> Short</label>
                         </div>
                     </div>
-                    <label class="settings-row" id="bottom56-row" style="display:none">
-                        <input type="checkbox" id="allow-bottom56" />
-                        <span>Allow bottom 5s and 6s</span>
-                    </label>
-                    <label class="settings-row">
-                        <input type="checkbox" class="weight" />
-                        <span>Use realistic weights <b>(R)</b></span>
-                    </label>
                     <hr class="settings-divider" />
                     <button class="settings-action-btn" id="uploaddata"><i class="fa fa-upload"></i> Upload
                         data</button>
@@ -150,7 +153,7 @@
             </div>
         </div>
         <div class="popup" id="help-popup">
-            <div class="popup-inner">
+            <div class="popup-inner settings-popup-inner help-popup-inner">
                 <div class="list-bar">
                     <div class="list-name">Help</div>
                     <div class="cross">&#10005;</div>
@@ -178,20 +181,20 @@
             </div>
         </div>
 
-        <div class="sidebar hidden-on-mobile" id="sidebar">
-            <label class="sidebar-check-row">
+        <div class="sidebar hidden-mobile" id="sidebar">
+            <div class="checkbox-wrapper hidden-mobile">
                 <input type="checkbox" class="allcases" />
-                <span>Go through each case once <b>(E)</b></span>
-            </label>
-            <div class="equator-row">
-                <span>Equator:</span>
-                <div class="equator-options">
-                    <label><input type="radio" name="equator" value="random" checked /> Both</label>
-                    <label><input type="radio" name="equator" value="bar" /> Solved</label>
-                    <label><input type="radio" name="equator" value="slash" /> Flipped</label>
+                <span class="checkboxtext"><b>Go through each case once (E)</b></span>
+            </div>
+            <div class="barflip-override-row hidden" id="barflip-override-row">
+                <span class="barflip-override-label">Global barflip override:</span>
+                <div class="barflip-toggle">
+                    <button class="barflip-toggle-btn" id="barflip-flipped">Flipped</button>
+                    <div class="barflip-sep"></div>
+                    <button class="barflip-toggle-btn" id="barflip-solved">Solved</button>
                 </div>
             </div>
-            <input type="text" class="filter-input" id="obl-filter" maxlength="10" autocomplete="new-obl-filter"
+            <input type="text" class="filter-input" id="pbl-filter" maxlength="10" autocomplete="new-pbl-filter"
                 placeholder='Filter cases (Ctrl+F)' />
             <p class="selection-text" id="selcount">Selected: -</p>
             <div class="selection-grid">
@@ -224,7 +227,7 @@
             </div>
 
             <div class="bottom-bar">
-                <div class="bar-scramble" id="prev-scram">
+                <div class="bar-scramble" id="prev-scram" style="cursor:pointer;">
                     Last scramble will show up here
                 </div>
             </div>
