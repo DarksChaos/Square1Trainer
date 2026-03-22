@@ -33,6 +33,7 @@ let remainingPBL = [];
 let eachCase = 0; // 0 = random, n = get each case n times before moving on
 let usingKarn = 0; // 0 = not using karn, etc.
 let usingWeight = false;
+let useBarflip = false;
 const MIN_EACHCASE = 2;
 const MAX_EACHCASE = 4;
 
@@ -129,8 +130,12 @@ const filterInputEl = document.getElementById("pbl-filter");
 const eachCaseEl = document.getElementById("allcases");
 const karnEl = document.getElementById("karn");
 const weightEl = document.getElementById("weight");
-const globalBarflipEl = document.getElementById("showbarflip");
-const settingList = [eachCaseEl, karnEl, weightEl, globalBarflipEl];
+const globalBarflipEl = document.getElementById("globalbarflip");
+const globalBarflipRow = document.getElementById("globalbarfliprow");
+const useBarflipEl = document.getElementById("usebarflip");
+const bottom56El = document.getElementById("allow-bottom56");
+const bottom56Row = document.getElementById('bottom56-row');
+const settingList = [eachCaseEl, karnEl, weightEl, globalBarflipEl, useBarflipEl];
 
 const removeLastEl = document.getElementById("unselprev");
 
@@ -432,6 +437,11 @@ function migrateLegacyData() {
 function getLocalStorageData(fillSidebar = false) {
     migrateLegacyData();
     const storageSelectedPBL = storage.getItem("selected");
+    const storageSettings = storage.getItem("settings");
+    const storedScrambleMode = storage.getItem("scrambleMode");
+    const storedBottom56 = storage.getItem("allowBottom56");
+    const storedBarflip = storage.getItem("barflipOverride");
+    const storageUserLists = storage.getItem("userLists");
 
     if (fillSidebar) {
         possiblePBL.splice(0, 1);
@@ -443,43 +453,41 @@ function getLocalStorageData(fillSidebar = false) {
         pblListEl.innerHTML += buttons;
     }
 
-    const storageSettings = storage.getItem("settings");
     for (let el of settingList) {
         if (el.checked) el.click();
     }
-    if (storageSettings === null)
-        storage.setItem("settings", "0".repeat(settingList.length));
-    else {
+    // legacy handling here not needed; checking any checkbox will create the settings.
+    if (storageSettings !== null) {
         for (let i = 0; i < settingList.length; i++)
             if (storageSettings[i] === "1") {
                 settingList[i].click();
             }
-        while (storage.getItem("settings").length !== settingList.length) {
-            storage.setItem("settings", storage.getItem("settings") + "0")
-        }
     }
+    // initializes to karn
+    else karnEl.click();
+    if (useBarflip) globalBarflipRow.style.display = '';
+    else globalBarflipRow.style.display = 'none';
 
-    const storedScrambleMode = storage.getItem("scrambleMode");
     if (storedScrambleMode) {
         scrambleMode = storedScrambleMode;
         const radio = document.querySelector(`input[name="scramlen"][value="${scrambleMode}"]`);
         if (radio) radio.checked = true;
-        document.getElementById('bottom56-row').style.display =
-            scrambleMode === 'small' ? 'flex' : 'none';
+        bottom56Row.style.display =
+            scrambleMode === 'short' ? 'flex' : 'none';
+        saveSettings();
     }
 
-    const storedBottom56 = storage.getItem("allowBottom56");
     if (storedBottom56) {
         allowBottom56 = storedBottom56 === "1";
-        document.getElementById('allow-bottom56').checked = allowBottom56;
+        bottom56El.checked = allowBottom56;
+        saveSettings();
     }
 
-    // Load saved barflip override (stored separately from the binary settings string)
-    const storedBarflip = storage.getItem("barflipOverride");
     if (storedBarflip !== null) {
         globalBarflipOverride = storedBarflip === '+' ? '+' : storedBarflip === '-' ? '-' : null;
     }
 
+    // selected pbl
     if (storageSelectedPBL !== null) {
         selectedPBL = legacyMigrateSelected(JSON.parse(storageSelectedPBL));
         // Save back so legacy format is not repeated on next load
@@ -507,7 +515,6 @@ function getLocalStorageData(fillSidebar = false) {
     }
     updateSelCount();
 
-    const storageUserLists = storage.getItem("userLists");
     if (storageUserLists !== null) {
         userLists = JSON.parse(storageUserLists);
         let needsSave = false;
@@ -619,14 +626,25 @@ async function init() {
         caseEl.addEventListener("click", () => {
             if (usingTimer()) return;
             const mode = getCaseMode(base);
-            if (mode === 'none' || mode === 'plus' || mode === 'minus') {
-                // left click → select as 'both'
-                selectPBL(base + '+');
-                selectPBL(base + '-');
+            if (!useBarflip) {
+                // Simple mode: toggle between 'both' and 'none'
+                if (mode === 'both') {
+                    deselectPBL(base + '+');
+                    deselectPBL(base + '-');
+                } else {
+                    selectPBL(base + '+');
+                    selectPBL(base + '-');
+                }
             } else {
-                // mode === 'both' → deselect
-                deselectPBL(base + '+');
-                deselectPBL(base + '-');
+                if (mode === 'none' || mode === 'plus' || mode === 'minus') {
+                    // left click → select as 'both'
+                    selectPBL(base + '+');
+                    selectPBL(base + '-');
+                } else {
+                    // mode === 'both' → deselect
+                    deselectPBL(base + '+');
+                    deselectPBL(base + '-');
+                }
             }
             saveSelectedPBL();
         });
@@ -635,19 +653,30 @@ async function init() {
             e.preventDefault();
             if (usingTimer()) return;
             const mode = getCaseMode(base);
-            if (mode === 'none') {
-                // right click from unselected → +
-                selectPBL(base + '+');
-            } else if (mode === 'both') {
-                // right click from both → +
-                deselectPBL(base + '-');
-            } else if (mode === 'plus') {
-                // right click from + → -
-                deselectPBL(base + '+');
-                selectPBL(base + '-');
+            if (!useBarflip) {
+                // Simple mode: same cycle as left click
+                if (mode === 'both') {
+                    deselectPBL(base + '+');
+                    deselectPBL(base + '-');
+                } else {
+                    selectPBL(base + '+');
+                    selectPBL(base + '-');
+                }
             } else {
-                // mode === 'minus' → deselect
-                deselectPBL(base + '-');
+                if (mode === 'none') {
+                    // right click from unselected → +
+                    selectPBL(base + '+');
+                } else if (mode === 'both') {
+                    // right click from both → +
+                    deselectPBL(base + '-');
+                } else if (mode === 'plus') {
+                    // right click from + → -
+                    deselectPBL(base + '+');
+                    selectPBL(base + '-');
+                } else {
+                    // mode === 'minus' → deselect
+                    deselectPBL(base + '-');
+                }
             }
             saveSelectedPBL();
         });
@@ -674,11 +703,6 @@ async function init() {
 
 function generateScramble(regen = false) {
     let eachCaseAlert = false;
-    if (scrambleOffset >= 0 && !regen && scrambleList.length > 0 && selectedPBL.length === 0) {
-        displayPrevScram();
-        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[usingKarn];
-        return;
-    } else if (scrambleOffset < 0) scrambleOffset = 0;
     if (selectedPBL.length === 0) {
         timerEl.textContent = "--:--";
         currentScrambleEl.textContent = "Scramble will show up here";
@@ -688,6 +712,11 @@ function generateScramble(regen = false) {
         pendingScramble = null;
         return;
     }
+    if (scrambleOffset >= 0 && !regen && scrambleList.length > 0 && selectedPBL.length === 0) {
+        displayPrevScram();
+        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[usingKarn];
+        return;
+    } else if (scrambleOffset < 0) scrambleOffset = 0;
     if (remainingPBL.length === 0) {
         if (eachCase === 1) eachCaseAlert = true;
         enableGoEachCase();
@@ -1192,20 +1221,20 @@ function flushPendingScramble() {
 document.querySelectorAll('input[name="scramlen"]').forEach(radio => {
     radio.addEventListener("change", () => {
         const newScrambleMode = radio.value;
-        cancelAndRegenerateIfNeeded(equatorMode, newScrambleMode, allowBottom56);
+        cancelAndRegenerateIfNeeded(globalBarflipOverride, newScrambleMode, allowBottom56);
         scrambleMode = newScrambleMode;
-        document.getElementById('bottom56-row').style.display =
-            scrambleMode === 'small' ? 'flex' : 'none';
+        bottom56Row.style.display =
+            scrambleMode === 'short' ? 'flex' : 'none';
         generateScramble(true);
         saveSettings();
     });
 });
 
-document.getElementById('allow-bottom56').addEventListener("change", function () {
+bottom56El.addEventListener("change", function () {
     const newAllowBottom56 = this.checked;
-    cancelAndRegenerateIfNeeded(equatorMode, scrambleMode, newAllowBottom56);
+    cancelAndRegenerateIfNeeded(globalBarflipOverride, scrambleMode, newAllowBottom56);
     allowBottom56 = newAllowBottom56;
-    if (scrambleMode === 'small') generateScramble(true);
+    if (scrambleMode === 'short') generateScramble(true);
     saveSettings();
 });
 
@@ -1279,10 +1308,19 @@ function nextModeRight(current) {
     return 'plus'; // minus → plus
 }
 
+// Simple mode: just toggle both/none, ignoring left vs right
+function nextModeSimple(current) {
+    return current === 'both' ? 'none' : 'both';
+}
+
 function selectAll(isRightClick = false) {
     if (usingTimer()) return;
     const bases = possiblePBL.map(pbl => pblname(pbl));
-    selectBtnState = isRightClick ? nextModeRight(selectBtnState) : nextModeLeft(selectBtnState);
+    if (!useBarflip) {
+        selectBtnState = nextModeSimple(selectBtnState);
+    } else {
+        selectBtnState = isRightClick ? nextModeRight(selectBtnState) : nextModeLeft(selectBtnState);
+    }
     applyModeToList(bases, selectBtnState);
 }
 
@@ -1316,7 +1354,11 @@ deselectAllEl.addEventListener("click", () => {
 function selectThese(isRightClick = false) {
     if (usingTimer()) return;
     const bases = getVisibleBases();
-    selectBtnState = isRightClick ? nextModeRight(selectBtnState) : nextModeLeft(selectBtnState);
+    if (!useBarflip) {
+        selectBtnState = nextModeSimple(selectBtnState);
+    } else {
+        selectBtnState = isRightClick ? nextModeRight(selectBtnState) : nextModeLeft(selectBtnState);
+    }
     applyModeToList(bases, selectBtnState);
 }
 
@@ -1349,7 +1391,10 @@ function updateShowToggleBtn() {
     else if (currentShowMode === 'selected') state = 'selected';
     else state = 'all';
 
-    showToggleEl.innerHTML = `<span style="font-size:0.65em;opacity:0.8;font-weight:normal;letter-spacing:0.05em">SHOWING:</span><span>${state}</span>`;
+    const MAX = 11;
+    const displayState = state.length > MAX ? state.slice(0, MAX - 1) + '…' : state;
+    showToggleEl.title = `Showing: ${state}`;
+    showToggleEl.innerHTML = `<span style="font-size:0.65em;opacity:0.8;font-weight:normal;letter-spacing:0.05em">SHOWING:</span><span style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayState}</span>`;
 }
 
 function updateSelectBtn() {
@@ -1692,6 +1737,11 @@ window.addEventListener("keydown", (e) => {
                 el.checked = !el.checked;
                 onCheckGlobalBarflip();
                 return;
+            case "b":
+                el = useBarflipEl;
+                el.checked = !el.checked;
+                onCheckUseBarflip();
+                return;
         }
     }
 });
@@ -1770,6 +1820,8 @@ fileEl.addEventListener("change", (e) => {
     const reader = new FileReader();
     reader.onload = () => {
         try {
+            // Clear the file input so the same file can be selected again
+            e.target.value = '';
             deselectAll();
             jsonData = JSON.parse(reader.result);
             storage.setItem("selected", jsonData["selectedPBL"]);
@@ -1785,16 +1837,18 @@ fileEl.addEventListener("change", (e) => {
                 storage.setItem("settings", jsonData["settings"]);
                 outdated = true;
             }
+            if ([jsonData["selectedPBL"], ...Object.values(JSON.parse(jsonData["userListsPBL"]))].map((lst) => {
+                // check if the first element of the lists don't have barflips
+                return !lst[0].endsWith('+') && (!lst[0].endsWith('-') || lst[0].endsWith('/-'))
+            }).some(value => value === true)) outdated = true;
             if (outdated) {
                 alert("File formatting is outdated, re-export recommended.");
             }
             getLocalStorageData();
             closePopup();
+            showSuccess("Imported.", 1000)
         } catch (e) {
             console.error("Error:", e);
-        } finally {
-            // Clear the file input so the same file can be selected again
-            e.target.value = '';
         }
     };
     reader.readAsText(file);
@@ -1802,9 +1856,16 @@ fileEl.addEventListener("change", (e) => {
 
 function removeLast() {
     if (scrambleList.at(-2 - scrambleOffset) !== undefined) {
-        deselectPBL(previousCase); // previousCase already ends in '+'/'-'
+        const base = previousCase.slice(0, -1);
+        if (!useBarflip) {
+            deselectPBL(base + '+');
+            deselectPBL(base + '-');
+        } else {
+            deselectPBL(previousCase); // previousCase already ends in '+'/'-'
+        }
         lastRemoved = previousCase;
         saveSelectedPBL();
+        showSuccess("Last case removed.", 500)
     }
 }
 
@@ -1870,6 +1931,13 @@ function onCheckGlobalBarflip() {
     saveSettings();
 }
 
+function onCheckUseBarflip() {
+    useBarflip = useBarflipEl.checked;
+    if (useBarflip) globalBarflipRow.style.display = '';
+    else globalBarflipRow.style.display = 'none';
+    saveSettings();
+}
+
 if (globalFlippedBtn) {
     globalFlippedBtn.addEventListener('click', () => {
         if (usingTimer()) return;
@@ -1890,6 +1958,8 @@ karnEl.addEventListener("change", () => onCheckKarn());
 weightEl.addEventListener("change", () => onCheckWeights());
 
 globalBarflipEl.addEventListener("change", () => onCheckGlobalBarflip());
+
+useBarflipEl.addEventListener("change", () => onCheckUseBarflip());
 
 // ─── CLOSE POPUPS ON BACKDROP CLICK ──────────────────────────────────────────
 
@@ -1935,6 +2005,3 @@ previousScrambleEl.addEventListener("click", () => {
     if (!previousCase) return;
     openLumpModal(previousCase);
 });
-
-/*
-the showing: $showing is too long and cannot be contained in one line... so it is breaking line, and making the whole thing look pretty weird. can you think of any idea that'd preserve the aesthetics without jeopardizing the affordance of the button (like, i can literally nuke the text : "showing:"... but that'd confuse soo many people what's the button about)...?*/
