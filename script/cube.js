@@ -41,7 +41,6 @@ let userLists = {};
 let highlightedList = null;
 
 let scrambleOffset = 0;
-let equatorMode = 'random';
 let scrambleMode = 'long';
 let allowBottom56 = false;
 let pendingScramble = null;
@@ -127,11 +126,11 @@ const contentEl = document.getElementById("content");
 const pblListEl = document.getElementById("results");
 const filterInputEl = document.getElementById("pbl-filter");
 
-const eachCaseEls = document.querySelectorAll(".allcases");
-const karnEls = document.querySelectorAll(".karn");
-const weightEls = document.querySelectorAll(".weight");
-const globalBarflipEls = document.querySelectorAll(".showbarflip");
-const settingList = [eachCaseEls, karnEls, weightEls, globalBarflipEls];
+const eachCaseEl = document.getElementById("allcases");
+const karnEl = document.getElementById("karn");
+const weightEl = document.getElementById("weight");
+const globalBarflipEl = document.getElementById("showbarflip");
+const settingList = [eachCaseEl, karnEl, weightEl, globalBarflipEl];
 
 const removeLastEl = document.getElementById("unselprev");
 
@@ -206,6 +205,37 @@ function loadLocalCache() {
     try { const d = localStorage.getItem(SB_CACHE_KEY); return d ? JSON.parse(d) : {}; } catch (e) { return {}; }
 }
 
+let _successTimer = null;
+
+function showSuccess(message = "Done!", duration = 2000) {
+    const toast = document.getElementById("success-toast");
+    toast.classList.remove("fading");
+    document.getElementById("success-message").textContent = message;
+    toast.style.display = "flex";
+    if (_successTimer) clearTimeout(_successTimer);
+    _successTimer = setTimeout(hideSuccess, duration);
+}
+
+function hideSuccess() {
+    const toast = document.getElementById("success-toast");
+    toast.classList.add("fading");
+    setTimeout(() => {
+        toast.style.display = "none";
+        toast.classList.remove("fading");
+        _successTimer = null;
+    }, 300); // match toastOut duration
+}
+
+
+function showLoading(message = "Loading...") {
+    document.getElementById("loading-message").textContent = message;
+    document.getElementById("loading-overlay").style.display = "flex";
+}
+
+function hideLoading() {
+    document.getElementById("loading-overlay").style.display = "none";
+}
+
 // Populate lumpCache from localStorage on startup
 Object.assign(lumpCache, loadLocalCache());
 
@@ -214,7 +244,7 @@ async function downloadAllLumps() {
     if (error || !data) return;
     data.forEach(row => { lumpCache[row.lump_index] = row.data; });
     saveLocalCache(lumpCache);
-    toast && toast("Alg data cached locally.");
+    showSuccess("Algs successfully stored.", 1000)
 }
 
 async function fetchLump(lumpIndex) {
@@ -328,15 +358,13 @@ function formatLumpAsText(lump, lumpTitle) {
     return lines.join("");
 }
 
-let hasOfferedDownload = false;
 
 async function openLumpModal(caseOverride) {
     if (!hasActiveScramble) return;
-    if (!hasOfferedDownload && Object.keys(lumpCache).length === 0) {
-        hasOfferedDownload = true;
-        if (confirm("Download alg data for offline use? (~1MB, one time only)")) {
-            await downloadAllLumps();
-        }
+    if (Object.keys(lumpCache).length === 0) {
+        requestAnimationFrame(() => showLoading());
+        await downloadAllLumps();
+        hideLoading();
     }
     const raw = caseOverride ?? currentCase; // e.g. "Al/Ar+"
     const caseName = raw.replace(/[+-]$/, "");
@@ -417,25 +445,18 @@ function getLocalStorageData(fillSidebar = false) {
 
     const storageSettings = storage.getItem("settings");
     for (let el of settingList) {
-        if (el[0].checked) el[0].click();
+        if (el.checked) el.click();
     }
     if (storageSettings === null)
         storage.setItem("settings", "0".repeat(settingList.length));
     else {
         for (let i = 0; i < settingList.length; i++)
             if (storageSettings[i] === "1") {
-                settingList[i][0].click();
+                settingList[i].click();
             }
         while (storage.getItem("settings").length !== settingList.length) {
             storage.setItem("settings", storage.getItem("settings") + "0")
         }
-    }
-
-    const storedEquator = storage.getItem("equatorMode");
-    if (storedEquator) {
-        equatorMode = storedEquator;
-        const radio = document.querySelector(`input[name="equator"][value="${equatorMode}"]`);
-        if (radio) radio.checked = true;
     }
 
     const storedScrambleMode = storage.getItem("scrambleMode");
@@ -471,7 +492,7 @@ function getLocalStorageData(fillSidebar = false) {
         } else {
             showAll();
         }
-        if (eachCaseEls[0].checked) eachCase = 1;
+        if (eachCaseEl.checked) eachCase = 1;
         else eachCase = randInt(MIN_EACHCASE, MAX_EACHCASE);
         enableGoEachCase();
         generateScramble();
@@ -541,13 +562,12 @@ function saveBarflipOverride() {
 
 function saveSettings() {
     let store = "";
-    for (let els of settingList)
-        if (els[0].checked)
+    for (let el of settingList)
+        if (el.checked)
             store += "1";
         else
             store += "0";
     storage.setItem("settings", store);
-    storage.setItem("equatorMode", equatorMode);
     storage.setItem("scrambleMode", scrambleMode);
     storage.setItem("allowBottom56", allowBottom56 ? "1" : "0");
 }
@@ -697,7 +717,7 @@ function generateScramble(regen = false) {
             // restore normal handler
             worker.onmessage = normalWorkerHandler;
         };
-        if (eachCaseAlert) setTimeout(() => alert("You have gone through each case!"), 100);
+        if (eachCaseAlert) showSuccess("You have gone through each case!", 1500);
         return;
     }
 
@@ -1119,15 +1139,15 @@ function requestNextScramble(pblChoice) {
     });
 }
 
-function pendingConflicts(newEquatorMode, newScrambleMode, newAllowBottom56) {
+function pendingConflicts( newScrambleMode, newAllowBottom56) {
     if (!pendingScramble || pendingScramble === 'waiting') return false;
     if (newScrambleMode !== scrambleMode) return true;
     if (newAllowBottom56 !== allowBottom56) return true;
     return false;
 }
 
-function cancelAndRegenerateIfNeeded(newEquatorMode, newScrambleMode, newAllowBottom56) {
-    const conflicts = pendingConflicts(newEquatorMode, newScrambleMode, newAllowBottom56);
+function cancelAndRegenerateIfNeeded(newScrambleMode, newAllowBottom56) {
+    const conflicts = pendingConflicts(newScrambleMode, newAllowBottom56);
     const workerSettingChanged = newScrambleMode !== scrambleMode || newAllowBottom56 !== allowBottom56;
     // If worker is busy generating with old settings, restart it
     if (workerBusy && workerSettingChanged) {
@@ -1160,14 +1180,14 @@ function flushPendingScramble() {
     hasActiveScramble = true;
 }
 
-document.querySelectorAll('input[name="equator"]').forEach(radio => {
-    radio.addEventListener("change", () => {
-        const newEquatorMode = radio.value;
-        cancelAndRegenerateIfNeeded(newEquatorMode, scrambleMode, allowBottom56);
-        equatorMode = newEquatorMode;
-        saveSettings();
-    });
-});
+// document.querySelectorAll('input[name="equator"]').forEach(radio => {
+//     radio.addEventListener("change", () => {
+//         const newEquatorMode = radio.value;
+//         cancelAndRegenerateIfNeeded(newEquatorMode, scrambleMode, allowBottom56);
+//         equatorMode = newEquatorMode;
+//         saveSettings();
+//     });
+// });
 
 document.querySelectorAll('input[name="scramlen"]').forEach(radio => {
     radio.addEventListener("change", () => {
@@ -1468,6 +1488,7 @@ newListEl.addEventListener("click", () => {
     userLists[newListName] = newList;
     addUserLists();
     setHighlightedList(newListName);
+    showSuccess("Successfully created the list.")
 });
 
 overwriteListEl.addEventListener("click", () => {
@@ -1492,6 +1513,7 @@ overwriteListEl.addEventListener("click", () => {
         highlightedList = null;
         closePopup();
     }
+    showSuccess("Successfully overwrote the list.")
 });
 
 selectListEl.addEventListener("click", () => {
@@ -1501,6 +1523,7 @@ selectListEl.addEventListener("click", () => {
     }
     selectList(highlightedList, false);
     closePopup();
+    showSuccess("Selected the list.", 1000);
 });
 
 deleteListEl.addEventListener("click", () => {
@@ -1513,6 +1536,7 @@ deleteListEl.addEventListener("click", () => {
             highlightedList = null;
             addUserLists();
         }
+        showSuccess("Successfully deleted the list.")
         return;
     }
     if (Object.keys(defaultLists).includes(highlightedList)) {
@@ -1529,6 +1553,7 @@ trainListEl.addEventListener("click", () => {
     }
     selectList(highlightedList, true);
     closePopup();
+    showSuccess("Training the list.", 1000)
 });
 
 function isMac() {
@@ -1648,22 +1673,22 @@ window.addEventListener("keydown", (e) => {
             // we have to take [1] because the ones that are visible on pc
             // (on the side bar) are further down in the html file
             case "e":
-                el = eachCaseEls[0];
+                el = eachCaseEl;
                 el.checked = !el.checked;
                 onCheckEachCase(el);
                 return;
             case "k":
-                el = karnEls[0];
+                el = karnEl;
                 el.checked = !el.checked;
                 onCheckKarn();
                 return;
             case "r":
-                el = weightEls[0];
+                el = weightEl;
                 el.checked = !el.checked;
                 onCheckWeights();
                 return;
             case "g":
-                el = globalBarflipEls[0];
+                el = globalBarflipEl;
                 el.checked = !el.checked;
                 onCheckGlobalBarflip();
                 return;
@@ -1699,12 +1724,12 @@ toggleUiEl.addEventListener("click", () => {
     if (usingTimer()) return;
     const isMobileView = window.innerWidth <= 900;
     if (isMobileView) {
-        if (sidebarEl.classList.contains("hidden-on-mobile")) {
-            sidebarEl.classList.remove("hidden-on-mobile");
+        if (sidebarEl.classList.contains("hidden-mobile")) {
+            sidebarEl.classList.remove("hidden-mobile");
             sidebarEl.classList.add("full-width-mobile");
             contentEl.classList.add("hidden-mobile");
         } else {
-            sidebarEl.classList.add("hidden-on-mobile");
+            sidebarEl.classList.add("hidden-mobile");
             sidebarEl.classList.remove("full-width-mobile");
             contentEl.classList.remove("hidden-mobile");
         }
@@ -1731,6 +1756,7 @@ downloadEl.addEventListener("click", () => {
     a.download = "PBLTrainerData.json";
     a.click();
     URL.revokeObjectURL(url);
+    showSuccess("Download started.", 1000)
 });
 
 uploadEl.addEventListener("click", () => {
@@ -1763,6 +1789,7 @@ fileEl.addEventListener("change", (e) => {
                 alert("File formatting is outdated, re-export recommended.");
             }
             getLocalStorageData();
+            closePopup();
         } catch (e) {
             console.error("Error:", e);
         } finally {
@@ -1783,8 +1810,8 @@ function removeLast() {
 
 removeLastEl.addEventListener("click", removeLast);
 
-function onCheckEachCase(el) {
-    eachCase = el.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+function onCheckEachCase() {
+    eachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     enableGoEachCase();
     saveSettings();
 }
@@ -1820,19 +1847,20 @@ function applyBarflipUI() {
 }
 
 function setGlobalBarflipOverride(value) {
+    let prev = globalBarflipOverride;
     globalBarflipOverride = value;
     applyBarflipUI();
     recolorAllCases();
     saveBarflipOverride();
-    if (hasActiveScramble) {
+    // if we have a scram, and going from + to - or vice versa
+    if (hasActiveScramble && prev && globalBarflipOverride && prev !== globalBarflipOverride) {
         pendingScramble = null;
         generateScramble(true);
     }
 }
 
 function onCheckGlobalBarflip() {
-    showBarflipUI = globalBarflipEls[0].checked;
-    globalBarflipEls.forEach(el => { el.checked = showBarflipUI; });
+    showBarflipUI = globalBarflipEl.checked;
     applyBarflipUI();
     recolorAllCases();
     if (hasActiveScramble) {
@@ -1855,21 +1883,13 @@ if (globalSolvedBtn) {
     });
 }
 
-eachCaseEls.forEach((btn) =>
-    btn.addEventListener("change", () => onCheckEachCase(btn))
-);
+eachCaseEl.addEventListener("change", () => onCheckEachCase());
 
-karnEls.forEach((btn) =>
-    btn.addEventListener("change", () => onCheckKarn())
-);
+karnEl.addEventListener("change", () => onCheckKarn());
 
-weightEls.forEach((btn) =>
-    btn.addEventListener("change", () => onCheckWeights())
-);
+weightEl.addEventListener("change", () => onCheckWeights());
 
-globalBarflipEls.forEach((btn) =>
-    btn.addEventListener("change", () => onCheckGlobalBarflip())
-);
+globalBarflipEl.addEventListener("change", () => onCheckGlobalBarflip());
 
 // ─── CLOSE POPUPS ON BACKDROP CLICK ──────────────────────────────────────────
 
