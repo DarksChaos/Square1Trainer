@@ -1,9 +1,9 @@
 importScripts(
-    '/script/pbl-data.js',
-    '/script/utils.js',
-    '/script/scrambler.js',
-    '/script/karnify.js',
-    '/script/optimizer.js'
+    './pbl-data.js',
+    './utils.js',
+    './scrambler.js',
+    './karnify.js',
+    './optimizer.js'
 );
 
 self.onmessage = function (e) {
