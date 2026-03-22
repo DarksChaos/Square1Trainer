@@ -1141,11 +1141,11 @@ function enableGoEachCase() {
 }
 
 // Init worker
-worker = new Worker('/script/worker.js');
+worker = new Worker('./script/worker.js');
 
 function restartWorker() {
     if (worker) worker.terminate();
-    worker = new Worker('/script/worker.js');
+    worker = new Worker('./script/worker.js');
     worker.onmessage = normalWorkerHandler;
     workerBusy = false;
 }
