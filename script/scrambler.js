@@ -378,14 +378,14 @@ class Search {
             }
             middlePath.push(newState);
         }
-        
+
         let statePath = [initialState, ...middlePath];
         // console.log(`State path: ${statePath.join(' -> ')}`);
 
         for (let depth = 0; depth < statePath.length - 1; depth++) {
             const fromState = statePath[depth];
             const toState = statePath[depth + 1];
-            
+
             let topMove, bottomMove;
             do {
                 if (fromState === 0 && toState === 1) {
@@ -419,7 +419,7 @@ class Search {
             this.Search_move.push(bottomMove);
             this.Search_move.push(0);
         }
-        // console.log(`\nGenerated moves array: [${this.Search_move.join(', ')}]`);
+        console.log(`\nGenerated moves array: [${this.Search_move.join(', ')}]`);
         return this.init2();
     }
 
@@ -446,7 +446,7 @@ class Search {
         prun1 = SquarePrun[edgex << 1 | ml];
         prun2 = SquarePrun[cornerx << 1 | ml];
         while (m < 12 && prun1 <= maxl && prun2 <= maxl) {
-            if (prun1 < maxl && prun2 < maxl) {
+            if (m !== 6 && prun1 < maxl && prun2 < maxl) {
                 this.Search_move[depth] = m;
                 if (this.solvePhase2(edgex, cornerx, topEdgeFirstx, botEdgeFirst, ml, maxl - 1, depth + 1, 1, allowBottom56)) {
                     return true;
@@ -471,9 +471,9 @@ class Search {
         m = botEdgeFirstx ? 1 : 2;
         prun1 = SquarePrun[edgex << 1 | ml];
         prun2 = SquarePrun[cornerx << 1 | ml];
-        const bottomLimit = allowBottom56 ? (maxl > 6 ? 6 : 12) : 5;
-        while (m < bottomLimit && prun1 <= maxl && prun2 <= maxl) {
-            if (prun1 < maxl && prun2 < maxl) {
+        const okMove = (m) => allowBottom56 ? m !== 6 : Math.abs(m-6) > 1;
+        while (m < 12 && prun1 <= maxl && prun2 <= maxl) {
+            if (okMove(m) && prun1 < maxl && prun2 < maxl) {
                 this.Search_move[depth] = -m;
                 if (this.solvePhase2(edgex, cornerx, topEdgeFirst, botEdgeFirstx, ml, maxl - 1, depth + 1, 2, allowBottom56)) {
                     return true;
@@ -743,20 +743,20 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // function testRepetitions(mlMode="random", iterations=1000) {
 //     console.log('=== ALL SCRAMBLES ===\n');
-    
+
 //     const scrambles = [];
 //     const startTime = Date.now();
 //     let maxTime = 0;
-    
+
 //     for (let i = 0; i < iterations; i++) {
 //         let NOP = Math.random() < 0.5;
-//         let caseName = NOP ? Object.keys(NonParityCases)[Math.floor(Math.random() * Object.keys(NonParityCases).length)] + 
+//         let caseName = NOP ? Object.keys(NonParityCases)[Math.floor(Math.random() * Object.keys(NonParityCases).length)] +
 //             "/" + Object.keys(NonParityCases)[Math.floor(Math.random() * Object.keys(NonParityCases).length)] :
 //             Object.keys(ParityCases)[Math.floor(Math.random() * Object.keys(ParityCases).length)] + "/" +
 //             Object.keys(ParityCases)[Math.floor(Math.random() * Object.keys(ParityCases).length)];
-        
+
 //         const iterStart = Date.now();
-        
+
 //         let equatorMode;
 //         if (mlMode === 'flipped') {
 //             equatorMode = 'slash';
@@ -765,40 +765,40 @@ if (typeof module !== 'undefined' && module.exports) {
 //         } else {
 //             equatorMode = 'random';
 //         }
-        
+
 //         const result = generateRandomCase([caseName], equatorMode).finalHex;
 //         const solution = scrambleFromState(parseHexFormat(result));
-        
+
 //         const iterTime = Date.now() - iterStart;
 //         maxTime = iterTime > maxTime ? iterTime : maxTime;
-        
+
 //         if (solution && solution !== '(solved)') {
 //             scrambles.push({
 //                 full: solution,
 //                 hex: result.finalHex,
 //                 time: iterTime
 //             });
-            
+
 //             console.log(`${i + 1}. ${solution}`);
 //         } else {
 //             console.log(`${i + 1}. (No solution or already solved)`);
 //         }
 //     }
-    
+
 //     const totalTime = Date.now() - startTime;
 //     const avgTime = totalTime / iterations;
-    
+
 //     console.log('\n=== FINAL STATISTICS ===');
 //     console.log(`\nAverage time per case: ${avgTime.toFixed(2)}ms`);
 //     console.log(`\nMax time: ${maxTime.toFixed(2)}ms`)
 //     console.log(`Total time: ${(totalTime / 1000).toFixed(2)}s`);
-    
+
 //     if (scrambles.length > 0) {
 //         const lengths = scrambles.map(s => s.full.split("/").length-1);
 //         const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
 //         const minLength = Math.min(...lengths);
 //         const maxLength = Math.max(...lengths);
-        
+
 //         console.log(`\n=== SCRAMBLE LENGTH STATISTICS ===`);
 //         console.log(`Average length: ${avgLength.toFixed(1)} slices`);
 //         console.log(`Min length: ${minLength} slices`);
