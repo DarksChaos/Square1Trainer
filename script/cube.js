@@ -45,8 +45,10 @@ let scrambleOffset = 0;
 let scrambleMode = 'long';
 let allowBottom56 = false;
 let pendingScramble = null;
-let workerBusy = false;
-let worker = null;
+let scramWorker = null;
+let scramWorkerBusy = false;
+let lumpWorker = null;
+let lumpWorkerBusy = false;
 let generators;
 let hasActiveScramble = false;
 let isPopupOpen = false;
@@ -244,6 +246,44 @@ function hideLoading() {
 // Populate lumpCache from localStorage on startup
 Object.assign(lumpCache, loadLocalCache());
 
+// Start background lump sync worker only if the user already has cached data.
+// First-time users get lumps on-demand when they open the modal instead.
+let lumpWorkerReady = null; // Promise for the initial sync; null once resolved
+
+(function initLumpWorker() {
+    if (Object.keys(lumpCache).length === 0) return;
+    lumpWorker = new Worker('./script/lump-worker.js');
+
+    let initialSyncDone = false;
+    let resolveReady;
+    lumpWorkerReady = new Promise(r => { resolveReady = r; });
+
+    lumpWorker.onmessage = function(e) {
+        if (e.data.type === 'busy') {
+            lumpWorkerBusy = true;
+        } else if (e.data.type === 'data') {
+            lumpWorkerBusy = false;
+            Object.assign(lumpCache, e.data.payload);
+            saveLocalCache(lumpCache);
+            if (!initialSyncDone) {
+                initialSyncDone = true;
+                lumpWorkerReady = null;
+                resolveReady();
+            }
+        } else if (e.data.type === 'error') {
+            lumpWorkerBusy = false;
+            console.warn('[LumpWorker] Fetch failed:', e.data.message);
+            if (!initialSyncDone) {
+                initialSyncDone = true;
+                lumpWorkerReady = null;
+                resolveReady(); // don't leave the modal hanging on error
+            }
+        }
+    };
+    lumpWorkerBusy = true;
+    lumpWorker.postMessage({ type: 'start' });
+})();
+
 async function downloadAllLumps() {
     const { data, error } = await sbClient.from("pbl_lumps").select("lump_index, data");
     if (error || !data) return;
@@ -366,7 +406,22 @@ function formatLumpAsText(lump, lumpTitle) {
 
 async function openLumpModal(caseOverride) {
     if (!hasActiveScramble) return;
-    if (Object.keys(lumpCache).length === 0) {
+    if (lumpWorkerReady) {
+        // Initial sync still in flight (or completed too fast to catch) — await the promise
+        showLoading();
+        await lumpWorkerReady;
+        hideLoading();
+    } else if (lumpWorkerBusy) {
+        // Mid interval sync — poll until done
+        showLoading();
+        await new Promise(resolve => {
+            const check = setInterval(() => {
+                if (!lumpWorkerBusy) { clearInterval(check); resolve(); }
+            }, 100);
+        });
+        hideLoading();
+    } else if (Object.keys(lumpCache).length === 0) {
+        // First-time user: no worker running, fetch on-demand
         requestAnimationFrame(() => showLoading());
         await downloadAllLumps();
         hideLoading();
@@ -729,12 +784,12 @@ function generateScramble(regen = false) {
     if (regen) {
         // Regen: fire worker and wait, replace current scramble when done
         pendingScramble = 'waiting';
-        workerBusy = false; // force allow
+        scramWorkerBusy = false; // force allow
         requestNextScramble(pblChoice);
         // worker.onmessage will call flushPendingScramble which will update scrambleList tail
         // but for regen we need to overwrite, so we handle it differently:
-        worker.onmessage = function (e) {
-            workerBusy = false;
+        scramWorker.onmessage = function (e) {
+            scramWorkerBusy = false;
             if (e.data.error) { console.error(e.data.error); return; }
             const data = e.data;
             previousCase = currentCase;
@@ -744,7 +799,7 @@ function generateScramble(regen = false) {
             if (scrambleOffset === 0)
                 currentScrambleEl.textContent = final[usingKarn];
             // restore normal handler
-            worker.onmessage = normalWorkerHandler;
+            scramWorker.onmessage = normalWorkerHandler;
         };
         if (eachCaseAlert) showSuccess("You have gone through each case!", 1500);
         return;
@@ -781,9 +836,9 @@ function generateScramble(regen = false) {
         // Worker busy or no pending — show loading, wait
         currentScrambleEl.classList.add("generating");
         pendingScramble = 'waiting';
-        if (!workerBusy) requestNextScramble(pblChoice);
-        worker.onmessage = function (e) {
-            workerBusy = false;
+        if (!scramWorkerBusy) requestNextScramble(pblChoice);
+        scramWorker.onmessage = function (e) {
+            scramWorkerBusy = false;
             if (e.data.error) { console.error(e.data.error); return; }
             const data = e.data;
             previousCase = currentCase;
@@ -802,7 +857,7 @@ function generateScramble(regen = false) {
             if (!hasActiveScramble) timerEl.textContent = "0.00";
             hasActiveScramble = true;
             pendingScramble = null;
-            worker.onmessage = normalWorkerHandler;
+            scramWorker.onmessage = normalWorkerHandler;
         };
     }
 
@@ -810,7 +865,7 @@ function generateScramble(regen = false) {
 }
 
 function normalWorkerHandler(e) {
-    workerBusy = false;
+    scramWorkerBusy = false;
     if (e.data.error) { console.error('Worker error:', e.data.error); return; }
     pendingScramble = e.data;
 }
@@ -924,7 +979,7 @@ function startTimer() {
     setColor();
 
     // Pre-generate next scramble while timer is running
-    if (remainingPBL.length > 0 && !workerBusy && !pendingScramble) {
+    if (remainingPBL.length > 0 && !scramWorkerBusy && !pendingScramble) {
         const nextCaseNum = randInt(0, remainingPBL.length - 1);
         const nextChoice = remainingPBL[nextCaseNum];
         requestNextScramble(nextChoice);
@@ -1141,18 +1196,18 @@ function enableGoEachCase() {
 }
 
 // Init worker
-worker = new Worker('./script/worker.js');
+scramWorker = new Worker('./script/worker.js');
 
 function restartWorker() {
-    if (worker) worker.terminate();
-    worker = new Worker('./script/worker.js');
-    worker.onmessage = normalWorkerHandler;
-    workerBusy = false;
+    if (scramWorker) scramWorker.terminate();
+    scramWorker = new Worker('./script/worker.js');
+    scramWorker.onmessage = normalWorkerHandler;
+    scramWorkerBusy = false;
 }
 
 function requestNextScramble(pblChoice) {
-    if (workerBusy) return;
-    workerBusy = true;
+    if (scramWorkerBusy) return;
+    scramWorkerBusy = true;
     pendingScramble = null;
     // pblChoice ends in '+' or '-' — per-case barflip, but global override takes precedence
     const effectiveOverride = getEffectiveOverride();
@@ -1160,7 +1215,7 @@ function requestNextScramble(pblChoice) {
     if (!['+', '-'].includes(suffix)) throw new Error(`suffix: ${suffix} is not valid.`);
     const caseName = pblChoice.slice(0, -1);
     const caseEquatorMode = suffix === '+' ? 'slash' : 'bar';
-    worker.postMessage({
+    scramWorker.postMessage({
         caseName,
         equatorMode: caseEquatorMode,
         scrambleMode,
@@ -1179,7 +1234,7 @@ function cancelAndRegenerateIfNeeded(newScrambleMode, newAllowBottom56) {
     const conflicts = pendingConflicts(newScrambleMode, newAllowBottom56);
     const workerSettingChanged = newScrambleMode !== scrambleMode || newAllowBottom56 !== allowBottom56;
     // If worker is busy generating with old settings, restart it
-    if (workerBusy && workerSettingChanged) {
+    if (scramWorkerBusy && workerSettingChanged) {
         restartWorker();
         pendingScramble = null;
     } else if (conflicts) {
