@@ -2114,7 +2114,7 @@ function oblDeselectAll() {
     if (usingTimer()) return;
     oblSelectedCases = [[], []];
     oblRemainingCases = [[], []];
-    document.querySelectorAll('.case').forEach(caseEl => caseEl.classList.remove('checked'));
+    document.querySelectorAll('.case').forEach(caseEl => { caseEl.classList.remove('checked'); caseEl.classList.remove('checked-both'); });
     oblSaveSelected();
     oblUpdateSelCount();
 }
@@ -2233,7 +2233,7 @@ function oblRestoreGrid() {
     pblListEl.innerHTML = buttons;
     document.querySelectorAll('.case').forEach(caseEl => {
         const id = caseEl.id;
-        if (oblSelectedCases[oblUsingSpe].includes(id)) caseEl.classList.add('checked');
+        if (oblSelectedCases[oblUsingSpe].includes(id)) { caseEl.classList.add('checked'); caseEl.classList.add('checked-both'); }
         caseEl.addEventListener('click', () => {
             if (usingTimer()) return;
             if (caseEl.classList.contains('checked')) oblDeselect(id);
@@ -2257,7 +2257,7 @@ function oblSelect(id) {
         if (oblEachCase > 0) oblRemainingCases[oblUsingSpe].push(...Array(oblEachCase).fill(id));
     }
     const el = document.getElementById(id);
-    if (el) el.classList.add('checked');
+    if (el) { el.classList.add('checked'); el.classList.add('checked-both'); }
     oblUpdateSelCount();
 }
 
@@ -2265,7 +2265,7 @@ function oblDeselect(id) {
     oblSelectedCases[oblUsingSpe] = oblSelectedCases[oblUsingSpe].filter(x => x !== id);
     oblRemainingCases[oblUsingSpe] = oblRemainingCases[oblUsingSpe].filter(x => x !== id);
     const el = document.getElementById(id);
-    if (el) el.classList.remove('checked');
+    if (el) { el.classList.remove('checked'); el.classList.remove('checked-both'); }
     oblUpdateSelCount();
 }
 
