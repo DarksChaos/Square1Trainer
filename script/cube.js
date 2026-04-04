@@ -1013,8 +1013,13 @@ function timerBeginTouch(spaceEquivalent) {
     if (isRunning) {
         // Stop timer
         stopTimer();
-        scrambleOffset--;
-        generateScramble();
+        if (trainerMode === 'obl') {
+            oblScrambleOffset--;
+            oblGenerateScramble();
+        } else {
+            scrambleOffset--;
+            generateScramble();
+        }
         if (!spaceEquivalent) otherKeyPressed += 1;
     } else if (spaceEquivalent && otherKeyPressed <= 0) {
         if (!pressStartTime) {
@@ -1294,6 +1299,11 @@ bottom56El.addEventListener("change", function () {
 });
 
 filterInputEl.addEventListener("input", () => {
+    if (trainerMode === 'obl') {
+        filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z1-4/\- ]+/g, "");
+        oblApplyFilter(filterInputEl.value);
+        return;
+    }
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!*&() ]+/g, "");
     setHighlightedList(null);
     applyFilter(filterInputEl.value);
@@ -1391,17 +1401,20 @@ function deselectAll() {
 }
 
 selectAllEl.addEventListener("click", () => {
+    if (trainerMode === 'obl') { oblSelectAll(); return; }
     if (filterInputEl.value.trim() !== '') selectThese(false);
     else selectAll(false);
 });
 
 selectAllEl.addEventListener("contextmenu", (e) => {
     e.preventDefault();
+    if (trainerMode === 'obl') { oblDeselectAll(); return; }
     if (filterInputEl.value.trim() !== '') selectThese(true);
     else selectAll(true);
 });
 
 deselectAllEl.addEventListener("click", () => {
+    if (trainerMode === 'obl') { oblDeselectAll(); return; }
     if (filterInputEl.value.trim() !== '') deselectThese();
     else deselectAll();
 });
@@ -1464,6 +1477,19 @@ function updateDeselectBtn() {
 
 showToggleEl.addEventListener("click", () => {
     if (usingTimer()) return;
+    if (trainerMode === 'obl') {
+        // simple toggle all/selected for OBL
+        const allVisible = [...document.querySelectorAll('.case')].every(el => !el.classList.contains('hidden'));
+        if (allVisible) {
+            document.querySelectorAll('.case').forEach(el => {
+                if (!oblSelectedCases[oblUsingSpe].includes(el.id)) el.classList.add('hidden');
+            });
+        } else {
+            document.querySelectorAll('.case').forEach(el => el.classList.remove('hidden'));
+        }
+        oblUpdateSelCount();
+        return;
+    }
     const hasFilter = filterInputEl.value.trim() !== '';
     if (hasFilter) {
         // can only toggle between searched and selected
@@ -1507,11 +1533,17 @@ function showSelection() {
 
 function prevScram() {
     if (usingTimer()) return;
+    if (trainerMode === 'obl') {
+        if (!oblScrambleList.length) return;
+        oblScrambleOffset = Math.min(oblScrambleOffset + 1, oblScrambleList.length - 1);
+        oblDisplayCurrentScramble();
+        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+        previousScrambleEl.textContent = prev ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')' : 'Last scramble will show up here';
+        return;
+    }
     if (scrambleList.length == 0) return;
     scrambleOffset = Math.min(scrambleOffset + 1, scrambleList.length - 1);
-    currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
-        usingKarn
-    ];
+    currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[usingKarn];
     displayPrevScram();
 }
 
@@ -1524,15 +1556,25 @@ currentScrambleEl.addEventListener("click", () => {
 
 function nextScram() {
     if (usingTimer()) return;
+    if (trainerMode === 'obl') {
+        if (!oblScrambleList.length) return;
+        oblScrambleOffset--;
+        if (oblScrambleOffset < 0) {
+            oblScrambleOffset = 0;
+            oblGenerateScramble();
+        } else {
+            oblDisplayCurrentScramble();
+            const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+            previousScrambleEl.textContent = prev ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')' : 'Last scramble will show up here';
+        }
+        return;
+    }
     if (scrambleList.length == 0) return;
     scrambleOffset--;
     if (scrambleOffset < 0) {
-        // scrambleOffset = 0;: this is already set in the function below
         generateScramble();
     } else {
-        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
-            usingKarn
-        ];
+        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[usingKarn];
         displayPrevScram();
     }
 }
@@ -1910,13 +1952,23 @@ fileEl.addEventListener("change", (e) => {
 });
 
 function removeLast() {
+    if (trainerMode === 'obl') {
+        if (oblScrambleList.length < 2) return;
+        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+        if (!prev) return;
+        oblLastRemoved = prev[2];
+        oblDeselect(oblLastRemoved);
+        oblSaveSelected();
+        showSuccess("Last case removed.", 500);
+        return;
+    }
     if (scrambleList.at(-2 - scrambleOffset) !== undefined) {
         const base = previousCase.slice(0, -1);
         if (!useBarflip) {
             deselectPBL(base + '+');
             deselectPBL(base + '-');
         } else {
-            deselectPBL(previousCase); // previousCase already ends in '+'/'-'
+            deselectPBL(previousCase);
         }
         lastRemoved = previousCase;
         saveSelectedPBL();
@@ -1933,12 +1985,14 @@ function onCheckEachCase() {
 }
 
 function onCheckKarn() {
-    usingKarn ^= 1; // switches between 0 and 1 with XOR
-    if (hasActiveScramble)
-        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[
-            usingKarn
-        ];
-    displayPrevScram();
+    usingKarn ^= 1;
+    oblUsingKarn = usingKarn; // shared karn setting
+    if (trainerMode === 'obl') {
+        oblDisplayCurrentScramble();
+    } else if (hasActiveScramble) {
+        currentScrambleEl.textContent = scrambleList.at(-1 - scrambleOffset)[usingKarn];
+        displayPrevScram();
+    }
     saveSettings();
 }
 
@@ -2046,7 +2100,276 @@ function updateColors(hue) {
     );
 }
 
+// ─── OBL SELECT ALL / DESELECT ALL ───────────────────────────────────────────
+
+function oblSelectAll() {
+    if (usingTimer()) return;
+    document.querySelectorAll('.case').forEach(caseEl => {
+        if (!caseEl.classList.contains('hidden')) oblSelect(caseEl.id);
+    });
+    oblSaveSelected();
+}
+
+function oblDeselectAll() {
+    if (usingTimer()) return;
+    oblSelectedCases = [[], []];
+    oblRemainingCases = [[], []];
+    document.querySelectorAll('.case').forEach(caseEl => caseEl.classList.remove('checked'));
+    oblSaveSelected();
+    oblUpdateSelCount();
+}
+
+// ─── MODE SYSTEM ──────────────────────────────────────────────────────────────
+
+const MODE_KEY = 'trainerMode';
+let trainerMode = localStorage.getItem(MODE_KEY) || 'obl'; // 'pbl' | 'obl'
+
+// OBL state (mirrors PBL state vars but separate)
+let oblSelectedCases = [[], []]; // [nonSpe[], spe[]]
+let oblRemainingCases = [[], []];
+let oblUserLists = {};
+let oblDefaultLists = {};
+let oblUsingKarn = 0;
+let oblUsingSpe = 0;
+let oblUsingMemo = false;
+let oblScrambleList = [];
+let oblCurrentCase = '';
+let oblPreviousCase = '';
+let oblHasActiveScramble = false;
+let oblHighlightedList = null;
+let oblScrambleOffset = 0;
+let oblLastRemoved = '';
+let oblEachCase = 0;
+
+const oblStorage = {
+    getItem: k => localStorage.getItem(k + 'OBL'),
+    setItem: (k, v) => localStorage.setItem(k + 'OBL', v),
+};
+
+function switchMode() {
+    trainerMode = trainerMode === 'pbl' ? 'obl' : 'pbl';
+    localStorage.setItem(MODE_KEY, trainerMode);
+    applyMode();
+}
+
+function applyMode() {
+    const isPBL = trainerMode === 'pbl';
+    document.getElementById('mode-title').textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
+
+    // settings rows visibility
+    document.getElementById('scramble-length-row').style.display = isPBL ? '' : 'none';
+    document.getElementById('bottom56-row').style.display = (isPBL && scrambleMode === 'short') ? 'flex' : 'none';
+    document.getElementById('usebarflip').closest('.settings-row').style.display = isPBL ? '' : 'none';
+    document.getElementById('globalbarfliprow').style.display = (isPBL && useBarflip) ? '' : 'none';
+    document.getElementById('weight').closest('.settings-row').style.display = isPBL ? '' : 'none';
+    document.getElementById('specific-row').style.display = isPBL ? 'none' : '';
+    document.getElementById('oblp-row').style.display = isPBL ? 'none' : '';
+
+    // swap grid
+    if (isPBL) {
+        oblSaveState();
+        pblRestoreGrid();
+    } else {
+        pblSaveState();
+        oblLoadUserLists();
+        oblRestoreGrid();
+        oblLoadSelected();
+    }
+}
+
+function pblRestoreGrid() {
+    // re-render PBL cases
+    let buttons = "";
+    for (let [t, b] of possiblePBL) {
+        buttons += `<div class="case" id="${t}/${b}">${t} / ${b}</div>`;
+    }
+    pblListEl.innerHTML = buttons;
+    document.querySelectorAll(".case").forEach(caseEl => {
+        const base = caseEl.id;
+        caseEl.addEventListener("click", () => {
+            if (usingTimer()) return;
+            const mode = getCaseMode(base);
+            if (!useBarflip) {
+                mode === 'both' ? (deselectPBL(base+'+'), deselectPBL(base+'-')) : (selectPBL(base+'+'), selectPBL(base+'-'));
+            } else {
+                mode === 'both' ? (deselectPBL(base+'+'), deselectPBL(base+'-')) : (selectPBL(base+'+'), selectPBL(base+'-'));
+            }
+            saveSelectedPBL();
+        });
+        caseEl.addEventListener("contextmenu", e => {
+            e.preventDefault();
+            if (usingTimer()) return;
+            const mode = getCaseMode(base);
+            if (!useBarflip) {
+                mode === 'both' ? (deselectPBL(base+'+'), deselectPBL(base+'-')) : (selectPBL(base+'+'), selectPBL(base+'-'));
+            } else {
+                if (mode === 'none') selectPBL(base+'+');
+                else if (mode === 'both') deselectPBL(base+'-');
+                else if (mode === 'plus') { deselectPBL(base+'+'); selectPBL(base+'-'); }
+                else deselectPBL(base+'-');
+            }
+            saveSelectedPBL();
+        });
+        setCaseDomClass(caseEl, getCaseMode(base));
+    });
+    updateSelCount();
+    filterInputEl.value = '';
+    applyFilter('');
+    currentShowMode = selectedPBL.length > 0 ? 'selected' : 'all';
+    if (currentShowMode === 'selected') showSelection();
+    else showAll();
+    updateShowToggleBtn();
+    if (oblHasActiveScramble) {
+        // restore PBL display
+        currentScrambleEl.textContent = scrambleList.length ? scrambleList.at(-1)[usingKarn] : 'Scramble will show up here';
+        previousScrambleEl.textContent = 'Last scramble will show up here';
+    }
+}
+
+function oblRestoreGrid() {
+    let buttons = oblUsingSpe ?
+        possibleOBL.flatMap(obl => getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)).join('') :
+        possibleOBL.map(obl => `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`).join('');
+    pblListEl.innerHTML = buttons;
+    document.querySelectorAll('.case').forEach(caseEl => {
+        const id = caseEl.id;
+        if (oblSelectedCases[oblUsingSpe].includes(id)) caseEl.classList.add('checked');
+        caseEl.addEventListener('click', () => {
+            if (usingTimer()) return;
+            if (caseEl.classList.contains('checked')) oblDeselect(id);
+            else oblSelect(id);
+            oblSaveSelected();
+        });
+    });
+    filterInputEl.value = '';
+    oblApplyFilter('');
+    oblUpdateSelCount();
+    oblDisplayCurrentScramble();
+}
+
+function pblSaveState() {} // placeholder
+
+// ─── OBL SELECTION ────────────────────────────────────────────────────────────
+
+function oblSelect(id) {
+    if (!oblSelectedCases[oblUsingSpe].includes(id)) {
+        oblSelectedCases[oblUsingSpe].push(id);
+        if (oblEachCase > 0) oblRemainingCases[oblUsingSpe].push(...Array(oblEachCase).fill(id));
+    }
+    const el = document.getElementById(id);
+    if (el) el.classList.add('checked');
+    oblUpdateSelCount();
+}
+
+function oblDeselect(id) {
+    oblSelectedCases[oblUsingSpe] = oblSelectedCases[oblUsingSpe].filter(x => x !== id);
+    oblRemainingCases[oblUsingSpe] = oblRemainingCases[oblUsingSpe].filter(x => x !== id);
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('checked');
+    oblUpdateSelCount();
+}
+
+function oblUpdateSelCount() {
+    selCountEl.textContent = 'Selected: ' + oblSelectedCases[oblUsingSpe].length;
+}
+
+function oblSaveSelected() {
+    if (!oblUsingSpe) oblSelectedCases[1] = [...getSpeList(oblSelectedCases[0])];
+    else oblSelectedCases[0] = [...getNonSpeList(oblSelectedCases[1])];
+    oblStorage.setItem('selected', JSON.stringify(oblSelectedCases));
+    if (!oblHasActiveScramble || oblSelectedCases[oblUsingSpe].length === 0) oblGenerateScramble();
+    else if (!oblSelectedCases[oblUsingSpe].includes(oblCurrentCase)) oblGenerateScramble(true);
+}
+
+function oblEnableEachCase() {
+    oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+    oblRemainingCases[oblUsingSpe] = oblSelectedCases[oblUsingSpe].flatMap(el => Array(oblEachCase).fill(el));
+}
+
+// ─── OBL SCRAMBLE GENERATION ─────────────────────────────────────────────────
+
+function oblGenerateScramble(regen = false) {
+    if (oblSelectedCases[oblUsingSpe].length === 0) {
+        timerEl.textContent = '--:--';
+        currentScrambleEl.textContent = 'Scramble will show up here';
+        previousScrambleEl.textContent = 'Last scramble will show up here';
+        oblHasActiveScramble = false;
+        oblScrambleList = [];
+        return;
+    }
+    if (oblRemainingCases[oblUsingSpe].length === 0) oblEnableEachCase();
+
+    const idx = randInt(0, oblRemainingCases[oblUsingSpe].length - 1);
+    const choice = oblRemainingCases[oblUsingSpe].splice(idx, 1)[0];
+    oblCurrentCase = choice;
+
+    const specific = oblUsingSpe ? choice : OBLtranslation[choice][randInt(0, OBLtranslation[choice].length - 1)];
+    const scramble = getOBLScramble(specific);
+
+    // add random AUF/ADF
+    const s = scramble[0].at(0), e = scramble[0].at(-1);
+    const start = s === 'A' ? [randrange(-5,5,3), randrange(-3,7,3)] : [randrange(-3,7,3), randrange(-4,6,3)];
+    const end   = e === 'A' ? [randrange(-4,6,3), randrange(-3,7,3)] : [randrange(-3,7,3), randrange(-5,5,3)];
+
+    const raw = start.join(',') + scramble[0].slice(1,-1) + end.join(',');
+    const final = [raw.replaceAll('/', ' / '), karnify(raw.replaceAll('/', '/')), choice];
+
+    if (regen) {
+        oblScrambleList[oblScrambleList.length - 1] = final;
+    } else {
+        if (oblScrambleList.length) {
+            previousScrambleEl.textContent = 'Previous scramble: ' + oblScrambleList.at(-1)[oblUsingKarn] + ' (' + oblScrambleList.at(-1)[2] + ')';
+        }
+        oblScrambleList.push(final);
+    }
+    oblHasActiveScramble = true;
+    if (!timerEl.textContent || timerEl.textContent === '--:--') timerEl.textContent = '0.00';
+    oblDisplayCurrentScramble();
+}
+
+function oblDisplayCurrentScramble() {
+    if (!oblHasActiveScramble || !oblScrambleList.length) return;
+    const entry = oblScrambleList.at(-1 - oblScrambleOffset);
+    if (entry) currentScrambleEl.textContent = entry[oblUsingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
+}
+
+// ─── OBL FILTER ───────────────────────────────────────────────────────────────
+
+function oblApplyFilter(raw) {
+    document.querySelectorAll('.case').forEach(caseEl => {
+        if (passesOBLFilter(caseEl.id, raw)) caseEl.classList.remove('hidden');
+        else caseEl.classList.add('hidden');
+    });
+    oblUpdateSelCount();
+}
+
+// ─── OBL LISTS ────────────────────────────────────────────────────────────────
+
+function oblLoadUserLists() {
+    const stored = oblStorage.getItem('userLists');
+    if (stored) oblUserLists = JSON.parse(stored);
+}
+
+function oblSaveUserLists() {
+    oblStorage.setItem('userLists', JSON.stringify(oblUserLists));
+}
+
+function oblLoadSelected() {
+    const stored = oblStorage.getItem('selected');
+    if (!stored) return;
+    oblSelectedCases = JSON.parse(stored);
+    if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
+    oblEnableEachCase();
+    oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
+    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
+}
+
+// ─── MODE INIT ────────────────────────────────────────────────────────────────
+
+document.getElementById('mode-title').addEventListener('click', switchMode);
+
 init();
+applyMode();
 updateSelectBtn();
 updateDeselectBtn();
 updateShowToggleBtn();

@@ -10,8 +10,11 @@
     <!-- for upload/download icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script/utils.js"></script>
     <script src="script/pbl_group_maps.js"></script>
     <script src="script/pbl-data.js"></script>
+    <script src="script/obl-data.js"></script>
+    <script src="script/obl-core.js"></script>
     <script src="script/karnify.js"></script>
     <script src="script/optimizer.js"></script>
     <script src="script/filter.js"></script>
@@ -71,7 +74,7 @@
             </button>
             <button id="toggleui">Toggle selector</button>
         </div>
-        <div class="nav-center">PBL TRAINER</div>
+        <div class="nav-center" id="mode-title" style="cursor:pointer;">PBL TRAINER</div>
         <div class="nav-right">
             <button id="open-help">?</button>
             <button id="open-settings">&#9881;</button>
@@ -117,6 +120,14 @@
                     <label class="settings-row settings-checkbox" id="bottom56-row" style="display:none">
                         <input type="checkbox" id="allow-bottom56" />
                         <span>Allow bottom 5s and 6s</span>
+                    </label>
+                    <label class="settings-row settings-checkbox" id="specific-row" style="display:none">
+                        <input type="checkbox" id="specific" />
+                        <span>Use specific case naming <b>(S)</b></span>
+                    </label>
+                    <label class="settings-row settings-checkbox" id="oblp-row" style="display:none">
+                        <input type="checkbox" id="oblp" />
+                        <span>Show Matt tracing memo <b>(P)</b></span>
                     </label>
                     <div class="settings-row" id="scramble-length-row">
                         <span>Scramble length:</span>
@@ -202,7 +213,7 @@
                     <button class="barflip-toggle-btn" id="barflip-solved">Solved</button>
                 </div>
             </div>
-            <input type="text" class="filter-input" id="pbl-filter" maxlength="10" autocomplete="new-pbl-filter"
+            <input type="text" class="filter-input" id="pbl-filter" maxlength="25" autocomplete="new-pbl-filter"
                 placeholder='Filter cases (Ctrl+F)' />
             <p class="selection-text" id="selcount">Selected: -</p>
             <div class="selection-grid">
