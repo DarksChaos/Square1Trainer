@@ -2153,8 +2153,7 @@ function switchMode() {
 }
 
 function applyMode() {
-    const isPBL = trainerMode === 'pbl';
-    document.getElementById('mode-title').textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
+    const isPBL = trainerMode === 'pbl';    document.getElementById('mode-title').textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
 
     // settings rows visibility
     document.getElementById('scramble-length-row').style.display = isPBL ? '' : 'none';
@@ -2172,8 +2171,8 @@ function applyMode() {
     } else {
         pblSaveState();
         oblLoadUserLists();
-        oblRestoreGrid();
         oblLoadSelected();
+        oblRestoreGrid();
     }
 }
 
@@ -2248,6 +2247,7 @@ function oblRestoreGrid() {
 }
 
 function pblSaveState() {} // placeholder
+function oblSaveState() {} // placeholder
 
 // ─── OBL SELECTION ────────────────────────────────────────────────────────────
 
@@ -2368,8 +2368,9 @@ function oblLoadSelected() {
 
 document.getElementById('mode-title').addEventListener('click', switchMode);
 
-init();
-applyMode();
+init().then(() => {
+    applyMode();
+});
 updateSelectBtn();
 updateDeselectBtn();
 updateShowToggleBtn();
