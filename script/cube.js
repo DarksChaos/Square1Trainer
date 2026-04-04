@@ -2177,6 +2177,7 @@ function applyMode() {
 }
 
 function pblRestoreGrid() {
+    pblListEl.style.gridTemplateColumns = '';
     // re-render PBL cases
     let buttons = "";
     for (let [t, b] of possiblePBL) {
@@ -2226,6 +2227,9 @@ function pblRestoreGrid() {
 }
 
 function oblRestoreGrid() {
+    pblListEl.style.gridTemplateColumns = oblUsingSpe
+        ? 'repeat(auto-fit, minmax(160px, 1fr))'
+        : 'repeat(auto-fit, minmax(130px, 1fr))';
     let buttons = oblUsingSpe ?
         possibleOBL.flatMap(obl => getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)).join('') :
         possibleOBL.map(obl => `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`).join('');
