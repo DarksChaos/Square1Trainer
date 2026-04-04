@@ -29,26 +29,36 @@
         });
     </script>
     <style>
-        html {
+        html, body {
             font-family: Arial, sans-serif;
+            height: 100%;
+            background-color: #272020;
+            color: #ffffff;
+        }
+
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%;
-            background-color: #181818;
-            color: #ffffff;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+            min-width: 30%;
+            text-align: center;
         }
 
         .button {
             all: unset;
+            margin: 3px;
             display: inline-block;
-            padding: 0.5em 1em;
-            border: 2px solid black;
-            background-color: #333333;
-            border-radius: 8px;
+            padding: 1em;
+            border: 3px solid #b08b8b;
+            border-radius: 10px;
+            background-color: #4f3737;
             cursor: pointer;
             text-align: center;
-            border-color: #666666;
         }
 
         .button:hover {
@@ -71,11 +81,17 @@
     </head>
 
     <body>
-        <a class="button" href="https://squan-trainers.web.app/"
-            >Access trainers
-        </a>
-        <button class="button" id="downloaddata">
-            <i class="fa fa-download"></i> Download old data
-        </button>
+        <div>
+            <p>
+                This used to be the PBL trainer until it was moved to a different URL.
+                You can download your old data here.
+            </p>
+            <a class="button" href="https://squan-trainers.web.app/"
+                >Access trainers
+            </a>
+            <button class="button" id="downloaddata">
+                <i class="fa fa-download"></i> Download old data
+            </button>
+        </div>
     </body>
 </html>
