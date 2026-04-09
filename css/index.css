@@ -336,6 +336,7 @@ button:hover {
     padding: 1rem 0;
     border-top: 2px solid #333;
     padding-top: 25px;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 #timer {
@@ -499,7 +500,7 @@ button:hover {
 /* Settings popup */
 .settings-popup-inner {
     width: 440px;
-    max-width: 95vw;
+    max-width: 95dvw;
     height: auto !important;
     max-height: 90vh;
     border-radius: 18px;
@@ -647,7 +648,7 @@ button:hover {
 
 /* Help popup */
 .help-popup-inner {
-    width: 50vw;
+    width: 50dvw;
     height: auto !important;
     max-height: 90vh;
     border-radius: 18px;
@@ -679,15 +680,14 @@ button:hover {
     line-height: 1.5;
 }
 
-/* Lump / Alg-reference modal — styled like settings popup */
-.lump-overlay {
+/* Cluster / Alg-reference modal — styled like settings popup */
+.cluster-overlay {
     position: fixed;
     inset: 0;
     z-index: 9999;
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
-    overflow-y: auto;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
@@ -695,9 +695,10 @@ button:hover {
     justify-content: center;
 }
 
-.lump-window {
+.cluster-window {
     background-color: #1e1e1e;
-    width: min(800px, 80vw);
+    width: min(800px, 80dvw);
+    height: min(90vh, calc(100vh - 40px));
     margin: auto;
     border-radius: 18px;
     border: 1px solid #333;
@@ -707,7 +708,7 @@ button:hover {
     overflow: hidden;
 }
 
-.lump-header {
+.cluster-header {
     flex: 0 0 auto;
     padding: 16px 20px;
     display: flex;
@@ -717,12 +718,12 @@ button:hover {
     border-bottom: 1px solid #333;
 }
 
-.lump-window-title {
+.cluster-window-title {
     font-weight: bold;
     color: #e0e0e0
 }
 
-.lump-close-btn {
+.cluster-close-btn {
     padding: 5px 8px;
     background: transparent;
     border: none;
@@ -734,24 +735,31 @@ button:hover {
     line-height: 1;
 }
 
-.lump-close-btn:hover {
+.cluster-close-btn:hover {
     background-color: rgba(255, 255, 255, 0.13);
     border-color: transparent;
 }
 
-.lump-text {
+.cluster-text {
     overflow-y: auto;
+    overflow-x: auto;
     padding: 20px 20px 28px;
     flex: 1;
+    min-width: 0;
     color: #e0e0e0;
     scrollbar-width: thin;
     scrollbar-color: #444 transparent;
     font-family: Arial, sans-serif;
     font-size: 11pt;
     line-height: 1.6;
+    touch-action: pan-x pan-y !important;
 }
 
-.lump-text .lump-title {
+.cluster-text * {
+    touch-action: pan-x pan-y !important;
+}
+
+.cluster-text .cluster-title {
     margin-left: 0;
     text-indent: 0;
     text-align: center;
@@ -761,19 +769,28 @@ button:hover {
     font-size: 20pt;
 }
 
-.lump-text .section-label {
+.cluster-text .section-label {
     display: block;
     font-size: 12pt;
     margin-top: 0.5em;
 }
 
-.lump-text .section-label a {
+.cluster-text .section-label a {
     color: var(--border-col);
 }
 
-.lump-text > span {
+.cluster-text > span {
     display: block;
-    /* base indent for all non-title lines */
+}
+
+.sol-overview, .explanations {
+    text-indent: 2.5em;
+}
+
+.alg-lines {
+    white-space: nowrap;
+    text-indent: 0em;
+    width: fit-content;
 }
 
 /* Loading popup */
@@ -871,6 +888,11 @@ button:hover {
         width: 30%;
     }
 
+    /* Keyboard shortcuts in settings labels aren't useful on touch devices */
+    .settings-checkbox span > b {
+        display: none;
+    }
+
     .popup-inner {
         width: 100%;
         height: 100%;
@@ -904,7 +926,7 @@ button:hover {
     }
 
     .help-popup-inner {
-        width: 90vw;
+        width: 90dvw;
     }
 }
 
@@ -913,8 +935,8 @@ button:hover {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .lump-window {
-        width: 95vw;
+    .cluster-window {
+        width: 95dvw;
     }
 }
 

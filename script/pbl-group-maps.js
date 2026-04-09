@@ -1,4 +1,4 @@
-const PBL_LUMP_MAP = {
+const PBL_CLUSTER_MAP = {
   "bad A/A": [
     "Al/Al",
     "Ar/Ar"

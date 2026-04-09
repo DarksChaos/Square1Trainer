@@ -1,7 +1,7 @@
 importScripts(
     './pbl-data.js',
     './utils.js',
-    './scrambler.js',
+    './pbl-scrambler.js',
     './karnify.js',
     './optimizer.js'
 );

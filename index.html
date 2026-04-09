@@ -3,22 +3,20 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>PBL Trainer</title>
     <link rel="stylesheet" href="css/index.css" />
 
     <!-- for upload/download icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script/utils.js"></script>
-    <script src="script/pbl_group_maps.js"></script>
-    <script src="script/pbl-data.js"></script>
     <script src="script/obl-data.js"></script>
-    <script src="script/obl-core.js"></script>
+    <script src="script/pbl-data.js"></script>
+    <script src="script/utils.js"></script>
+    <script src="script/filter.js"></script>
     <script src="script/karnify.js"></script>
     <script src="script/optimizer.js"></script>
-    <script src="script/filter.js"></script>
-    <script defer="defer" src="script/cube.js"></script>
+    <script src="script/pbl-group-maps.js"></script>
 
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <script>
@@ -82,14 +80,14 @@
         <input type="file" id="fileinput" style="display: none" accept=".json" />
     </div>
 
-        <div id="lump-modal" class="lump-overlay"
-            style="display:none;" onclick="closeLumpModal(event)">
-            <div id="lump-modal-inner" class="lump-window" onclick="event.stopPropagation()">
-                <div class="lump-header">
-                    <span class="lump-window-title">Alg reference</span>
-                    <button class="lump-close-btn" onclick="closeLumpModal()">✕</button>
+        <div id="cluster-modal" class="cluster-overlay"
+            style="display:none;" onclick="closeCluster(event)">
+            <div id="cluster-modal-inner" class="cluster-window" onclick="event.stopPropagation()">
+                <div class="cluster-header">
+                    <span class="cluster-window-title">Alg reference</span>
+                    <button class="cluster-close-btn" onclick="closeCluster()">✕</button>
                 </div>
-                <div id="lump-modal-content" class="lump-text"></div>
+                <div id="cluster-modal-content" class="cluster-text"></div>
             </div>
         </div>
 
@@ -233,11 +231,11 @@
                     Scramble will show up here
                 </div>
                 <div style="margin-top: 10px">
-                    <button class="bar-btn" id="prev"><- Previous</button>
+                    <button class="bar-btn" id="prev">← Previous</button>
                             <button class="bar-btn" id="unselprev">
                                 Remove last
                             </button>
-                            <button class="bar-btn" id="next">Next -></button>
+                            <button class="bar-btn" id="next">Next →</button>
                 </div>
             </div>
 
@@ -267,5 +265,9 @@
         </div>
     </div>
 </body>
+
+    <script src="script/obl-core.js"></script>
+    <script src="script/generic.js"></script>
+    <script defer="defer" src="script/pbl-core.js"></script>
 
 </html>

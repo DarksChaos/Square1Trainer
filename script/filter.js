@@ -1,6 +1,6 @@
 // ============================================================================
 // PBL FILTER & SEARCH
-// Depends on: possiblePBL, pblname(), CP_Adj_PLL, CP_Opp_PLL, CP_Solved_PLL
+// Depends on: pblPossible, pblName(), CP_Adj_PLL, CP_Opp_PLL, CP_Solved_PLL
 //             weight, PLLextndlen (for freq filter)
 // ============================================================================
 
@@ -43,9 +43,9 @@ function getFreqSet(filterStr) {
     const result = new Set();
     if (!validFreqs.includes(freqStr)) return result; // empty = hide all
     const freq = parseInt(freqStr, 10);
-    for (let pbl of possiblePBL) {
-        const n = pblname(pbl);
-        if (getWeight(n) * getCaseCount(pbl) === freq) result.add(n);
+    for (let pbl of pblPossible) {
+        const n = pblName(pbl);
+        if (pblGetWeight(n) * pblGetCaseCount(pbl) === freq) result.add(n);
     }
     return result;
 }
@@ -213,7 +213,7 @@ function parseBaseTerms(base) {
     return cleaned ? cleaned.match(/[^ ]+/g) || [] : [];
 }
 
-// Main: given raw filter string, returns Set of pblnames that pass
+// Main: given raw filter string, returns Set of pblNames that pass
 function getFilteredSet(raw) {
     raw = raw.trim();
     const result = new Set();
@@ -239,10 +239,10 @@ function getFilteredSet(raw) {
         }
     }
 
-    for (let pbl of possiblePBL) {
+    for (let pbl of pblPossible) {
         const passesBase = passesBaseFilter(pbl, base);
         const passesSuffix = suffixFn ? suffixFn(pbl, ctx) : true;
-        if (passesBase && passesSuffix) result.add(pblname(pbl));
+        if (passesBase && passesSuffix) result.add(pblName(pbl));
     }
 
     return result;
@@ -254,10 +254,10 @@ function getFilteredSet(raw) {
 
 function applyFilter(raw) {
     const visible = getFilteredSet(raw);
-    for (let pbl of possiblePBL) {
-        const n = pblname(pbl);
-        if (visible.has(n)) showPBL(n);
-        else hidePBL(n);
+    for (let pbl of pblPossible) {
+        const n = pblName(pbl);
+        if (visible.has(n)) pblShow(n);
+        else pblHide(n);
     }
     updateSelCount();
 }
