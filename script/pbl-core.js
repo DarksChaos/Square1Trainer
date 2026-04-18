@@ -21,7 +21,7 @@ let pblWorker     = null;
 let pblWorkerBusy = false;
 let pblPending    = null; // null | 'waiting' | worker-result object
 
-let pblDefaultLists = {};
+// pblDefaultLists is declared as const in pbl-data.js (JSON moved there).
 let pblUserLists    = {};
 
 // ─── BARFLIP STATE ───────────────────────────────────────────────────────────
@@ -754,15 +754,9 @@ async function pblInit() {
     pblLoadStorage(true);
 
     // Fetch default lists JSON.
-    await fetch("./json/defaultlists.json")
-        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-        .then(data => {
-            pblDefaultLists = data;
-            for (const k of Object.keys(pblDefaultLists))
-                pblDefaultLists[k] = pblMigrateLegacy(pblDefaultLists[k]);
-            pblAddDefaultLists();
-        })
-        .catch(err => console.error("Failed to load defaultlists.json:", err));
+    for (const k of Object.keys(pblDefaultLists))
+        pblDefaultLists[k] = pblMigrateLegacy(pblDefaultLists[k]);
+    pblAddDefaultLists();
 }
 
 function pblLoadStorage(buildGrid = false) {

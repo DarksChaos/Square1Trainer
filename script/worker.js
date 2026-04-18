@@ -1,5 +1,5 @@
 importScripts(
-    './pbl-data.js',
+    '../data/pbl-data.js',
     './utils.js',
     './pbl-scrambler.js',
     './karnify.js',
