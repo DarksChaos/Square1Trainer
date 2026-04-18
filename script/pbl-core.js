@@ -93,69 +93,17 @@ function pblRecolorAll() {
 // case lookup, and the PBL HTML formatter.
 // When OBL gets a cluster modal, obl-core.js will have its own oblFormatCluster().
 
-// ── PBL Supabase client ───────────────────────────────────────────────────
-// Separate from any future OBL client — they are different Supabase projects.
-
-const PBL_SUPABASE_URL = "https://bubvugdjwryhcawrwhxa.supabase.co";
-const PBL_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1YnZ1Z2Rqd3J5aGNhd3J3aHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMjUzOTEsImV4cCI6MjA4ODcwMTM5MX0.KgsJCFeBDmIRkyNbOA0VpPc7biTflZo2Pbuh7SPfiH8";
-const pblSbClient = supabase.createClient(PBL_SUPABASE_URL, PBL_SUPABASE_KEY);
-
-// ── PBL cluster cache ─────────────────────────────────────────────────────
-
-const pblClusterCache = {};
-const PBL_CLUSTER_CACHE_KEY = 'pblClusterCache';
-const pblSaveClusterCache = () => clusterCacheSave(PBL_CLUSTER_CACHE_KEY, pblClusterCache);
-
-Object.assign(pblClusterCache, clusterCacheLoad(PBL_CLUSTER_CACHE_KEY));
-
-// ── PBL cluster worker ────────────────────────────────────────────────────
-
-let pblClusterWorker      = null;
-let pblClusterWorkerBusy  = false;
-let pblClusterWorkerReady = null; // Promise during initial sync; null once resolved
-
-(function pblInitClusterWorker() {
-    if (Object.keys(pblClusterCache).length === 0) return; // first-time user: fetch on-demand
-    pblClusterWorker = new Worker('./script/cluster-worker.js');
-    let initialSyncDone = false;
-    let resolveReady;
-    pblClusterWorkerReady = new Promise(r => { resolveReady = r; });
-
-    pblClusterWorker.onmessage = function(e) {
-        if (e.data.type === 'busy') {
-            pblClusterWorkerBusy = true;
-        } else if (e.data.type === 'data') {
-            pblClusterWorkerBusy = false;
-            Object.assign(pblClusterCache, e.data.payload);
-            pblSaveClusterCache();
-            if (!initialSyncDone) { initialSyncDone = true; pblClusterWorkerReady = null; resolveReady(); }
-        } else if (e.data.type === 'error') {
-            pblClusterWorkerBusy = false;
-            console.warn('[ClusterWorker] Fetch failed:', e.data.message);
-            if (!initialSyncDone) { initialSyncDone = true; pblClusterWorkerReady = null; resolveReady(); }
-        }
-    };
-    pblClusterWorkerBusy = true;
-    pblClusterWorker.postMessage({
-        type:        'start',
-        supabaseUrl: PBL_SUPABASE_URL,
-        supabaseKey: PBL_SUPABASE_KEY,
-        table:       'pbl_clusters',
-    });
-})();
+// ── PBL cluster data ──────────────────────────────────────────────────────
+// pblClusters is declared as const in pbl-data.js.
 
 // ── PBL case lookup ───────────────────────────────────────────────────────
 
 function pblFindCluster(caseName) {
     const clean = caseName.replace(/[+-]$/, "");
-    for (const [title, cases] of Object.entries(PBL_CLUSTER_MAP)) {
-        if (cases.includes(clean)) return title;
+    for (const [title, data] of Object.entries(pblClusters)) {
+        if (data["case-list"].includes(clean)) return title;
     }
     return null;
-}
-
-function pblFindClusterIndex(title) {
-    return Object.keys(PBL_CLUSTER_MAP).indexOf(title);
 }
 
 // ── PBL HTML formatter ────────────────────────────────────────────────────
@@ -178,31 +126,31 @@ function pblTextWidth(text, font) {
 function pblFormatCluster(cluster, title) {
     const lines = [];
     lines.push(
-        `<span class="cluster-title">${title}${cluster["Optimal-slicecount"] ? " (" + cluster["Optimal-slicecount"] + ")" : ""}</span>`,
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>`,
         "",
         `<span class="section-label"><b><a href="https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit" target="blank">from Matt's PBL Doc</a></b></span>`
     );
 
-    if (cluster.Matt?.["Distinction-help"]?.trim())
-        lines.push(`<span style="text-indent:2.5em;">${pblNab(cluster.Matt["Distinction-help"])}</span>`);
+    if (cluster.matt?.["distinction-help"]?.trim())
+        lines.push(`<span style="text-indent:2.5em;">${pblNab(cluster.matt["distinction-help"])}</span>`);
 
-    for (const sg of cluster.Matt?.["solution-groups"] || []) {
+    for (const sg of cluster.matt?.["solution-groups"] || []) {
         const hasContent =
-            sg["Solution-Overview"]?.trim() ||
+            sg["solution-overview"]?.trim() ||
             sg["alg-blocks"]?.some(ab =>
-                ab["Alg-explanation"]?.trim() ||
+                ab["alg-explanation"]?.trim() ||
                 ab["angle-explanation"]?.trim() ||
                 ab.cases?.some(c => pblHasAlgData(c.algs))
             );
         if (!hasContent) continue;
         lines.push("");
-        const slices = sg["Solution-Slicecount"] ? ` (${sg["Solution-Slicecount"]})` : "";
-        if (sg["Solution-Overview"]?.trim())
-            lines.push(`<span class="sol-overview"><b>${pblNab(sg["Solution-Overview"])}${slices}</b></span>`);
+        const slices = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
+        if (sg["solution-overview"]?.trim())
+            lines.push(`<span class="sol-overview"><b>${pblNab(sg["solution-overview"])}${slices}</b></span>`);
 
         for (const ab of sg["alg-blocks"] || []) {
             if (ab["angle-explanation"]?.trim()) lines.push(`<span class="explanations">${pblNab(ab["angle-explanation"])}</span>`);
-            if (ab["Alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["Alg-explanation"])}</span>`);
+            if (ab["alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
             for (const c of ab.cases || []) {
                 if (!pblHasAlgData(c.algs)) continue;
                 for (let i = 0; i < c.algs.length; i++) {
@@ -250,28 +198,17 @@ function pblFormatCluster(cluster, title) {
 async function pblOpenCluster(caseOverride) {
     if (!pblHasActive) return;
 
-    await clusterEnsureReady(
-        pblClusterWorkerReady,
-        () => pblClusterWorkerBusy,
-        pblClusterCache,
-        () => clusterDownloadAll(pblSbClient, 'pbl_clusters', pblClusterCache, pblSaveClusterCache)
-    );
-
     const raw          = caseOverride ?? pblScrambleList.at(-1 - pblOffset)[2];
     const caseName     = raw.replace(/[+-]$/, "");
     const clusterTitle = pblFindCluster(caseName);
     if (!clusterTitle) return;
-    const clusterIndex = pblFindClusterIndex(clusterTitle);
 
     const modal   = document.getElementById("cluster-modal");
     const content = document.getElementById("cluster-modal-content");
     modal.style.display = "flex";
     isPopupOpen = true;
-    content.innerHTML = `<span style="opacity:0.4">Loading…</span>`;
 
-    let cluster = await clusterFetch(pblSbClient, 'pbl_clusters', clusterIndex, pblClusterCache, pblSaveClusterCache);
-    if (!cluster && typeof PBL_DATA !== "undefined") cluster = PBL_DATA[clusterTitle];
-
+    const cluster = pblClusters[clusterTitle];
     if (!cluster) {
         content.innerHTML = `<span style="opacity:0.4">No data found for "${clusterTitle}".</span>`;
         return;

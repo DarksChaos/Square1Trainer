@@ -464,10 +464,14 @@ prevScrambleButton.addEventListener("click", prevScram);
 nextScrambleButton.addEventListener("click", nextScram);
 removeLastEl.addEventListener("click", removeLast);
 
-// Open alg reference on scramble click — PBL only.
+// Open alg reference on scramble click — PBL and OBL.
 currentScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (trainerMode === 'pbl') pblOpenCluster();
+    else if (trainerMode === 'obl' && oblHasActiveScramble && oblScrambleList.length) {
+        const entry = oblScrambleList.at(-1 - oblScrambleOffset);
+        if (entry) oblOpenCluster(entry[2]);
+    }
 });
 
 // ─── SHARED EVENT LISTENERS ───────────────────────────────────────────────────
@@ -654,7 +658,7 @@ timerBoxEl.addEventListener("touchend", () => {
 // ─── MODE SYSTEM ──────────────────────────────────────────────────────────────
 
 const MODE_KEY  = 'trainerMode';
-let trainerMode = localStorage.getItem(MODE_KEY) || 'obl'; // 'pbl' | 'obl'
+let trainerMode = localStorage.getItem(MODE_KEY) || 'pbl'; // 'pbl' | 'obl'
 
 function switchMode() {
     trainerMode = trainerMode === 'pbl' ? 'obl' : 'pbl';

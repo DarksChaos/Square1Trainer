@@ -313,3 +313,115 @@ function passesOBLFilter(obl, filter) {
         return result_from_good_bad || result_from_non_good_bad;
     }
 }
+// ─── CLUSTER MODAL (OBL) ─────────────────────────────────────────────────────
+// oblClusters is declared as const in obl-data.js.
+// Shared modal infrastructure (clusterSizeModal, closeCluster) lives in generic.js.
+// pblNab and pblTextWidth are defined in pbl-core.js (loaded before obl-core.js).
+
+// ── OBL case → cluster lookup ─────────────────────────────────────────────
+
+function oblFindCluster(caseName) {
+    try {
+        caseName = getSpe(caseName)[0];
+    } catch (e) {}
+    // specific name
+    let [u, d] = caseName.split("/");
+    caseName = [oblNaming[u], oblNaming[d]].join("/");
+    for (const [title, data] of Object.entries(oblClusters)) {
+        if (data["case-list"].includes(caseName)) return title;
+    }
+    return null;
+}
+
+// ── OBL HTML formatter ────────────────────────────────────────────────────
+// Structural differences vs pblFormatCluster:
+//   • matt is flat: distinction-help / angle-explanation / alg-explanation / cases[]
+//     (no solution-groups or alg-blocks nesting)
+//   • matt.cases[].algs are {angle, notation} objects (no "sign" field)
+//   • derpy[].algs are plain notation strings (not objects)
+
+function oblHasAlgData(algs) {
+    if (!algs || !algs.length) return false;
+    // algs may be strings (derpy) or objects (matt) — check both shapes
+    return algs.some(a =>
+        typeof a === "string" ? a.trim() : (a.angle?.trim() || a.notation?.trim())
+    );
+}
+
+function oblFormatCluster(cluster, title) {
+    const lines = [];
+    lines.push(
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>`,
+        "",
+        `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit" target="blank">from Matt's OBL Doc</a></b></span>`
+    );
+
+    const matt = cluster.matt;
+    if (matt?.["distinction-help"]?.trim())
+        lines.push(`<span style="text-indent:2.5em;">${pblNab(matt["distinction-help"])}</span>`);
+    if (matt?.["angle-explanation"]?.trim())
+        lines.push(`<span class="explanations">${pblNab(matt["angle-explanation"])}</span>`);
+    if (matt?.["alg-explanation"]?.trim())
+        lines.push(`<span class="explanations">${pblNab(matt["alg-explanation"])}</span>`);
+
+    for (const c of matt?.cases || []) {
+        if (!oblHasAlgData(c.algs)) continue;
+        for (let i = 0; i < c.algs.length; i++) {
+            const alg = c.algs[i];
+            if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+            const angle  = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const indent = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
+                `<span style="font-family:monospace">${alg.notation}</span></span>`
+            );
+        }
+    }
+
+    // OBL derpy algs are plain notation strings (not {angle, notation} objects).
+    const filledDerpy = (cluster.derpy || []).filter(c => oblHasAlgData(c.algs));
+    if (filledDerpy.length) {
+        lines.push(
+            "",
+            `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit" target="blank">from Derpy's OBL Sheet</a></b></span>`
+        );
+        for (const c of filledDerpy) {
+            for (let i = 0; i < c.algs.length; i++) {
+                const algStr = c.algs[i];
+                if (!algStr?.trim()) continue;
+                const indent = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+                lines.push(
+                    `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
+                    `${i === 0 ? c["case-name"] + " " : ""}` +
+                    `<span style="font-family:monospace">${algStr}</span></span>`
+                );
+            }
+        }
+    }
+    return lines.join("");
+}
+
+// ── oblOpenCluster ────────────────────────────────────────────────────────
+// Call this wherever the OBL trainer needs to open the cluster modal.
+// Pass a specific or non-specific OBL case name, or omit to use the
+// current OBL case (caller must supply oblCurrentCase or equivalent).
+
+function oblOpenCluster(caseName) {
+    const clusterTitle = oblFindCluster(caseName);
+    if (!clusterTitle) return;
+
+    const modal   = document.getElementById("cluster-modal");
+    const content = document.getElementById("cluster-modal-content");
+    modal.style.display = "flex";
+    isPopupOpen = true;
+
+    const cluster = oblClusters[clusterTitle];
+    if (!cluster) {
+        content.innerHTML = `<span style="opacity:0.4">No data found for "${clusterTitle}".</span>`;
+        return;
+    }
+
+    content.innerHTML = oblFormatCluster(cluster, clusterTitle);
+    clusterSizeModal(content);
+}

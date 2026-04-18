@@ -217,6 +217,51 @@ const a_MOVES = [[3,0], [-3,0], [0,3], [0,-3], [3,3],
 
 const KARNL = a_MOVES.length;
 
+const oblNaming = {
+    "solved": "O",
+    "1c": "D",
+    "cadj": "J",
+    "copp": "V",
+    "3c": "M",
+    "4e": "Q",
+    "3e": "W",
+    "line": "F",
+    "L": "L",
+    "1e": "E",
+
+    "left pair": "Pw",
+    "right pair": "Pc",
+    "left arrow": "Aw",
+    "right arrow": "Ac",
+    "gem": "G",
+    "left knight": "Hw",
+    "right knight": "Hc",
+    "left axe": "Xc",
+    "right axe": "Xw",
+    "squid": "S",
+    "left thumb": "THw",
+    "right thumb": "THc",
+    "left bunny": "Uc",
+    "right bunny": "Uw",
+
+    "shell": "SH",
+    "left bird": "Bc",
+    "right bird": "Bw",
+    "hazard": "Z",
+    "left kite": "Kc",
+    "right kite": "Kw",
+    "left cut": "Cw",
+    "right cut": "Cc",
+    "black T": "Tu",
+    "white T": "Td",
+    "left N": "Nw",
+    "right N": "Nc",
+    "black tie": "Iu",
+    "white tie": "Id",
+    "left yoshi": "Yc",
+    "right yoshi": "Yw"
+}
+
 const oblClusters = {
   "D/D": {
     "case-list": [
