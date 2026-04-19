@@ -4,7 +4,6 @@ let oblSelectedCases     = [[], []]; // [nonSpe[], spe[]]
 let oblRemainingCases    = [[], []];
 let oblUserLists         = {};
 let oblDefaultLists      = {};
-let oblUsingKarn         = 0;
 let oblUsingSpe          = 0;
 let oblUsingMemo         = false;
 let oblScrambleList      = [];
@@ -95,7 +94,7 @@ function oblGenerateScramble(regen = false) {
     } else {
         if (oblScrambleList.length) {
             previousScrambleEl.textContent =
-                'Previous scramble: ' + oblScrambleList.at(-1)[oblUsingKarn] +
+                'Previous scramble: ' + oblScrambleList.at(-1)[usingKarn] +
                 ' (' + oblScrambleList.at(-1)[2] + ')';
         }
         oblScrambleList.push(final);
@@ -110,7 +109,7 @@ function oblDisplayCurrentScramble() {
     if (!oblHasActiveScramble || !oblScrambleList.length) return;
     const entry = oblScrambleList.at(-1 - oblScrambleOffset);
     if (entry) currentScrambleEl.textContent =
-        entry[oblUsingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
+        entry[usingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
 }
 
 // ─── OBL FILTER ───────────────────────────────────────────────────────────────
@@ -286,7 +285,8 @@ function oblLoadSelected() {
     if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
     oblEnableEachCase();
     oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
-    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
+    // Only generate a scramble on first load; on trainer switch an active scramble persists.
+    if (oblSelectedCases[oblUsingSpe].length && !oblHasActiveScramble) oblGenerateScramble();
 }
 
 // ─── OBL BULK SELECT ─────────────────────────────────────────────────────────
@@ -344,7 +344,7 @@ function oblRestoreGrid() {
         oblDisplayCurrentScramble();
         const prev = oblScrambleList.at(-2 - oblScrambleOffset);
         previousScrambleEl.textContent = prev
-            ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')'
+            ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
             : 'Last scramble will show up here';
         if (timerEl.textContent === '--:--') timerEl.textContent = '0.00';
     } else {
@@ -414,40 +414,36 @@ document.getElementById('specific').addEventListener('change', () => oblOnSpe())
 document.getElementById('oblp').addEventListener('change',    () => oblOnMemo());
 
 // ─── OBL HELP CONTENT ─────────────────────────────────────────────────────────
-// Defined as a function (not const) because generic.js — which provides
-// HELP_CTRL_SVG and buildHelpShortcuts — loads AFTER obl-core.js.
 // Add extra sections here as {id, title, svg, html} objects.
 
-function oblHelpSections() {
-    return [
-        {
-            id: 'obl-shortcuts',
-            title: 'Shortcuts',
-            svg: HELP_CTRL_SVG,
-            html: buildHelpShortcuts([
-                { keys: ['←'],                   desc: 'Previous scramble' },
-                { keys: ['→'],                   desc: 'Next scramble' },
-                { keys: ['Space'],               desc: 'Start / stop timer' },
-                { keys: ['Backspace'],           desc: 'Remove last case' },
-                { keys: ['K'],                   desc: 'Toggle karnotation' },
-                { keys: ['E'],                   desc: 'Go through each case once' },
-                { keys: ['S'],                   desc: 'Toggle specific case naming' },
-                { keys: ['P'],                   desc: 'Show Matt tracing memo' },
-                null,
-                { keys: ['Ctrl', 'F'],           desc: 'Focus search box' },
-                { keys: ['Ctrl', 'A'],           desc: 'Select all visible' },
-                { keys: ['Ctrl', 'S'],           desc: 'Select visible (filtered)' },
-                { keys: ['Ctrl', 'Z'],           desc: 'Undo remove last' },
-                { keys: ['Ctrl', 'Y'],           desc: 'Redo remove last' },
-                { keys: ['Ctrl', '⇧', 'A'],      desc: 'Deselect all visible' },
-                { keys: ['Ctrl', '⇧', 'S'],      desc: 'Deselect visible (filtered)' },
-                { keys: ['Alt', 'A'],            desc: 'Show all' },
-                { keys: ['Alt', 'S'],            desc: 'Show selection' },
-            ])
-        }
-        // Add future OBL-specific sections here.
-    ];
-}
+const oblHelpSections = [
+    {
+        id: 'obl-shortcuts',
+        title: 'Shortcuts',
+        svg: HELP_CTRL_SVG,
+        html: buildHelpShortcuts([
+            { keys: ['←'],              desc: 'Previous scramble' },
+            { keys: ['→'],              desc: 'Next scramble' },
+            { keys: ['Space'],          desc: 'Start / stop timer' },
+            { keys: ['Backspace'],      desc: 'Remove last case' },
+            { keys: ['K'],              desc: 'Toggle karnotation' },
+            { keys: ['E'],              desc: 'Go through each case once' },
+            { keys: ['S'],              desc: 'Toggle specific case naming' },
+            { keys: ['P'],              desc: 'Show Matt tracing memo' },
+            null,
+            { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
+            { keys: ['Ctrl', 'A'],      desc: 'Select all visible' },
+            { keys: ['Ctrl', 'S'],      desc: 'Select visible (filtered)' },
+            { keys: ['Ctrl', 'Z'],      desc: 'Undo remove last' },
+            { keys: ['Ctrl', 'Y'],      desc: 'Redo remove last' },
+            { keys: ['Ctrl', '⇧', 'A'], desc: 'Deselect all visible' },
+            { keys: ['Ctrl', '⇧', 'S'], desc: 'Deselect visible (filtered)' },
+            { keys: ['Alt', 'A'],       desc: 'Show all' },
+            { keys: ['Alt', 'S'],       desc: 'Show selection' },
+        ])
+    }
+    // Add future OBL-specific sections here.
+];
 
 // ─── OBL MAIN ─────────────────────────────────────────────────────────────────
 

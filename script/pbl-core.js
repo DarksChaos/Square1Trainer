@@ -277,7 +277,6 @@ function pblRestoreSettings() {
     }
     // Sync derived state that depends on checkbox values.
     usingKarn        = karnEl.checked        ? 1 : 0;
-    oblUsingKarn     = usingKarn;
     pblWeight        = weightEl.checked;
     pblUseBarflip    = useBarflipEl.checked;
     pblShowBarflipUI = globalBarflipEl.checked;
@@ -798,7 +797,9 @@ function pblLoadStorage(buildGrid = false) {
         for (const k of pblSelected) pblSelect(k);
         pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
         pblRefillRemaining();
-        pblGenerateScramble(); // FIX: generate on first load
+        // Only generate scramble immediately if PBL is the active trainer.
+        // If starting in OBL mode, applyMode will handle OBL; PBL generates when switched to.
+        if (trainerMode === 'pbl') pblGenerateScramble();
     } else if (buildGrid) {
         // First-ever load — select all cases in 'both' mode.
         for (const pbl of pblPossible) {
@@ -924,47 +925,42 @@ if (pblSolvedBtn) {
 // ─── PBL HELP CONTENT ────────────────────────────────────────────────────────
 // Add extra sections here as {id, title, svg, html} objects.
 
-const PBL_STAR_SVG = `<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 50 10 Q 55 45, 85 50 Q 55 55, 50 90 Q 45 55, 15 50 Q 45 45, 50 10 Z"
-        stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" />
-</svg>`;
-
 const pblHelpSections = [
-    {
-        id: 'pbl-filter',
-        title: 'Filter',
-        svg: PBL_STAR_SVG,
-        html: `
-            <p>Type <b>"freq"</b> followed by a number into the filter box to filter cases by frequency.</p>
-            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256</p>
-            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Example: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">freq 4</code></p>
-        `
-    },
     {
         id: 'pbl-shortcuts',
         title: 'Shortcuts',
         svg: HELP_CTRL_SVG,
         html: buildHelpShortcuts([
-            { keys: ['←'],                   desc: 'Previous scramble' },
-            { keys: ['→'],                   desc: 'Next scramble' },
-            { keys: ['Space'],               desc: 'Start / stop timer' },
-            { keys: ['Backspace'],           desc: 'Remove last case' },
-            { keys: ['K'],                   desc: 'Toggle karnotation' },
-            { keys: ['E'],                   desc: 'Go through each case once' },
-            { keys: ['R'],                   desc: 'Toggle realistic weights' },
-            { keys: ['B'],                   desc: 'Distinguish + and − barflip' },
-            { keys: ['G'],                   desc: 'Global barflip override' },
+            { keys: ['←'],              desc: 'Previous scramble' },
+            { keys: ['→'],              desc: 'Next scramble' },
+            { keys: ['Space'],          desc: 'Start / stop timer' },
+            { keys: ['Backspace'],      desc: 'Remove last case' },
+            { keys: ['K'],              desc: 'Toggle karnotation' },
+            { keys: ['E'],              desc: 'Go through each case once' },
+            { keys: ['R'],              desc: 'Toggle realistic weights' },
+            { keys: ['B'],              desc: 'Distinguish + and − barflip' },
+            { keys: ['G'],              desc: 'Global barflip override' },
             null,
-            { keys: ['Ctrl', 'F'],           desc: 'Focus search box' },
-            { keys: ['Ctrl', 'A'],           desc: 'Select all visible' },
-            { keys: ['Ctrl', 'S'],           desc: 'Select visible (filtered)' },
-            { keys: ['Ctrl', 'Z'],           desc: 'Undo remove last' },
-            { keys: ['Ctrl', 'Y'],           desc: 'Redo remove last' },
-            { keys: ['Ctrl', '⇧', 'A'],      desc: 'Deselect all visible' },
-            { keys: ['Ctrl', '⇧', 'S'],      desc: 'Deselect visible (filtered)' },
-            { keys: ['Alt', 'A'],            desc: 'Show all' },
-            { keys: ['Alt', 'S'],            desc: 'Show selection' },
+            { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
+            { keys: ['Ctrl', 'A'],      desc: 'Select all visible' },
+            { keys: ['Ctrl', 'S'],      desc: 'Select visible (filtered)' },
+            { keys: ['Ctrl', '⇧', 'A'], desc: 'Deselect all visible' },
+            { keys: ['Ctrl', '⇧', 'S'], desc: 'Deselect visible (filtered)' },
+            { keys: ['Alt', 'A'],       desc: 'Show all' },
+            { keys: ['Alt', 'S'],       desc: 'Show selection' },
+            { keys: ['Ctrl', 'Z'],      desc: 'Undo remove last' },
+            { keys: ['Ctrl', 'Y'],      desc: 'Redo remove last' },
         ])
+    },
+    {
+        id: 'pbl-filter',
+        title: 'Filter',
+        svg: HELP_FILTER_SVG,
+        html: `
+            <p>Type <b>"freq"</b> followed by a number into the filter box to filter cases by frequency.</p>
+            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256</p>
+            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Example: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">freq 4</code></p>
+        `
     }
     // Add future PBL-specific sections here.
 ];

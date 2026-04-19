@@ -92,7 +92,6 @@ const openSettingsEl  = document.getElementById("open-settings");
 const currentScrambleEl  = document.getElementById("cur-scram");
 currentScrambleEl.style.cursor = "pointer";
 const previousScrambleEl = document.getElementById("prev-scram");
-previousScrambleEl.style.cursor = "pointer";
 const prevScrambleButton = document.getElementById("prev");
 const nextScrambleButton = document.getElementById("next");
 const timerEl    = document.getElementById("timer");
@@ -178,7 +177,7 @@ function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; lis
     style.textContent = `
 /* Help popup sizing */
 .help-popup-inner {
-    width: min(680px, 92vw) !important;
+    width: min(640px, 92vw) !important;
     max-height: 80vh !important;
     display: flex !important;
     flex-direction: column !important;
@@ -194,12 +193,12 @@ function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; lis
 
 /* Left nav */
 .help-nav {
-    width: 58px;
+    width: 54px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     padding: 10px 0;
     border-right: 1px solid rgba(255,255,255,0.1);
     overflow-y: auto;
@@ -208,133 +207,144 @@ function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; lis
 .help-nav::-webkit-scrollbar { display: none; }
 
 .help-nav-item {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 9px;
     cursor: pointer;
-    opacity: 0.35;
+    opacity: 0.3;
     transition: opacity 0.15s, background 0.15s, box-shadow 0.15s;
     flex-shrink: 0;
-    padding: 4px;
+    padding: 7px;
     box-sizing: border-box;
     position: relative;
 }
-.help-nav-item svg { width: 100%; height: 100%; object-fit: contain; }
-.help-nav-item:hover { opacity: 0.7; background: rgba(255,255,255,0.07); }
+.help-nav-item svg { width: 100%; height: 100%; }
+.help-nav-item:hover { opacity: 0.65; background: rgba(255,255,255,0.07); }
 .help-nav-item.active {
     opacity: 1;
-    background: rgba(255,255,255,0.12);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.11);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
 }
 /* Tooltip */
 .help-nav-item::after {
     content: attr(data-title);
     position: absolute;
-    left: calc(100% + 8px);
+    left: calc(100% + 10px);
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.75);
-    color: #fff;
-    font-size: 0.72em;
-    padding: 3px 7px;
+    background: rgba(20,20,30,0.88);
+    color: #e0e0e0;
+    font-size: 0.7em;
+    padding: 3px 8px;
     border-radius: 5px;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.1s;
+    transition: opacity 0.12s;
     z-index: 9999;
+    letter-spacing: 0.04em;
 }
 .help-nav-item:hover::after { opacity: 1; }
 
-/* Right content */
+/* Right content — invisible scrollbar */
 .help-content {
     flex: 1;
     overflow-y: auto;
-    padding: 18px 22px 18px 20px;
+    padding: 16px 20px 16px 18px;
     scroll-behavior: smooth;
-    scrollbar-width: thin;
+    scrollbar-width: none;
 }
+.help-content::-webkit-scrollbar { display: none; }
 
 /* Section */
-.help-section { margin-bottom: 36px; }
+.help-section { margin-bottom: 32px; }
 .help-section:last-child { margin-bottom: 8px; }
 
 .help-section-title {
-    font-size: 0.68em;
+    font-size: 0.63em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.13em;
     font-weight: 700;
-    opacity: 0.45;
-    margin: 0 0 14px 0;
-    padding-bottom: 7px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    opacity: 0.38;
+    margin: 0 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.09);
 }
 
-/* Shortcut rows */
-.help-shortcut-group { display: flex; flex-direction: column; gap: 4px; }
-.help-shortcut-sep { height: 10px; }
+/* Shortcut rows — CSS grid so keys never overflow */
+.help-shortcut-group { display: flex; flex-direction: column; gap: 2px; }
+.help-shortcut-sep   { height: 8px; }
 
 .help-shortcut-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: max-content 1fr;
     align-items: center;
-    gap: 12px;
-    padding: 4px 0;
-    border-radius: 5px;
+    gap: 14px;
+    padding: 3px 0;
 }
 .help-key-combo {
     display: flex;
     align-items: center;
     gap: 3px;
-    min-width: 148px;
     flex-shrink: 0;
 }
 .help-kbd {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.22);
-    border-bottom: 2px solid rgba(0,0,0,0.3);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-bottom: 2px solid rgba(0,0,0,0.25);
     border-radius: 5px;
-    padding: 2px 7px;
-    font-size: 0.75em;
+    padding: 2px 6px;
+    font-size: 0.72em;
     font-family: ui-monospace, SFMono-Regular, monospace;
     white-space: nowrap;
-    line-height: 1.5;
-    min-width: 22px;
+    line-height: 1.55;
+    min-width: 20px;
     text-align: center;
 }
 .help-plus {
-    font-size: 0.7em;
-    opacity: 0.5;
+    font-size: 0.65em;
+    opacity: 0.4;
     flex-shrink: 0;
+    margin: 0 1px;
 }
 .help-desc {
-    font-size: 0.88em;
-    opacity: 0.75;
+    font-size: 0.86em;
+    opacity: 0.68;
     line-height: 1.4;
 }
 
-/* General help prose */
+/* General prose */
 .help-content p {
-    font-size: 0.9em;
-    line-height: 1.6;
-    opacity: 0.8;
-    margin: 6px 0;
+    font-size: 0.88em;
+    line-height: 1.65;
+    opacity: 0.75;
+    margin: 5px 0;
 }
     `;
     document.head.appendChild(style);
 })();
 
-// Shared ctrl-key SVG used as the shortcuts section icon.
-const HELP_CTRL_SVG = `<svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="4" width="56" height="34" rx="4" fill="#bdc3c7"/>
-  <rect x="2" y="2" width="56" height="32" rx="4" fill="#ecf0f1" stroke="#95a5a6" stroke-width="1"/>
-  <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
-        font-family="sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">Ctrl</text>
+// Icon for the Shortcuts section — clean minimal keyboard outline.
+const HELP_CTRL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="6" width="20" height="13" rx="2"/>
+  <line x1="6"  y1="10" x2="6"  y2="10"/>
+  <line x1="10" y1="10" x2="10" y2="10"/>
+  <line x1="14" y1="10" x2="14" y2="10"/>
+  <line x1="18" y1="10" x2="18" y2="10"/>
+  <line x1="6"  y1="14" x2="6"  y2="14"/>
+  <line x1="18" y1="14" x2="18" y2="14"/>
+  <line x1="10" y1="14" x2="14" y2="14"/>
+</svg>`;
+
+// Icon for the Filter section — minimal funnel.
+const HELP_FILTER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="3 4 21 4 14 13 14 20 10 20 10 13 3 4"/>
 </svg>`;
 
 /**
@@ -414,7 +424,7 @@ function openHelpPopup() {
     if (usingTimer()) return;
     isPopupOpen = true;
     helpPopupEl.classList.add("open");
-    renderHelp(trainerMode === 'pbl' ? pblHelpSections : oblHelpSections());
+    renderHelp(trainerMode === 'pbl' ? pblHelpSections : oblHelpSections);
 }
 function openSettingsPopup() { if (usingTimer()) return; isPopupOpen = true; settingsPopupEl.classList.add("open"); }
 
@@ -617,11 +627,9 @@ function addListItemEvent(item) {
 
 // ─── SHARED SETTINGS ─────────────────────────────────────────────────────────
 
-// onCheckKarn: toggles usingKarn, mirrors it to oblUsingKarn, then updates
-// whichever trainer's display is currently active.
+// onCheckKarn: toggles usingKarn then updates whichever trainer's display is active.
 function onCheckKarn() {
     usingKarn ^= 1;
-    oblUsingKarn = usingKarn;
     if (trainerMode === 'obl') {
         oblDisplayCurrentScramble();
     } else if (pblHasActive) {
@@ -643,7 +651,7 @@ function prevScram() {
         oblDisplayCurrentScramble();
         const prev = oblScrambleList.at(-2 - oblScrambleOffset);
         previousScrambleEl.textContent = prev
-            ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')'
+            ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
             : 'Last scramble will show up here';
         return;
     }
@@ -665,7 +673,7 @@ function nextScram() {
             oblDisplayCurrentScramble();
             const prev = oblScrambleList.at(-2 - oblScrambleOffset);
             previousScrambleEl.textContent = prev
-                ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')'
+                ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
                 : 'Last scramble will show up here';
         }
         return;
@@ -720,17 +728,16 @@ currentScrambleEl.addEventListener("click", () => {
     }
 });
 
-// cluster modal for the prev scram
+// Open alg reference on previous scramble click — PBL and OBL.
+previousScrambleEl.style.cursor = "pointer";
 previousScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (trainerMode === 'pbl') {
-        if (usingTimer()) return;
         if (!pblPreviousCase) return;
         pblOpenCluster(pblPreviousCase);
-    }
-    else if (trainerMode === 'obl' && oblPreviousCase && oblScrambleList.length) {
-        const entry = oblScrambleList.at(-1 - oblScrambleOffset);
-        if (entry) oblOpenCluster(entry[2]);
+    } else if (trainerMode === 'obl') {
+        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+        if (prev) oblOpenCluster(prev[2]);
     }
 });
 
@@ -1128,23 +1135,24 @@ function applyMode() {
     if (isPBL) {
         oblSaveSettings();
         pblRestoreSettings();
-        pblAddDefaultLists();    // re-render PBL lists (OBL may have overwritten them)
+        pblAddDefaultLists();
         pblAddUserLists();
-        pblApplyBarflipUI();     // restore barflip override row to correct state
+        pblApplyBarflipUI();
         pblRestoreGrid();
-        // Apply correct show state after grid is built.
+        // Generate a scramble if none exists (e.g. first switch from OBL on initial load).
+        if (!pblHasActive && pblSelected.length > 0) pblGenerateScramble();
         if (pblSelected.length > 0) showSelected(); else showAll();
     } else {
         pblSaveSettings();
-        // Explicitly hide barflip override sidebar row — it's PBL-only.
         document.getElementById('barflip-override-row')?.classList.add('hidden');
         oblLoadSettings();
         oblInitDefaultLists();
         oblAddDefaultLists();
-        oblLoadUserLists();      // always re-renders, clearing any PBL lists
+        oblLoadUserLists();
         oblLoadSelected();
         oblRestoreGrid();
-        // Apply correct show state after grid is built.
+        // Generate a scramble if none exists (mirrors PBL symmetry).
+        if (!oblHasActiveScramble && oblSelectedCases[oblUsingSpe].length > 0) oblGenerateScramble();
         if (oblSelectedCases[oblUsingSpe].length > 0) showSelected(); else showAll();
     }
 }
@@ -1257,5 +1265,7 @@ function clusterSizeModal(content) {
 function closeCluster() {
     document.getElementById("cluster-modal").style.display = "none";
     document.getElementById("cluster-modal-inner").style.width = '';
+    const content = document.getElementById("cluster-modal-content");
+    if (content) content.scrollTop = 0;
     isPopupOpen = false;
 }
