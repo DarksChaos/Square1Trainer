@@ -12,9 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="data/obl-data.js"></script>
     <script src="data/pbl-data.js"></script>
-    <script src="script/utils.js"></script>
+    <script src="script/karn.js"></script>
     <script src="script/filter.js"></script>
-    <script src="script/karnify.js"></script>
     <script src="script/optimizer.js"></script>
 
 
@@ -175,25 +174,9 @@
                     <div class="list-name">Help</div>
                     <div class="cross">&#10005;</div>
                 </div>
-                <div class="help">
-                    <div class="visible-both">
-                        <p>Type <b>"freq" + number</b> (e.g. "freq 2") into the filter box to filter by frequency.
-                            (valid frequencies are: 1, 2, 4, 8, 16, 32, 64, 128, 256)</p>
-                    </div>
-                    <div>
-                        <p><b>← :</b> previous scramble</p>
-                        <p><b>→ :</b> next scramble</p>
-                        <p><b>backspace:</b> remove last case</p>
-                        <p><b>Ctrl + F:</b> focus on search box</p>
-                        <p><b>Ctrl + Z:</b> undo remove last</p>
-                        <p><b>Ctrl + Y:</b> redo remove last</p>
-                        <p><b>Ctrl + A:</b> select all</p>
-                        <p><b>Ctrl + Shift + A:</b> deselect all</p>
-                        <p><b>Ctrl + S:</b> select these</p>
-                        <p><b>Ctrl + Shift + S:</b> deselect these</p>
-                        <p><b>Alt + A:</b> show all</p>
-                        <p><b>Alt + S:</b> show selection</p>
-                    </div>
+                <div class="help-layout">
+                    <nav class="help-nav" id="help-nav"></nav>
+                    <div class="help-content" id="help-content"></div>
                 </div>
             </div>
         </div>

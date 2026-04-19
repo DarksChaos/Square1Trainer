@@ -156,12 +156,13 @@ function pblFormatCluster(cluster, title) {
                 for (let i = 0; i < c.algs.length; i++) {
                     const alg = c.algs[i];
                     if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                    const angle  = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                    const indent = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
+                    const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                    const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+                    const indent   = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
                     lines.push(
                         `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
                         `${i === 0 ? c["case-name"] + alg.sign + " " : ""}${angle}` +
-                        `<span style="font-family:monospace">${alg.notation}</span></span>`
+                        `<span style="font-family:monospace">${notation}</span></span>`
                     );
                 }
             }
@@ -178,12 +179,13 @@ function pblFormatCluster(cluster, title) {
             for (let i = 0; i < c.algs.length; i++) {
                 const alg = c.algs[i];
                 if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                const angle  = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                const indent = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+                const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+                const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
                 lines.push(
                     `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
                     `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
-                    `<span style="font-family:monospace">${alg.notation}</span></span>`
+                    `<span style="font-family:monospace">${notation}</span></span>`
                 );
             }
         }
@@ -264,6 +266,22 @@ function pblSaveSettings() {
     pblStorage.setItem("settings", store);
     pblStorage.setItem("scrambleMode", pblScrambleMode);
     pblStorage.setItem("allowBottom56", pblAllowBottom56 ? "1" : "0");
+}
+
+// Restore PBL checkbox states from storage when switching back from OBL.
+function pblRestoreSettings() {
+    const stored = pblStorage.getItem('settings');
+    if (stored !== null) {
+        for (let i = 0; i < pblSettingList.length; i++)
+            pblSettingList[i].checked = stored[i] === '1';
+    }
+    // Sync derived state that depends on checkbox values.
+    usingKarn        = karnEl.checked        ? 1 : 0;
+    oblUsingKarn     = usingKarn;
+    pblWeight        = weightEl.checked;
+    pblUseBarflip    = useBarflipEl.checked;
+    pblShowBarflipUI = globalBarflipEl.checked;
+    globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
 }
 
 // ─── PBL CASE GRID HELPERS ────────────────────────────────────────────────────
@@ -903,124 +921,53 @@ if (pblSolvedBtn) {
     });
 }
 
-// ─── PBL LIST BUTTON LISTENERS ───────────────────────────────────────────────
+// ─── PBL HELP CONTENT ────────────────────────────────────────────────────────
+// Add extra sections here as {id, title, svg, html} objects.
 
-newListEl.addEventListener("click", () => {
-    if (usingTimer()) return;
-    if (pblSelected.length === 0) { alert("Please select PBLs to create a list!"); return; }
-    let name = prompt("Name of your list:");
-    if (!name) return;
-    name = name.trim();
-    if (!name || !validName(name)) { alert("Please enter a valid name (only letters, numbers, slashes, and spaces)"); return; }
-    if (Object.keys(pblDefaultLists).includes(name)) { alert("A default list already has this name!"); return; }
-    if (Object.keys(pblUserLists).includes(name))    { alert("You already gave this name to a list."); return; }
-    if (document.getElementById(name))               { alert("You can't give this name to a list (id taken)."); return; }
-    pblUserLists[name] = [...pblSelected];
-    pblAddUserLists();
-    setHighlighted(name);
-    showSuccess("Successfully created the list.");
-});
+const PBL_STAR_SVG = `<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 50 10 Q 55 45, 85 50 Q 55 55, 50 90 Q 45 55, 15 50 Q 45 45, 50 10 Z"
+        stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" />
+</svg>`;
 
-overwriteListEl.addEventListener("click", () => {
-    if (usingTimer()) return;
-    if (highlightedList == null) return;
-    if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot overwrite a default list."); return; }
-    if (pblSelected.length === 0) { alert("Please select PBLs to overwrite the list!"); return; }
-    if (confirm("You are about to overwrite list " + highlightedList)) {
-        pblUserLists[highlightedList] = [...pblSelected];
-        pblAddUserLists();
-        pblSelectList(highlightedList, false);
-        highlightedList = null;
-        closePopup();
-        showSuccess("Successfully overwrote the list.");
+const pblHelpSections = [
+    {
+        id: 'pbl-filter',
+        title: 'Filter',
+        svg: PBL_STAR_SVG,
+        html: `
+            <p>Type <b>"freq"</b> followed by a number into the filter box to filter cases by frequency.</p>
+            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256</p>
+            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Example: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">freq 4</code></p>
+        `
+    },
+    {
+        id: 'pbl-shortcuts',
+        title: 'Shortcuts',
+        svg: HELP_CTRL_SVG,
+        html: buildHelpShortcuts([
+            { keys: ['←'],                   desc: 'Previous scramble' },
+            { keys: ['→'],                   desc: 'Next scramble' },
+            { keys: ['Space'],               desc: 'Start / stop timer' },
+            { keys: ['Backspace'],           desc: 'Remove last case' },
+            { keys: ['K'],                   desc: 'Toggle karnotation' },
+            { keys: ['E'],                   desc: 'Go through each case once' },
+            { keys: ['R'],                   desc: 'Toggle realistic weights' },
+            { keys: ['B'],                   desc: 'Distinguish + and − barflip' },
+            { keys: ['G'],                   desc: 'Global barflip override' },
+            null,
+            { keys: ['Ctrl', 'F'],           desc: 'Focus search box' },
+            { keys: ['Ctrl', 'A'],           desc: 'Select all visible' },
+            { keys: ['Ctrl', 'S'],           desc: 'Select visible (filtered)' },
+            { keys: ['Ctrl', 'Z'],           desc: 'Undo remove last' },
+            { keys: ['Ctrl', 'Y'],           desc: 'Redo remove last' },
+            { keys: ['Ctrl', '⇧', 'A'],      desc: 'Deselect all visible' },
+            { keys: ['Ctrl', '⇧', 'S'],      desc: 'Deselect visible (filtered)' },
+            { keys: ['Alt', 'A'],            desc: 'Show all' },
+            { keys: ['Alt', 'S'],            desc: 'Show selection' },
+        ])
     }
-});
-
-selectListEl.addEventListener("click", () => {
-    if (highlightedList == null) { alert("Please click on a list."); return; }
-    pblSelectList(highlightedList, false);
-    closePopup();
-    showSuccess("Selected the list.", 1000);
-});
-
-deleteListEl.addEventListener("click", () => {
-    if (highlightedList == null) return;
-    if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot delete a default list."); return; }
-    if (Object.keys(pblUserLists).includes(highlightedList)) {
-        if (confirm("You are about to delete list " + highlightedList)) {
-            delete pblUserLists[highlightedList];
-            highlightedList = null;
-            pblAddUserLists();
-            showSuccess("Successfully deleted the list.");
-        }
-        return;
-    }
-    alert("Error: list not found.");
-});
-
-trainListEl.addEventListener("click", () => {
-    if (highlightedList == null) { alert("Please click on a list."); return; }
-    pblSelectList(highlightedList, true);
-    closePopup();
-    showSuccess("Training the list.", 1000);
-});
-
-// ─── DOWNLOAD / UPLOAD ────────────────────────────────────────────────────────
-
-downloadEl.addEventListener("click", () => {
-    if (usingTimer()) return;
-    const data = JSON.stringify({
-        settingsPBL:  pblStorage.getItem('settings'),
-        selectedPBL:  pblStorage.getItem('selected'),
-        userListsPBL: pblStorage.getItem('userLists'),
-    });
-    const url = URL.createObjectURL(new Blob([data], { type: "text/plain" }));
-    const a   = Object.assign(document.createElement("a"), { href: url, download: "PBLTrainerData.json" });
-    a.click();
-    URL.revokeObjectURL(url);
-    showSuccess("Download started.", 1000);
-});
-
-uploadEl.addEventListener("click", () => {
-    if (pressStartTime != null) return;
-    fileEl.click();
-});
-
-fileEl.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-        try {
-            e.target.value = '';
-            pblDeselectAll();
-            const jsonData = JSON.parse(reader.result);
-            pblStorage.setItem("selected", jsonData["selectedPBL"]);
-            let outdated = false;
-            if ("userListsPBL" in jsonData)   pblStorage.setItem("userLists", jsonData["userListsPBL"]);
-            else if ("userLists" in jsonData) { pblStorage.setItem("userLists", jsonData["userLists"]); outdated = true; }
-            if ("settingsPBL" in jsonData)    pblStorage.setItem("settings", jsonData["settingsPBL"]);
-            else if ("settings" in jsonData)  { pblStorage.setItem("settings", jsonData["settings"]); outdated = true; }
-            // Check whether imported selection is in the new suffix format.
-            const allLists = [jsonData["selectedPBL"], ...Object.values(JSON.parse(jsonData["userListsPBL"] ?? '{}'))];
-            if (allLists.some(lst => Array.isArray(lst) && lst.length && !lst[0].endsWith('+') && (!lst[0].endsWith('-') || lst[0].endsWith('/-'))))
-                outdated = true;
-            if (outdated) alert("File formatting is outdated, re-export recommended.");
-            pblLoadStorage();
-            closePopup();
-            showSuccess("Imported.", 1000);
-        } catch (err) { console.error("Import error:", err); }
-    };
-    reader.readAsText(file);
-});
-
-// Open alg reference for the previous scramble's case.
-previousScrambleEl.style.cursor = "pointer";
-previousScrambleEl.addEventListener("click", () => {
-    if (usingTimer()) return;
-    if (!pblPreviousCase) return;
-    pblOpenCluster(pblPreviousCase);
-});
+    // Add future PBL-specific sections here.
+];
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────
 // Load order: generic.js → pbl-core.js (this file).

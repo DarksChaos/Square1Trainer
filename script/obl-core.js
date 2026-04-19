@@ -1,3 +1,456 @@
+// ─── OBL STATE ────────────────────────────────────────────────────────────────
+
+let oblSelectedCases     = [[], []]; // [nonSpe[], spe[]]
+let oblRemainingCases    = [[], []];
+let oblUserLists         = {};
+let oblDefaultLists      = {};
+let oblUsingKarn         = 0;
+let oblUsingSpe          = 0;
+let oblUsingMemo         = false;
+let oblScrambleList      = [];
+let oblCurrentCase       = '';
+let oblPreviousCase      = '';
+let oblHasActiveScramble = false;
+let oblScrambleOffset    = 0;
+let oblLastRemoved       = '';
+let oblEachCase          = 0;
+
+const oblStorage = {
+    getItem:  k      => localStorage.getItem(k + 'OBL'),
+    setItem:  (k, v) => localStorage.setItem(k + 'OBL', v),
+};
+
+// ─── OBL SELECTION ────────────────────────────────────────────────────────────
+
+function oblSelect(id) {
+    if (!oblSelectedCases[oblUsingSpe].includes(id)) {
+        oblSelectedCases[oblUsingSpe].push(id);
+        if (oblEachCase > 0)
+            oblRemainingCases[oblUsingSpe].push(...Array(oblEachCase).fill(id));
+    }
+    const el = document.getElementById(id);
+    if (el) el.classList.add('checked', 'checked-both');
+    updateSelCount();
+}
+
+function oblDeselect(id) {
+    oblSelectedCases[oblUsingSpe]  = oblSelectedCases[oblUsingSpe].filter(x => x !== id);
+    oblRemainingCases[oblUsingSpe] = oblRemainingCases[oblUsingSpe].filter(x => x !== id);
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('checked', 'checked-both');
+    updateSelCount();
+}
+
+function oblSaveSelected() {
+    if (!oblUsingSpe) oblSelectedCases[1] = [...getSpeList(oblSelectedCases[0])];
+    else              oblSelectedCases[0] = [...getNonSpeList(oblSelectedCases[1])];
+    oblStorage.setItem('selected', JSON.stringify(oblSelectedCases));
+    if (!oblHasActiveScramble || oblSelectedCases[oblUsingSpe].length === 0)
+        oblGenerateScramble();
+    else if (!oblSelectedCases[oblUsingSpe].includes(oblCurrentCase))
+        oblGenerateScramble(true);
+}
+
+function oblEnableEachCase() {
+    oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+    oblRemainingCases[oblUsingSpe] =
+        oblSelectedCases[oblUsingSpe].flatMap(el => Array(oblEachCase).fill(el));
+}
+
+// ─── OBL SCRAMBLE GENERATION ─────────────────────────────────────────────────
+
+function oblGenerateScramble(regen = false) {
+    if (oblSelectedCases[oblUsingSpe].length === 0) {
+        timerEl.textContent            = '--:--';
+        currentScrambleEl.textContent  = 'Scramble will show up here';
+        previousScrambleEl.textContent = 'Last scramble will show up here';
+        oblHasActiveScramble = false;
+        oblScrambleList      = [];
+        return;
+    }
+    if (oblRemainingCases[oblUsingSpe].length === 0) oblEnableEachCase();
+
+    const idx    = randInt(0, oblRemainingCases[oblUsingSpe].length - 1);
+    const choice = oblRemainingCases[oblUsingSpe].splice(idx, 1)[0];
+    oblCurrentCase = choice;
+
+    const specific = oblUsingSpe
+        ? choice
+        : OBLtranslation[choice][randInt(0, OBLtranslation[choice].length - 1)];
+    const scramble = getOBLScramble(specific);
+
+    const s     = scramble[0].at(0), e = scramble[0].at(-1);
+    const start = s === 'A'
+        ? [randrange(-5, 5, 3), randrange(-3, 7, 3)]
+        : [randrange(-3, 7, 3), randrange(-4, 6, 3)];
+    const end   = e === 'A'
+        ? [randrange(-4, 6, 3), randrange(-3, 7, 3)]
+        : [randrange(-3, 7, 3), randrange(-5, 5, 3)];
+
+    const raw   = start.join(',') + scramble[0].slice(1, -1) + end.join(',');
+    const final = [raw.replaceAll('/', ' / '), karnify(raw.replaceAll('/', '/')), choice];
+
+    if (regen) {
+        oblScrambleList[oblScrambleList.length - 1] = final;
+    } else {
+        if (oblScrambleList.length) {
+            previousScrambleEl.textContent =
+                'Previous scramble: ' + oblScrambleList.at(-1)[oblUsingKarn] +
+                ' (' + oblScrambleList.at(-1)[2] + ')';
+        }
+        oblScrambleList.push(final);
+    }
+    oblHasActiveScramble = true;
+    if (!timerEl.textContent || timerEl.textContent === '--:--')
+        timerEl.textContent = '0.00';
+    oblDisplayCurrentScramble();
+}
+
+function oblDisplayCurrentScramble() {
+    if (!oblHasActiveScramble || !oblScrambleList.length) return;
+    const entry = oblScrambleList.at(-1 - oblScrambleOffset);
+    if (entry) currentScrambleEl.textContent =
+        entry[oblUsingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
+}
+
+// ─── OBL FILTER ───────────────────────────────────────────────────────────────
+
+function oblApplyFilter(raw) {
+    document.querySelectorAll('.case').forEach(caseEl => {
+        if (passesOBLFilter(caseEl.id, raw)) caseEl.classList.remove('hidden');
+        else                                  caseEl.classList.add('hidden');
+    });
+    updateSelCount();
+}
+
+// ─── OBL LISTS ────────────────────────────────────────────────────────────────
+
+function oblLoadUserLists() {
+    const stored = oblStorage.getItem('userLists');
+    if (stored) {
+        oblUserLists = JSON.parse(stored);
+        // Legacy: old format stored a flat array [nonSpe] rather than [[nonSpe],[spe]].
+        let needsSave = false;
+        for (const k of Object.keys(oblUserLists)) {
+            if (!Array.isArray(oblUserLists[k][0])) {
+                const flat = oblUserLists[k];
+                oblUserLists[k] = [flat, getSpeList(flat)];
+                needsSave = true;
+            }
+        }
+        if (needsSave) oblSaveUserLists();
+    } else {
+        oblUserLists = {}; // reset so DOM is cleared even when no data exists
+    }
+    oblAddUserLists(); // always re-render (overwrites any PBL lists in the DOM)
+}
+
+function oblSaveUserLists() {
+    oblStorage.setItem('userLists', JSON.stringify(oblUserLists));
+}
+
+// ─── OBL DEFAULT LISTS ────────────────────────────────────────────────────────
+// Expand raw nonSpe arrays into [[nonSpe], [spe]] pairs.
+// Safe to call multiple times — only runs once.
+
+function oblInitDefaultLists() {
+    if (Object.keys(oblDefaultLists).length > 0) return;
+    for (const [name, nonSpeArr] of Object.entries(OBL_DEFAULT_LISTS_RAW))
+        oblDefaultLists[name] = [nonSpeArr, getSpeList(nonSpeArr)];
+}
+
+// ─── OBL LIST RENDERING ───────────────────────────────────────────────────────
+
+function oblAddDefaultLists() {
+    let html = '';
+    for (const k of Object.keys(oblDefaultLists)) {
+        const count = oblDefaultLists[k][oblUsingSpe].length;
+        html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
+    }
+    defaultListsEl.innerHTML = html;
+    document.querySelectorAll('#defaultlists>.list-item').forEach(addListItemEvent);
+}
+
+function oblAddUserLists() {
+    let html = '';
+    for (const k of Object.keys(oblUserLists)) {
+        const count = oblUserLists[k][oblUsingSpe].length;
+        html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
+    }
+    userListsEl.innerHTML = html;
+    document.querySelectorAll('#userlists>.list-item').forEach(addListItemEvent);
+    oblSaveUserLists();
+}
+
+// ─── OBL LIST SELECTION ───────────────────────────────────────────────────────
+
+function oblSelectList(listName, setSelection) {
+    if (listName == null) { showAll(); return; }
+    const list = Object.keys(oblDefaultLists).includes(listName)
+        ? oblDefaultLists[listName]
+        : oblUserLists[listName];
+    if (!list) return;
+
+    // Hide all cases then show only those in the list.
+    document.querySelectorAll('.case').forEach(el => el.classList.add('hidden'));
+    for (const id of list[oblUsingSpe])
+        document.getElementById(id)?.classList.remove('hidden');
+
+    if (setSelection) {
+        oblDeselectAll();
+        for (const id of list[oblUsingSpe]) oblSelect(id);
+        oblSaveSelected();
+    }
+
+    showMode = 'list';
+    updateToggle();
+    oblSaveUserLists();
+}
+
+// ─── OBL LIST BUTTON HANDLERS ─────────────────────────────────────────────────
+
+function oblNewList() {
+    if (usingTimer()) return;
+    if (oblSelectedCases[oblUsingSpe].length === 0) {
+        alert('Please select OBLs to create a list!'); return;
+    }
+    let name = prompt('Name of your list:');
+    if (!name) return;
+    name = name.trim();
+    if (!name || !validName(name)) {
+        alert('Please enter a valid name (only letters, numbers, slashes, and spaces)'); return;
+    }
+    if (Object.keys(oblDefaultLists).includes(name)) {
+        alert('A default list already has this name!'); return;
+    }
+    if (Object.keys(oblUserLists).includes(name)) {
+        alert('You already gave this name to a list.'); return;
+    }
+    if (document.getElementById(name)) {
+        alert("You can't give this name to a list (id taken)."); return;
+    }
+    const newList = [[], []];
+    newList[oblUsingSpe] = [...oblSelectedCases[oblUsingSpe]];
+    if (oblUsingSpe) newList[0] = getNonSpeList(newList[1]);
+    else             newList[1] = getSpeList(newList[0]);
+    oblUserLists[name] = newList;
+    oblAddUserLists();
+    setHighlighted(name);
+    showSuccess('Successfully created the list.');
+}
+
+function oblOverwriteList() {
+    if (usingTimer()) return;
+    if (highlightedList == null) return;
+    if (Object.keys(oblDefaultLists).includes(highlightedList)) {
+        alert('You cannot overwrite a default list.'); return;
+    }
+    if (oblSelectedCases[oblUsingSpe].length === 0) {
+        alert('Please select OBLs to overwrite the list!'); return;
+    }
+    if (confirm('You are about to overwrite list ' + highlightedList)) {
+        const newList = [[], []];
+        newList[oblUsingSpe] = [...oblSelectedCases[oblUsingSpe]];
+        if (oblUsingSpe) newList[0] = getNonSpeList(newList[1]);
+        else             newList[1] = getSpeList(newList[0]);
+        oblUserLists[highlightedList] = newList;
+        oblAddUserLists();
+        oblSelectList(highlightedList, true);
+        highlightedList = null;
+        closePopup();
+        showSuccess('Successfully overwrote the list.');
+    }
+}
+
+function oblDeleteList() {
+    if (highlightedList == null) return;
+    if (Object.keys(oblDefaultLists).includes(highlightedList)) {
+        alert('You cannot delete a default list.'); return;
+    }
+    if (Object.keys(oblUserLists).includes(highlightedList)) {
+        if (confirm('You are about to delete list ' + highlightedList)) {
+            delete oblUserLists[highlightedList];
+            highlightedList = null;
+            oblAddUserLists();
+            showSuccess('Successfully deleted the list.');
+        }
+        return;
+    }
+    alert('Error: list not found.');
+}
+
+function oblLoadSelected() {
+    const stored = oblStorage.getItem('selected');
+    if (!stored) return;
+    oblSelectedCases = JSON.parse(stored);
+    if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
+    oblEnableEachCase();
+    oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
+    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
+}
+
+// ─── OBL BULK SELECT ─────────────────────────────────────────────────────────
+
+function oblSelectAll() {
+    if (usingTimer()) return;
+    document.querySelectorAll('.case').forEach(caseEl => {
+        if (!caseEl.classList.contains('hidden')) oblSelect(caseEl.id);
+    });
+    oblSaveSelected();
+}
+
+function oblDeselectAll() {
+    if (usingTimer()) return;
+    oblSelectedCases  = [[], []];
+    oblRemainingCases = [[], []];
+    document.querySelectorAll('.case').forEach(caseEl => {
+        caseEl.classList.remove('checked', 'checked-both');
+    });
+    oblSaveSelected();
+    updateSelCount();
+}
+
+// ─── OBL GRID ─────────────────────────────────────────────────────────────────
+
+function oblRestoreGrid() {
+    caseListEl.style.gridTemplateColumns = oblUsingSpe
+        ? 'repeat(auto-fit, minmax(160px, 1fr))'
+        : 'repeat(auto-fit, minmax(130px, 1fr))';
+
+    caseListEl.innerHTML = oblUsingSpe
+        ? possibleOBL.flatMap(obl =>
+            getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)
+          ).join('')
+        : possibleOBL.map(obl =>
+            `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`
+          ).join('');
+
+    document.querySelectorAll('.case').forEach(caseEl => {
+        const id = caseEl.id;
+        if (oblSelectedCases[oblUsingSpe].includes(id))
+            caseEl.classList.add('checked', 'checked-both');
+        caseEl.addEventListener('click', () => {
+            if (usingTimer()) return;
+            if (caseEl.classList.contains('checked')) oblDeselect(id);
+            else oblSelect(id);
+            oblSaveSelected();
+        });
+    });
+
+    oblApplyFilter('');
+    updateSelCount();
+
+    if (oblHasActiveScramble && oblScrambleList.length) {
+        oblDisplayCurrentScramble();
+        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+        previousScrambleEl.textContent = prev
+            ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')'
+            : 'Last scramble will show up here';
+        if (timerEl.textContent === '--:--') timerEl.textContent = '0.00';
+    } else {
+        currentScrambleEl.textContent  = 'Scramble will show up here';
+        previousScrambleEl.textContent = 'Last scramble will show up here';
+        timerEl.textContent            = '--:--';
+    }
+}
+
+// ─── OBL SETTINGS ─────────────────────────────────────────────────────────────
+
+// OBL settings stored as a 3-char string: eachCase + usingSpe + usingMemo
+// (same compact style as PBL's settings string)
+function oblSaveSettings() {
+    const store = (eachCaseEl.checked ? '1' : '0') +
+                  (oblUsingSpe        ? '1' : '0') +
+                  (oblUsingMemo       ? '1' : '0');
+    oblStorage.setItem('settings', store);
+}
+
+function oblLoadSettings() {
+    const stored = oblStorage.getItem('settings');
+
+    // Reset to defaults first.
+    eachCaseEl.checked = false;
+    oblUsingSpe  = 0;
+    oblUsingMemo = false;
+
+    if (stored !== null) {
+        eachCaseEl.checked = stored[0] === '1';
+        oblUsingSpe        = stored[1] === '1' ? 1 : 0;
+        oblUsingMemo       = stored[2] === '1';
+    }
+
+    const specificEl = document.getElementById('specific');
+    if (specificEl) specificEl.checked = oblUsingSpe === 1;
+    const oblpEl = document.getElementById('oblp');
+    if (oblpEl) oblpEl.checked = oblUsingMemo;
+}
+
+function oblOnEachCase() {
+    oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+    oblRemainingCases[oblUsingSpe] =
+        oblSelectedCases[oblUsingSpe].flatMap(id => Array(oblEachCase).fill(id));
+    oblSaveSettings();
+}
+
+function oblOnSpe() {
+    const specificEl = document.getElementById('specific');
+    oblUsingSpe = specificEl.checked ? 1 : 0;
+    oblSaveSelected(); // syncs both arrays, regenerates
+    oblRestoreGrid();
+    oblAddDefaultLists(); // refresh counts for new spe mode
+    oblAddUserLists();
+    oblSaveSettings();
+}
+
+function oblOnMemo() {
+    const oblpEl = document.getElementById('oblp');
+    oblUsingMemo = oblpEl.checked;
+    oblDisplayCurrentScramble();
+    oblSaveSettings();
+}
+
+// Wire OBL-specific settings checkboxes.
+document.getElementById('specific').addEventListener('change', () => oblOnSpe());
+document.getElementById('oblp').addEventListener('change',    () => oblOnMemo());
+
+// ─── OBL HELP CONTENT ─────────────────────────────────────────────────────────
+// Defined as a function (not const) because generic.js — which provides
+// HELP_CTRL_SVG and buildHelpShortcuts — loads AFTER obl-core.js.
+// Add extra sections here as {id, title, svg, html} objects.
+
+function oblHelpSections() {
+    return [
+        {
+            id: 'obl-shortcuts',
+            title: 'Shortcuts',
+            svg: HELP_CTRL_SVG,
+            html: buildHelpShortcuts([
+                { keys: ['←'],                   desc: 'Previous scramble' },
+                { keys: ['→'],                   desc: 'Next scramble' },
+                { keys: ['Space'],               desc: 'Start / stop timer' },
+                { keys: ['Backspace'],           desc: 'Remove last case' },
+                { keys: ['K'],                   desc: 'Toggle karnotation' },
+                { keys: ['E'],                   desc: 'Go through each case once' },
+                { keys: ['S'],                   desc: 'Toggle specific case naming' },
+                { keys: ['P'],                   desc: 'Show Matt tracing memo' },
+                null,
+                { keys: ['Ctrl', 'F'],           desc: 'Focus search box' },
+                { keys: ['Ctrl', 'A'],           desc: 'Select all visible' },
+                { keys: ['Ctrl', 'S'],           desc: 'Select visible (filtered)' },
+                { keys: ['Ctrl', 'Z'],           desc: 'Undo remove last' },
+                { keys: ['Ctrl', 'Y'],           desc: 'Redo remove last' },
+                { keys: ['Ctrl', '⇧', 'A'],      desc: 'Deselect all visible' },
+                { keys: ['Ctrl', '⇧', 'S'],      desc: 'Deselect visible (filtered)' },
+                { keys: ['Alt', 'A'],            desc: 'Show all' },
+                { keys: ['Alt', 'S'],            desc: 'Show selection' },
+            ])
+        }
+        // Add future OBL-specific sections here.
+    ];
+}
+
+// ─── OBL MAIN ─────────────────────────────────────────────────────────────────
+
 function isOBL(layer, obl) {
     // layer: 12-char string w/ BbWw, in cs
     // obl: a key of OBL dict
@@ -369,12 +822,13 @@ function oblFormatCluster(cluster, title) {
         for (let i = 0; i < c.algs.length; i++) {
             const alg = c.algs[i];
             if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-            const angle  = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-            const indent = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
                 `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
-                `<span style="font-family:monospace">${alg.notation}</span></span>`
+                `<span style="font-family:monospace">${notation}</span></span>`
             );
         }
     }
@@ -390,11 +844,12 @@ function oblFormatCluster(cluster, title) {
             for (let i = 0; i < c.algs.length; i++) {
                 const algStr = c.algs[i];
                 if (!algStr?.trim()) continue;
-                const indent = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+                const notation = usingKarn ? algStr : unkarnify(algStr);
+                const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
                 lines.push(
                     `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
                     `${i === 0 ? c["case-name"] + " " : ""}` +
-                    `<span style="font-family:monospace">${algStr}</span></span>`
+                    `<span style="font-family:monospace">${notation}</span></span>`
                 );
             }
         }

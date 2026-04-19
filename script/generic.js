@@ -92,6 +92,7 @@ const openSettingsEl  = document.getElementById("open-settings");
 const currentScrambleEl  = document.getElementById("cur-scram");
 currentScrambleEl.style.cursor = "pointer";
 const previousScrambleEl = document.getElementById("prev-scram");
+previousScrambleEl.style.cursor = "pointer";
 const prevScrambleButton = document.getElementById("prev");
 const nextScrambleButton = document.getElementById("next");
 const timerEl    = document.getElementById("timer");
@@ -169,7 +170,252 @@ function hideLoading() {
 // ─── POPUP MANAGEMENT ────────────────────────────────────────────────────────
 
 function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; listPopupEl.classList.add("open"); }
-function openHelpPopup()     { if (usingTimer()) return; isPopupOpen = true; helpPopupEl.classList.add("open"); }
+// ─── HELP MODAL ───────────────────────────────────────────────────────────────
+// CSS is injected once here since we cannot modify the CSS file directly.
+
+(function injectHelpStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+/* Help popup sizing */
+.help-popup-inner {
+    width: min(680px, 92vw) !important;
+    max-height: 80vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Two-panel layout */
+.help-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Left nav */
+.help-nav {
+    width: 58px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.help-nav::-webkit-scrollbar { display: none; }
+
+.help-nav-item {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 0.15s, background 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    position: relative;
+}
+.help-nav-item svg { width: 100%; height: 100%; object-fit: contain; }
+.help-nav-item:hover { opacity: 0.7; background: rgba(255,255,255,0.07); }
+.help-nav-item.active {
+    opacity: 1;
+    background: rgba(255,255,255,0.12);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+}
+/* Tooltip */
+.help-nav-item::after {
+    content: attr(data-title);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-size: 0.72em;
+    padding: 3px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 9999;
+}
+.help-nav-item:hover::after { opacity: 1; }
+
+/* Right content */
+.help-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 22px 18px 20px;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+}
+
+/* Section */
+.help-section { margin-bottom: 36px; }
+.help-section:last-child { margin-bottom: 8px; }
+
+.help-section-title {
+    font-size: 0.68em;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    opacity: 0.45;
+    margin: 0 0 14px 0;
+    padding-bottom: 7px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Shortcut rows */
+.help-shortcut-group { display: flex; flex-direction: column; gap: 4px; }
+.help-shortcut-sep { height: 10px; }
+
+.help-shortcut-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+    border-radius: 5px;
+}
+.help-key-combo {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 148px;
+    flex-shrink: 0;
+}
+.help-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-bottom: 2px solid rgba(0,0,0,0.3);
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 0.75em;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    white-space: nowrap;
+    line-height: 1.5;
+    min-width: 22px;
+    text-align: center;
+}
+.help-plus {
+    font-size: 0.7em;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+.help-desc {
+    font-size: 0.88em;
+    opacity: 0.75;
+    line-height: 1.4;
+}
+
+/* General help prose */
+.help-content p {
+    font-size: 0.9em;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin: 6px 0;
+}
+    `;
+    document.head.appendChild(style);
+})();
+
+// Shared ctrl-key SVG used as the shortcuts section icon.
+const HELP_CTRL_SVG = `<svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="4" width="56" height="34" rx="4" fill="#bdc3c7"/>
+  <rect x="2" y="2" width="56" height="32" rx="4" fill="#ecf0f1" stroke="#95a5a6" stroke-width="1"/>
+  <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
+        font-family="sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">Ctrl</text>
+</svg>`;
+
+/**
+ * buildHelpShortcuts — turns an array of {keys, desc} (or null for a spacer)
+ * into the HTML for a shortcut list.
+ */
+function buildHelpShortcuts(rows) {
+    return '<div class="help-shortcut-group">' + rows.map(row => {
+        if (!row) return '<div class="help-shortcut-sep"></div>';
+        const combo = row.keys.map((k, i) =>
+            (i > 0 ? '<span class="help-plus">+</span>' : '') +
+            `<span class="help-kbd">${k}</span>`
+        ).join('');
+        return `<div class="help-shortcut-row">
+            <span class="help-key-combo">${combo}</span>
+            <span class="help-desc">${row.desc}</span>
+        </div>`;
+    }).join('') + '</div>';
+}
+
+/**
+ * renderHelp — populates the help modal's nav + content panels.
+ * sections: [{id, title, svg, html}]
+ */
+let _helpScrollObserver = null;
+
+function renderHelp(sections) {
+    const nav     = document.getElementById('help-nav');
+    const content = document.getElementById('help-content');
+    nav.innerHTML     = '';
+    content.innerHTML = '';
+
+    if (_helpScrollObserver) { _helpScrollObserver = null; }
+
+    const navItems = [];
+    const sectionEls = [];
+
+    for (const sec of sections) {
+        // Nav item
+        const item = document.createElement('div');
+        item.className   = 'help-nav-item';
+        item.dataset.target = sec.id;
+        item.dataset.title  = sec.title;
+        item.innerHTML   = sec.svg;
+        nav.appendChild(item);
+        navItems.push(item);
+
+        // Content section
+        const el = document.createElement('div');
+        el.className = 'help-section';
+        el.id        = 'help-sec-' + sec.id;
+        el.innerHTML = `<div class="help-section-title">${sec.title}</div>${sec.html}`;
+        content.appendChild(el);
+        sectionEls.push(el);
+
+        item.addEventListener('click', () => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    // Bidirectional sync: scroll → highlight nav
+    function syncNav() {
+        const contentTop = content.getBoundingClientRect().top;
+        let activeIdx = 0;
+        for (let i = 0; i < sectionEls.length; i++) {
+            const top = sectionEls[i].getBoundingClientRect().top - contentTop;
+            if (top <= 32) activeIdx = i; // 32px threshold so it fires before fully at top
+        }
+        navItems.forEach((ni, i) => ni.classList.toggle('active', i === activeIdx));
+    }
+    content.addEventListener('scroll', syncNav);
+    // Initial highlight
+    if (navItems.length) navItems[0].classList.add('active');
+}
+
+function openHelpPopup() {
+    if (usingTimer()) return;
+    isPopupOpen = true;
+    helpPopupEl.classList.add("open");
+    renderHelp(trainerMode === 'pbl' ? pblHelpSections : oblHelpSections());
+}
 function openSettingsPopup() { if (usingTimer()) return; isPopupOpen = true; settingsPopupEl.classList.add("open"); }
 
 function closePopup() {
@@ -382,7 +628,7 @@ function onCheckKarn() {
         currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
         pblDisplayPrevScram();
     }
-    pblSaveSettings();
+    if (trainerMode === 'obl') oblSaveSettings(); else pblSaveSettings();
 }
 
 karnEl.addEventListener("change", () => onCheckKarn());
@@ -469,6 +715,20 @@ currentScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (trainerMode === 'pbl') pblOpenCluster();
     else if (trainerMode === 'obl' && oblHasActiveScramble && oblScrambleList.length) {
+        const entry = oblScrambleList.at(-1 - oblScrambleOffset);
+        if (entry) oblOpenCluster(entry[2]);
+    }
+});
+
+// cluster modal for the prev scram
+previousScrambleEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    if (trainerMode === 'pbl') {
+        if (usingTimer()) return;
+        if (!pblPreviousCase) return;
+        pblOpenCluster(pblPreviousCase);
+    }
+    else if (trainerMode === 'obl' && oblPreviousCase && oblScrambleList.length) {
         const entry = oblScrambleList.at(-1 - oblScrambleOffset);
         if (entry) oblOpenCluster(entry[2]);
     }
@@ -599,17 +859,34 @@ window.addEventListener("keydown", (e) => {
     if (ctrl && !e.altKey) {
         if (e.shiftKey) {
             switch (e.key.toLowerCase()) {
-                case "a": e.preventDefault(); pblDeselectAll(); return;
-                case "s": e.preventDefault(); pblDeselectThese(); return;
-                case "z": e.preventDefault(); pblDeselect(pblLastRemoved); pblSaveSelected(); return;
+                case "a": e.preventDefault();
+                    if (trainerMode === 'pbl') pblDeselectAll(); else oblDeselectAll();
+                    return;
+                case "s": e.preventDefault();
+                    if (trainerMode === 'pbl') pblDeselectThese();
+                    return;
+                case "z": e.preventDefault();
+                    if (trainerMode === 'pbl') { pblDeselect(pblLastRemoved); pblSaveSelected(); }
+                    else                       { oblDeselect(oblLastRemoved); oblSaveSelected(); }
+                    return;
             }
         } else {
             switch (e.key.toLowerCase()) {
-                case "a": if (!inInput) { e.preventDefault(); pblSelectAll(); } return;
-                case "s": e.preventDefault(); pblSelectThese(); return;
+                case "a": if (!inInput) { e.preventDefault();
+                    if (trainerMode === 'pbl') pblSelectAll(); else oblSelectAll();
+                } return;
+                case "s": e.preventDefault();
+                    if (trainerMode === 'pbl') pblSelectThese();
+                    return;
                 case "f": e.preventDefault(); filterInputEl.focus(); return;
-                case "z": e.preventDefault(); pblSelect(pblLastRemoved); pblSaveSelected(); return;
-                case "y": e.preventDefault(); pblDeselect(pblLastRemoved); pblSaveSelected(); return;
+                case "z": e.preventDefault();
+                    if (trainerMode === 'pbl') { pblSelect(pblLastRemoved);   pblSaveSelected(); }
+                    else                       { oblSelect(oblLastRemoved);   oblSaveSelected(); }
+                    return;
+                case "y": e.preventDefault();
+                    if (trainerMode === 'pbl') { pblDeselect(pblLastRemoved); pblSaveSelected(); }
+                    else                       { oblDeselect(oblLastRemoved); oblSaveSelected(); }
+                    return;
             }
         }
     } else if (!ctrl && e.altKey && !e.shiftKey) {
@@ -620,16 +897,39 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (!inInput && !ctrl && !e.altKey && !e.shiftKey) {
-        let el;
         switch (e.key.toLowerCase()) {
             case "backspace":  e.preventDefault(); removeLast(); return;
             case "arrowleft":  e.preventDefault(); prevScram(); return;
             case "arrowright": e.preventDefault(); nextScram(); return;
-            case "e": el = eachCaseEl;      el.checked = !el.checked; pblOnEachCase();       return;
-            case "k": el = karnEl;          el.checked = !el.checked; onCheckKarn();         return;
-            case "r": el = weightEl;        el.checked = !el.checked; pblOnWeights();        return;
-            case "g": el = globalBarflipEl; el.checked = !el.checked; pblOnGlobalBarflip(); return;
-            case "b": el = useBarflipEl;    el.checked = !el.checked; pblOnUseBarflip();     return;
+            case "k": karnEl.checked = !karnEl.checked; onCheckKarn(); return;
+            case "e":
+                eachCaseEl.checked = !eachCaseEl.checked;
+                if (trainerMode === 'pbl') pblOnEachCase(); else oblOnEachCase();
+                return;
+            case "r":
+                if (trainerMode !== 'pbl') return;
+                weightEl.checked = !weightEl.checked; pblOnWeights();
+                return;
+            case "g":
+                if (trainerMode !== 'pbl') return;
+                globalBarflipEl.checked = !globalBarflipEl.checked; pblOnGlobalBarflip();
+                return;
+            case "b":
+                if (trainerMode !== 'pbl') return;
+                useBarflipEl.checked = !useBarflipEl.checked; pblOnUseBarflip();
+                return;
+            case "s": {
+                if (trainerMode !== 'obl') return;
+                const specificEl = document.getElementById('specific');
+                specificEl.checked = !specificEl.checked; oblOnSpe();
+                return;
+            }
+            case "p": {
+                if (trainerMode !== 'obl') return;
+                const oblpEl = document.getElementById('oblp');
+                oblpEl.checked = !oblpEl.checked; oblOnMemo();
+                return;
+            }
         }
     }
 });
@@ -653,6 +953,137 @@ timerBoxEl.addEventListener("touchstart", () => {
 timerBoxEl.addEventListener("touchend", () => {
     if (!canInteractTimer()) return;
     timerEndTouch(true);
+});
+
+// ─── DOWNLOAD / UPLOAD (shared) ───────────────────────────────────────────────
+// Both trainers' data are saved/loaded together in one JSON file.
+
+downloadEl.addEventListener("click", () => {
+    if (usingTimer()) return;
+    const data = JSON.stringify({
+        settingsPBL:  pblStorage.getItem('settings'),
+        selectedPBL:  pblStorage.getItem('selected'),
+        userListsPBL: pblStorage.getItem('userLists'),
+        settingsOBL:  oblStorage.getItem('settings'),
+        selectedOBL:  oblStorage.getItem('selected'),
+        userListsOBL: oblStorage.getItem('userLists'),
+    });
+    const url = URL.createObjectURL(new Blob([data], { type: "text/plain" }));
+    const a   = Object.assign(document.createElement("a"), { href: url, download: "TrainerData.json" });
+    a.click();
+    URL.revokeObjectURL(url);
+    showSuccess("Download started.", 1000);
+});
+
+uploadEl.addEventListener("click", () => {
+    if (pressStartTime != null) return;
+    fileEl.click();
+});
+
+fileEl.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            e.target.value = '';
+            pblDeselectAll();
+            const jsonData = JSON.parse(reader.result);
+            // ── PBL ──
+            if ("selectedPBL" in jsonData) pblStorage.setItem("selected", jsonData["selectedPBL"]);
+            let outdated = false;
+            if ("userListsPBL" in jsonData)   pblStorage.setItem("userLists", jsonData["userListsPBL"]);
+            else if ("userLists" in jsonData) { pblStorage.setItem("userLists", jsonData["userLists"]); outdated = true; }
+            if ("settingsPBL" in jsonData)    pblStorage.setItem("settings", jsonData["settingsPBL"]);
+            else if ("settings" in jsonData)  { pblStorage.setItem("settings", jsonData["settings"]); outdated = true; }
+            const sel = jsonData["selectedPBL"];
+            const allLists = [sel, ...Object.values(JSON.parse(jsonData["userListsPBL"] ?? '{}'))];
+            if (allLists.some(lst => Array.isArray(lst) && lst.length && !lst[0].endsWith('+') && (!lst[0].endsWith('-') || lst[0].endsWith('/-'))))
+                outdated = true;
+            // ── OBL ──
+            if ("selectedOBL" in jsonData)  oblStorage.setItem("selected",  jsonData["selectedOBL"]);
+            if ("userListsOBL" in jsonData) oblStorage.setItem("userLists", jsonData["userListsOBL"]);
+            if ("settingsOBL" in jsonData)  oblStorage.setItem("settings",  jsonData["settingsOBL"]);
+            if (outdated) alert("File formatting is outdated, re-export recommended.");
+            pblLoadStorage();
+            if (trainerMode === 'obl') {
+                oblLoadSettings();
+                oblLoadUserLists();
+                oblLoadSelected();
+                oblRestoreGrid();
+            }
+            closePopup();
+            showSuccess("Imported.", 1000);
+        } catch (err) { console.error("Import error:", err); }
+    };
+    reader.readAsText(file);
+});
+
+// ─── LIST POPUP BUTTON LISTENERS (shared, trainer-aware) ─────────────────────
+
+newListEl.addEventListener("click", () => {
+    if (trainerMode === 'obl') { oblNewList(); return; }
+    if (usingTimer()) return;
+    if (pblSelected.length === 0) { alert("Please select PBLs to create a list!"); return; }
+    let name = prompt("Name of your list:");
+    if (!name) return;
+    name = name.trim();
+    if (!name || !validName(name)) { alert("Please enter a valid name (only letters, numbers, slashes, and spaces)"); return; }
+    if (Object.keys(pblDefaultLists).includes(name)) { alert("A default list already has this name!"); return; }
+    if (Object.keys(pblUserLists).includes(name))    { alert("You already gave this name to a list."); return; }
+    if (document.getElementById(name))               { alert("You can't give this name to a list (id taken)."); return; }
+    pblUserLists[name] = [...pblSelected];
+    pblAddUserLists();
+    setHighlighted(name);
+    showSuccess("Successfully created the list.");
+});
+
+overwriteListEl.addEventListener("click", () => {
+    if (trainerMode === 'obl') { oblOverwriteList(); return; }
+    if (usingTimer()) return;
+    if (highlightedList == null) return;
+    if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot overwrite a default list."); return; }
+    if (pblSelected.length === 0) { alert("Please select PBLs to overwrite the list!"); return; }
+    if (confirm("You are about to overwrite list " + highlightedList)) {
+        pblUserLists[highlightedList] = [...pblSelected];
+        pblAddUserLists();
+        pblSelectList(highlightedList, false);
+        highlightedList = null;
+        closePopup();
+        showSuccess("Successfully overwrote the list.");
+    }
+});
+
+selectListEl.addEventListener("click", () => {
+    if (highlightedList == null) { alert("Please click on a list."); return; }
+    if (trainerMode === 'obl') { oblSelectList(highlightedList, false); }
+    else                       { pblSelectList(highlightedList, false); }
+    closePopup();
+    showSuccess("Selected the list.", 1000);
+});
+
+deleteListEl.addEventListener("click", () => {
+    if (trainerMode === 'obl') { oblDeleteList(); return; }
+    if (highlightedList == null) return;
+    if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot delete a default list."); return; }
+    if (Object.keys(pblUserLists).includes(highlightedList)) {
+        if (confirm("You are about to delete list " + highlightedList)) {
+            delete pblUserLists[highlightedList];
+            highlightedList = null;
+            pblAddUserLists();
+            showSuccess("Successfully deleted the list.");
+        }
+        return;
+    }
+    alert("Error: list not found.");
+});
+
+trainListEl.addEventListener("click", () => {
+    if (highlightedList == null) { alert("Please click on a list."); return; }
+    if (trainerMode === 'obl') { oblSelectList(highlightedList, true); }
+    else                       { pblSelectList(highlightedList, true); }
+    closePopup();
+    showSuccess("Training the list.", 1000);
 });
 
 // ─── MODE SYSTEM ──────────────────────────────────────────────────────────────
@@ -695,18 +1126,29 @@ function applyMode() {
     updateDeselectBtn();
 
     if (isPBL) {
-        oblSaveState();
-        pblRestoreGrid();   // defined in pbl-core.js
+        oblSaveSettings();
+        pblRestoreSettings();
+        pblAddDefaultLists();    // re-render PBL lists (OBL may have overwritten them)
+        pblAddUserLists();
+        pblApplyBarflipUI();     // restore barflip override row to correct state
+        pblRestoreGrid();
+        // Apply correct show state after grid is built.
+        if (pblSelected.length > 0) showSelected(); else showAll();
     } else {
-        pblSaveState();
-        oblLoadUserLists();
+        pblSaveSettings();
+        // Explicitly hide barflip override sidebar row — it's PBL-only.
+        document.getElementById('barflip-override-row')?.classList.add('hidden');
+        oblLoadSettings();
+        oblInitDefaultLists();
+        oblAddDefaultLists();
+        oblLoadUserLists();      // always re-renders, clearing any PBL lists
         oblLoadSelected();
         oblRestoreGrid();
+        // Apply correct show state after grid is built.
+        if (oblSelectedCases[oblUsingSpe].length > 0) showSelected(); else showAll();
     }
 }
 
-function pblSaveState() {} // placeholder — extend if teardown logic is needed
-function oblSaveState() {} // placeholder
 
 document.getElementById('mode-title').addEventListener('click', switchMode);
 
@@ -816,216 +1258,4 @@ function closeCluster() {
     document.getElementById("cluster-modal").style.display = "none";
     document.getElementById("cluster-modal-inner").style.width = '';
     isPopupOpen = false;
-}
-
-// ─── OBL STATE ────────────────────────────────────────────────────────────────
-
-let oblSelectedCases     = [[], []]; // [nonSpe[], spe[]]
-let oblRemainingCases    = [[], []];
-let oblUserLists         = {};
-let oblDefaultLists      = {};
-let oblUsingKarn         = 0;
-let oblUsingSpe          = 0;
-let oblUsingMemo         = false;
-let oblScrambleList      = [];
-let oblCurrentCase       = '';
-let oblPreviousCase      = '';
-let oblHasActiveScramble = false;
-let oblScrambleOffset    = 0;
-let oblLastRemoved       = '';
-let oblEachCase          = 0;
-
-const oblStorage = {
-    getItem:  k      => localStorage.getItem(k + 'OBL'),
-    setItem:  (k, v) => localStorage.setItem(k + 'OBL', v),
-};
-
-// ─── OBL SELECTION ────────────────────────────────────────────────────────────
-
-function oblSelect(id) {
-    if (!oblSelectedCases[oblUsingSpe].includes(id)) {
-        oblSelectedCases[oblUsingSpe].push(id);
-        if (oblEachCase > 0)
-            oblRemainingCases[oblUsingSpe].push(...Array(oblEachCase).fill(id));
-    }
-    const el = document.getElementById(id);
-    if (el) el.classList.add('checked', 'checked-both');
-    updateSelCount();
-}
-
-function oblDeselect(id) {
-    oblSelectedCases[oblUsingSpe]  = oblSelectedCases[oblUsingSpe].filter(x => x !== id);
-    oblRemainingCases[oblUsingSpe] = oblRemainingCases[oblUsingSpe].filter(x => x !== id);
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('checked', 'checked-both');
-    updateSelCount();
-}
-
-function oblSaveSelected() {
-    if (!oblUsingSpe) oblSelectedCases[1] = [...getSpeList(oblSelectedCases[0])];
-    else              oblSelectedCases[0] = [...getNonSpeList(oblSelectedCases[1])];
-    oblStorage.setItem('selected', JSON.stringify(oblSelectedCases));
-    if (!oblHasActiveScramble || oblSelectedCases[oblUsingSpe].length === 0)
-        oblGenerateScramble();
-    else if (!oblSelectedCases[oblUsingSpe].includes(oblCurrentCase))
-        oblGenerateScramble(true);
-}
-
-function oblEnableEachCase() {
-    oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
-    oblRemainingCases[oblUsingSpe] =
-        oblSelectedCases[oblUsingSpe].flatMap(el => Array(oblEachCase).fill(el));
-}
-
-// ─── OBL SCRAMBLE GENERATION ─────────────────────────────────────────────────
-
-function oblGenerateScramble(regen = false) {
-    if (oblSelectedCases[oblUsingSpe].length === 0) {
-        timerEl.textContent            = '--:--';
-        currentScrambleEl.textContent  = 'Scramble will show up here';
-        previousScrambleEl.textContent = 'Last scramble will show up here';
-        oblHasActiveScramble = false;
-        oblScrambleList      = [];
-        return;
-    }
-    if (oblRemainingCases[oblUsingSpe].length === 0) oblEnableEachCase();
-
-    const idx    = randInt(0, oblRemainingCases[oblUsingSpe].length - 1);
-    const choice = oblRemainingCases[oblUsingSpe].splice(idx, 1)[0];
-    oblCurrentCase = choice;
-
-    const specific = oblUsingSpe
-        ? choice
-        : OBLtranslation[choice][randInt(0, OBLtranslation[choice].length - 1)];
-    const scramble = getOBLScramble(specific);
-
-    const s     = scramble[0].at(0), e = scramble[0].at(-1);
-    const start = s === 'A'
-        ? [randrange(-5, 5, 3), randrange(-3, 7, 3)]
-        : [randrange(-3, 7, 3), randrange(-4, 6, 3)];
-    const end   = e === 'A'
-        ? [randrange(-4, 6, 3), randrange(-3, 7, 3)]
-        : [randrange(-3, 7, 3), randrange(-5, 5, 3)];
-
-    const raw   = start.join(',') + scramble[0].slice(1, -1) + end.join(',');
-    const final = [raw.replaceAll('/', ' / '), karnify(raw.replaceAll('/', '/')), choice];
-
-    if (regen) {
-        oblScrambleList[oblScrambleList.length - 1] = final;
-    } else {
-        if (oblScrambleList.length) {
-            previousScrambleEl.textContent =
-                'Previous scramble: ' + oblScrambleList.at(-1)[oblUsingKarn] +
-                ' (' + oblScrambleList.at(-1)[2] + ')';
-        }
-        oblScrambleList.push(final);
-    }
-    oblHasActiveScramble = true;
-    if (!timerEl.textContent || timerEl.textContent === '--:--')
-        timerEl.textContent = '0.00';
-    oblDisplayCurrentScramble();
-}
-
-function oblDisplayCurrentScramble() {
-    if (!oblHasActiveScramble || !oblScrambleList.length) return;
-    const entry = oblScrambleList.at(-1 - oblScrambleOffset);
-    if (entry) currentScrambleEl.textContent =
-        entry[oblUsingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
-}
-
-// ─── OBL FILTER ───────────────────────────────────────────────────────────────
-
-function oblApplyFilter(raw) {
-    document.querySelectorAll('.case').forEach(caseEl => {
-        if (passesOBLFilter(caseEl.id, raw)) caseEl.classList.remove('hidden');
-        else                                  caseEl.classList.add('hidden');
-    });
-    updateSelCount();
-}
-
-// ─── OBL LISTS ────────────────────────────────────────────────────────────────
-
-function oblLoadUserLists() {
-    const stored = oblStorage.getItem('userLists');
-    if (stored) oblUserLists = JSON.parse(stored);
-}
-
-function oblSaveUserLists() {
-    oblStorage.setItem('userLists', JSON.stringify(oblUserLists));
-}
-
-function oblLoadSelected() {
-    const stored = oblStorage.getItem('selected');
-    if (!stored) return;
-    oblSelectedCases = JSON.parse(stored);
-    if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
-    oblEnableEachCase();
-    oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
-    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
-}
-
-// ─── OBL BULK SELECT ─────────────────────────────────────────────────────────
-
-function oblSelectAll() {
-    if (usingTimer()) return;
-    document.querySelectorAll('.case').forEach(caseEl => {
-        if (!caseEl.classList.contains('hidden')) oblSelect(caseEl.id);
-    });
-    oblSaveSelected();
-}
-
-function oblDeselectAll() {
-    if (usingTimer()) return;
-    oblSelectedCases  = [[], []];
-    oblRemainingCases = [[], []];
-    document.querySelectorAll('.case').forEach(caseEl => {
-        caseEl.classList.remove('checked', 'checked-both');
-    });
-    oblSaveSelected();
-    updateSelCount();
-}
-
-// ─── OBL GRID ─────────────────────────────────────────────────────────────────
-
-function oblRestoreGrid() {
-    caseListEl.style.gridTemplateColumns = oblUsingSpe
-        ? 'repeat(auto-fit, minmax(160px, 1fr))'
-        : 'repeat(auto-fit, minmax(130px, 1fr))';
-
-    caseListEl.innerHTML = oblUsingSpe
-        ? possibleOBL.flatMap(obl =>
-            getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)
-          ).join('')
-        : possibleOBL.map(obl =>
-            `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`
-          ).join('');
-
-    document.querySelectorAll('.case').forEach(caseEl => {
-        const id = caseEl.id;
-        if (oblSelectedCases[oblUsingSpe].includes(id))
-            caseEl.classList.add('checked', 'checked-both');
-        caseEl.addEventListener('click', () => {
-            if (usingTimer()) return;
-            if (caseEl.classList.contains('checked')) oblDeselect(id);
-            else oblSelect(id);
-            oblSaveSelected();
-        });
-    });
-
-    oblApplyFilter(''); // honours any in-progress filter (cleared by applyMode)
-    updateSelCount();
-
-    // Always update scramble display — prevents PBL text bleeding through on switch.
-    if (oblHasActiveScramble && oblScrambleList.length) {
-        oblDisplayCurrentScramble();
-        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
-        previousScrambleEl.textContent = prev
-            ? 'Previous scramble: ' + prev[oblUsingKarn] + ' (' + prev[2] + ')'
-            : 'Last scramble will show up here';
-        if (timerEl.textContent === '--:--') timerEl.textContent = '0.00';
-    } else {
-        currentScrambleEl.textContent  = 'Scramble will show up here';
-        previousScrambleEl.textContent = 'Last scramble will show up here';
-        timerEl.textContent            = '--:--';
-    }
 }
