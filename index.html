@@ -7,8 +7,7 @@
     <title>PBL Trainer</title>
     <link rel="stylesheet" href="css/index.css" />
 
-    <!-- for upload/download icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="data/obl-data.js"></script>
     <script src="data/pbl-data.js"></script>
@@ -136,10 +135,12 @@
                         </div>
                     </div>
                     <hr class="settings-divider" />
-                    <button class="settings-action-btn" id="uploaddata"><i class="fa fa-upload"></i> Upload
-                        data</button>
-                    <button class="settings-action-btn" id="downloaddata"><i class="fa fa-download"></i> Download
-                        data</button>
+                    <button class="settings-action-btn" id="uploaddata">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:7px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload data
+                    </button>
+                    <button class="settings-action-btn" id="downloaddata">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:7px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download data
+                    </button>
                 </div>
             </div>
         </div>
@@ -157,15 +158,15 @@
                     <div id="userlists" class="sublist-menu"></div>
                 </div>
                 <div class="list-buttons">
-                    <button class="list-btn" id="dellist">Delete</button>
-                    <button class="list-btn" id="overwritelist">
-                        Overwrite
-                    </button>
-                    <button class="list-btn right" id="sellist">
-                        View
-                    </button>
-                    <button class="list-btn" id="trainlist">Select</button>
-                    <button class="list-btn" id="newlist">Create New list</button>
+                    <div class="list-btn-group">
+                        <button class="list-btn" id="dellist">Delete</button>
+                        <button class="list-btn" id="overwritelist">Overwrite</button>
+                    </div>
+                    <div class="list-btn-group list-btn-group-right">
+                        <button class="list-btn" id="sellist">View</button>
+                        <button class="list-btn" id="trainlist">Select</button>
+                        <button class="list-btn" id="newlist">Create New list</button>
+                    </div>
                 </div>
             </div>
         </div>

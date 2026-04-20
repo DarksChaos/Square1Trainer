@@ -11,7 +11,9 @@ let oblCurrentCase       = '';
 let oblPreviousCase      = '';
 let oblHasActiveScramble = false;
 let oblScrambleOffset    = 0;
-let oblLastRemoved       = '';
+
+let oblPreviouslySelected = null; // null = nothing to undo
+let oblRedoSelected       = null; // null = nothing to redo
 let oblEachCase          = 0;
 
 const oblStorage = {
@@ -196,6 +198,7 @@ function oblSelectList(listName, setSelection) {
         document.getElementById(id)?.classList.remove('hidden');
 
     if (setSelection) {
+
         oblDeselectAll();
         for (const id of list[oblUsingSpe]) oblSelect(id);
         oblSaveSelected();
@@ -293,6 +296,7 @@ function oblLoadSelected() {
 
 function oblSelectAll() {
     if (usingTimer()) return;
+
     document.querySelectorAll('.case').forEach(caseEl => {
         if (!caseEl.classList.contains('hidden')) oblSelect(caseEl.id);
     });
@@ -301,6 +305,7 @@ function oblSelectAll() {
 
 function oblDeselectAll() {
     if (usingTimer()) return;
+
     oblSelectedCases  = [[], []];
     oblRemainingCases = [[], []];
     document.querySelectorAll('.case').forEach(caseEl => {
@@ -331,6 +336,7 @@ function oblRestoreGrid() {
             caseEl.classList.add('checked', 'checked-both');
         caseEl.addEventListener('click', () => {
             if (usingTimer()) return;
+
             if (caseEl.classList.contains('checked')) oblDeselect(id);
             else oblSelect(id);
             oblSaveSelected();
@@ -434,8 +440,8 @@ const oblHelpSections = [
             { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
             { keys: ['Ctrl', 'A'],      desc: 'Select all visible' },
             { keys: ['Ctrl', 'S'],      desc: 'Select visible (filtered)' },
-            { keys: ['Ctrl', 'Z'],      desc: 'Undo remove last' },
-            { keys: ['Ctrl', 'Y'],      desc: 'Redo remove last' },
+            { keys: ['Ctrl', 'Z'],      desc: 'Undo last selection change' },
+            { keys: ['Ctrl', 'Y'],      desc: 'Redo last selection change' },
             { keys: ['Ctrl', '⇧', 'A'], desc: 'Deselect all visible' },
             { keys: ['Ctrl', '⇧', 'S'], desc: 'Deselect visible (filtered)' },
             { keys: ['Alt', 'A'],       desc: 'Show all' },
@@ -873,6 +879,7 @@ function oblOpenCluster(caseName) {
         return;
     }
 
+    content.scrollTop = 0; // always start at top
     content.innerHTML = oblFormatCluster(cluster, clusterTitle);
     clusterSizeModal(content);
 }

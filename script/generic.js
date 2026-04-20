@@ -137,23 +137,38 @@ function updateColors(hue) {
 // ─── TOAST / LOADING ─────────────────────────────────────────────────────────
 
 let _successTimer = null;
+let _hideTimer    = null;
 
 function showSuccess(message = "Done!", duration = 2000) {
     const toast = document.getElementById("success-toast");
+    const box   = toast.querySelector('.success-box');
+
+    // Cancel any pending dismiss or fade-out completion.
+    if (_successTimer) { clearTimeout(_successTimer); _successTimer = null; }
+    if (_hideTimer)    { clearTimeout(_hideTimer);    _hideTimer    = null; }
+
+    // Stop any fade-out, ensure visible.
     toast.classList.remove("fading");
-    document.getElementById("success-message").textContent = message;
     toast.style.display = "flex";
-    if (_successTimer) clearTimeout(_successTimer);
+    document.getElementById("success-message").textContent = message;
+
+    // Restart the entry animation directly on the box element.
+    // Toggling display on the parent is unreliable for restarting child animations.
+    box.style.animation = 'none';
+    void box.offsetHeight; // flush styles so the browser sees the reset
+    box.style.animation = '';
+
     _successTimer = setTimeout(hideSuccess, duration);
 }
 
 function hideSuccess() {
+    _successTimer = null; // clear reference before the async cleanup
     const toast = document.getElementById("success-toast");
     toast.classList.add("fading");
-    setTimeout(() => {
+    _hideTimer = setTimeout(() => {
         toast.style.display = "none";
         toast.classList.remove("fading");
-        _successTimer = null;
+        _hideTimer = null;
     }, 300);
 }
 
@@ -169,166 +184,6 @@ function hideLoading() {
 // ─── POPUP MANAGEMENT ────────────────────────────────────────────────────────
 
 function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; listPopupEl.classList.add("open"); }
-// ─── HELP MODAL ───────────────────────────────────────────────────────────────
-// CSS is injected once here since we cannot modify the CSS file directly.
-
-(function injectHelpStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-/* Help popup sizing */
-.help-popup-inner {
-    width: min(640px, 92vw) !important;
-    max-height: 80vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-/* Two-panel layout */
-.help-layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    min-height: 0;
-}
-
-/* Left nav */
-.help-nav {
-    width: 54px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 0;
-    border-right: 1px solid rgba(255,255,255,0.1);
-    overflow-y: auto;
-    scrollbar-width: none;
-}
-.help-nav::-webkit-scrollbar { display: none; }
-
-.help-nav-item {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    cursor: pointer;
-    opacity: 0.3;
-    transition: opacity 0.15s, background 0.15s, box-shadow 0.15s;
-    flex-shrink: 0;
-    padding: 7px;
-    box-sizing: border-box;
-    position: relative;
-}
-.help-nav-item svg { width: 100%; height: 100%; }
-.help-nav-item:hover { opacity: 0.65; background: rgba(255,255,255,0.07); }
-.help-nav-item.active {
-    opacity: 1;
-    background: rgba(255,255,255,0.11);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
-}
-/* Tooltip */
-.help-nav-item::after {
-    content: attr(data-title);
-    position: absolute;
-    left: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(20,20,30,0.88);
-    color: #e0e0e0;
-    font-size: 0.7em;
-    padding: 3px 8px;
-    border-radius: 5px;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.12s;
-    z-index: 9999;
-    letter-spacing: 0.04em;
-}
-.help-nav-item:hover::after { opacity: 1; }
-
-/* Right content — invisible scrollbar */
-.help-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 20px 16px 18px;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-}
-.help-content::-webkit-scrollbar { display: none; }
-
-/* Section */
-.help-section { margin-bottom: 32px; }
-.help-section:last-child { margin-bottom: 8px; }
-
-.help-section-title {
-    font-size: 0.63em;
-    text-transform: uppercase;
-    letter-spacing: 0.13em;
-    font-weight: 700;
-    opacity: 0.38;
-    margin: 0 0 12px 0;
-    padding-bottom: 6px;
-    border-bottom: 1px solid rgba(255,255,255,0.09);
-}
-
-/* Shortcut rows — CSS grid so keys never overflow */
-.help-shortcut-group { display: flex; flex-direction: column; gap: 2px; }
-.help-shortcut-sep   { height: 8px; }
-
-.help-shortcut-row {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    align-items: center;
-    gap: 14px;
-    padding: 3px 0;
-}
-.help-key-combo {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    flex-shrink: 0;
-}
-.help-kbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-bottom: 2px solid rgba(0,0,0,0.25);
-    border-radius: 5px;
-    padding: 2px 6px;
-    font-size: 0.72em;
-    font-family: ui-monospace, SFMono-Regular, monospace;
-    white-space: nowrap;
-    line-height: 1.55;
-    min-width: 20px;
-    text-align: center;
-}
-.help-plus {
-    font-size: 0.65em;
-    opacity: 0.4;
-    flex-shrink: 0;
-    margin: 0 1px;
-}
-.help-desc {
-    font-size: 0.86em;
-    opacity: 0.68;
-    line-height: 1.4;
-}
-
-/* General prose */
-.help-content p {
-    font-size: 0.88em;
-    line-height: 1.65;
-    opacity: 0.75;
-    margin: 5px 0;
-}
-    `;
-    document.head.appendChild(style);
-})();
 
 // Icon for the Shortcuts section — clean minimal keyboard outline.
 const HELP_CTRL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -694,21 +549,21 @@ function removeLast() {
         if (oblScrambleList.length < 2) return;
         const prev = oblScrambleList.at(-2 - oblScrambleOffset);
         if (!prev) return;
-        oblLastRemoved = prev[2];
-        oblDeselect(oblLastRemoved);
+        oblSnapSelection();
+        oblDeselect(prev[2]);
         oblSaveSelected();
         showSuccess("Last case removed.", 500);
         return;
     }
     if (pblScrambleList.at(-2 - pblOffset) !== undefined) {
         const base = pblPreviousCase.slice(0, -1); // strip +/- suffix
+        pblSnapSelection();
         if (!pblUseBarflip) {
             pblDeselect(base + '+');
             pblDeselect(base + '-');
         } else {
             pblDeselect(pblPreviousCase);
         }
-        pblLastRemoved = pblPreviousCase;
         pblSaveSelected();
         showSuccess("Last case removed.", 500);
     }
@@ -717,6 +572,44 @@ function removeLast() {
 prevScrambleButton.addEventListener("click", prevScram);
 nextScrambleButton.addEventListener("click", nextScram);
 removeLastEl.addEventListener("click", removeLast);
+
+// ─── SELECTION UNDO HELPERS ───────────────────────────────────────────────────
+// One-level undo + redo for bulk selection actions.
+// null = "nothing available"; a new snap clears redo.
+// Ctrl+Z: saves current→redo, restores undo (guards with null check).
+// Ctrl+Y: saves current→undo, restores redo (guards with null check).
+
+// Called by pbl-core action functions before they mutate pblSelected.
+function pblSnapSelection() {
+    pblPreviouslySelected = [...pblSelected];
+    pblRedoSelected = null; // new action clears redo
+}
+
+// Restore pblSelected to a snapshot, re-render DOM, and save.
+function pblRestoreSelection(snap) {
+    pblSelected  = [];
+    pblRemaining = [];
+    document.querySelectorAll('.case').forEach(el => pblSetDomClass(el, 'none'));
+    for (const s of snap) pblSelect(s);
+    pblSaveSelected();
+    updateSelCount();
+}
+
+// Called by obl-core action functions before they mutate oblSelectedCases.
+function oblSnapSelection() {
+    oblPreviouslySelected = [...oblSelectedCases[oblUsingSpe]];
+    oblRedoSelected = null; // new action clears redo
+}
+
+// Restore oblSelectedCases to a snapshot, re-render DOM, and save.
+function oblRestoreSelection(snap) {
+    oblSelectedCases[oblUsingSpe]  = [];
+    oblRemainingCases[oblUsingSpe] = [];
+    document.querySelectorAll('.case').forEach(el => el.classList.remove('checked', 'checked-both'));
+    for (const id of snap) oblSelect(id);
+    oblSaveSelected();
+    updateSelCount();
+}
 
 // Open alg reference on scramble click — PBL and OBL.
 currentScrambleEl.addEventListener("click", () => {
@@ -862,76 +755,111 @@ window.addEventListener("keydown", (e) => {
 
     if (recentlyStopped()) return;
 
+    // Each shortcut still calls e.preventDefault() to swallow the key event,
+    // then checks canShortcut before executing any trainer action.
+    const canShortcut = !isPopupOpen || settingsPopupEl.classList.contains('open');
+
     const ctrl = isMac() ? e.metaKey : e.ctrlKey;
     if (ctrl && !e.altKey) {
         if (e.shiftKey) {
             switch (e.key.toLowerCase()) {
-                case "a": e.preventDefault();
+                case "a": e.preventDefault(); if (!canShortcut) return;
                     if (trainerMode === 'pbl') pblDeselectAll(); else oblDeselectAll();
                     return;
-                case "s": e.preventDefault();
+                case "s": e.preventDefault(); if (!canShortcut) return;
                     if (trainerMode === 'pbl') pblDeselectThese();
-                    return;
-                case "z": e.preventDefault();
-                    if (trainerMode === 'pbl') { pblDeselect(pblLastRemoved); pblSaveSelected(); }
-                    else                       { oblDeselect(oblLastRemoved); oblSaveSelected(); }
                     return;
             }
         } else {
             switch (e.key.toLowerCase()) {
-                case "a": if (!inInput) { e.preventDefault();
+                case "a": if (!inInput) { e.preventDefault(); if (!canShortcut) return;
                     if (trainerMode === 'pbl') pblSelectAll(); else oblSelectAll();
                 } return;
-                case "s": e.preventDefault();
+                case "s": e.preventDefault(); if (!canShortcut) return;
                     if (trainerMode === 'pbl') pblSelectThese();
                     return;
-                case "f": e.preventDefault(); filterInputEl.focus(); return;
-                case "z": e.preventDefault();
-                    if (trainerMode === 'pbl') { pblSelect(pblLastRemoved);   pblSaveSelected(); }
-                    else                       { oblSelect(oblLastRemoved);   oblSaveSelected(); }
+                case "f": e.preventDefault(); if (!canShortcut) return;
+                    filterInputEl.focus(); return;
+
+                case "z": e.preventDefault(); if (!canShortcut) return; {
+                    if (trainerMode === 'pbl') {
+                        if (pblPreviouslySelected === null) return;
+                        const undoSnap        = pblPreviouslySelected;
+                        pblRedoSelected       = [...pblSelected];
+                        pblPreviouslySelected = null;
+                        pblRestoreSelection(undoSnap);
+                    } else {
+                        if (oblPreviouslySelected === null) return;
+                        const undoSnap        = oblPreviouslySelected;
+                        oblRedoSelected       = [...oblSelectedCases[oblUsingSpe]];
+                        oblPreviouslySelected = null;
+                        oblRestoreSelection(undoSnap);
+                    }
+                    showSuccess("Undo", 500);
                     return;
-                case "y": e.preventDefault();
-                    if (trainerMode === 'pbl') { pblDeselect(pblLastRemoved); pblSaveSelected(); }
-                    else                       { oblDeselect(oblLastRemoved); oblSaveSelected(); }
+                }
+
+                case "y": e.preventDefault(); if (!canShortcut) return; {
+                    if (trainerMode === 'pbl') {
+                        if (pblRedoSelected === null) return;
+                        const redoSnap        = pblRedoSelected;
+                        pblPreviouslySelected = [...pblSelected];
+                        pblRedoSelected       = null;
+                        pblRestoreSelection(redoSnap);
+                    } else {
+                        if (oblRedoSelected === null) return;
+                        const redoSnap        = oblRedoSelected;
+                        oblPreviouslySelected = [...oblSelectedCases[oblUsingSpe]];
+                        oblRedoSelected       = null;
+                        oblRestoreSelection(redoSnap);
+                    }
+                    showSuccess("Redo", 500);
                     return;
+                }
             }
         }
     } else if (!ctrl && e.altKey && !e.shiftKey) {
         switch (e.key.toLowerCase()) {
-            case "a": e.preventDefault(); showAll(); return;
-            case "s": e.preventDefault(); showSelected(); return;
+            case "a": e.preventDefault(); if (!canShortcut) return; showAll(); return;
+            case "s": e.preventDefault(); if (!canShortcut) return; showSelected(); return;
         }
     }
 
     if (!inInput && !ctrl && !e.altKey && !e.shiftKey) {
         switch (e.key.toLowerCase()) {
-            case "backspace":  e.preventDefault(); removeLast(); return;
-            case "arrowleft":  e.preventDefault(); prevScram(); return;
-            case "arrowright": e.preventDefault(); nextScram(); return;
-            case "k": karnEl.checked = !karnEl.checked; onCheckKarn(); return;
+            case "backspace":  e.preventDefault(); if (!canShortcut) return; removeLast(); return;
+            case "arrowleft":  e.preventDefault(); if (!canShortcut) return; prevScram(); return;
+            case "arrowright": e.preventDefault(); if (!canShortcut) return; nextScram(); return;
+            case "k": if (!canShortcut) return; karnEl.checked = !karnEl.checked; onCheckKarn(); return;
             case "e":
+                if (!canShortcut) return;
                 eachCaseEl.checked = !eachCaseEl.checked;
                 if (trainerMode === 'pbl') pblOnEachCase(); else oblOnEachCase();
                 return;
             case "r":
+                if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
                 weightEl.checked = !weightEl.checked; pblOnWeights();
                 return;
             case "g":
+                if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
                 globalBarflipEl.checked = !globalBarflipEl.checked; pblOnGlobalBarflip();
                 return;
             case "b":
+                if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
                 useBarflipEl.checked = !useBarflipEl.checked; pblOnUseBarflip();
                 return;
             case "s": {
+                if (!canShortcut) return;
                 if (trainerMode !== 'obl') return;
                 const specificEl = document.getElementById('specific');
                 specificEl.checked = !specificEl.checked; oblOnSpe();
                 return;
             }
             case "p": {
+                if (!canShortcut) return;
                 if (trainerMode !== 'obl') return;
                 const oblpEl = document.getElementById('oblp');
                 oblpEl.checked = !oblpEl.checked; oblOnMemo();

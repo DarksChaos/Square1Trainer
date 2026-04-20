@@ -12,7 +12,9 @@ let pblHasActive  = false;
 let pblOffset      = 0;  // how far back in pblScrambleList we're browsing
 let pblCurrentCase  = "";
 let pblPreviousCase = "";
-let pblLastRemoved  = "";
+
+let pblPreviouslySelected = null; // null = nothing to undo
+let pblRedoSelected       = null; // null = nothing to redo
 
 let pblScrambleMode  = 'long'; // 'long' | 'short'
 let pblAllowBottom56 = false;
@@ -216,6 +218,7 @@ async function pblOpenCluster(caseOverride) {
         return;
     }
 
+    content.scrollTop = 0; // always start at top
     content.innerHTML = pblFormatCluster(cluster, clusterTitle);
     clusterSizeModal(content);
 }
@@ -335,25 +338,22 @@ function pblGetCaseCount(pbl) {
 
 function pblRefillRemaining() {
     pblEachCase = pblEachCase === 0 ? randInt(MIN_EACHCASE, MAX_EACHCASE) : pblEachCase;
-    if (pblUseBarflip) {
-        // De-duplicate by base so a 'both' case counts as one slot per cycle,
-        // then randomly assign a suffix from whichever barflips are selected.
-        const seenBases    = new Set();
-        const dedupedBases = [];
-        for (const s of pblSelected) {
-            const base = s.slice(0, -1);
-            if (!seenBases.has(base)) { seenBases.add(base); dedupedBases.push(base); }
-        }
-        pblRemaining = dedupedBases.flatMap(base => {
-            const count    = pblEachCase * (pblWeight ? pblGetWeight(base) : 1);
-            const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
-            return Array.from({ length: count }, () => base + suffixes[randInt(0, suffixes.length - 1)]);
-        });
-    } else {
-        pblRemaining = pblSelected.flatMap(s =>
-            Array(pblEachCase * (pblWeight ? pblGetWeight(s) : 1)).fill(s)
-        );
+    // Always de-duplicate by base so a case's weight is independent of how many
+    // barflip states are selected. Each base case gets weight×eachCase slots;
+    // the suffix is chosen randomly from whichever barflips are selected for it.
+    // This mirrors the each-case logic and keeps ratios correct whether one or
+    // both barflips are selected for any given case.
+    const seenBases    = new Set();
+    const dedupedBases = [];
+    for (const s of pblSelected) {
+        const base = s.slice(0, -1);
+        if (!seenBases.has(base)) { seenBases.add(base); dedupedBases.push(base); }
     }
+    pblRemaining = dedupedBases.flatMap(base => {
+        const count    = pblEachCase * (pblWeight ? pblGetWeight(base) : 1);
+        const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
+        return Array.from({ length: count }, () => base + suffixes[randInt(0, suffixes.length - 1)]);
+    });
 }
 
 // ─── PBL WORKER ──────────────────────────────────────────────────────────────
@@ -514,6 +514,7 @@ function pblRestoreGrid() {
         const base = caseEl.id;
         caseEl.addEventListener("click", () => {
             if (usingTimer()) return;
+            pblSnapSelection();
             const mode = pblCaseMode(base);
             if (!pblUseBarflip) {
                 if (mode === 'both') { pblDeselect(base+'+'); pblDeselect(base+'-'); }
@@ -529,6 +530,7 @@ function pblRestoreGrid() {
         caseEl.addEventListener("contextmenu", e => {
             e.preventDefault();
             if (usingTimer()) return;
+            pblSnapSelection();
             const mode = pblCaseMode(base);
             if (!pblUseBarflip) {
                 if (mode === 'both') { pblDeselect(base+'+'); pblDeselect(base+'-'); }
@@ -587,6 +589,7 @@ function pblApplyModeToList(bases, mode) {
 
 function pblSelectAll(isRightClick = false) {
     if (usingTimer()) return;
+    pblSnapSelection();
     const bases = pblPossible.map(pbl => pblName(pbl));
     if (!pblUseBarflip) pblSelectBtnState = pblNextModeToggle(pblSelectBtnState);
     else                pblSelectBtnState = isRightClick ? pblNextModeBack(pblSelectBtnState) : pblNextModeForw(pblSelectBtnState);
@@ -595,6 +598,7 @@ function pblSelectAll(isRightClick = false) {
 
 function pblDeselectAll() {
     if (usingTimer()) return;
+    pblSnapSelection();
     pblSelectBtnState = 'none';
     for (const pbl of pblPossible) {
         const base = pblName(pbl);
@@ -606,6 +610,7 @@ function pblDeselectAll() {
 
 function pblSelectThese(isRightClick = false) {
     if (usingTimer()) return;
+    pblSnapSelection();
     const bases = pblGetVisibleBases();
     if (!pblUseBarflip) pblSelectBtnState = pblNextModeToggle(pblSelectBtnState);
     else                pblSelectBtnState = isRightClick ? pblNextModeBack(pblSelectBtnState) : pblNextModeForw(pblSelectBtnState);
@@ -614,6 +619,7 @@ function pblSelectThese(isRightClick = false) {
 
 function pblDeselectThese() {
     if (usingTimer()) return;
+    pblSnapSelection();
     pblSelectBtnState = 'none';
     for (const el of caseListEl.children) {
         if (!el.classList.contains("hidden")) {
@@ -670,6 +676,7 @@ function pblSelectList(listName, setSelection) {
     }
 
     if (setSelection) {
+        pblSnapSelection();
         pblDeselectAll();
         for (const entry of list) pblSelect(entry);
         pblSaveSelected();
@@ -733,6 +740,7 @@ function pblLoadStorage(buildGrid = false) {
             const base = caseEl.id;
             caseEl.addEventListener("click", () => {
                 if (usingTimer()) return;
+                pblSnapSelection();
                 const mode = pblCaseMode(base);
                 if (!pblUseBarflip) {
                     if (mode === 'both') { pblDeselect(base+'+'); pblDeselect(base+'-'); }
@@ -748,6 +756,7 @@ function pblLoadStorage(buildGrid = false) {
             caseEl.addEventListener("contextmenu", e => {
                 e.preventDefault();
                 if (usingTimer()) return;
+                pblSnapSelection();
                 const mode = pblCaseMode(base);
                 if (!pblUseBarflip) {
                     if (mode === 'both') { pblDeselect(base+'+'); pblDeselect(base+'-'); }
@@ -948,8 +957,8 @@ const pblHelpSections = [
             { keys: ['Ctrl', '⇧', 'S'], desc: 'Deselect visible (filtered)' },
             { keys: ['Alt', 'A'],       desc: 'Show all' },
             { keys: ['Alt', 'S'],       desc: 'Show selection' },
-            { keys: ['Ctrl', 'Z'],      desc: 'Undo remove last' },
-            { keys: ['Ctrl', 'Y'],      desc: 'Redo remove last' },
+            { keys: ['Ctrl', 'Z'],      desc: 'Undo last selection change' },
+            { keys: ['Ctrl', 'Y'],      desc: 'Redo last selection change' },
         ])
     },
     {
