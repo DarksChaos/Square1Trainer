@@ -117,10 +117,10 @@ function tokenizeSuffixExpr(expr) {
             tokens.push({ type: "lparen" }); i++;
         } else if (expr[i] === ")") {
             tokens.push({ type: "rparen" }); i++;
-        } else if (expr[i] === "*") {
-            tokens.push({ type: "op", value: "*" }); i++;
         } else if (expr[i] === "&") {
             tokens.push({ type: "op", value: "&" }); i++;
+        } else if (expr[i] === "|") {
+            tokens.push({ type: "op", value: "|" }); i++;
         } else if (expr[i] === "!") {
             tokens.push({ type: "op", value: "!" }); i++;
         } else {
@@ -139,7 +139,7 @@ function parseSuffixExpr(tokens) {
 
     function parseUnion() {
         let left = parseIntersect();
-        while (pos < tokens.length && tokens[pos].type === "op" && tokens[pos].value === "&") {
+        while (pos < tokens.length && tokens[pos].type === "op" && tokens[pos].value === "|") {
             pos++;
             const right = parseIntersect();
             const l = left, r = right;
@@ -150,7 +150,7 @@ function parseSuffixExpr(tokens) {
 
     function parseIntersect() {
         let left = parseNot();
-        while (pos < tokens.length && tokens[pos].type === "op" && tokens[pos].value === "*") {
+        while (pos < tokens.length && tokens[pos].type === "op" && tokens[pos].value === "&") {
             pos++;
             const right = parseNot();
             const l = left, r = right;

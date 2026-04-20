@@ -330,7 +330,7 @@ function pblGetWeight(pbl) {
     return (u in weight ? weight[u] : 4) * (d in weight ? weight[d] : 4);
 }
 
-// pblGetCaseCount: used by filter.js to compute freq = weight × caseCount.
+// pblGetCaseCount: used by pbl-filter.js to compute freq = weight × caseCount.
 // pbl is a [top, bottom] array (as stored in pblPossible).
 function pblGetCaseCount(pbl) {
     return PLLextndlen[pbl[0]] * PLLextndlen[pbl[1]];
@@ -547,7 +547,7 @@ function pblRestoreGrid() {
         pblSetDomClass(caseEl, pblCaseMode(base));
     });
 
-    applyFilter(''); // in filter.js — re-run any in-memory filter on newly built DOM
+    applyFilter(''); // in pbl-filter.js — re-run any in-memory filter on newly built DOM
 
     // Update display — restore scramble text if we have an active scramble.
     // FIX: was checking oblHasActiveScramble here which was always wrong.
@@ -966,9 +966,46 @@ const pblHelpSections = [
         title: 'Filter',
         svg: HELP_FILTER_SVG,
         html: `
+            <p style="margin-top:14px;opacity:0.9;font-size:0.9em;font-weight:bold;">Filter by Frequency</p>
             <p>Type <b>"freq"</b> followed by a number into the filter box to filter cases by frequency.</p>
             <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256</p>
             <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Example: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">freq 4</code></p>
+            <p style="margin-top:14px;opacity:0.9;font-size:0.9em;font-weight:bold;">Suffix tags</p>
+            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;">Append <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;tag&gt;</code> after the base filter to narrow results further.</p>
+
+            <p style="margin-top:10px;opacity:0.7;font-size:0.9em;"><code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;o&gt;</code> — order-sensitive: only matches cases where the first name in your filter is the <em>top</em> layer.</p>
+
+            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">CP-pair tags filter by the corner permutation type of each layer (<b>a</b>&thinsp;=&thinsp;adjacent, <b>o</b>&thinsp;=&thinsp;opposite, <b>s</b>&thinsp;=&thinsp;skip/solved). The first letter is the top layer, the second is the bottom:</p>
+            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;padding-left:12px;">
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;aa&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;ao&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;as&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;oa&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;oo&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;os&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;sa&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;so&gt;</code>
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;ss&gt;</code>
+            </p>
+
+            <p style="margin-top:10px;opacity:0.9;font-size:0.9em;font-weight:bold;">Operators</p>
+            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;">Tags can be combined with boolean operators (precedence: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">!</code> &gt; <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">*</code> &gt; <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&amp;</code>):</p>
+            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;padding-left:12px;">
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&amp;</code> AND &nbsp;
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">|</code> OR &nbsp;
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">!</code> NOT &nbsp;
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">( )</code> grouping
+            </p>
+
+            <p style="margin-top:10px;opacity:0.9;font-size:0.9em;font-weight:bold;">Examples</p>
+            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;">
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">T &lt;o&gt;&amp;&lt;aa&gt;</code>
+                — T cases where T is specifically the top layer, and both layers are adjacent CP.
+            </p>
+            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">
+                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;oo&gt;|&lt;aa&gt;</code>
+                — any case where both layers are opposite CP, or both are adjacent CP (no base filter, so all case names are considered).
+            </p>
         `
     }
     // Add future PBL-specific sections here.

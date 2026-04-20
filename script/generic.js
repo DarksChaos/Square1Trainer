@@ -643,9 +643,9 @@ filterInputEl.addEventListener("input", () => {
         // OBL filter is always live — don't touch showMode.
         return;
     }
-    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!*&() ]+/g, "");
+    filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!|&() ]+/g, "");
     setHighlighted(null);
-    applyFilter(filterInputEl.value); // in filter.js
+    applyFilter(filterInputEl.value); // in pbl-filter.js
     updateSelectBtn();
     updateDeselectBtn();
 
