@@ -11,6 +11,8 @@ html {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     font-family: Arial, sans-serif;
     background-color: #121212;
     color: #e0e0e0;
@@ -50,27 +52,33 @@ html {
     z-index: 1;
 }
 
-.nav-left #home {
-    padding: 6px;
-    background: transparent;
-    border-color: transparent;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Squango brand title in navbar */
+.squango {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    flex-shrink: 0;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity 0.18s ease;
 }
+.squango:hover { opacity: 0.75; }
+.squango-sq { color: #48cae4; }
+.squango-go { color: #e0f2fe; }
 
-.nav-left #home:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: transparent;
-}
-
-.nav-left #home svg path {
-    transition: fill 0.2s ease;
-}
-
-.nav-left #home:hover svg path {
-    fill: var(--border-col);
+/* Faint vertical separator between squango and toggle button */
+.nav-divider {
+    width: 1px;
+    height: 1.2rem;
+    margin: 0 0.4rem;
+    background: rgba(255, 255, 255, 0.18);
+    flex-shrink: 0;
+    border-radius: 1px;
+    align-self: center;
 }
 
 .nav-center {
@@ -85,7 +93,8 @@ html {
 /* Main container */
 .main {
     display: flex;
-    height: calc(100dvh - 52px);
+    flex: 1;
+    min-height: 0;
 }
 
 input[type="checkbox"] {
@@ -154,6 +163,8 @@ input[type="checkbox"] {
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    padding: 0px 2px;
     background-color: #262626;
     color: #ffffff;
     cursor: pointer;
@@ -1169,7 +1180,7 @@ button:hover {
 }
 .help-desc {
     font-size: 0.86em;
-    opacity: 0.68;
+    opacity: 0.78;
     line-height: 1.4;
 }
 
@@ -1177,8 +1188,39 @@ button:hover {
 .help-content p {
     font-size: 0.88em;
     line-height: 1.65;
-    opacity: 0.75;
-    margin: 5px 0;
+    color: rgba(255,255,255,0.7);
+    margin: 7px 0;
+}
+
+/* Bolded text stands out a touch brighter than surrounding prose */
+.help-popup-inner b {
+    color: rgba(255,255,255,0.75);
+}
+
+/* Help sub-section headers (replaces bold paragraphs with inline margin-top) */
+.help-section h1 {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin: 20px 0 0;
+    line-height: 1.65;
+    font-family: inherit;
+}
+
+/* Dimmed help prose (replaces opacity:0.7 paragraphs; display:block makes <i> behave like <p>) */
+.help-section i {
+    font-style: normal;
+    display: block;
+    font-size: 0.9em;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.55);
+    margin-top: 6px;
+}
+
+/* Help inline code (replaces repeated background/padding/border-radius inline styles) */
+.help-section code {
+    background: rgba(255,255,255,0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
 }
 
 /* help modal on small screens */

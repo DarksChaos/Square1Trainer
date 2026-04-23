@@ -424,6 +424,12 @@ document.getElementById('oblp').addEventListener('change',    () => oblOnMemo())
 
 const oblHelpSections = [
     {
+        id: 'obl-home',
+        title: 'Navigation',
+        svg: HELP_HOME_SVG,
+        html: `<p style="margin-top:14px;">Click on the <b>title at the top of the website</b> to switch trainers.</p>`
+    },
+    {
         id: 'obl-shortcuts',
         title: 'Shortcuts',
         svg: HELP_CTRL_SVG,

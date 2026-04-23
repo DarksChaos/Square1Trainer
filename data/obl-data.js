@@ -262,6 +262,95 @@ const oblNaming = {
     "right yoshi": "Yw"
 }
 
+// ─── OBL DEFAULT LISTS (raw nonSpe arrays) ────────────────────────────────────
+// Spe arrays are computed at init time via getSpeList() in obl-core.js.
+
+const OBL_DEFAULT_LISTS_RAW = {
+    "1 slicer": ["good kite/kite"],
+    "2 slicers": [
+        "copp/copp",
+        "line/line",
+        "good pair/pair",
+        "good thumb/thumb",
+        "good N/N"
+    ],
+    "3 slicers": [
+        "good arrow/pair",
+        "good arrow/arrow",
+        "gem/axe",
+        "good knight/axe",
+        "good bunny/bunny",
+        "yoshi/shell",
+        "good yoshi/bird",
+        "good kite/cut",
+        "good kite/N",
+        "good cut/cut",
+        "good T/T",
+        "good T/tie",
+        "good tie/tie"
+    ],
+    "4 slicers": [
+        "cadj/cadj",
+        "4e/4e",
+        "L/L",
+        "bad pair/pair",
+        "bad arrow/pair",
+        "bad arrow/arrow",
+        "gem/gem",
+        "gem/knight",
+        "gem/squid",
+        "good knight/knight",
+        "bad knight/axe",
+        "squid/knight",
+        "squid/axe",
+        "good thumb/bunny",
+        "bad thumb/bunny",
+        "shell/shell",
+        "shell/bird",
+        "shell/hazard",
+        "good bird/bird",
+        "bird/hazard",
+        "bad yoshi/bird",
+        "yoshi/hazard",
+        "kite/T",
+        "bad kite/N",
+        "kite/tie",
+        "cut/T",
+        "good cut/N",
+        "cut/tie",
+        "bad T/T",
+        "bad T/tie",
+        "bad N/N",
+        "bad tie/tie"
+    ],
+    "5 slicers": [
+        "1c/1c",
+        "cadj/copp",
+        "3c/3c",
+        "3e/3e",
+        "L/line",
+        "1e/1e",
+        "bad knight/knight",
+        "same axe/axe",
+        "diff axe/axe",
+        "squid/squid",
+        "bad thumb/thumb",
+        "bad bunny/bunny",
+        "bad bird/bird",
+        "hazard/hazard",
+        "same yoshi/yoshi",
+        "diff yoshi/yoshi",
+        "bad kite/kite",
+        "bad cut/N",
+        "T/N",
+        "tie/N"
+    ],
+    "6 slicers": [
+        "bad kite/cut",
+        "bad cut/cut"
+    ]
+};
+
 const oblClusters = {
   "D/D": {
     "case-list": [
@@ -4055,93 +4144,4 @@ const oblClusters = {
       }
     ]
   }
-};
-
-// ─── OBL DEFAULT LISTS (raw nonSpe arrays) ────────────────────────────────────
-// Spe arrays are computed at init time via getSpeList() in obl-core.js.
-
-const OBL_DEFAULT_LISTS_RAW = {
-    "1 slicer": ["good kite/kite"],
-    "2 slicers": [
-        "copp/copp",
-        "line/line",
-        "good pair/pair",
-        "good thumb/thumb",
-        "good N/N"
-    ],
-    "3 slicers": [
-        "good arrow/pair",
-        "good arrow/arrow",
-        "gem/axe",
-        "good knight/axe",
-        "good bunny/bunny",
-        "yoshi/shell",
-        "good yoshi/bird",
-        "good kite/cut",
-        "good kite/N",
-        "good cut/cut",
-        "good T/T",
-        "good T/tie",
-        "good tie/tie"
-    ],
-    "4 slicers": [
-        "cadj/cadj",
-        "4e/4e",
-        "L/L",
-        "bad pair/pair",
-        "bad arrow/pair",
-        "bad arrow/arrow",
-        "gem/gem",
-        "gem/knight",
-        "gem/squid",
-        "good knight/knight",
-        "bad knight/axe",
-        "squid/knight",
-        "squid/axe",
-        "good thumb/bunny",
-        "bad thumb/bunny",
-        "shell/shell",
-        "shell/bird",
-        "shell/hazard",
-        "good bird/bird",
-        "bird/hazard",
-        "bad yoshi/bird",
-        "yoshi/hazard",
-        "kite/T",
-        "bad kite/N",
-        "kite/tie",
-        "cut/T",
-        "good cut/N",
-        "cut/tie",
-        "bad T/T",
-        "bad T/tie",
-        "bad N/N",
-        "bad tie/tie"
-    ],
-    "5 slicers": [
-        "1c/1c",
-        "cadj/copp",
-        "3c/3c",
-        "3e/3e",
-        "L/line",
-        "1e/1e",
-        "bad knight/knight",
-        "same axe/axe",
-        "diff axe/axe",
-        "squid/squid",
-        "bad thumb/thumb",
-        "bad bunny/bunny",
-        "bad bird/bird",
-        "hazard/hazard",
-        "same yoshi/yoshi",
-        "diff yoshi/yoshi",
-        "bad kite/kite",
-        "bad cut/N",
-        "T/N",
-        "tie/N"
-    ],
-    "6 slicers": [
-        "bad kite/cut",
-        "bad cut/cut"
-    ]
 };

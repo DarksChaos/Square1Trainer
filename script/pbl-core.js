@@ -934,7 +934,22 @@ if (pblSolvedBtn) {
 // ─── PBL HELP CONTENT ────────────────────────────────────────────────────────
 // Add extra sections here as {id, title, svg, html} objects.
 
+const HELP_FILTER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="3 4 21 4 14 13 14 20 10 20 10 13 3 4"/>
+</svg>`;
+
+const HELP_EQ_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="5" width="7.41" height="14" rx="1"/>
+    <rect x="9.41" y="5" width="12.59" height="14" rx="1"/>
+</svg>`
+
 const pblHelpSections = [
+    {
+        id: 'pbl-home',
+        title: 'Navigation',
+        svg: HELP_HOME_SVG,
+        html: `<p>Click on the <b>title at the top of the website</b> to switch trainers.</p>`
+    },
     {
         id: 'pbl-shortcuts',
         title: 'Shortcuts',
@@ -966,47 +981,95 @@ const pblHelpSections = [
         title: 'Filter',
         svg: HELP_FILTER_SVG,
         html: `
-            <p style="margin-top:14px;opacity:0.9;font-size:0.9em;font-weight:bold;">Filter by Frequency</p>
-            <p>Type <b>"freq"</b> followed by a number into the filter box to filter cases by frequency.</p>
-            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256</p>
-            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">Example: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">freq 4</code></p>
-            <p style="margin-top:14px;opacity:0.9;font-size:0.9em;font-weight:bold;">Suffix tags</p>
-            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;">Append <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;tag&gt;</code> after the base filter to narrow results further.</p>
-
-            <p style="margin-top:10px;opacity:0.7;font-size:0.9em;"><code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;o&gt;</code> — order-sensitive: only matches cases where the first name in your filter is the <em>top</em> layer.</p>
-
-            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">CP-pair tags filter by the corner permutation type of each layer (<b>a</b>&thinsp;=&thinsp;adjacent, <b>o</b>&thinsp;=&thinsp;opposite, <b>s</b>&thinsp;=&thinsp;skip/solved). The first letter is the top layer, the second is the bottom:</p>
-            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;padding-left:12px;">
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;aa&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;ao&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;as&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;oa&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;oo&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;os&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;sa&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;so&gt;</code>
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;ss&gt;</code>
+            <h1>Filter by Frequency</h1>
+            <p>
+                Type <b>"freq"</b> followed by a number into the filter box to filter cases by frequency.
             </p>
+            <i>
+                Valid values: 1, 2, 4, 8, 16, 32, 64, 128, 256
+            </i>
+            <i>
+                Example: <code>freq 4</code>
+            </i>
 
-            <p style="margin-top:10px;opacity:0.9;font-size:0.9em;font-weight:bold;">Operators</p>
-            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;">Tags can be combined with boolean operators (precedence: <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">!</code> &gt; <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">*</code> &gt; <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&amp;</code>):</p>
-            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;padding-left:12px;">
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&amp;</code> AND &nbsp;
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">|</code> OR &nbsp;
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">!</code> NOT &nbsp;
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">( )</code> grouping
+            <h1>Suffix tags</h1>
+            <p>
+                Append <code>&lt;tag&gt;</code> after the base filter to narrow results further.
             </p>
+            <i>
+                <code>&lt;o&gt;</code> — order-sensitive: only matches cases where the first name in your filter is the <em>top</em> layer.
+            </i>
+            <i>
+                CP-pair tags filter by the corner permutation type of each layer (<b>a</b>&thinsp;=&thinsp;adjacent, <b>o</b>&thinsp;=&thinsp;opposite, <b>s</b>&thinsp;=&thinsp;skip/solved). The first letter is the top layer, the second is the bottom:
+            </i>
+            <i>
+                <code>&lt;aa&gt;</code>
+                <code>&lt;ao&gt;</code>
+                <code>&lt;as&gt;</code>
+                <code>&lt;oa&gt;</code>
+                <code>&lt;oo&gt;</code>
+                <code>&lt;os&gt;</code>
+                <code>&lt;sa&gt;</code>
+                <code>&lt;so&gt;</code>
+                <code>&lt;ss&gt;</code>
+            </i>
 
-            <p style="margin-top:10px;opacity:0.9;font-size:0.9em;font-weight:bold;">Examples</p>
-            <p style="margin-top:4px;opacity:0.7;font-size:0.9em;">
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">T &lt;o&gt;&amp;&lt;aa&gt;</code>
+            <h1 style="margin-top:10px;">Operators</h1>
+            <p>
+                Tags can be combined with boolean operators (precedence: <code>!</code> &gt; <code>*</code> &gt; <code>&amp;</code>):
+            </p>
+            <i style="padding-left:12px;">
+                <code>&amp;</code> AND &nbsp;
+                <code>|</code> OR &nbsp;
+                <code>!</code> NOT &nbsp;
+                <code>( )</code> grouping
+            </i>
+
+            <h1 style="margin-top:10px;">Examples</h1>
+            <i>
+                <code>T &lt;o&gt;&amp;&lt;aa&gt;</code>
                 — T cases where T is specifically the top layer, and both layers are adjacent CP.
-            </p>
-            <p style="margin-top:6px;opacity:0.7;font-size:0.9em;">
-                <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px">&lt;oo&gt;|&lt;aa&gt;</code>
+            </i>
+            <i style="margin-top:6px;">
+                <code>&lt;oo&gt;|&lt;aa&gt;</code>
                 — any case where both layers are opposite CP, or both are adjacent CP (no base filter, so all case names are considered).
-            </p>
+            </i>
         `
+    },
+    {
+        id: 'pbl-equator',
+        title: "Custom barflip",
+        svg: HELP_EQ_SVG,
+        html: `
+        <h1>Getting Started</h1>
+        <p>Enable <b>"Distinguish between + and - barflip (B)"</b> in the settings.</p>
+
+        <h1>Selecting cases</h1>
+        <p>
+            When you click on a case, it will be selected as <b>both-barflip state</b>. This means if you train long enough, you will get the case with both bar flipped and solved.
+            When you click again, it will be selected as <b>+ barflip only</b>. Click again to select the case as <b>- barflip only</b>, and click again to deselect.
+            You can also right-click to cycle in the other way. The same logic works with any of the select buttons, for example the "Select ALL" button.
+        </p>
+        <i style="padding-left:12px;">
+            <span style="color:hsl(210, 80%, 70%);font-weight:bold;">Blue</span> — Both barflips.<br>
+            <span style="color:hsl(40, 80%, 70%);font-weight:bold;">Orange</span> — Only +.<br>
+            <span style="color:hsl(110, 80%, 70%);font-weight:bold;">Green</span> — Only -.<br>
+            <span style="color:#999;font-weight:bold;">Gray</span> — Deselected.
+        </i>
+
+        <h1>Still one case</h1>
+        <p>
+            <b>"Go through each case (E)"</b>, <b>"Use realistic weights (R)"</b>, and "selected: xxx" still treat both barflips of the case as a single case.
+            This means you can safely select both barflips and use go through each case, and it will not go through both + and - separately.
+        </p>
+
+        <h1>Global Override</h1>
+        <p>
+            Enable <b>"Show global barflip override (G)"</b> to display a toggle on the home screen.
+            This allows you to temporarily force EVERY case to be either + or -.
+            You may select either 0 (no override) or 1 (yes override) options, but you cannot select both options at the same time.
+        </p>
+    `
     }
     // Add future PBL-specific sections here.
 ];
