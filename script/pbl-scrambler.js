@@ -419,7 +419,7 @@ class Search {
             this.Search_move.push(bottomMove);
             this.Search_move.push(0);
         }
-        console.log(`\nGenerated moves array: [${this.Search_move.join(', ')}]`);
+        //console.log(`\nGenerated moves array: [${this.Search_move.join(', ')}]`);
         return this.init2();
     }
 
