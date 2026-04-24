@@ -15,6 +15,7 @@ let oblScrambleOffset    = 0;
 let oblPreviouslySelected = null; // null = nothing to undo
 let oblRedoSelected       = null; // null = nothing to redo
 let oblEachCase          = 0;
+let oblCaseSpliced       = false; // true once a case has been taken from remaining for display
 
 const oblStorage = {
     getItem:  k      => localStorage.getItem(k + 'OBL'),
@@ -32,6 +33,7 @@ function oblSelect(id) {
     const el = document.getElementById(id);
     if (el) el.classList.add('checked', 'checked-both');
     updateSelCount();
+    updateRemainingCount();
 }
 
 function oblDeselect(id) {
@@ -40,6 +42,7 @@ function oblDeselect(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('checked', 'checked-both');
     updateSelCount();
+    updateRemainingCount();
 }
 
 function oblSaveSelected() {
@@ -52,7 +55,7 @@ function oblSaveSelected() {
         oblGenerateScramble(true);
 }
 
-function oblEnableEachCase() {
+function oblRefillRemaining() {
     oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     oblRemainingCases[oblUsingSpe] =
         oblSelectedCases[oblUsingSpe].flatMap(el => Array(oblEachCase).fill(el));
@@ -66,13 +69,17 @@ function oblGenerateScramble(regen = false) {
         currentScrambleEl.textContent  = 'Scramble will show up here';
         previousScrambleEl.textContent = 'Last scramble will show up here';
         oblHasActiveScramble = false;
+        oblCaseSpliced       = false;
         oblScrambleList      = [];
+        updateRemainingCount();
         return;
     }
-    if (oblRemainingCases[oblUsingSpe].length === 0) oblEnableEachCase();
+    if (oblRemainingCases[oblUsingSpe].length === 0) oblRefillRemaining();
 
+    oblCaseSpliced = true; // set synchronously before splice
     const idx    = randInt(0, oblRemainingCases[oblUsingSpe].length - 1);
     const choice = oblRemainingCases[oblUsingSpe].splice(idx, 1)[0];
+    updateRemainingCount();
     oblCurrentCase = choice;
 
     const specific = oblUsingSpe
@@ -198,10 +205,10 @@ function oblSelectList(listName, setSelection) {
         document.getElementById(id)?.classList.remove('hidden');
 
     if (setSelection) {
-
         oblDeselectAll();
         for (const id of list[oblUsingSpe]) oblSelect(id);
         oblSaveSelected();
+        updateRemainingCount();
     }
 
     showMode = 'list';
@@ -286,8 +293,10 @@ function oblLoadSelected() {
     if (!stored) return;
     oblSelectedCases = JSON.parse(stored);
     if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
-    oblEnableEachCase();
+    // Select first (oblEachCase is still 0 so oblSelect won't double-fill remaining),
+    // then enable each-case which rebuilds remaining cleanly from the complete selected list.
     oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
+    oblRefillRemaining();
     // Only generate a scramble on first load; on trainer switch an active scramble persists.
     if (oblSelectedCases[oblUsingSpe].length && !oblHasActiveScramble) oblGenerateScramble();
 }
@@ -313,6 +322,7 @@ function oblDeselectAll() {
     });
     oblSaveSelected();
     updateSelCount();
+    updateRemainingCount();
 }
 
 // ─── OBL GRID ─────────────────────────────────────────────────────────────────
@@ -392,9 +402,8 @@ function oblLoadSettings() {
 }
 
 function oblOnEachCase() {
-    oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
-    oblRemainingCases[oblUsingSpe] =
-        oblSelectedCases[oblUsingSpe].flatMap(id => Array(oblEachCase).fill(id));
+    oblRefillRemaining();
+    updateRemainingCount();
     oblSaveSettings();
 }
 
@@ -439,7 +448,7 @@ const oblHelpSections = [
             { keys: ['Space'],          desc: 'Start / stop timer' },
             { keys: ['Backspace'],      desc: 'Remove last case' },
             { keys: ['K'],              desc: 'Toggle karnotation' },
-            { keys: ['E'],              desc: 'Go through each case once' },
+            { keys: ['E'],              desc: 'Train each case once' },
             { keys: ['S'],              desc: 'Toggle specific case naming' },
             { keys: ['P'],              desc: 'Show Matt tracing memo' },
             null,

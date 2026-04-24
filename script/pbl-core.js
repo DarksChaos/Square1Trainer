@@ -7,7 +7,8 @@ let pblRemaining = [];
 let pblEachCase  = 0;   // 0 = random, 1+ = fixed count per cycle
 let pblWeight    = false;
 let pblUseBarflip = false;
-let pblHasActive  = false;
+let pblHasActive    = false;
+let pblCaseSpliced  = false; // true once a case has been taken from remaining for display
 
 let pblOffset      = 0;  // how far back in pblScrambleList we're browsing
 let pblCurrentCase  = "";
@@ -298,14 +299,26 @@ function pblSelect(s) {
     const base = s.slice(0, -1);
     const el   = document.getElementById(base);
     if (!pblSelected.includes(s)) pblSelected.push(s);
-    if (pblEachCase > 0 && !pblRemaining.includes(s))
-        pblRemaining = pblRemaining.concat(Array(pblEachCase).fill(s));
+    if (pblEachCase > 0) {
+        // Recalculate this base's slots with random suffix so both + and -
+        // are distributed evenly instead of stacking separately.
+        pblRemaining = pblRemaining.filter(r => r.slice(0, -1) !== base);
+        const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
+        const count = pblEachCase * (pblWeight ? pblGetWeight(base) : 1);
+        // If a case was already spliced this cycle and it belongs to this base,
+        // that slot is already "in use" on screen — don't add it back.
+        const alreadyConsumed = pblCaseSpliced && pblCurrentCase.slice(0, -1) === base ? 1 : 0;
+        pblRemaining = pblRemaining.concat(
+            Array.from({ length: Math.max(0, count - alreadyConsumed) }, () => base + suffixes[randInt(0, suffixes.length - 1)])
+        );
+    }
     if (el) {
         const override = pblEffectiveOverride();
         const mode     = pblCaseMode(base);
         pblSetDomClass(el, (override !== null && mode !== 'none') ? (override === '+' ? 'plus' : 'minus') : mode);
     }
     updateSelCount();
+    updateRemainingCount();
 }
 
 function pblDeselect(s) {
@@ -321,6 +334,7 @@ function pblDeselect(s) {
         pblSetDomClass(el, (override !== null && mode !== 'none') ? (override === '+' ? 'plus' : 'minus') : mode);
     }
     updateSelCount();
+    updateRemainingCount();
 }
 
 // ─── PBL WEIGHTS & EACH-CASE ─────────────────────────────────────────────────
@@ -407,8 +421,10 @@ function pblGenerateScramble(regen = false) {
         currentScrambleEl.textContent  = "Scramble will show up here";
         previousScrambleEl.textContent = "Last scramble will show up here";
         pblHasActive    = false;
+        pblCaseSpliced  = false;
         pblScrambleList = [];
         pblPending      = null;
+        updateRemainingCount();
         return;
     }
 
@@ -417,11 +433,12 @@ function pblGenerateScramble(regen = false) {
 
     if (pblRemaining.length === 0) pblRefillRemaining();
 
+    pblCaseSpliced = true; // set synchronously before splice
     const idx    = randInt(0, pblRemaining.length - 1);
     const choice = pblRemaining.splice(idx, 1)[0];
+    updateRemainingCount();
 
     if (regen) {
-        // Replace the current scramble in-place; worker result overwrites the tail.
         pblPending    = 'waiting';
         pblWorkerBusy = false; // allow re-fire
         pblRequestScramble(choice);
@@ -521,7 +538,9 @@ function pblRestoreGrid() {
                 else                 { pblSelect(base+'+');   pblSelect(base+'-'); }
             } else {
                 if      (mode === 'none')  { pblSelect(base+'+');   pblSelect(base+'-'); }
-                else if (mode === 'both')  { pblSelect(base+'+');   pblDeselect(base+'-'); }
+                // must deselect before select! because deselect might just delete
+                // the case in pblRemaining that was selected in the select function.
+                else if (mode === 'both')  { pblDeselect(base+'-'); pblSelect(base+'+'); }
                 else if (mode === 'plus')  { pblDeselect(base+'+'); pblSelect(base+'-'); }
                 else                       { pblDeselect(base+'+'); pblDeselect(base+'-'); }
             }
@@ -539,7 +558,9 @@ function pblRestoreGrid() {
                 if      (mode === 'none')  { pblDeselect(base+'+'); pblSelect(base+'-'); }
                 else if (mode === 'both')  { pblDeselect(base+'+'); pblDeselect(base+'-'); }
                 else if (mode === 'plus')  { pblSelect(base+'+');   pblSelect(base+'-'); }
-                else                       { pblSelect(base+'+');   pblDeselect(base+'-'); }
+                // must deselect before select! because deselect might just delete
+                // the case in pblRemaining that was selected in the select function.
+                else                       { pblDeselect(base+'-'); pblSelect(base+'+'); }
             }
             pblSaveSelected();
         });
@@ -679,7 +700,21 @@ function pblSelectList(listName, setSelection) {
         pblSnapSelection();
         pblDeselectAll();
         for (const entry of list) pblSelect(entry);
+        if (pblEachCase > 0) pblRefillRemaining();
         pblSaveSelected();
+        updateRemainingCount();
+    }
+
+    // Auto-enable barflip if any case has only one direction selected — fires on View too.
+    if (Array.isArray(list)) {
+        const hasSingleBarflip = list.some(entry => {
+            const base = entry.slice(0, -1);
+            return !(list.includes(base + '+') && list.includes(base + '-'));
+        });
+        if (hasSingleBarflip && !pblUseBarflip) {
+            useBarflipEl.checked = true;
+            pblOnUseBarflip();
+        }
     }
 
     showMode = 'list';
@@ -846,6 +881,7 @@ function pblLoadStorage(buildGrid = false) {
 function pblOnEachCase() {
     pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     pblRefillRemaining();
+    updateRemainingCount();
     pblSaveSettings();
 }
 
@@ -960,7 +996,7 @@ const pblHelpSections = [
             { keys: ['Space'],          desc: 'Start / stop timer' },
             { keys: ['Backspace'],      desc: 'Remove last case' },
             { keys: ['K'],              desc: 'Toggle karnotation' },
-            { keys: ['E'],              desc: 'Go through each case once' },
+            { keys: ['E'],              desc: 'Train each case once' },
             { keys: ['R'],              desc: 'Toggle realistic weights' },
             { keys: ['B'],              desc: 'Distinguish + and − barflip' },
             { keys: ['G'],              desc: 'Global barflip override' },
@@ -1059,8 +1095,8 @@ const pblHelpSections = [
 
         <h1>Still one case</h1>
         <p>
-            <b>"Go through each case (E)"</b>, <b>"Use realistic weights (R)"</b>, and "selected: xxx" still treat both barflips of the case as a single case.
-            This means you can safely select both barflips and use go through each case, and it will not go through both + and - separately.
+            <b>"Train each case (E)"</b>, <b>"Use realistic weights (R)"</b>, and "selected: xxx" still treat both barflips of the case as a single case.
+            This means you can safely select both barflips and use Train each case, and it will not Train both + and - separately.
         </p>
 
         <h1>Global Override</h1>

@@ -10,10 +10,8 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="data/generic-data.js"></script>
     <script src="data/obl-data.js"></script>
     <script src="data/pbl-data.js"></script>
-    <script src="script/utils.js"></script>
     <script src="script/pbl-filter.js"></script>
     <script src="script/karn.js"></script>
     <script src="script/optimizer.js"></script>
@@ -183,9 +181,10 @@
         </div>
 
         <div class="sidebar hidden-mobile" id="sidebar">
-            <div class="checkbox-wrapper hidden-mobile">
-                <input type="checkbox" id="allcases" />
-                <span class="checkboxtext"><b>Go through each case once (E)</b></span>
+            <div class="checkbox-wrapper" style="font-weight:bolder;">
+                <input type="checkbox" id="each-case" />
+                <span class="checkboxtext">Train each case once <b>(E)</b></span>
+                <span id="each-case-remaining" style="display:none;"> — <span id="remaining-count" style="color:#96dae7;font-weight:bold;">0</span> left</span>
             </div>
             <div class="barflip-override-row hidden" id="barflip-override-row">
                 <span class="barflip-override-label">Global barflip override:</span>
