@@ -420,6 +420,16 @@ function oblOnSpe() {
     oblUsingSpe = specificEl.checked ? 1 : 0;
     oblSaveSelected(); // syncs both arrays, regenerates
     oblRestoreGrid();
+    // Re-apply the current show mode so toggling specific naming doesn't reset the sidebar.
+    if (showMode === 'selected') {
+        showSelected();
+    } else if (showMode === 'list' && highlightedList != null) {
+        oblSelectList(highlightedList, false);
+    } else if (showMode === 'searched') {
+        oblApplyFilter(filterInputEl.value);
+        updateToggle();
+    }
+    // else: showMode === 'all' — oblRestoreGrid already showed everything via oblApplyFilter('')
     oblAddDefaultLists(); // refresh counts for new spe mode
     oblAddUserLists();
     oblSaveSettings();

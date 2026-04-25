@@ -657,7 +657,19 @@ filterInputEl.addEventListener("input", () => {
     if (trainerMode === 'obl') {
         filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z1-4/\- ]+/g, "");
         oblApplyFilter(filterInputEl.value);
-        // OBL filter is always live — don't touch showMode.
+        const hasFilter = filterInputEl.value.trim() !== '';
+        if (hasFilter) {
+            if (showMode !== 'searched') {
+                preSearchMode = (showMode === 'list') ? 'all' : showMode;
+                showMode = 'searched';
+            }
+        } else if (showMode === 'searched') {
+            showMode = preSearchMode;
+            if (showMode === 'selected') showSelected();
+            else if (showMode === 'list' && highlightedList != null) oblSelectList(highlightedList, false);
+            else showAll();
+        }
+        updateToggle();
         return;
     }
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!|&() ]+/g, "");
@@ -856,22 +868,26 @@ window.addEventListener("keydown", (e) => {
             case "k": if (!canShortcut) return; karnEl.checked = !karnEl.checked; onCheckKarn(); return;
             case "e":
                 if (!canShortcut) return;
+                if (trainerMode === 'pbl' && eachCaseEl.disabled) return;
                 eachCaseEl.checked = !eachCaseEl.checked;
                 if (trainerMode === 'pbl') pblOnEachCase(); else oblOnEachCase();
                 return;
             case "r":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
+                if (weightEl.disabled) return;
                 weightEl.checked = !weightEl.checked; pblOnWeights();
                 return;
             case "g":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
+                if (!pblUseBarflip) return;
                 globalBarflipEl.checked = !globalBarflipEl.checked; pblOnGlobalBarflip();
                 return;
             case "b":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
+                if (useBarflipEl.disabled) return;
                 useBarflipEl.checked = !useBarflipEl.checked; pblOnUseBarflip();
                 return;
             case "s": {
@@ -1106,6 +1122,7 @@ function applyMode() {
         updateRemainingCount();
     } else {
         pblSaveSettings();
+        eachCaseEl.disabled = false; // clear any PBL W↔E lock on the shared sidebar checkbox
         document.getElementById('barflip-override-row')?.classList.add('hidden');
         oblLoadSettings();
         oblInitDefaultLists();

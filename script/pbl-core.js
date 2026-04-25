@@ -75,7 +75,59 @@ function pblNextModeToggle(m) { return m === 'both' ? 'none'  : 'both'; }
 function pblName(pbl) { return `${pbl[0]}/${pbl[1]}`; }
 
 function pblEffectiveOverride() {
-    return pblShowBarflipUI ? pblBarflipOverride : null;
+    return (pblShowBarflipUI && pblUseBarflip) ? pblBarflipOverride : null;
+}
+
+// Returns true if any selected case has only + or only - chosen (not both).
+// This means B is mandatory and cannot be turned off.
+function pblIsBarflipRequired() {
+    return pblSelected.some(entry => {
+        const base = entry.slice(0, -1);
+        return !(pblSelected.includes(base + '+') && pblSelected.includes(base + '-'));
+    });
+}
+
+// Syncs the visual disabled/locked state of the B, W, and E settings rows.
+//   • Auto-enables B if single-barflip cases are now selected and B is off.
+//   • Locks B (can't uncheck) while single-barflip cases are selected.
+//   • W is disabled while E is on  (they do incompatible things to pblRemaining).
+//   • E is disabled while W is on.
+//   • Resolves the impossible E+W-both-on state by dropping W (E wins).
+function pblSyncSettingsDisabled() {
+    if (trainerMode !== 'pbl') return; // never mutate PBL-specific state while in OBL
+
+    // Auto-enable B if a selected case now requires it.
+    if (pblIsBarflipRequired() && !pblUseBarflip) {
+        useBarflipEl.checked = true;
+        pblUseBarflip = true;
+        globalBarflipRow.style.display = '';
+        pblSaveSettings();
+    }
+
+    // Resolve E+W conflict: E wins — drop W silently.
+    if (eachCaseEl.checked && weightEl.checked) {
+        weightEl.checked = false;
+        pblWeight = false;
+        pblSaveSettings();
+    }
+
+    const lockedB  = pblUseBarflip && pblIsBarflipRequired();
+    const eachOn   = eachCaseEl.checked;
+    const weightOn = weightEl.checked;
+
+    const bRow = useBarflipEl.closest('.settings-row');
+    if (bRow) { bRow.classList.toggle('settings-disabled', lockedB);  useBarflipEl.disabled = lockedB; }
+
+    const wRow = weightEl.closest('.settings-row');
+    if (wRow) { wRow.classList.toggle('settings-disabled', eachOn);   weightEl.disabled     = eachOn; }
+
+    // eachCaseEl lives in the sidebar (.checkbox-wrapper), not .settings-row,
+    // so .disabled must be set unconditionally regardless of which ancestor is found.
+    eachCaseEl.disabled = weightOn;
+    const eachWrapper = eachCaseEl.closest('.checkbox-wrapper');
+    if (eachWrapper) eachWrapper.classList.toggle('settings-disabled', weightOn);
+    const eRow = eachCaseEl.closest('.settings-row');
+    if (eRow) eRow.classList.toggle('settings-disabled', weightOn);
 }
 
 function pblRecolorAll() {
@@ -255,6 +307,7 @@ function pblSaveSelected() {
     // Regenerate scramble if: nothing active, selection gone, or current case was removed.
     if (!pblHasActive || pblSelected.length === 0) pblGenerateScramble();
     else if (pblCurrentCase !== "" && !pblSelected.includes(pblCurrentCase)) pblGenerateScramble(true);
+    pblSyncSettingsDisabled();
 }
 
 function pblSaveUserLists() {
@@ -615,6 +668,7 @@ function pblRestoreGrid() {
     else showAll();
     updateSelectBtn();
     updateDeselectBtn();
+    pblSyncSettingsDisabled();
 }
 
 // ─── PBL BULK SELECT ─────────────────────────────────────────────────────────
@@ -741,18 +795,6 @@ function pblSelectList(listName, setSelection) {
         updateRemainingCount();
     }
 
-    // Auto-enable barflip if any case has only one direction selected — fires on View too.
-    if (Array.isArray(list)) {
-        const hasSingleBarflip = list.some(entry => {
-            const base = entry.slice(0, -1);
-            return !(list.includes(base + '+') && list.includes(base + '-'));
-        });
-        if (hasSingleBarflip && !pblUseBarflip) {
-            useBarflipEl.checked = true;
-            pblOnUseBarflip();
-        }
-    }
-
     showMode = 'list';
     updateToggle();
     pblSaveUserLists();
@@ -853,6 +895,10 @@ function pblLoadStorage(buildGrid = false) {
     }
 
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
+    // Explicitly resolve any incompatible settings combinations that may have come
+    // from an uploaded JSON (e.g. both E and W enabled). Don't rely on .click()
+    // being a no-op on disabled elements — resolve unconditionally after the loop.
+    pblSyncSettingsDisabled();
 
     if (storedScrMode) {
         pblScrambleMode = storedScrMode;
@@ -926,6 +972,7 @@ function pblOnEachCase() {
     }
     updateRemainingCount();
     pblSaveSettings();
+    pblSyncSettingsDisabled();
 }
 
 function pblOnWeights() {
@@ -939,6 +986,7 @@ function pblOnWeights() {
         if (idx !== -1) pblRemaining.splice(idx, 1);
     }
     pblSaveSettings();
+    pblSyncSettingsDisabled();
 }
 
 eachCaseEl.addEventListener("change", () => pblOnEachCase());
@@ -970,9 +1018,10 @@ const pblFlippedBtn         = document.getElementById('barflip-flipped');
 const pblSolvedBtn          = document.getElementById('barflip-solved');
 
 function pblApplyBarflipUI() {
-    if (pblBarflipOverrideRow) pblBarflipOverrideRow.classList.toggle('hidden', !pblShowBarflipUI);
-    if (pblFlippedBtn) pblFlippedBtn.classList.toggle('active', pblShowBarflipUI && pblBarflipOverride === '+');
-    if (pblSolvedBtn)  pblSolvedBtn.classList.toggle('active',  pblShowBarflipUI && pblBarflipOverride === '-');
+    const showOverride = pblShowBarflipUI && pblUseBarflip;
+    if (pblBarflipOverrideRow) pblBarflipOverrideRow.classList.toggle('hidden', !showOverride);
+    if (pblFlippedBtn) pblFlippedBtn.classList.toggle('active', showOverride && pblBarflipOverride === '+');
+    if (pblSolvedBtn)  pblSolvedBtn.classList.toggle('active',  showOverride && pblBarflipOverride === '-');
 }
 
 function pblSetBarflipOverride(value) {
@@ -996,8 +1045,35 @@ function pblOnGlobalBarflip() {
 }
 
 function pblOnUseBarflip() {
+    // Prevent unchecking B when single-barflip cases are selected.
+    if (!useBarflipEl.checked && pblIsBarflipRequired()) {
+        useBarflipEl.checked = true;
+        pblSyncSettingsDisabled();
+        return;
+    }
+    // Capture effective override before mutating pblUseBarflip so the
+    // before/after comparison is accurate.
+    const prevEffective = pblEffectiveOverride();
     pblUseBarflip = useBarflipEl.checked;
+    // G's checkbox state and pblShowBarflipUI are intentionally left alone —
+    // pblEffectiveOverride() already gates on pblUseBarflip, so the override
+    // has no effect on scramble generation or recoloring while B is off.
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
+    pblApplyBarflipUI();
+    pblRecolorAll();
+    const newEffective = pblEffectiveOverride();
+    if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }
+    pblSaveSettings();
+    pblSyncSettingsDisabled();
+}
+
+function pblOnGlobalBarflip() {
+    const prevEffective = pblEffectiveOverride();
+    pblShowBarflipUI = globalBarflipEl.checked;
+    pblApplyBarflipUI();
+    pblRecolorAll();
+    const newEffective = pblEffectiveOverride();
+    if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }
     pblSaveSettings();
 }
 
