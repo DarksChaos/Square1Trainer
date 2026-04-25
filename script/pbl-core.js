@@ -23,6 +23,7 @@ let pblAllowBottom56 = false;
 let pblWorker     = null;
 let pblWorkerBusy = false;
 let pblPending    = null; // null | 'waiting' | worker-result object
+let pblPendingFor = null; // the choice string used to request pblPending (for match validation)
 
 // pblDefaultLists is declared as const in pbl-data.js (JSON moved there).
 let pblUserLists    = {};
@@ -352,11 +353,9 @@ function pblGetCaseCount(pbl) {
 
 function pblRefillRemaining() {
     pblEachCase = pblEachCase === 0 ? randInt(MIN_EACHCASE, MAX_EACHCASE) : pblEachCase;
-    // Always de-duplicate by base so a case's weight is independent of how many
-    // barflip states are selected. Each base case gets weight×eachCase slots;
-    // the suffix is chosen randomly from whichever barflips are selected for it.
-    // This mirrors the each-case logic and keeps ratios correct whether one or
-    // both barflips are selected for any given case.
+    // De-duplicate by base so a case's weight is independent of how many barflip
+    // states are selected. Each base case gets weight×eachCase slots; the suffix
+    // is chosen randomly from whichever barflips are selected for it.
     const seenBases    = new Set();
     const dedupedBases = [];
     for (const s of pblSelected) {
@@ -379,6 +378,7 @@ function pblRestartWorker() {
     pblWorker = new Worker('./script/worker.js');
     pblWorker.onmessage = pblNormalHandler;
     pblWorkerBusy = false;
+    pblPendingFor  = null;
 }
 
 function pblNormalHandler(e) {
@@ -409,8 +409,8 @@ function pblPendingConflicts(newMode, newBottom56) {
 
 function pblCancelIfConflicting(newMode, newBottom56) {
     const changed = newMode !== pblScrambleMode || newBottom56 !== pblAllowBottom56;
-    if (pblWorkerBusy && changed) { pblRestartWorker(); pblPending = null; }
-    else if (pblPendingConflicts(newMode, newBottom56)) pblPending = null;
+    if (pblWorkerBusy && changed) { pblRestartWorker(); pblPending = null; pblPendingFor = null; }
+    else if (pblPendingConflicts(newMode, newBottom56)) { pblPending = null; pblPendingFor = null; }
 }
 
 // ─── PBL SCRAMBLE GENERATION ─────────────────────────────────────────────────
@@ -431,7 +431,11 @@ function pblGenerateScramble(regen = false) {
     // Guard: don't go into offset-browsing mode when called from selection changes.
     if (pblOffset < 0) pblOffset = 0;
 
-    if (pblRemaining.length === 0) pblRefillRemaining();
+    if (pblRemaining.length === 0) {
+        // refill the entire array
+        pblRefillRemaining();
+        if (pblEachCase && pblCaseSpliced && !regen) showSuccess("Trained each case.", 1000);
+    }
 
     pblCaseSpliced = true; // set synchronously before splice
     const idx    = randInt(0, pblRemaining.length - 1);
@@ -440,14 +444,15 @@ function pblGenerateScramble(regen = false) {
 
     if (regen) {
         pblPending    = 'waiting';
+        pblPendingFor = null; // regen is not speculative; clear any stale tracker
         pblWorkerBusy = false; // allow re-fire
         pblRequestScramble(choice);
         pblWorker.onmessage = function(e) {
             pblWorkerBusy = false;
             if (e.data.error) { console.error(e.data.error); return; }
-            const final = [e.data.scramble, e.data.karn, e.data.caseName];
+            const final = [e.data.scramble, e.data.karn, choice.slice(0, -1)];
             pblPreviousCase = pblCurrentCase;
-            pblCurrentCase  = e.data.caseName;
+            pblCurrentCase  = choice; // use full choice (with suffix) for accurate tracking
             pblScrambleList[pblScrambleList.length - 1] = final;
             if (pblOffset === 0) currentScrambleEl.textContent = final[usingKarn];
             pblWorker.onmessage = pblNormalHandler;
@@ -455,13 +460,19 @@ function pblGenerateScramble(regen = false) {
         return;
     }
 
-    // Normal generate — use a pre-generated pending scramble if available.
-    if (pblPending && pblPending !== 'waiting') {
+    // Normal generate — use a pre-generated pending scramble only if it matches choice.
+    // pblPendingFor tracks which choice was used for the speculative pre-gen request.
+    const pendingValid = pblPending && pblPending !== 'waiting' &&
+        pblPendingFor !== null &&
+        pblPendingFor.slice(0, -1) === choice.slice(0, -1) &&
+        (pblEffectiveOverride() !== null || pblPendingFor.at(-1) === choice.at(-1));
+    if (pendingValid) {
         const data = pblPending;
-        pblPending  = null;
+        pblPending    = null;
+        pblPendingFor = null;
         pblPreviousCase = pblCurrentCase;
-        pblCurrentCase  = data.caseName;
-        const final = [data.scramble, data.karn, data.caseName];
+        pblCurrentCase  = choice; // use full choice (with suffix) for accurate tracking
+        const final = [data.scramble, data.karn, choice.slice(0, -1)];
 
         if (pblScrambleList.length) {
             previousScrambleEl.textContent =
@@ -474,21 +485,28 @@ function pblGenerateScramble(regen = false) {
         pblHasActive = true;
 
         // Kick off pre-generation of the next scramble.
-        if (pblRemaining.length > 0)
-            pblRequestScramble(pblRemaining[randInt(0, pblRemaining.length - 1)]);
+        if (pblRemaining.length > 0) {
+            const pregenChoice = pblRemaining[randInt(0, pblRemaining.length - 1)];
+            pblPendingFor = pregenChoice;
+            pblRequestScramble(pregenChoice);
+        }
     } else {
-        // Worker busy or nothing cached — show "generating" state and wait.
+        // No valid pending (none cached, mismatch, or worker busy with wrong case) —
+        // discard stale result, cancel any in-flight speculative gen, and generate for choice.
+        pblPending    = null;
+        pblPendingFor = null;
+        if (pblWorkerBusy) pblRestartWorker();
         currentScrambleEl.classList.add("generating");
         pblPending = 'waiting';
-        if (!pblWorkerBusy) pblRequestScramble(choice);
+        pblRequestScramble(choice);
 
         pblWorker.onmessage = function(e) {
             pblWorkerBusy = false;
             if (e.data.error) { console.error(e.data.error); return; }
             const data = e.data;
             pblPreviousCase = pblCurrentCase;
-            pblCurrentCase  = data.caseName;
-            const final = [data.scramble, data.karn, data.caseName];
+            pblCurrentCase  = choice; // use full choice (with suffix) for accurate tracking
+            const final = [data.scramble, data.karn, choice.slice(0, -1)];
 
             if (pblScrambleList.length) {
                 previousScrambleEl.textContent =
@@ -501,6 +519,15 @@ function pblGenerateScramble(regen = false) {
             if (!pblHasActive) timerEl.textContent = "0.00";
             pblHasActive = true;
             pblPending   = null;
+
+            // Kick off pre-generation of the next scramble.
+            if (pblRemaining.length > 0) {
+                const pregenChoice = pblRemaining[randInt(0, pblRemaining.length - 1)];
+                pblPendingFor = pregenChoice;
+                pblRequestScramble(pregenChoice);
+            } else {
+                pblPendingFor = null;
+            }
             pblWorker.onmessage = pblNormalHandler;
         };
     }
@@ -700,7 +727,16 @@ function pblSelectList(listName, setSelection) {
         pblSnapSelection();
         pblDeselectAll();
         for (const entry of list) pblSelect(entry);
-        if (pblEachCase > 0) pblRefillRemaining();
+        if (pblEachCase > 0) {
+            pblRefillRemaining();
+            // The active case is already being displayed — remove one of its freshly-added
+            // slots so the counter doesn't double-count it.
+            if (pblCaseSpliced && pblCurrentCase) {
+                const base = pblCurrentCase.slice(0, -1);
+                const idx  = pblRemaining.findIndex(r => r.slice(0, -1) === base);
+                if (idx !== -1) pblRemaining.splice(idx, 1);
+            }
+        }
         pblSaveSelected();
         updateRemainingCount();
     }
@@ -881,6 +917,13 @@ function pblLoadStorage(buildGrid = false) {
 function pblOnEachCase() {
     pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     pblRefillRemaining();
+    // The active case is already being displayed — remove one of its freshly-added
+    // slots so the counter doesn't double-count it.
+    if (pblCaseSpliced && pblCurrentCase) {
+        const base = pblCurrentCase.slice(0, -1);
+        const idx  = pblRemaining.findIndex(r => r.slice(0, -1) === base);
+        if (idx !== -1) pblRemaining.splice(idx, 1);
+    }
     updateRemainingCount();
     pblSaveSettings();
 }
@@ -888,6 +931,13 @@ function pblOnEachCase() {
 function pblOnWeights() {
     pblWeight = weightEl.checked;
     pblRefillRemaining();
+    // The active case is already being displayed — remove one of its freshly-added
+    // slots so the counter doesn't double-count it.
+    if (pblCaseSpliced && pblCurrentCase) {
+        const base = pblCurrentCase.slice(0, -1);
+        const idx  = pblRemaining.findIndex(r => r.slice(0, -1) === base);
+        if (idx !== -1) pblRemaining.splice(idx, 1);
+    }
     pblSaveSettings();
 }
 

@@ -74,7 +74,11 @@ function oblGenerateScramble(regen = false) {
         updateRemainingCount();
         return;
     }
-    if (oblRemainingCases[oblUsingSpe].length === 0) oblRefillRemaining();
+    if (oblRemainingCases[oblUsingSpe].length === 0) {
+        // refill the entire array
+        oblRefillRemaining();
+        if (oblEachCase && oblCaseSpliced && !regen) showSuccess("Trained each case.", 1000)
+    }
 
     oblCaseSpliced = true; // set synchronously before splice
     const idx    = randInt(0, oblRemainingCases[oblUsingSpe].length - 1);
@@ -296,9 +300,9 @@ function oblLoadSelected() {
     // Select first (oblEachCase is still 0 so oblSelect won't double-fill remaining),
     // then enable each-case which rebuilds remaining cleanly from the complete selected list.
     oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
+    if (oblHasActiveScramble) return; // remaining is valid from before the trainer switch; rebuilding would double-count
     oblRefillRemaining();
-    // Only generate a scramble on first load; on trainer switch an active scramble persists.
-    if (oblSelectedCases[oblUsingSpe].length && !oblHasActiveScramble) oblGenerateScramble();
+    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
 }
 
 // ─── OBL BULK SELECT ─────────────────────────────────────────────────────────
@@ -403,6 +407,12 @@ function oblLoadSettings() {
 
 function oblOnEachCase() {
     oblRefillRemaining();
+    // The active case is already being displayed — remove one of its freshly-added
+    // slots so the counter doesn't double-count it.
+    if (oblCaseSpliced && oblCurrentCase) {
+        const idx = oblRemainingCases[oblUsingSpe].indexOf(oblCurrentCase);
+        if (idx !== -1) oblRemainingCases[oblUsingSpe].splice(idx, 1);
+    }
     updateRemainingCount();
     oblSaveSettings();
 }

@@ -573,9 +573,9 @@ function removeLast() {
         return;
     }
     if (pblScrambleList.at(-2 - pblOffset) !== undefined) {
-        const base = pblPreviousCase.slice(0, -1); // strip +/- suffix
         pblSnapSelection();
         if (!pblUseBarflip) {
+            const base = pblPreviousCase.slice(0, -1); // strip +/- suffix
             pblDeselect(base + '+');
             pblDeselect(base + '-');
         } else {
@@ -745,6 +745,12 @@ toggleUiEl.addEventListener("click", () => {
         }
     } else {
         sidebarEl.classList.toggle("hidden");
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'BUTTON') {
+        e.target.blur(); // Removes focus so key + spacebar cannot trigger a click
     }
 });
 
@@ -960,11 +966,19 @@ fileEl.addEventListener("change", (e) => {
             if ("settingsOBL" in jsonData)  oblStorage.setItem("settings",  jsonData["settingsOBL"]);
             if (outdated) alert("File formatting is outdated, re-export recommended.");
             pblLoadStorage();
+            // Always reload OBL in-memory state regardless of current trainer mode,
+            // so uploading either JSON works from either trainer without switching first.
+            oblLoadSettings();
+            oblLoadUserLists();
+            oblLoadSelected();
             if (trainerMode === 'obl') {
-                oblLoadSettings();
-                oblLoadUserLists();
-                oblLoadSelected();
                 oblRestoreGrid();
+            } else {
+                // oblLoadSettings touched shared checkboxes and oblLoadSelected may have
+                // written an OBL scramble to the display — restore PBL state on top.
+                pblRestoreSettings();
+                if (pblHasActive && pblScrambleList.length)
+                    currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
             }
             closePopup();
             showSuccess("Imported.", 1000);
