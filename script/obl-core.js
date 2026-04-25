@@ -332,9 +332,7 @@ function oblDeselectAll() {
 // ─── OBL GRID ─────────────────────────────────────────────────────────────────
 
 function oblRestoreGrid() {
-    caseListEl.style.gridTemplateColumns = oblUsingSpe
-        ? 'repeat(auto-fit, minmax(160px, 1fr))'
-        : 'repeat(auto-fit, minmax(130px, 1fr))';
+    caseListEl.style.gridTemplateColumns = 'repeat(auto-fit, minmax(130px, 1fr))';
 
     caseListEl.innerHTML = oblUsingSpe
         ? possibleOBL.flatMap(obl =>
