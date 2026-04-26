@@ -228,7 +228,7 @@ function unkarnify(scramble) {
     if (firstSlice)  final = '/' + final;
     if (lastSlice)   final = final + '/';
     if (isPScramble) final = 'p/' + final + "/p'";
-    final = final.replaceAll(/\/+/, '/');
+    final = final.replaceAll(/\/+/g, '/');
 
     return final;
 }

@@ -120,6 +120,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Al",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 u F ɇ' f' T' -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 U' m W' m' d t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Ar",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "10 T f D U F' u' -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 u m' W m d' E' -10"
+          }
+        ]
+      }
     ]
   },
   "good A/A": {
@@ -241,6 +269,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 U m' U t' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Ar",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 D' m D' T' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 U m' D' m E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Al",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "0-1 U m' U t' 01"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 D' m U m' E' -10"
           }
         ]
       }
@@ -448,6 +504,60 @@ const pblClusters = {
           {
             "angle": "LR L",
             "notation": "10 W w D 03Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/E",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "0-1 U' t u3 T' D' -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 W u f b T u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/E",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "10 U t' u3' T D 01"
+          },
+          {
+            "angle": "RR",
+            "notation": "0-1 W' u' f' b' T' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Al",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "10 D T d3' t' U 01"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 W t' U3 d' U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Ar",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "0-1 D' T' d3 t U' -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "0-1 W' t U3' d U 01"
           }
         ]
       }
@@ -721,6 +831,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m D' u' M' f M' f M' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/F",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 E' u M F2' e' U -10"
+          },
+          {
+            "angle": "LB",
+            "notation": "0-1 t d D U3' w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/F",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 U' e F2' M' u' E -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 D W' D u U' M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Al",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 D' e f2' M' d' E' -10"
+          },
+          {
+            "angle": "BL",
+            "notation": "10 T u' U' D3 b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Ar",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 E d M f2' e' D -10"
+          },
+          {
+            "angle": "BF",
+            "notation": "10 b D3' U u T' -10"
           }
         ]
       }
@@ -1004,6 +1168,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Gal",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "10 t' M u d' W' -10"
+          },
+          {
+            "angle": "LB",
+            "notation": "10 U M' U u' U' B' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Gar",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "0-1 t M' u' d W 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "10 d3 B m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gal/Al",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "0-1 E W u' U t' 01"
+          },
+          {
+            "angle": "LB",
+            "notation": "10 u3 W m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E' W' u U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' W' m D' 01"
+          }
+        ]
+      }
     ]
   },
   "good A/Ga, Ga/A": {
@@ -1239,6 +1457,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Gar",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "10 u2 F U b -10"
+          },
+          {
+            "angle": "FL",
+            "notation": "10 T F U' E' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Gal",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "0-1 u2' F' U' b' 01"
+          },
+          {
+            "angle": "BL",
+            "notation": "0-1 T' F' U E w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gal/Ar",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "10 u2 K' D w -10"
+          },
+          {
+            "angle": "LB",
+            "notation": "10 t' f D' E b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' K D' w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 t f' D E' b' 01"
+          }
+        ]
+      }
     ]
   },
   "bad A/Go, Go/A": {
@@ -1450,6 +1722,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Gol",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "10 u f W u u2' -10"
+          },
+          {
+            "angle": "RB",
+            "notation": "0-1 U m' B' d3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Gor",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "0-1 u' f' W' u' u2 01"
+          },
+          {
+            "angle": "RF",
+            "notation": "10 U' m B d3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/Al",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "10 B' u d' M' T' -10"
+          },
+          {
+            "angle": "FR",
+            "notation": "0-1 D m' W' u3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Ar",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "0-1 B u' d M T 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "10 D' m W u3' -10"
+          }
+        ]
+      }
     ]
   },
   "good A/Go, Go/A": {
@@ -1586,6 +1912,60 @@ const pblClusters = {
           {
             "angle": "R B",
             "notation": "0-1 W b' u2' 30Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Gor",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "0-1 b' U F u2 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "0-1 w' E' U' F T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Gol",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "10 b U' F' u2' -10"
+          },
+          {
+            "angle": "BL",
+            "notation": "10 w E U F' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/Ar",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 w' D K' u2 01"
+          },
+          {
+            "angle": "LB",
+            "notation": "0-1 b' E' U' f T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Al",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 w D' K u2' -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 b E U f' T' -10"
           }
         ]
       }
@@ -1826,6 +2206,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/H",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 U' F2' t' F2 U' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 u3' m D' u' D T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/H",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 U F2 t F2' U -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 u3 m' D u D' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Al",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 D f2 T' f2' D -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 d3 m' U d U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Ar",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 D' f2' T f2 D' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 d3' m U' d' U t' 01"
+          }
+        ]
+      }
     ]
   },
   "A/J, J/A": {
@@ -1895,7 +2329,7 @@ const pblClusters = {
                   "case-name": "Ja/Al",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "L R",
                       "notation": "0-1/bJJ -3-2 bJJ"
                     }
@@ -1905,7 +2339,7 @@ const pblClusters = {
                   "case-name": "Ja/Ar",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "L L",
                       "notation": "/bJJ -32 bJJ 01"
                     }
@@ -1915,7 +2349,7 @@ const pblClusters = {
                   "case-name": "Jm/Al",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "L R",
                       "notation": "1-1/bJJ -3-2 bJJ -10"
                     }
@@ -1925,7 +2359,7 @@ const pblClusters = {
                   "case-name": "Jm/Ar",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "L L",
                       "notation": "10/bJJ -32 bJJ -11"
                     }
@@ -2282,6 +2716,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Ja",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "10 D' U u D u2' -10"
+          },
+          {
+            "angle": "BL",
+            "notation": "10 u d' B' M' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Al/Jm",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "0-1 u2' D u Ɇ 01"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 W D u2 D' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Ja",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "10 u2 D' u' Ɇ' -10"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 T M B' d u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Jm",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "0-1 D U' u' D' u2 01"
+          },
+          {
+            "angle": "LB",
+            "notation": "10 T D u2' D' W -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Al",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "10 u2 U' u' B' -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 w' D U' M T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Ar",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "10 B' u U u2' -10"
+          },
+          {
+            "angle": "FR",
+            "notation": "0-1 T' M' Ɇ w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Al",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "0-1 B u' U' u2 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "10 T M Ɇ' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Ar",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "0-1 u2' U u B 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 w D' U M' T' -10"
+          }
+        ]
+      }
     ]
   },
   "A/N, N/A": {
@@ -2487,6 +3027,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Na",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 W D' d u2' U' u W' 01"
+          },
+          {
+            "angle": "L",
+            "notation": "10 W F' U' t D u2 U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Al/Nm",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 u3 E' d' e D' f' d' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 W D' T' u U' u' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Na",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 B' U' u2' B u3 01"
+          },
+          {
+            "angle": "B",
+            "notation": "10 u f3 F' f U E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Nm",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 u3 B' u2' U' B -10"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 W' F U t' D' u2' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Al",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 bJJ 04 fJJ"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 B' f D T U' u2' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Ar",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "bJJ 0-4 fJJ 01"
+          },
+          {
+            "angle": "L",
+            "notation": "10 U' u W' f d M f' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Al",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "1-1 bJJ 04 fJJ -10"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 U u' W f' d' M' f -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Ar",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 bJJ 0-4 fJJ -11"
+          },
+          {
+            "angle": "L",
+            "notation": "10 B f' D' T' U u2 U' 01"
+          }
+        ]
+      }
     ]
   },
   "Ax/Rx, Rx/Ax": {
@@ -2666,6 +3312,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "bJJ 10 u M u u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Rl",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "0-1 e' w' f u3 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "10 D3' m f U' F' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Rr",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "10 e w f' u3' -10"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 D3 m' f' U F u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e b F' d3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3 m' F' D f d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' F d3 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3' m F D' f' d' -10"
           }
         ]
       }
@@ -2859,6 +3559,60 @@ const pblClusters = {
           {
             "angle": "L F",
             "notation": "10\\D M' F u F T u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Rr",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 u3 f w e' -10"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 B M D3' u D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Rl",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "0-1 u3' f' w' e 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "10 B' M' D3 u' D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 F b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W M U3' d U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' F' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' M' U3 d' U' -10"
           }
         ]
       }
@@ -3135,6 +3889,60 @@ const pblClusters = {
           {
             "angle": "L L",
             "notation": "10 bjJ t' bJj 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/T",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 D' e f2' M' u' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 U' m D' F M' F M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/T",
+        "algs": [
+          {
+            "angle": "RR",
+            "notation": "10 u M f2' e' D -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 U' m D' u' M' u' M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d M F2' e' U -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 U' m D' f M' f M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' e F2' M' d' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 U' m D' d' M' d' M' 01"
           }
         ]
       }
@@ -3422,6 +4230,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Ul",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 d3 u' E -10"
+          },
+          {
+            "angle": "RL",
+            "notation": "0-1 d3' D' e t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Ur",
+        "algs": [
+          {
+            "angle": "FB",
+            "notation": "10 E' u d3' -10"
+          },
+          {
+            "angle": "RL",
+            "notation": "10 d3 D e' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E d u3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 U e' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 d' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' U' e T 01"
+          }
+        ]
+      }
     ]
   },
   "bad A/U, U/A": {
@@ -3636,6 +4498,60 @@ const pblClusters = {
           {
             "angle": "F L",
             "notation": "1-1 jj -1-2 JJ"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Ur",
+        "algs": [
+          {
+            "angle": "LL",
+            "notation": "10 w D U w -10"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 E' M' U b' U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Ul",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "10 w ɇ' w -10"
+          },
+          {
+            "angle": "FB",
+            "notation": "10 t' U b' U' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b ɇ b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' D w' D' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b D' U' b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 T D w' D' M E' -10"
           }
         ]
       }
@@ -3930,6 +4846,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/V",
+        "algs": [
+          {
+            "angle": "FBr",
+            "notation": "10 E w U' E' m d' -10"
+          },
+          {
+            "angle": "RFr",
+            "notation": "10 U f2' F' d' f' u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/V",
+        "algs": [
+          {
+            "angle": "BFr",
+            "notation": "0-1 E' w' U E m' d 01"
+          },
+          {
+            "angle": "RBr",
+            "notation": "0-1 U' f2 F d f u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' M m UU' u2' u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 f2 M U' e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D M' m' UU u2 u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 ɇ' M d M -10"
+          }
+        ]
+      }
     ]
   },
   "A/Y, Y/A": {
@@ -4153,6 +5123,60 @@ const pblClusters = {
           {
             "angle": "FB R",
             "notation": "JJ 1-4 bjj -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Y",
+        "algs": [
+          {
+            "angle": "LBl",
+            "notation": "10 U M' T' D' b -10"
+          },
+          {
+            "angle": "RFl",
+            "notation": "10 U f' W' M u f -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Y",
+        "algs": [
+          {
+            "angle": "LFr",
+            "notation": "10 b D E M' u' -10"
+          },
+          {
+            "angle": "LBr",
+            "notation": "10 f' u' M' W' f U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w U E' M' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w D' E' m u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d M E U' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' D E m' u E' 01"
           }
         ]
       }
@@ -4514,6 +5538,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Al/Z",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "10 E' D' U' f2' F' U' d' -10"
+          },
+          {
+            "angle": "RFl",
+            "notation": "10 u3 u2' D d D' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/Z",
+        "algs": [
+          {
+            "angle": "FFl",
+            "notation": "10 UU' f2' F' U' u' E -10"
+          },
+          {
+            "angle": "RFr",
+            "notation": "0-1 u3' u2 D' d' D M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Al",
+        "algs": [
+          {
+            "angle": "FlB",
+            "notation": "10 E d u' U3' F' u' -10"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 u F U3 u U e t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Ar",
+        "algs": [
+          {
+            "angle": "FrR",
+            "notation": "10 u F U3 u d' E' -10"
+          },
+          {
+            "angle": "FrR",
+            "notation": "0-1 u' F' U3' u' U' e' t' 01"
+          }
+        ]
+      }
     ]
   },
   "A/-, -/A": {
@@ -4699,6 +5777,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Al",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u T' B' F' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D' w D u F U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Ar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d F B' T u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D w' D' u' F' U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Al/-",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 u f W' T u' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 u f UU' t' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ar/-",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 u T' W' f' u' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 U' b U d f D -10"
+          }
+        ]
+      }
     ]
   },
   "E/E": {
@@ -4772,6 +5904,21 @@ const pblClusters = {
           {
             "angle": "FB FB",
             "notation": "10 U' m E m' D -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/E",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 D' m u2' m d' -10"
+          },
+          {
+            "angle": "FF",
+            "notation": "10 D M' t M' d' E' -10"
           }
         ]
       }
@@ -4929,6 +6076,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/F",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 U' F' U3' u' U -10"
+          },
+          {
+            "angle": "RL",
+            "notation": "10 W' u4 u2 U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "F/E",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "0-1 D f D3 d D' 01"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 B' d4 u2 U' 01"
+          }
+        ]
+      }
     ]
   },
   "E/Ga, Ga/E": {
@@ -5043,6 +6218,60 @@ const pblClusters = {
           {
             "angle": "L FB",
             "notation": "10 T M F' d3' f' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Gal",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "0-1 W' u' E M' D 01"
+          },
+          {
+            "angle": "RL",
+            "notation": "0-1 W d' u2 m' d E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Gar",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "10 W u T' M' d' -10"
+          },
+          {
+            "angle": "RL",
+            "notation": "10 W' d u2' m d' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gal/E",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "10 B d E M U' -10"
+          },
+          {
+            "angle": "LR",
+            "notation": "10 B' u u2' m u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' t' M u 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' u2 m' u E' 01"
           }
         ]
       }
@@ -5175,6 +6404,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Gol",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 d M T u' W -10"
+          },
+          {
+            "angle": "FL",
+            "notation": "10 F' u3' f' M t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Gor",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "0-1 D' M E' u W' 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "0-1 F u3 f M' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/E",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "0-1 u' M' t d B' 01"
+          },
+          {
+            "angle": "LR",
+            "notation": "0-1 f d3 F M' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/E",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "10 u M t' d' B -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 f' d3' F' M T 01"
+          }
+        ]
+      }
     ]
   },
   "E/H, H/E": {
@@ -5290,6 +6573,34 @@ const pblClusters = {
           {
             "angle": "FB",
             "notation": "10 u2 m' u2 U' m' U' -4-4 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/H",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 e' U u2 E' d' e -10"
+          },
+          {
+            "angle": "F",
+            "notation": "10 m U m' U E' m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "H/E",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 e' D u2 E' u' e -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 m D' m' D' E' m E 01"
           }
         ]
       }
@@ -5518,6 +6829,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Ja",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "10 F' u3' U u2 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 D3 U w e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Jm",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "0-1 F u3 U' u2' -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 D3' U' w' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/E",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "0-1 e' f2 D e' U' 01"
+          },
+          {
+            "angle": "RR",
+            "notation": "0-1 U3' D' b' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/E",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "10 e f2' D' e U -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 U3 D b e' -10"
+          }
+        ]
+      }
     ]
   },
   "E/N, N/E": {
@@ -5691,6 +7056,60 @@ const pblClusters = {
           },
           {
             "angle": "LR",
+            "notation": "10 M' d' M' d' E t' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Na",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 e' D M' u' e' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 M' u' M' U t E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Nm",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 e' u' M' D e' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 M' F M' u' T E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/E",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 e' d' M' U e' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 M' f M' d' T E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/E",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 e' U M' d' e' -10"
+          },
+          {
+            "angle": "R",
             "notation": "10 M' d' M' d' E t' 01"
           }
         ]
@@ -5970,6 +7389,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Rl",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "10 e' F' d' f' u2' T u' -10"
+          },
+          {
+            "angle": "FL",
+            "notation": "10 W' F' U m' U M' U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Rr",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "0-1 e F d f u2 T' u 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "0-1 W F U' m U' M U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' F u F t' u2' u 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D U' B u' u2 t u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e F' u' F' t u2 u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D' U B' u u2' T d' -10"
+          }
+        ]
+      }
     ]
   },
   "E/T, T/E": {
@@ -6083,6 +7556,34 @@ const pblClusters = {
           },
           {
             "angle": "L LR",
+            "notation": "10 B' u M D U' F' u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/T",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 DD' F2' f' D' u' -10"
+          },
+          {
+            "angle": "FF",
+            "notation": "10 e DD' u2 F D' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 UU' f2' F' U' d' -10"
+          },
+          {
+            "angle": "",
             "notation": "10 B' u M D U' F' u' -10"
           }
         ]
@@ -6379,6 +7880,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Ul",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "0-1 f2 U' w' F D f' 01"
+          },
+          {
+            "angle": "RF",
+            "notation": "10 u3 u2' E D' u U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "E/Ur",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "10 u3 t D' d U' T' -10"
+          },
+          {
+            "angle": "FF",
+            "notation": "0-1 u3' Ɇ' u E B 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' f' D m' B u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 ɇ' U m' d T' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U E' f D3' u D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 w T d' m Ɇ' U u2' -10"
+          }
+        ]
+      }
     ]
   },
   "E/V, V/E": {
@@ -6453,6 +8008,34 @@ const pblClusters = {
           {
             "angle": "FR FB",
             "notation": "bJJ 10 D' m E' M D' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/V",
+        "algs": [
+          {
+            "angle": "FFl",
+            "notation": "0-1 U u2' u3 u2' D E -10"
+          },
+          {
+            "angle": "FBl",
+            "notation": "0-1 U u' U3' u2 Ɇ E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "V/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E' u f E U' F' u' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w e' U u2 f F' f D -10"
           }
         ]
       }
@@ -6601,6 +8184,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Y",
+        "algs": [
+          {
+            "angle": "FBl",
+            "notation": "10 u f D E F' u' -10"
+          },
+          {
+            "angle": "FBl",
+            "notation": "10 u f D' E' e' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d F U E' f' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w e E D F' u' -10"
+          }
+        ]
+      }
     ]
   },
   "E/Z, Z/E": {
@@ -6689,6 +8300,34 @@ const pblClusters = {
           {
             "angle": "FR FB",
             "notation": "10\\e f' T' u2 u' e' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "E/Z",
+        "algs": [
+          {
+            "angle": "FFr",
+            "notation": "10 e' u e' F e' -10"
+          },
+          {
+            "angle": "FFl",
+            "notation": "10 e f' u2' T u' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/E",
+        "algs": [
+          {
+            "angle": "FlF",
+            "notation": "10 e u e f e' -10"
+          },
+          {
+            "angle": "FrF",
+            "notation": "10 e f' T' u2 u' e' -10"
           }
         ]
       }
@@ -6813,6 +8452,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/E",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e U' m d' e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u m' B' m u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "E/-",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 e u m' U' e -10"
+          },
+          {
+            "angle": "F",
+            "notation": "10 D' m F2 m' D -10"
+          }
+        ]
+      }
     ]
   },
   "F/F": {
@@ -6895,6 +8562,21 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m U' M T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/F",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 U' m U' M E -10"
+          },
+          {
+            "angle": "LL",
+            "notation": "10 E U' m U m' E' -10"
           }
         ]
       }
@@ -7161,6 +8843,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Gal",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "10 E' m D' d' W' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 F' u3' M' m' d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Gar",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "0-1 E m' D d W 01"
+          },
+          {
+            "angle": "FF",
+            "notation": "0-1 F u3 M m d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gal/F",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "0-1 E' m' U u B 01"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 f d3 M m u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E m U' u' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 f' d3' M' m' u 01"
+          }
+        ]
+      }
     ]
   },
   "F/Go, Go/F": {
@@ -7411,6 +9147,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Gol",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "0-1 W d' D' m E' 01"
+          },
+          {
+            "angle": "FR",
+            "notation": "10 u f W u m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Gor",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "10 W' d D m' E -10"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 u' f' W' u' m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/F",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 B' u U m' E' -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "0-1 d' F' B' d' m E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/F",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "0-1 B u' U' m E 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 d F B d m' E -10"
+          }
+        ]
+      }
     ]
   },
   "F/H, H/F": {
@@ -7527,6 +9317,34 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "0-1\\w' W' K' u M D' E' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/H",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 W D' T' u U' f T 01"
+          },
+          {
+            "angle": "L",
+            "notation": "10 W u f B T m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/F",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 B' U t' d' D F' t -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 B d F W T m' E' -10"
           }
         ]
       }
@@ -7672,6 +9490,60 @@ const pblClusters = {
           {
             "angle": "L F",
             "notation": "10 w DD' m T' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Ja",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "10 b U' d t -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 F w F' T' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Jm",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "0-1 b' U d' t' 01"
+          },
+          {
+            "angle": "FF",
+            "notation": "10 F' w' F T U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/F",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "0-1 w' D u' T 01"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 f' b' f T U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/F",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "10 w D' u T' -10"
+          },
+          {
+            "angle": "FF",
+            "notation": "0-1 f b f' T' U -10"
           }
         ]
       }
@@ -7927,6 +9799,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Na",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 d f DD' u2 u' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 u f W' T d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 d' f' DD u2' u 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 u' f' W t u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/F",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 u' F' UU u2' u 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 u' F' W u2' M' U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/F",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 u F UU' u2 u' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 u F W' u2 M U' -10"
+          }
+        ]
+      }
     ]
   },
   "F/R, R/F": {
@@ -8119,6 +10045,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Rl",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "0-1 B u' M' U w' 01"
+          },
+          {
+            "angle": "LB",
+            "notation": "0-1 W' D m' M' u' m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Rr",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 B' u M U' w -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 W D' m M u m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d M D' b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B U' m M d m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' M' D b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B' U m' M' d' m E' 01"
+          }
+        ]
+      }
     ]
   },
   "F/T, T/F": {
@@ -8193,6 +10173,34 @@ const pblClusters = {
           {
             "angle": "F F",
             "notation": "10 u m' B u2 u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/T",
+        "algs": [
+          {
+            "angle": "LL",
+            "notation": "0-1 U m' w m U' 01"
+          },
+          {
+            "angle": "LL",
+            "notation": "10 u m' w m U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' W m u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m W' m' F' u2' -10"
           }
         ]
       }
@@ -8377,6 +10385,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Ul",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 D f' F2 u' f' u' -10"
+          },
+          {
+            "angle": "FF",
+            "notation": "10 W' d Ɇ' m' u t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Ur",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "10 u f u F2 f D' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 W d' u U m' d E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F u f F2' D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' d D m' u E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D F2' f' u' F' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u d' D' m u' E' -10"
+          }
+        ]
+      }
     ]
   },
   "F/V, V/F": {
@@ -8505,6 +10567,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/V",
+        "algs": [
+          {
+            "angle": "LBl",
+            "notation": "10 d4 -10"
+          },
+          {
+            "angle": "LBl",
+            "notation": "10 d3 f D2 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u4 -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 F U2 -10"
+          }
+        ]
+      }
     ]
   },
   "F/Y, Y/F": {
@@ -8604,6 +10694,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Y",
+        "algs": [
+          {
+            "angle": "RBl",
+            "notation": "10 u u2' B' u2 u' -10"
+          },
+          {
+            "angle": "RBl",
+            "notation": "10 w D U u d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/F",
+        "algs": [
+          {
+            "angle": "FrL",
+            "notation": "10 u2 U' w' U u2' -10"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 b ɇ d u' E -10"
+          }
+        ]
+      }
     ]
   },
   "F/Z, Z/F": {
@@ -8670,6 +10788,34 @@ const pblClusters = {
           {
             "angle": "FL L",
             "notation": "0-1 u' m B' d' m D' E' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "F/Z",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "10 w U u t w e -10"
+          },
+          {
+            "angle": "LFr",
+            "notation": "10 W u f b T m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/F",
+        "algs": [
+          {
+            "angle": "FlR",
+            "notation": "10 b D d T' b e -10"
+          },
+          {
+            "angle": "FlL",
+            "notation": "10 B d F w t' m' E -10"
           }
         ]
       }
@@ -8777,6 +10923,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/F",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 M B F' B t D -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u' B u U' f T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "F/-",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 M' W' f W' T U' 01"
+          },
+          {
+            "angle": "F",
+            "notation": "10 B d W' d' D F' t -10"
+          }
+        ]
+      }
     ]
   },
   "Gax/Gax": {
@@ -8843,6 +11017,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "1-1\\-nn -44 bJJ"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Gal",
+        "algs": [
+          {
+            "angle": "LL",
+            "notation": "E2 1-1 U' e D' -11"
+          },
+          {
+            "angle": "FF",
+            "notation": "10 D' f2' E' F' D' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 E2 -11 U e' D"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' F2' E f' U' d' -10"
           }
         ]
       }
@@ -8959,6 +11161,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 -nN -42 bJj 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Gar",
+        "algs": [
+          {
+            "angle": "LR",
+            "notation": "10 T e u' e U -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 t F' e D' M t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 T' e' F' e' D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 T f e' U M' T' -10"
           }
         ]
       }
@@ -9150,6 +11380,60 @@ const pblClusters = {
           {
             "angle": "R R",
             "notation": "0-1 D' M u D m' d 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Gol",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 e' u E' F e' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 U m' w M' D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e u' E F' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m w' M D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/Gal",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "0-1 e d' E' F' e' 01"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 D' m d' D M' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Gar",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "10 e' d E F e -10"
+          },
+          {
+            "angle": "FF",
+            "notation": "0-1 D m' d D' M u 01"
           }
         ]
       }
@@ -9503,6 +11787,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Gor",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 D T u3' u2 U' 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "0-1 w' D U' w' Ɇ 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' T' u3 u2' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w D' U w Ɇ' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/Gar",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "10 U' u2 u3' t' U 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "10 D' U w Ɇ' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Gal",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "0-1 U u2' u3 T' D' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 D U' w' Ɇ w' 01"
+          }
+        ]
+      }
     ]
   },
   "Ga/H, H/Ga": {
@@ -9677,6 +12015,60 @@ const pblClusters = {
           {
             "angle": "B",
             "notation": "0-1\\E E' M W W -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/H",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 u2 e' u' D3 -10"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 E2' u' D4' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' e u D3' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E2 u D4 01"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Gal",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 T' e' F' U3' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 E2 T U4' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Gar",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 T e F U3 -10"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 E2 d' U4' -10"
           }
         ]
       }
@@ -9989,6 +12381,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Ja",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "0-1 u' u2 U b' 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 U m' t' U w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gal/Jm",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "1-1 e' D u2 u' e' -11"
+          },
+          {
+            "angle": "LL",
+            "notation": "0-1 E2 1 U' e D' -11"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "e D' u2' u e"
+          },
+          {
+            "angle": "",
+            "notation": "10 E2 A' U' e D'"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' U' b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m t U' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Gal",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 u u2' D' w -10"
+          },
+          {
+            "angle": "LB",
+            "notation": "10 D' m T' D' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Gar",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "e' U u2 u' e"
+          },
+          {
+            "angle": "LL",
+            "notation": "0-1 E2 01 U' e D'"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Gal",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "1-1 e U' u2' u e' -11"
+          },
+          {
+            "angle": "LL",
+            "notation": "10 E2 0-1 U' e D' -11"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Gar",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "0-1 u' u2 D w' 01"
+          },
+          {
+            "angle": "LF",
+            "notation": "0-1 D m' T D b' 01"
+          }
+        ]
+      }
     ]
   },
   "bad Ga/N, N/Ga": {
@@ -10195,6 +12693,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Na",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 D' e D w e' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 B' u F2 m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Nm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' e D b' e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' F2' m D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Gal",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 U e' U' b' e 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 W d' f2' m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Gar",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 U e' U' w e -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 W' d f2 m' U -10"
+          }
+        ]
+      }
     ]
   },
   "good Ga/N, N/Ga": {
@@ -10370,6 +12922,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "10 w W e' 3Adj -10"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 u2' e M' D' U3 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "1-1 D' e D w e' -11"
+          },
+          {
+            "angle": "R",
+            "notation": "10 u2 e M U D3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Na",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "D' e D b' e'"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' e' M' U' D3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Gar",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "U e' U' w' e"
+          },
+          {
+            "angle": "L",
+            "notation": "10 u2 m' M' f U3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Gal",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "1-1 U e' U' b' e -11"
           },
           {
             "angle": "L",
@@ -10556,6 +13162,60 @@ const pblClusters = {
           {
             "angle": "R F",
             "notation": "10\\U3' u2 u2' T u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Rl",
+        "algs": [
+          {
+            "angle": "LL",
+            "notation": "0-1 U m' U F' e U' 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "10 D3 T2 u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m U' F e' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3' T2' u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' w e U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3' M u2 T' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' m w' e' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3 M' u2' T u' -10"
           }
         ]
       }
@@ -10757,6 +13417,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "1-1 bjj 01\\D M' t M' u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Rr",
+        "algs": [
+          {
+            "angle": "RR",
+            "notation": "0-1 E' d' f' U F u 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "0-1 u' T e' W f u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E d f U' F' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u T' e W' f' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E u' F' D f d 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' T e' B F d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E' u F D' f' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d t e B' F' d' -10"
           }
         ]
       }
@@ -11045,6 +13759,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/T",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "0-1 W' E' u' D' u2 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "0-1 B' U m' M' F t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W E u D u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B U' m M F' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B E u U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W D' m M f' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' E' u' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' D m' M' f T 01"
+          }
+        ]
+      }
     ]
   },
   "good Ga/U, U/Ga": {
@@ -11248,6 +14016,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 T 44 UU' w -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Ul",
+        "algs": [
+          {
+            "angle": "FB",
+            "notation": "10 t' F D' b -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 u2 F U E w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 t F' D b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' F' U' E' w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 T' f' U w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' f' U' E' b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T f U' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 f U E b -10"
           }
         ]
       }
@@ -11504,6 +14326,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Ur",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "0-1 E m' D d B' 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "0-1 u' m w' D' W' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E' m D' d' B -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "10 u m' w D W -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E' m' U u W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U m' U d U' B' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E m U' u' W -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m U' d' U B -10"
+          }
+        ]
+      }
     ]
   },
   "Ga/V, V/Ga": {
@@ -11698,6 +14574,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/V",
+        "algs": [
+          {
+            "angle": "LFl",
+            "notation": "0-1 E M U' d B' 01"
+          },
+          {
+            "angle": "FBl",
+            "notation": "0-1 e' u' f2' d u' d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 t' M u d' B -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e u f2 d' u d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T M d u' W -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e d F2 u' d u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 T' M' d' u W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' d' F2' u d' u 01"
+          }
+        ]
+      }
     ]
   },
   "Ga/Y, Y/Ga": {
@@ -11878,6 +14808,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Y",
+        "algs": [
+          {
+            "angle": "LBr",
+            "notation": "10 E' M' F D' b -10"
+          },
+          {
+            "angle": "LFl",
+            "notation": "0-1 D3 e' M U' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E M F' D b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3' e M' U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E' M f' U w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3 E M' D u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E M' f U' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3' T' M' d' u2 01"
+          }
+        ]
+      }
     ]
   },
   "Ga/Z, Z/Ga": {
@@ -12000,6 +14984,60 @@ const pblClusters = {
           {
             "angle": "FL R",
             "notation": "10 W' D' t' E M U' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gal/Z",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "10 B' u E' m' U -10"
+          },
+          {
+            "angle": "RFr",
+            "notation": "10 B d E M D' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B u' E m U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B' d' E' M' D E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Gal",
+        "algs": [
+          {
+            "angle": "FrR",
+            "notation": "0-1 W d' E' m D' 01"
+          },
+          {
+            "angle": "FrR",
+            "notation": "0-1 W' u' T M u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Gar",
+        "algs": [
+          {
+            "angle": "FlR",
+            "notation": "10 W' d E m' D -10"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 W u T' M' u' E -10"
           }
         ]
       }
@@ -12243,6 +15281,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Gal",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' D' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' f W' f' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Gar",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D e' D' w e -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E' M f' W f T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gal/-",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 U' e U w e' -10"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 E M F' B F t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gar/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' e U b' e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' M' F B' F' t -10"
+          }
+        ]
+      }
     ]
   },
   "Gox/Gox": {
@@ -12309,6 +15401,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "1-1 jj -11 NN"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Gol",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "D' e U' 1-1 E2 -11"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 d U f E' F2' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Gor",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "1-1 D' e U' -11 E2"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 u D F E f2' D -10"
           }
         ]
       }
@@ -12413,6 +15533,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 jJ M' Nn 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Gor",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "0-1 D' e d' e u2 01"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 T M U' e f' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Gol",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 D' e f' e u2' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 t M' D e' F t' 01"
           }
         ]
       }
@@ -12585,6 +15733,60 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "0-1\\W' W' M E' E -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/H",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 D3 u' e' u2 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 D4 M E2 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/H",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 D3' u e u2' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 D4' M' E2' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Gol",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 U3' F' e' T' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 U4 M' E2' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Gor",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 U3 F e T 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 U4 M E2 -10"
           }
         ]
       }
@@ -12901,6 +16103,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Ja",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "e d' T U e'"
+          },
+          {
+            "angle": "",
+            "notation": "U' e D' 1 E2 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/Jm",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "10 b U u2 u' -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 w U t' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Ja",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "0-1 b' U' u2' u 01"
+          },
+          {
+            "angle": "LB",
+            "notation": "0-1 w' U' t m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Jm",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "1-1 e u t U e -11"
+          },
+          {
+            "angle": "FF",
+            "notation": "1-1 U' e D' -1 E2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Gol",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "e' u t D' e"
+          },
+          {
+            "angle": "FF",
+            "notation": "U' e D' 0-1 E2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Gor",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 w D u2 u' -10"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 b D T m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Gol",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 w' D' u2' u 01"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 b' D' T' m D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Gor",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "1-1 e' d' T D' e' -11"
+          },
+          {
+            "angle": "FF",
+            "notation": "1-1 U' e D' 01 E2 -10"
+          }
+        ]
+      }
     ]
   },
   "good Go/N, N/Go": {
@@ -13015,7 +16323,7 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "1-1/e' b' U e U'"
+                      "notation": "1-1/e' b' U e U' -11"
                     }
                   ]
                 }
@@ -13075,6 +16383,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "0-1 D' M d M W w -10"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 U3' f M' m' u2 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Na",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "e b' D' e U"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 D3 U' M e' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "1-1 e w D' e U -11"
+          },
+          {
+            "angle": "L",
+            "notation": "10 D3' U M' e u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Gol",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "e' w' U e U'"
+          },
+          {
+            "angle": "L",
+            "notation": "10 U3 u e' M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 e' b' U e U' -11"
           },
           {
             "angle": "L",
@@ -13280,6 +16642,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "10 03Adj U2' w W -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Nm",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 e b' D' e U 01"
+          },
+          {
+            "angle": "L",
+            "notation": "10 t' F B' d m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Na",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 e w D' e U -10"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 t F' B d' m E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Gor",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 e' b' U e U' 01"
+          },
+          {
+            "angle": "B",
+            "notation": "10 T f W' u m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Gol",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 e' w U e U' -10"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 T' f' W u' m E 01"
           }
         ]
       }
@@ -13499,6 +16915,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Rl",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 u f U' F' d' E' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 u f W' e' t' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Rr",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "0-1 u' F' U' f d E 01"
+          },
+          {
+            "angle": "FF",
+            "notation": "0-1 u' f' W e T' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' f' D' F u E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' F' B e t d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d f D F' u' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d F B' e' t' d' -10"
+          }
+        ]
+      }
     ]
   },
   "good Go/R, R/Go": {
@@ -13645,6 +17115,60 @@ const pblClusters = {
           {
             "angle": "B L",
             "notation": "10 u T' u2 u2' U3 -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Rr",
+        "algs": [
+          {
+            "angle": "LL",
+            "notation": "10 D e' b m d' -10"
+          },
+          {
+            "angle": "RB",
+            "notation": "0-1 u' u2 T2' D3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Rl",
+        "algs": [
+          {
+            "angle": "LL",
+            "notation": "0-1 D' e b' m' d 01"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 u u2' T2 D3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U e' w m u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' T u2' M' U3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' e w' m' u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u T' u2 M U3' -10"
           }
         ]
       }
@@ -13916,6 +17440,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 U' u' D' U E' -10"
+          },
+          {
+            "angle": "BL",
+            "notation": "10 t' F M' m' U B -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' U u D U' E 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "0-1 t F' M m U' B' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' D u W E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 T' f' M m D' W' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 D' u' W' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 T f M' m' D W -10"
+          }
+        ]
+      }
     ]
   },
   "good Go/U, U/Go": {
@@ -14111,6 +17689,60 @@ const pblClusters = {
           {
             "angle": "B R",
             "notation": "0-1\\w' UU' m' t' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Ul",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 b' D' F t' 01"
+          },
+          {
+            "angle": "LB",
+            "notation": "0-1 w' E U F u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Ur",
+        "algs": [
+          {
+            "angle": "LB",
+            "notation": "10 b D F' t -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "10 w E' U' F' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w U f' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b E' U' f' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' U' f T 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' E U f u2 01"
           }
         ]
       }
@@ -14351,6 +17983,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Ur",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "10 B d D m' E -10"
+          },
+          {
+            "angle": "BF",
+            "notation": "10 W D' w m u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Ul",
+        "algs": [
+          {
+            "angle": "RL",
+            "notation": "0-1 B' d' D' m E' 01"
+          },
+          {
+            "angle": "FB",
+            "notation": "0-1 W' D w' m' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u U m' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B U' d U m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' U' m E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B' U d' U' m U' 01"
+          }
+        ]
+      }
     ]
   },
   "Go/V, V/Go": {
@@ -14478,6 +18164,60 @@ const pblClusters = {
           {
             "angle": "FL L",
             "notation": "10 W w m u2' u2 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/V",
+        "algs": [
+          {
+            "angle": "LBl",
+            "notation": "10 B d U' M E -10"
+          },
+          {
+            "angle": "LFl",
+            "notation": "10 u3 f F' u' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/V",
+        "algs": [
+          {
+            "angle": "RFl",
+            "notation": "0-1 B' d' U M' E' 01"
+          },
+          {
+            "angle": "RBl",
+            "notation": "0-1 u3' f' F u e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' D M' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d3' F' f d e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Gor",
+        "algs": [
+          {
+            "angle": "FlL",
+            "notation": "10 W u D' M E' -10"
+          },
+          {
+            "angle": "BlL",
+            "notation": "10 d3 F f' d' e' -10"
           }
         ]
       }
@@ -14655,6 +18395,60 @@ const pblClusters = {
           {
             "angle": "BR L",
             "notation": "10 U' m D T' f' F e' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Y",
+        "algs": [
+          {
+            "angle": "LFr",
+            "notation": "0-1 b' D' F M' E' 01"
+          },
+          {
+            "angle": "LFr",
+            "notation": "10 u2 u' M' m' D3 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Y",
+        "algs": [
+          {
+            "angle": "LBr",
+            "notation": "10 b D F' M E -10"
+          },
+          {
+            "angle": "LBr",
+            "notation": "0-1 u2' u M m D3' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w U f' M E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' d M T U3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' U' f M' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 d' M' T' U3' -10"
           }
         ]
       }
@@ -14863,6 +18657,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Gol/Z",
+        "algs": [
+          {
+            "angle": "LFr",
+            "notation": "0-1 U m' E' u B 01"
+          },
+          {
+            "angle": "LFr",
+            "notation": "0-1 f d3 F m u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/Z",
+        "algs": [
+          {
+            "angle": "LFl",
+            "notation": "10 U' m E u' B' -10"
+          },
+          {
+            "angle": "RFl",
+            "notation": "10 f' d3' F' m' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Gol",
+        "algs": [
+          {
+            "angle": "FrL",
+            "notation": "10 D' m E' d' W' -10"
+          },
+          {
+            "angle": "FrR",
+            "notation": "10 F' u3' U m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Gor",
+        "algs": [
+          {
+            "angle": "FlL",
+            "notation": "0-1 D m' E d W 01"
+          },
+          {
+            "angle": "FlR",
+            "notation": "0-1 F u3 U' m' E' -10"
+          }
+        ]
+      }
     ]
   },
   "Go/-, -/Go": {
@@ -14940,7 +18788,7 @@ const pblClusters = {
                   "case-name": "Gol:",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "R",
                       "notation": "JN 10 NN -10"
                     }
@@ -14950,7 +18798,7 @@ const pblClusters = {
                   "case-name": "Gor:",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "R",
                       "notation": "10 JN -10 NN"
                     }
@@ -14960,7 +18808,7 @@ const pblClusters = {
                   "case-name": ":Gol",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "R",
                       "notation": "NJ 0-1 NN 01"
                     }
@@ -14970,7 +18818,7 @@ const pblClusters = {
                   "case-name": ":Gor",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "R",
                       "notation": "0-1 NJ 01 NN"
                     }
@@ -15095,6 +18943,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Gol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' w D e D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 T' f' W f M' E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Gor",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' D e D' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 T f W' f' M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gol/-",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 e b' U' e' U 01"
+          },
+          {
+            "angle": "F",
+            "notation": "10 t' F B' F' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Gor/-",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 e w U' e D -10"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 t F' B F M' E' 01"
+          }
+        ]
+      }
     ]
   },
   "H/H": {
@@ -15185,6 +19087,21 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "10 T T' M' T' T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/H",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "10 u2 m' M' T' -10"
+          },
+          {
+            "angle": "-",
+            "notation": "10 e' E' T e t -10"
           }
         ]
       }
@@ -15377,6 +19294,60 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "1-1\\B B 01 E E' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/Ja",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 t d W' F u2 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 U e' U' d u2' U e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Jm",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 t' d' W F' u2' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 U' e U d' u2 U' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/H",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 T u' B K u2' -10"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 e' U T' u D' e U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/H",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 T' u B' K' u2 01"
+          },
+          {
+            "angle": "F",
+            "notation": "10 e U' T u' D e D' -10"
           }
         ]
       }
@@ -15604,6 +19575,60 @@ const pblClusters = {
           },
           {
             "angle": "",
+            "notation": "10 e' U M' T' m f e' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/Na",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "10 e' U' T u2' U' e' -10"
+          },
+          {
+            "angle": "-",
+            "notation": "10 e' D M' t m F e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Nm",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "0-1 e U T' u2 U e 01"
+          },
+          {
+            "angle": "-",
+            "notation": "0-1 e D' M t' m' F' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/H",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "0-1 e U u2' T U e 01"
+          },
+          {
+            "angle": "-",
+            "notation": "0-1 e U' M T m' f' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/H",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "10 e' U' u2 T' U' e' -10"
+          },
+          {
+            "angle": "-",
             "notation": "10 e' U M' T' m f e' -10"
           }
         ]
@@ -15874,6 +19899,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/Rl",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 F' U e' M d f E -10"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 T' M' D' W u' m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Rr",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 F U' e M' d' f' E' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 T M D W' u m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 f D' e M' u' F' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 T M U' B U m u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 f' D e' M u F E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 T' M' U B' U' m' u2 01"
+          }
+        ]
+      }
     ]
   },
   "H/T, T/H": {
@@ -16016,6 +20095,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/T",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 e F2' u2 F D' b -10"
+          },
+          {
+            "angle": "B",
+            "notation": "10 e w T F U E w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/H",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 w U f' u2' F' u' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e b t' f D E' b -10"
+          }
+        ]
+      }
     ]
   },
   "H/U, U/H": {
@@ -16116,7 +20223,7 @@ const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Ul/M",
+                  "case-name": "Ul/H",
                   "algs": [
                     {
                       "sign": "-",
@@ -16126,7 +20233,7 @@ const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Ur/M",
+                  "case-name": "Ur/H",
                   "algs": [
                     {
                       "sign": "-",
@@ -16306,6 +20413,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/Ul",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 U F2' u2 F2 U 01"
+          },
+          {
+            "angle": "L",
+            "notation": "10 W u W u3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/Ur",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 U' F2 u2' F2' U' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 u3 W u' W -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' f2 u2' F' f U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 B d' B -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D f2' u2 F f' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B d B d3' -10"
+          }
+        ]
+      }
     ]
   },
   "H/V, V/H": {
@@ -16461,6 +20622,34 @@ const pblClusters = {
           {
             "angle": "FR",
             "notation": "10 u2 M DD u f D' U e' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/V",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "10 B' u f2 u' u2 T' -10"
+          },
+          {
+            "angle": "Bl",
+            "notation": "10 B' u f B' T m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d F2 d' u2 T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d F W' T m' E' -10"
           }
         ]
       }
@@ -16623,6 +20812,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/Y",
+        "algs": [
+          {
+            "angle": "Br",
+            "notation": "10 e u f T f D w -10"
+          },
+          {
+            "angle": "Br",
+            "notation": "10 e w u2 F U' E d u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/H",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 b U' F' t F' d' e' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 e b u2 F D' E w -10"
+          }
+        ]
+      }
     ]
   },
   "H/Z, Z/H": {
@@ -16635,12 +20852,128 @@ const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
+          "solution-overview": "OOpp // sOpp",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10.",
+              "alg-explanation": "OOpp on Z towards opposite of where the front edge goes (i.e. Z @ <FR> = OOpp to the left; Z @ <FL> = OOpp to the right) → go to the last M2 → T M t' (M2 // sOpp)",
+              "cases": [
+                {
+                  "case-name": "H/Z",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FL",
+                      "notation": "10/M' d' M' d' T M t' 01"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "FR",
+                      "notation": "10/M' f M' f T M t' 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Z/H",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FR",
+                      "notation": "10/M' u' M' u' T M t' 01"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "FL",
+                      "notation": "10/M' F M' F T M t' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "solution-overview": "OOpp Opp",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10.",
+              "alg-explanation": "OOpp on Z towards where the front edge goes (i.e. Z @ <FR> = OOpp to the right; Z @ <FL> = OOpp to the left) → U^ on H → Opp",
+              "cases": [
+                {
+                  "case-name": "H/Z",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FR",
+                      "notation": "10/(M' d' M' d' M') u' Opp -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/(M' f M' f M') u' Opp -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Z/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/(M' u' M' u' M') d' Opp -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "FR",
+                      "notation": "10/(M' F M' F M') d' Opp -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "solution-overview": "Adj // Opp // sOpp // Adj, UU // sOpp // Adj, WW // Adj",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. noslice Z.",
+              "alg-explanation": "u M u (UU) → m'/44 to sOpp → M' → F* to Adj → M' → u° back",
+              "cases": [
+                {
+                  "case-name": "H/Z",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FR",
+                      "notation": "10/u M u m' M' f M' u' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Z/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/u M u 44 M' F M' d' -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "solution-overview": "GG+ // JJ+ [JR type]",
           "solution-slicecount": 7,
           "alg-blocks": [
             {
               "angle-explanation": "10. noslice Z.",
-              "alg-explanation": "e* right u° (JR on Z) → left u° (// RJ on H) → T° [a]→ either U° same direction → e*",
+              "alg-explanation": "e* right u° (JR on Z) → left u° (// RJ on H) → T° → either U° same direction → e*",
               "cases": [
                 {
                   "case-name": "H/Z",
@@ -16665,58 +20998,6 @@ const pblClusters = {
               ]
             }
           ]
-        },
-        {
-          "solution-overview": "OOpp // sOpp",
-          "solution-slicecount": 8,
-          "alg-blocks": [
-            {
-              "angle-explanation": "10.",
-              "alg-explanation": "OOpp on Z towards opposite of where the front edge goes (i.e. Z @ <FR> = OOpp to the left; Z @ <FL> = OOpp to the right) → go to the last M2 with bottom misalign → E M E' (M2 // sOpp)",
-              "cases": [
-                {
-                  "case-name": "H/Z",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "FL",
-                      "notation": "10 M' d' M' D' E M E' -10"
-                    },
-                    {
-                      "sign": "-",
-                      "angle": "FR",
-                      "notation": "10 M' f M' D E M E' -10"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Z/H",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "FR",
-                      "notation": "10 M' u' M' U' E M E' -10"
-                    },
-                    {
-                      "sign": "-",
-                      "angle": "FL",
-                      "notation": "10 M' F M' U E M E' -10"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "solution-overview": "// barflip",
-          "solution-slicecount": 9,
-          "alg-blocks": []
-        },
-        {
-          "solution-overview": "(9)??",
-          "solution-slicecount": 9,
-          "alg-blocks": []
         }
       ]
     },
@@ -16744,6 +21025,34 @@ const pblClusters = {
           {
             "angle": "FR",
             "notation": "10 M' U' M U' t' M T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "H/Z",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "10 e' u E' t U e -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 M' f M' f T M t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/H",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 e u E' t U e' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 M' u' M' u' T M t' 01"
           }
         ]
       }
@@ -16881,6 +21190,34 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "NN 10 nN -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/H",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 u2' d u2' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' U u2 u2' U e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "H/-",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "10 u2 u2' u u2' u2 01"
+          },
+          {
+            "angle": "-",
+            "notation": "10 e' D u2 u2' D e -10"
           }
         ]
       }
@@ -17060,7 +21397,7 @@ const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "F L",
-                      "notation": "p\\e W' e p'"
+                      "notation": "p\\e W' e' p'"
                     },
                     {
                       "sign": "+",
@@ -17179,6 +21516,60 @@ const pblClusters = {
           {
             "angle": "L F",
             "notation": "1-1 e' B e -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/Ja",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "U' e D'"
+          },
+          {
+            "angle": "BB",
+            "notation": "D' e D' E'"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Jm",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "0-1 U' e D' 01"
+          },
+          {
+            "angle": "BB",
+            "notation": "0-1 D' e D' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Ja",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "10 U' e D' -10"
+          },
+          {
+            "angle": "BB",
+            "notation": "10 D' e D' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Jm",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "1-1 U' e D' -11"
+          },
+          {
+            "angle": "BB",
+            "notation": "1-1 D' e D' E' -11"
           }
         ]
       }
@@ -17390,6 +21781,112 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "1-1 W W -11"
+          },
+          {
+            "angle": "L",
+            "notation": "1-1 U' U3' U' -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/Na",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "D4"
+          },
+          {
+            "angle": "L",
+            "notation": "D D3 D"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 D4 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 D D3 D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Na",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 D4 -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 D D3 D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "1-1 D4 -11"
+          },
+          {
+            "angle": "L",
+            "notation": "1-1 D D3 D -11"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Ja",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "U4"
+          },
+          {
+            "angle": "L",
+            "notation": "U' U3' U'"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Jm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 U4 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 U' U3' U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Ja",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 U4 -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 U' U3' U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Jm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "1-1 U3 U' -11"
           },
           {
             "angle": "L",
@@ -17760,6 +22257,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/Rl",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "e' w e"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 u F U f' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Rr",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "0-1 e' b' e 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 e' b' E' U2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Rl",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "10 e' w e -10"
+          },
+          {
+            "angle": "BL",
+            "notation": "10 e' w E' U2 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Rr",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "1-1 e' b' e -11"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 u' F' U' f u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "e b' e'"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' f' D' F d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e b' e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e b' E U2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e w E U2 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 e w e' -11"
+          },
+          {
+            "angle": "",
+            "notation": "10 d f D F' d' -10"
+          }
+        ]
+      }
     ]
   },
   "J/T, T/J": {
@@ -17973,6 +22576,60 @@ const pblClusters = {
           {
             "angle": "R F",
             "notation": "0-1\\d' F' W' F d 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/T",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 B' u D' T' -10"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 u' f' B' f u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/T",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "0-1 B u' D T 01"
+          },
+          {
+            "angle": "FR",
+            "notation": "10 u f B f' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d F W F' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' U t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' F' W' F d 01"
           }
         ]
       }
@@ -18360,6 +23017,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/Ul",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 B d U' t -10"
+          },
+          {
+            "angle": "BL",
+            "notation": "0-1 E m' d D b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/Ur",
+        "algs": [
+          {
+            "angle": "FB",
+            "notation": "10 t' U d' B -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "0-1 b' D' d' m E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Ul",
+        "algs": [
+          {
+            "angle": "BF",
+            "notation": "0-1 t U' d B' 01"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 b D d m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Ur",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 B' d' U t' 01"
+          },
+          {
+            "angle": "FL",
+            "notation": "10 E' m d' D' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E m u' U' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T D u' W -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' U' u' m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 T' D' u W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U u m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E' m' u U w' 01"
+          }
+        ]
+      }
     ]
   },
   "J/V, V/J": {
@@ -18499,6 +23262,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/V",
+        "algs": [
+          {
+            "angle": "RBl",
+            "notation": "0-1 u' d U' d' u2 01"
+          },
+          {
+            "angle": "RBl",
+            "notation": "10 f' b' f u2 U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/V",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "10 u d' U d u2' -10"
+          },
+          {
+            "angle": "RFr",
+            "notation": "0-1 f b f' u2' U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w U u u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 F w F' u2' U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' U' u' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 F' w' F u2 U 01"
+          }
+        ]
+      }
     ]
   },
   "J/Y, Y/J": {
@@ -18621,6 +23438,60 @@ const pblClusters = {
           {
             "angle": "FL L",
             "notation": "10 W u U' U2 M -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/Y",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "10 Ɇ u D u2' -10"
+          },
+          {
+            "angle": "BFl",
+            "notation": "0-1 u' F' B F u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Y",
+        "algs": [
+          {
+            "angle": "RbR",
+            "notation": "0-1 Ɇ' u' D' u2 01"
+          },
+          {
+            "angle": "FBl",
+            "notation": "10 u F B' F' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d f W' f' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' f' W f d 01"
           }
         ]
       }
@@ -18828,6 +23699,60 @@ const pblClusters = {
           {
             "angle": "FR R",
             "notation": "0-1 D3 U b' e' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ja/Z",
+        "algs": [
+          {
+            "angle": "RFl",
+            "notation": "0-1 f d3 U T' -10"
+          },
+          {
+            "angle": "RFl",
+            "notation": "0-1 U3' D' d' f' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/Z",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "10 f' d3' U' T 01"
+          },
+          {
+            "angle": "RFr",
+            "notation": "10 U3' D' w e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Ja",
+        "algs": [
+          {
+            "angle": "FlR",
+            "notation": "10 F' u3' D' t' 01"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 D3' U' b e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Jm",
+        "algs": [
+          {
+            "angle": "FrR",
+            "notation": "0-1 F u3 D t -10"
+          },
+          {
+            "angle": "FrR",
+            "notation": "0-1 D3 U d' F' e 01"
           }
         ]
       }
@@ -19041,6 +23966,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Ja",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3 D' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3 D E e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Jm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3 D' E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3 D E e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ja/-",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 D3' U E' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 D3' U' E e' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Jm/-",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 D3' U E' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 D3' U' E e' -10"
+          }
+        ]
+      }
     ]
   },
   "N/N": {
@@ -19212,6 +24191,60 @@ const pblClusters = {
           },
           {
             "angle": "",
+            "notation": "1-1 e' E' e' -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/Na",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "E2"
+          },
+          {
+            "angle": "-",
+            "notation": "e' E' e'"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Nm",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "0-1 E2 01"
+          },
+          {
+            "angle": "-",
+            "notation": "10 T e u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Na",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "10 E2 -10"
+          },
+          {
+            "angle": "-",
+            "notation": "0-1 T' e' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Nm",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "1-1 E2 -11"
+          },
+          {
+            "angle": "-",
             "notation": "1-1 e' E' e' -11"
           }
         ]
@@ -19398,6 +24431,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/Rl",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 F' U e' M d F -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 B' u E' d' B -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Rr",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 F U' e M' d' F' 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 B u' E d B' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Na",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F E' w E F' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W d' E' u W' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Nm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' E w' E' F -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d E u' W -10"
+          }
+        ]
+      }
     ]
   },
   "bad N/R, R/N": {
@@ -19579,6 +24666,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/Rr",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 D3' U' f d e 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 U3' F d M f' M -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Rl",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 D3 U f' d' e' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 U3 F' d' M' f M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Nm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3' D' F u e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3' f u M F' M -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Na",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3 D F' u' e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3 f' u' M' F M' 01"
+          }
+        ]
+      }
     ]
   },
   "N/T, T/N": {
@@ -19670,9 +24811,56 @@ const pblClusters = {
           "alg-blocks": []
         },
         {
-          "solution-overview": "some out of CS thingy, just don't learn this",
+          "solution-overview": "abstract",
           "solution-slicecount": 7,
-          "alg-blocks": []
+          "alg-blocks": [
+            {
+              "angle-explanation": "<F>. preserve N with single misalign.",
+              "alg-explanation": "alg",
+              "cases": [
+                {
+                  "case-name": "Na/T",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F",
+                      "notation": "0-1\\0-2 D' 3-1 -31 D 02 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "T/Na",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F",
+                      "notation": "10\\20 U 1-3 -13 U' -20 -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Nm/T",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F",
+                      "notation": "10/-1-3 D' 40 -40 D 13 -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "T/Nm",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F",
+                      "notation": "0-1/31 U 0-4 04 U' -3-1 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -19710,6 +24898,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "0-1 Jj -20 bjj -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/T",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 u' W b W u 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 u' T B F u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/T",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 u W' b' W' u' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 u T' B' F' u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Na",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 31 U 0-4 04 U' -3-1 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u T' W' f' d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Nm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 31 U 1-3 -13 U' -3-1 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' T W f d E 01"
           }
         ]
       }
@@ -19914,6 +25156,112 @@ const pblClusters = {
           {
             "angle": "F",
             "notation": "1-1 jj 50 bJj 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/Ul",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 bJJ 0-5 fJJ"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 B u' f2' d u2' t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/Ur",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "bJJ 05 fJJ 01"
+          },
+          {
+            "angle": "F",
+            "notation": "0-1 w' D u' u2 F d e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Ul",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 M B F' B f W' -10"
+          },
+          {
+            "angle": "B",
+            "notation": "10 w D' u u2' F' d' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Ur",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 W' f' B F B M' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 B' u f2 d' u2 t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Na",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 B' F' W f W M' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 W' d F2 u' u2 t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Nm",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 M' W' f W' F' B 01"
+          },
+          {
+            "angle": "B",
+            "notation": "0-1 t u2 u' F2' d W 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Na",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 M W f' W F B' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 u2' T F3 d W 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 B F W' f' W' M -10"
+          },
+          {
+            "angle": "B",
+            "notation": "10 W' d F3 T u2' -10"
           }
         ]
       }
@@ -20129,6 +25477,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/V",
+        "algs": [
+          {
+            "angle": "Br",
+            "notation": "0-1 u' T UU f u 01"
+          },
+          {
+            "angle": "Br",
+            "notation": "0-1 u' f' W' t m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/V",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "10 u T' UU' f' u' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 u f W t' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Na",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u T' DD' F' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u F W u2 d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Nm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' T DD F d 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' F' W' u2' d E 01"
+          }
+        ]
+      }
     ]
   },
   "N/Y, Y/N": {
@@ -20220,9 +25622,56 @@ const pblClusters = {
           "alg-blocks": []
         },
         {
-          "solution-overview": "some out of CS thingy, just don't learn this",
+          "solution-overview": "abstract",
           "solution-slicecount": 7,
-          "alg-blocks": []
+          "alg-blocks": [
+            {
+              "angle-explanation": "preserve N. noslice Y on left with single misalign.",
+              "alg-explanation": "alg.",
+              "cases": [
+                {
+                  "case-name": "Y/Na",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BL",
+                      "notation": "10/-10 U' -23 2-3 U 10 -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Na/Y",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BL",
+                      "notation": "0-1 01 D -32 3-2 D' 0-1 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Y/Nm",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "0-1\\10 U 2-3 -23 U' -10 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Nm/Y",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/0-1 D' 3-2 -32 D 01 -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -20260,6 +25709,60 @@ const pblClusters = {
           {
             "angle": "FR",
             "notation": "0-1 Jj 10 bjj -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/Y",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 B' u f Ɇ t' u2' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "0-1 u' u2 B' f u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Y",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "0-1 B u' f' Ɇ' t u2 01"
+          },
+          {
+            "angle": "Bl",
+            "notation": "10 u u2' B f' u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Na",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' F' W' u2' U' e T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u u2' W F' d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Nm",
+        "algs": [
+          {
+            "angle": "Bl",
+            "notation": "10 u F W u2 U e' T' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "0-1 u' u2 W' F d E 01"
           }
         ]
       }
@@ -20389,6 +25892,60 @@ const pblClusters = {
           {
             "angle": "FR",
             "notation": "10 u2 E' U m' U m 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Na/Z",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "0-1 e' U m' u e' 01"
+          },
+          {
+            "angle": "Fl",
+            "notation": "0-1 m' D' m D' E u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/Z",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "10 e' u m' U e' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 m D m' D E' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Na",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 e u m' U e -10"
+          },
+          {
+            "angle": "Fl",
+            "notation": "10 m U m' U E' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Nm",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "0-1 e d' m U e' 01"
+          },
+          {
+            "angle": "Fr",
+            "notation": "0-1 m' U' m U' E u2' -10"
           }
         ]
       }
@@ -20637,6 +26194,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Na",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e D' e D' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' e B e' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Nm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e D' e D' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' e B e' U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Na/-",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "0-1 e U' e U' e 01"
+          },
+          {
+            "angle": "-",
+            "notation": "0-1 D e' W' e D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Nm/-",
+        "algs": [
+          {
+            "angle": "-",
+            "notation": "10 e U' e U' e -10"
+          },
+          {
+            "angle": "-",
+            "notation": "10 D' e W e' D -10"
+          }
+        ]
+      }
     ]
   },
   "bad R/R": {
@@ -20743,6 +26354,34 @@ const pblClusters = {
           {
             "angle": "F R",
             "notation": "1-1 e' U m' m' d' e -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' u2 U' M U' f' U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' d' U3 u U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u2 U' M U' F' U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U d U3' u' U -10"
           }
         ]
       }
@@ -20866,6 +26505,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' u2 T' u 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U m' t' M u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u T' u2 u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m E M U' -10"
+          }
+        ]
+      }
     ]
   },
   "R/T, T/R": {
@@ -20879,6 +26546,63 @@ const pblClusters = {
     "matt": {
       "distinction-help": "",
       "solution-groups": [
+        {
+          "solution-overview": "pJC // Opp",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "misalign R @ <R>. (align) T @ <B>.",
+              "alg-explanation": "pJC with C 2x2 on R block end (Rl = JR first pJC; Rr = Adj first pJC) → Opp",
+              "cases": [
+                {
+                  "case-name": "Rl/T",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R B",
+                      "notation": "10\\e w F' M 5-4 u2' -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "R B",
+                      "notation": "10/u2 d' M' F d u' e' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Rr/T",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R B",
+                      "notation": "10\\D M' F w T u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "T/Rl",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B R",
+                      "notation": "0-1/e' b' f M' u' u2 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "T/Rr",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B R",
+                      "notation": "0-1/U' M f' b' T' u2 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
         {
           "solution-overview": "JJ UU",
           "solution-slicecount": 9,
@@ -20934,11 +26658,6 @@ const pblClusters = {
         {
           "solution-overview": "// barflip",
           "solution-slicecount": 10,
-          "alg-blocks": []
-        },
-        {
-          "solution-overview": "??",
-          "solution-slicecount": 0,
           "alg-blocks": []
         }
       ]
@@ -20997,6 +26716,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "U' e' U' 10 u2 U' M U' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' w' u2' t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u D U m' U m 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/T",
+        "algs": [
+          {
+            "angle": "LF",
+            "notation": "10 U M' f w u2 t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' D' U' m U' m' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' M' f u2 w' e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' U' T W e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M f' u2' w e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u U T' W' e' -10"
           }
         ]
       }
@@ -21371,6 +27144,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 f DD e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' m' U3 u U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' E u D' M E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D E W' f' d' M' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W E' u' D M' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' E' W f d M T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' f' DD' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W m U3' u' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' F' UU' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B m D3' d' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/Rr",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 B' E' d U' M E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U E' B' F' u' M' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B E' u' U M' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' E B F u M t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 F UU e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B' m' D3 d D' 01"
+          }
+        ]
+      }
     ]
   },
   "R/V, V/R": {
@@ -21560,6 +27439,60 @@ const pblClusters = {
           {
             "angle": "BL L",
             "notation": "10\\b b U jJ -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/V",
+        "algs": [
+          {
+            "angle": "LBl",
+            "notation": "10 W u m' D w -10"
+          },
+          {
+            "angle": "BBr",
+            "notation": "0-1 w' Ɇ' D m' u E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/V",
+        "algs": [
+          {
+            "angle": "LFl",
+            "notation": "0-1 W' u' m D' w' 01"
+          },
+          {
+            "angle": "FFr",
+            "notation": "10 w Ɇ u m' D E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' m U' b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B f D' m D' m' D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d m' U b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' f' D m' D m D 01"
           }
         ]
       }
@@ -21819,6 +27752,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' T w' f m D' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1  W' u' D u2 B' e' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 T' w f' m' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b U' u2 u2' T U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 t M' D u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w D u2 E' m' F' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' t' M D' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D e' d U u2' B' U' -10"
+          }
+        ]
+      }
     ]
   },
   "R/Z, Z/R": {
@@ -21891,7 +27878,65 @@ const pblClusters = {
           ]
         },
         {
-          "solution-overview": "// barflip",
+          "solution-overview": "SS // y2FV // Opp",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "(R/Z) break R block @ <L>. noslice Z.",
+              "alg-explanation": "U* M* (Adj) → d3* u* out → D* back → u2* back",
+              "cases": [
+                {
+                  "case-name": "Rl/Z",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "B FL",
+                      "notation": "0-1/U' M d3 u' D' u2 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Rr/Z",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F FR",
+                      "notation": "10\\U M' d3' u D u2' -10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "angle-explanation": "(Z/R) break R block @ <R>. noslice Z.",
+              "alg-explanation": "U* M* (Adj) → d* u* b* out → D* back → u2* back",
+              "cases": [
+                {
+                  "case-name": "Z/Rr",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FR B",
+                      "notation": "0-1/U' M d u' b D' u2 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Z/Rl",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL F",
+                      "notation": "10\\U M' d' u b' D u2' -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "solution-overview": "8 // barflip",
           "solution-slicecount": 9,
           "alg-blocks": []
         },
@@ -22039,6 +28084,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Rl/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F u F u2 t u U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' f B' F' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' u' F' u2' t' u' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' B F m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Rl",
+        "algs": [
+          {
+            "angle": "FrB",
+            "notation": "10 f' d' f' u2' t' d' U -10"
+          },
+          {
+            "angle": "FrR",
+            "notation": "10 W u t M' D e' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Rr",
+        "algs": [
+          {
+            "angle": "FlF",
+            "notation": "0-1 f d f u2 t d U' 01"
+          },
+          {
+            "angle": "FlR",
+            "notation": "0-1 W' u' t' M D' e T 01"
+          }
+        ]
+      }
     ]
   },
   "R/-, -/R": {
@@ -22066,7 +28165,7 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "0-1 E U' B f U M' u' M' 01"
+                      "notation": "0-1/E U' B f U M' u' M' 01"
                     }
                   ]
                 },
@@ -22076,7 +28175,7 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "10 E U' B d u' M' F M' 01"
+                      "notation": "10/E U' B d u' M' F M' 01"
                     }
                   ]
                 },
@@ -22086,7 +28185,7 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "10 E D W' F' d' M' f M' 01"
+                      "notation": "10/E D W' F' d' M' f M' 01"
                     }
                   ]
                 },
@@ -22096,7 +28195,7 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "0-1 E D W' u' D M' d' M' 01"
+                      "notation": "0-1/E D W' u' D M' d' M' 01"
                     }
                   ]
                 }
@@ -22110,12 +28209,12 @@ const pblClusters = {
           "alg-blocks": []
         },
         {
-          "solution-overview": "(9)?",
+          "solution-overview": "Adj // JR // pJ",
           "solution-slicecount": 9,
           "alg-blocks": []
         },
         {
-          "solution-overview": "",
+          "solution-overview": "alt JR+ // JN (8)[a]",
           "solution-slicecount": 8,
           "alg-blocks": []
         }
@@ -22171,6 +28270,60 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "10 w D W' e' w -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Rl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D3' U' F' u' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' b' f m D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Rr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D3' U' f u e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' f b f' m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rl/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3' D' F d e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' F w F' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Rr/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3 D F' d' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' M F' w' F m U' 01"
           }
         ]
       }
@@ -22240,6 +28393,21 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "T/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 U' m' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E U' m D' T' -10"
+          }
+        ]
+      }
     ]
   },
   "T/U, U/T": {
@@ -22267,7 +28435,12 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "L B",
-                      "notation": "10 bJJ F' bJJ 01"
+                      "notation": "10/bJJ F' bJJ 01"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "L B",
+                      "notation": "/bJJ 4-1 bJJ -11"
                     }
                   ]
                 },
@@ -22277,7 +28450,27 @@ const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "L B",
-                      "notation": "1-1 bJJ -4"
+                      "notation": "1-1/bJJ -41 bJJ"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Ul/T",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B L",
+                      "notation": "0-1/bJJ f bJJ -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Ur/T",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B L",
+                      "notation": "1-1/bJJ -14 bJJ"
                     }
                   ]
                 }
@@ -22355,6 +28548,60 @@ const pblClusters = {
           {
             "angle": "F L",
             "notation": "10 jJ f' Jj 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "T/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' U' E w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' u2' U E w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w E' U u2 u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w E' U' u2 M U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w D' E' m d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U E' M' u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d m' E D w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' u M E U' w -10"
           }
         ]
       }
@@ -22450,6 +28697,34 @@ const pblClusters = {
           {
             "angle": "BR L",
             "notation": "0-1 u2' U w d M T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "T/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u T' W T u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w ɇ' u d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T D w' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b D' U' d u' E -10"
           }
         ]
       }
@@ -22573,6 +28848,34 @@ const pblClusters = {
           {
             "angle": "FR L",
             "notation": "JJ 12 bjj -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "T/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E u' b u E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 D e' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E d w' d' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 U e' M E' -10"
           }
         ]
       }
@@ -22706,6 +29009,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "T/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u f D' E' F' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w E' e D' f' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/T",
+        "algs": [
+          {
+            "angle": "FrL",
+            "notation": "10 d F U' E f' u' -10"
+          },
+          {
+            "angle": "FrR",
+            "notation": "10 w e' E' D' F' u' -10"
+          }
+        ]
+      }
     ]
   },
   "T/-, -/T": {
@@ -22786,6 +29117,34 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "bJJ 40 bjJ -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/T",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d F3 f' F U -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B d F W u2 t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "T/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u f3 F' f D -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u f B u2 t -10"
           }
         ]
       }
@@ -22900,6 +29259,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ul/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F UU F' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' M' W M U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 F UU' F' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' W M u u2' -10"
+          }
+        ]
+      }
     ]
   },
   "good U/U": {
@@ -22979,6 +29366,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ul/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 U' M U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' d' M' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U M' U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' f M' u' -10"
+          }
+        ]
+      }
     ]
   },
   "U/V, V/U": {
@@ -23023,7 +29438,7 @@ const pblClusters = {
               ]
             },
             {
-              "angle-explanation": "(Opp start UU, E: // UU) noslice V on right.[i]",
+              "angle-explanation": "(Opp start UU, E: // UU) noslice V on right.[e]",
               "alg-explanation": "e* bpJ (E: on V) → E^ to Opp → U' M U' (UU)",
               "cases": [
                 {
@@ -23123,7 +29538,7 @@ const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "",
-              "alg-explanation": "https://discord.com/channels/795860600139153408/1240031525785964645[j]",
+              "alg-explanation": "https://discord.com/channels/795860600139153408/1240031525785964645[f]",
               "cases": [
                 {
                   "case-name": "Ul/V",
@@ -23260,6 +29675,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ul/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e u U' m' U E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' T' d m' U f' U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' u' U m U' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 w T d' m U' f U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' u' F' m' u E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' e U' M m f m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "V/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e u F m u' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U e' U M' m' f' m' U -10"
+          }
+        ]
+      }
     ]
   },
   "U/Y, Y/U": {
@@ -23335,6 +29804,60 @@ const pblClusters = {
           {
             "angle": "FR F",
             "notation": "0-1 Jj u2' jJ -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ul/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' u' F' m' d 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M d U m' U m 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e u F m d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M D' U' m U' m' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Ul",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e u U' m' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M d D' m' D' m 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/Ur",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' u' U m D' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M d D m' D m 01"
           }
         ]
       }
@@ -23464,6 +29987,60 @@ const pblClusters = {
           {
             "angle": "FR R",
             "notation": "10\\D M' d' D' U M' u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ul/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' u2 d3' u2 U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' M' D3 f D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U u2' d3 u2' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B M D3' f' D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Ul",
+        "algs": [
+          {
+            "angle": "FrL",
+            "notation": "0-1 U u2' u3 u2' U -10"
+          },
+          {
+            "angle": "FrL",
+            "notation": "10 U' F' U3' M W' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Ur",
+        "algs": [
+          {
+            "angle": "FlL",
+            "notation": "10 U' u2 u3' u2 U' 01"
+          },
+          {
+            "angle": "FlL",
+            "notation": "10 W' M' U3 F U -10"
           }
         ]
       }
@@ -23686,6 +30263,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Ul",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 d f B u2 u' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 M' W' F u U F -10"
+          }
+        ]
+      },
+      {
+        "case-name": "-/Ur",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "10 u u2' B f' d' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 F' U' u' F' W' M -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ul/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' W F' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W F2' w F' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ur/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F W u2 u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U F' u' U w U' -10"
+          }
+        ]
+      }
     ]
   },
   "V/V": {
@@ -23723,6 +30354,21 @@ const pblClusters = {
           {
             "angle": "BL BR",
             "notation": "10\\03Adj M' T' T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "V/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M u m' E' -1"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' M' U e' T' -10"
           }
         ]
       }
@@ -23781,6 +30427,34 @@ const pblClusters = {
           {
             "angle": "FL BL",
             "notation": "10\\U M' W M f' T' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "V/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U M' b' M U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' B M F' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d M W' M' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' W M f' T' -10"
           }
         ]
       }
@@ -23901,6 +30575,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "V/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U F' D3 u' D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B u4 T D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/V",
+        "algs": [
+          {
+            "angle": "FlFl",
+            "notation": "0-1 U' f D' m D' d' D -10"
+          },
+          {
+            "angle": "FrBl",
+            "notation": "10 W d4 T D 01"
+          }
+        ]
+      }
     ]
   },
   "V/-, -/V": {
@@ -23957,6 +30659,34 @@ const pblClusters = {
           {
             "angle": "BL",
             "notation": "10 jJ D' t' d' U b -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/V",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' f Ɇ u UU' f -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' d' B f' Ɇ U F -10"
+          }
+        ]
+      },
+      {
+        "case-name": "V/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 m Ɇ F W u2 D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D u W' F D' Ɇ f' 01"
           }
         ]
       }
@@ -24020,6 +30750,21 @@ const pblClusters = {
           {
             "angle": "FR FL",
             "notation": "10 u M f' T' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Y/Y",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M f' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E D M' U u2' -10"
           }
         ]
       }
@@ -24159,6 +30904,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Y/Z",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D U f3' U u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' T F E' F' U u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/Y",
+        "algs": [
+          {
+            "angle": "FrFl",
+            "notation": "10 ɇ F3' D d' -10"
+          },
+          {
+            "angle": "FlBl",
+            "notation": "10 W u m' Ɇ' F' d' -10"
+          }
+        ]
+      }
     ]
   },
   "Y/-, -/Y": {
@@ -24202,6 +30975,34 @@ const pblClusters = {
           {
             "angle": "BL",
             "notation": "bJJ -20 W B' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Y",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 u f F3' f D' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 B' u f3 u2 t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Y/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F2 f F2' D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d F3 u2 t -10"
           }
         ]
       }
@@ -24260,6 +31061,21 @@ const pblClusters = {
           {
             "angle": "FR FL",
             "notation": "10 D' e M' T' u2 u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Z/Z",
+        "algs": [
+          {
+            "angle": "FrFl",
+            "notation": "10 D M' t M' u' -10"
+          },
+          {
+            "angle": "FrFl",
+            "notation": "10 D' m u2' m u' E -10"
           }
         ]
       }
@@ -24388,6 +31204,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/Z",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "10 M' d' M' f M' 01"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 d M B M' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Z/-",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 M' u' M' F M' 01"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 u M W M' u' -10"
+          }
+        ]
+      }
     ]
   },
   "-/-": {
@@ -24455,6 +31299,17 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "U2 U2"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "-/-",
+        "algs": [
+          {
+            "angle": "",
+            "notation": ""
           }
         ]
       }
@@ -24568,6 +31423,21 @@ const pblClusters = {
           {
             "angle": "BR BL",
             "notation": "0-1 D' M d 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M U U2 -10"
           }
         ]
       }
@@ -24717,6 +31587,60 @@ const pblClusters = {
           {
             "angle": "B BL",
             "notation": "10 U W e' w -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B E b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' E B F d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' E' b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U E' B' F' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ba/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W E' w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' E' W f u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' E w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D E W' f' u' -10"
           }
         ]
       }
@@ -24987,6 +31911,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e b f' m' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' D u' U f' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m f b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 T f U' u D' M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cl/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m F w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 t' F D' d U' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w F' m' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 t F' D d' U M' E' 01"
+          }
+        ]
+      }
     ]
   },
   "Adj/D, D/Adj": {
@@ -25117,6 +32095,60 @@ const pblClusters = {
           {
             "angle": "L BR",
             "notation": "10 u m' E' U B -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b E B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d F B' E' D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' E' B 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' F' B E' U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Da/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' E W 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' f' W E' U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w E' W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u f W' E U' -10"
           }
         ]
       }
@@ -25253,6 +32285,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B e D f' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B' e' D' f d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' e' U' F u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' U t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W e U F' u' -10"
+          }
+        ]
+      }
     ]
   },
   "Adj/M, M/Adj": {
@@ -25367,6 +32453,34 @@ const pblClusters = {
           {
             "angle": "F FL",
             "notation": "0-1 bJj T' w W -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M f2' U' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B U u2 B' m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/adj",
+        "algs": [
+          {
+            "angle": "FFr",
+            "notation": "10 d M F2' D' b -10"
+          },
+          {
+            "angle": "FFr",
+            "notation": "10 D W' u2 W' m' U -10"
           }
         ]
       }
@@ -25553,6 +32667,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d F b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d M d f DD' f' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e b F' d' W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d f DD f' d' M' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w f' u' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u F UU F' u' M' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u f w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M u F UU' F' u' -10"
+          }
+        ]
+      }
     ]
   },
   "Adj/Opp, Opp/Adj": {
@@ -25705,6 +32873,34 @@ const pblClusters = {
           {
             "angle": "LR FR",
             "notation": "10 D u -30Adj u' D' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 1 U 61 5 U' 0-1 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3' M u W' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 0-1 D' 50 -50 D 01 -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 M U' w -10"
           }
         ]
       }
@@ -25867,6 +33063,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' d E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u' f' E' e' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u d' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u f E e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d u' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' U t' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' u E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B U' t m U' 01"
+          }
+        ]
+      }
     ]
   },
   "Adj/pJ, pJ/Adj": {
@@ -25966,6 +33216,34 @@ const pblClusters = {
           {
             "angle": "R BR",
             "notation": "bJJ -50 w B' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/pJ",
+        "algs": [
+          {
+            "angle": "FrB",
+            "notation": "10 d f D U3 D' -10"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 w D' E' m u' M' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F U D3 U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U f' W' M u U T' -10"
           }
         ]
       }
@@ -26090,6 +33368,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d F3 e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U W f' m' D W -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/adj",
+        "algs": [
+          {
+            "angle": "FlBl",
+            "notation": "10 B' u f3 e' -10"
+          },
+          {
+            "angle": "FlBr",
+            "notation": "10 D B F' m' U B -10"
+          }
+        ]
+      }
     ]
   },
   "Adj/Q, Q/Adj": {
@@ -26162,6 +33468,34 @@ const pblClusters = {
           {
             "angle": "FR",
             "notation": "10 W b b t' f T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d F D3' u D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B u4 T F t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u f U3' d U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W d4 T F t' 01"
           }
         ]
       }
@@ -26348,6 +33682,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' e b e' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u f U3' B -10"
+          }
+        ]
+      },
+      {
+        "case-name": "adj/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U e' D' f m U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D f' U3 D' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' DD' W 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U F' D3 U' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w DD W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' F D3' U d 01"
+          }
+        ]
+      }
     ]
   },
   "Adj/W, W/Adj": {
@@ -26453,6 +33841,34 @@ const pblClusters = {
           },
           {
             "angle": "BL BR",
+            "notation": "10 u M F' u' M' F M' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' M B' M' D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M F' d' M' f M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "W/adj",
+        "algs": [
+          {
+            "angle": "FlFr",
+            "notation": "10 U M' W M U' -10"
+          },
+          {
+            "angle": "BlBr",
             "notation": "10 u M F' u' M' F M' 01"
           }
         ]
@@ -26582,6 +33998,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "adj/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 Ɇ b' G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e u f F' M U w e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/adj",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u d' u B u' d u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' u f F' M U w e' -10"
+          }
+        ]
+      }
     ]
   },
   "bad B/B": {
@@ -26686,6 +34130,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 u2' -10 U' e D'"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u f w e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 u2' 0-1 U' e D' -11"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u' f' w' e 01"
+          }
+        ]
+      }
     ]
   },
   "good B/B": {
@@ -26752,6 +34224,34 @@ const pblClusters = {
           {
             "angle": "R R",
             "notation": "10 T f e' D -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 t F' e U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u T' u2 U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T f e' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' T u2' U' u2 01"
           }
         ]
       }
@@ -26914,6 +34414,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m D' w' M u u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B u' f' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 m D' U' f B t' U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u f b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 m' D U f' B' t U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cl/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d F w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 m' ɇ F' W' T' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' F' w' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 m ɇ' F W t' U' 01"
           }
         ]
       }
@@ -27127,6 +34681,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' T b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E M u2 f2 e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 t w e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' M' u2' f2' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cl/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' t' b' e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 M' E' m' U F' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 T' w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' M' u2' F2' e' -10"
+          }
+        ]
+      }
     ]
   },
   "good B/D, D/B": {
@@ -27317,6 +34925,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 U' e f2' M' f M' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m W' M D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M d U m' D T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' W M' D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' d' U' m D' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Da/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' m u' f' M u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' u' D' m U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' u f M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' M u D m' U t' 01"
           }
         ]
       }
@@ -27625,6 +35287,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F U' f' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' f' W e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' F' U f D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u f W' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Da/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u f U' F' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W d' F' B e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' f' U F D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d F B' e' -10"
+          }
+        ]
+      }
     ]
   },
   "bad B/K, K/B": {
@@ -27799,6 +35515,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "1-1 bjj 01 3Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U M' f w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' e M' Ɇ w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' w' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 m' M' u' D w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' M F' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' u Ɇ u2' D T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D M' F b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' Ɇ' u2 D' T' -10"
           }
         ]
       }
@@ -27987,6 +35757,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Km",
+        "algs": [
+          {
+            "angle": "BR",
+            "notation": "0-1 B' U m' M' D 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 U3 e' D b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Ka",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "10 B U' m M D' -10"
+          },
+          {
+            "angle": "FR",
+            "notation": "10 U3' e D' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' D m' M' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3 e' U w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W D' m M U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3' e U' w -10"
+          }
+        ]
+      }
     ]
   },
   "B/M, M/B": {
@@ -28164,6 +35988,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T e U' u' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 u2' m u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 T' e' U u B 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' u2 m' u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 t e' D d W 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d3' u2 m' d E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 t' e D' d' W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 u2' m d' E -10"
+          }
+        ]
+      }
     ]
   },
   "good B/O, O/B": {
@@ -28263,6 +36141,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Ol",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 B d E M f' T' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 W' E u E M d u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Or",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 B' d' t' M D T 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 W E' u' t' M D' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Ba",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 W' u' E M' F t' 01"
+          },
+          {
+            "angle": "F",
+            "notation": "0-1 B E' u' E M' u' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Bm",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 W u E' M F' t -10"
+          },
+          {
+            "angle": "B",
+            "notation": "10 B' E' d E M u u2' -10"
+          }
+        ]
+      }
     ]
   },
   "bad B/O, O/B": {
@@ -28287,7 +36219,7 @@ const pblClusters = {
           "alg-blocks": []
         },
         {
-          "solution-overview": "(8)?",
+          "solution-overview": "",
           "solution-slicecount": 8,
           "alg-blocks": []
         }
@@ -28351,6 +36283,60 @@ const pblClusters = {
           {
             "angle": "B",
             "notation": "E E' 0-1 F u3 F -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Or",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 T' F' U d' E M' D 01"
+          },
+          {
+            "angle": "F",
+            "notation": "0-1 w' D Ɇ' m' U T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Ol",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 T F U' d E' M D' -10"
+          },
+          {
+            "angle": "B",
+            "notation": "10 w D' Ɇ m U' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Bm",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 T' f' U u' E M' D 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 b' Ɇ U m' D t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Ba",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 T f U' u E' M D' -10"
+          },
+          {
+            "angle": "L",
+            "notation": "10 b Ɇ' U' m D' t -10"
           }
         ]
       }
@@ -28550,6 +36536,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/opp",
+        "algs": [
+          {
+            "angle": "BB",
+            "notation": "0-1 u2' m U D3' 01"
+          },
+          {
+            "angle": "RR",
+            "notation": "0-1 E M F' B U E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/opp",
+        "algs": [
+          {
+            "angle": "FF",
+            "notation": "10 u2 m' U' D3 -10"
+          },
+          {
+            "angle": "RR",
+            "notation": "10 E' M' F B' U' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 m' D U3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' f W' D' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' m D' U3 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E' M f' W D E 01"
+          }
+        ]
+      }
     ]
   },
   "good B/P, P/B": {
@@ -28730,6 +36770,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 T' u D' W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e w u2 M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T u' D W -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' w' u2' M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 t' d' U B -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' b' u2' M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 t d U' B' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e b u2 M E -10"
+          }
+        ]
+      }
     ]
   },
   "bad B/P, P/B": {
@@ -28899,6 +36993,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "bJJ 13 03Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Pr",
+        "algs": [
+          {
+            "angle": "FR",
+            "notation": "10 u f U F' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 T' D' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' f' U' F D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' T D b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F U f' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 t U' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' F' U' f D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d3' t' U w' 01"
           }
         ]
       }
@@ -29117,6 +37265,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' E b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B U' E M d 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W E' b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' U E' M' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B E w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' D E M' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' E' w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W D' T' M' U 01"
+          }
+        ]
+      }
     ]
   },
   "B/pN, pN/B": {
@@ -29298,6 +37500,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E M F' D3 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u W m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T M U' D3 -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' W' m D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T M D U3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W d' B' m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 t M' D U3' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d B m' U -10"
+          }
+        ]
+      }
     ]
   },
   "B/Q, Q/B": {
@@ -29463,6 +37719,60 @@ const pblClusters = {
           },
           {
             "angle": "B",
+            "notation": "10 B' u U e' f e' D -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d E M u u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u M D' b w E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' E' M' u' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' M' D b' w' E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' E' M' d' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' U' e f' e D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u t M' D u2' -10"
+          },
+          {
+            "angle": "",
             "notation": "10 B' u U e' f e' D -10"
           }
         ]
@@ -29711,6 +38021,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m f w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 t M' m' d D b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D m' f' w' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' M' e d' D' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' F' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' D u' U u u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m F b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 T' M' d' u U' u' u2 01"
+          }
+        ]
+      }
     ]
   },
   "good B/S, S/B": {
@@ -29892,6 +38256,60 @@ const pblClusters = {
           {
             "angle": "L L",
             "notation": "10\\D3 e' U b -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D3 m' M' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3' e D' w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D3' e M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3 e' D w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3 e' M d 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3' e U' b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3' e M' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3 e' U b -10"
           }
         ]
       }
@@ -30133,6 +38551,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/W",
+        "algs": [
+          {
+            "angle": "BFr",
+            "notation": "10 T F U' d U u2' -10"
+          },
+          {
+            "angle": "RBr",
+            "notation": "10 d3 t M' d' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/W",
+        "algs": [
+          {
+            "angle": "FBr",
+            "notation": "0-1 T' F' U d' U' u2 01"
+          },
+          {
+            "angle": "RFr",
+            "notation": "0-1 d3' t' M d E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Ba",
+        "algs": [
+          {
+            "angle": "BlF",
+            "notation": "0-1 T' e' U u W' 01"
+          },
+          {
+            "angle": "FlR",
+            "notation": "0-1 u3' T M u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Bm",
+        "algs": [
+          {
+            "angle": "FlB",
+            "notation": "10 T e U' u' W -10"
+          },
+          {
+            "angle": "BlR",
+            "notation": "10 u3 T' M' u' E -10"
+          }
+        ]
+      }
     ]
   },
   "B/X, X/B": {
@@ -30339,6 +38811,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ba/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' u D u' E M' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u b' T' u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Bm/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 d' U' d E' M D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u' b T u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Ba",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 u' U' u E' M D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 Ɇ' u3' u2 t u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Bm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' u U u' E M' D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 Ɇ u3 u2' t' u' -10"
+          }
+        ]
+      }
     ]
   },
   "bad C/C": {
@@ -30398,6 +38924,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 u u2' U' D M' d3' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 M D' u G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 m' D U' T u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' M' D u' G 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 M Ɇ' u2 u' -10"
           }
         ]
       }
@@ -30466,6 +39020,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 FF M 3Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u T' u2 d' M' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' u2' m U' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' t' u2' d M T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 t' M u m' u2 M U' -10"
           }
         ]
       }
@@ -30599,6 +39181,60 @@ const pblClusters = {
           {
             "angle": "B R",
             "notation": "10 T D d' E' u d' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w T u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e F2' u2 M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' w' u2' t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' F2 u2' M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Da/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' T' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' f2 u2' M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' w t' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e f2' u2 M E -10"
           }
         ]
       }
@@ -30763,6 +39399,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m D' K' u M u u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' w' F d W 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W d' D' U d D U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w F' d' W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d D U' d' D' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Da/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' f u B 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' Ɇ' u Ɇ 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e b f' u' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u Ɇ u' Ɇ' -10"
           }
         ]
       }
@@ -30954,6 +39644,60 @@ const pblClusters = {
           },
           {
             "angle": "F L",
+            "notation": "10 d3 f2 m' U -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' E' u3 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 F2 m' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m E u3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' F2' m D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m E' d3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d3' f2' m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D m' E d3 01"
+          },
+          {
+            "angle": "",
             "notation": "10 d3 f2 m' U -10"
           }
         ]
@@ -31152,6 +39896,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 E' m' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U t2' u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' E m U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' U' t2 u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 E m' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b D T2 u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' E' m D' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' D' T2' u2' u 01"
+          }
+        ]
+      }
     ]
   },
   "C/M, M/C": {
@@ -31335,6 +40133,60 @@ const pblClusters = {
           },
           {
             "angle": "L B",
+            "notation": "10 u3 W T' u2 u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' E' w d E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W D' F e' D M' D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m E w' d' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' D F' e D' M D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Cl",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 U' m E d' w E' -10"
+          },
+          {
+            "angle": "LF",
+            "notation": "0-1 u3' W' T u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Cr",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 U m' E' d w' E 01"
+          },
+          {
+            "angle": "LB",
             "notation": "10 u3 W T' u2 u' -10"
           }
         ]
@@ -31554,6 +40406,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Ol",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 W' d w' t u2 u' -10"
+          },
+          {
+            "angle": "F",
+            "notation": "0-1 w' D Ɇ' m' D' m E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Or",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "0-1 W d' w t' u2' u 01"
+          },
+          {
+            "angle": "B",
+            "notation": "10 w D' Ɇ m D m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B u' b T u2' u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 b U' D U' m U m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u b' T' u2 u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' U D' U m' U' m E' 01"
+          }
+        ]
+      }
     ]
   },
   "good C/O, O/C": {
@@ -31752,6 +40658,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Or",
+        "algs": [
+          {
+            "angle": "B",
+            "notation": "10 F' d3' u d' f' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "10 B' u u2' m u' M' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Ol",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "0-1 F d3 u' d f -10"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 B u' u2 m' u M t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 f' u3' d u' F' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d u2' m d' M' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 f u3 d' u F -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W d' u2 m' d M t' 01"
+          }
+        ]
+      }
     ]
   },
   "C/Opp, Opp/C": {
@@ -31847,6 +40807,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/opp",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "10 F' E w' E' D t -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 E M F' B d' e t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/opp",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 F E' w E D' t' 01"
+          },
+          {
+            "angle": "RF",
+            "notation": "10 E' M' F B' d e T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F U' e M' d' D' t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' f W' u e t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' U e' M d D t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E' M f' W u' e' t' 01"
+          }
+        ]
+      }
     ]
   },
   "good C/P, P/C": {
@@ -31872,7 +40886,7 @@ const pblClusters = {
                   "case-name": "Cl/Pl",
                   "algs": [
                     {
-                      "sign": null,
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "0-1 (t t') D' RJ 01"
                     }
@@ -31899,7 +40913,7 @@ const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Pr/Cl",
+                  "case-name": "Pr/Cr",
                   "algs": [
                     {
                       "sign": "-",
@@ -32076,6 +41090,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 FF t 30Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' u2 D d' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' E' d' U' d t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d u2' D' d U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M E d U d' t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' D' u U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' M E' u D u' T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' u2 D u' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' E u' D' u T' -10"
           }
         ]
       }
@@ -32373,6 +41441,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d f D F' U' M E -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B F2 w' D t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' f' D' F U M' E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' F2' w D' t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F U f' d' M' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W f2 b' U T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' F' U' f d M T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' f2' b U' T 01"
+          }
+        ]
+      }
     ]
   },
   "C/pJ, pJ/C": {
@@ -32496,6 +41618,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D M' F w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 F D d U m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w F' M D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' F' D' d' U' m E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' m D' d' U' F' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' f M' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E m' D d U F u2 01"
+          }
+        ]
+      }
     ]
   },
   "C/pN, pN/C": {
@@ -32560,6 +41736,60 @@ const pblClusters = {
           {
             "angle": "FR L",
             "notation": "10 w w U 03Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' B' M' m' D F' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' D' F M' u' M' D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 B M m D' F -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b D F' M u M D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F U' e M' d' U u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 w Ɇ M' f M' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' U e' M d U' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u B' M D' E' -10"
           }
         ]
       }
@@ -32802,6 +42032,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T U b' U' u' m u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' D' m U' F E U w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' u U b' U' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E D m' U F' E' U' w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w Ɇ u M F' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w E U F' D m' U E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T F M' u' D U' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E U' m D' F U' E' w -10"
+          }
+        ]
+      }
     ]
   },
   "bad C/S, S/C": {
@@ -32886,6 +42170,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M E d3 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U m' E' u2 U b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M t' d3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m E u2' U' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d M T u3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m E u2' D' w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' M' T' u3 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U m' E' u2 D w' 01"
+          }
+        ]
+      }
     ]
   },
   "good C/S, S/C": {
@@ -32952,6 +42290,60 @@ const pblClusters = {
           },
           {
             "angle": "L L",
+            "notation": "0-1 w' D' u2' E m U' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 t M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b U u2 E' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' E' M' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' U' u2' E m U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 T' M' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w D u2 E' m' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' T M d 01"
+          },
+          {
+            "angle": "",
             "notation": "0-1 w' D' u2' E m U' 01"
           }
         ]
@@ -33144,6 +42536,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E' u b' E M U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3 e' M U' e T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U M' E' b' u' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3' e M' U e' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Cl",
+        "algs": [
+          {
+            "angle": "FlR",
+            "notation": "10 D M' E w' d' E' -10"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 U3' e M' D e' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Cr",
+        "algs": [
+          {
+            "angle": "BrB",
+            "notation": "10 E d w' T' M' d' -10"
+          },
+          {
+            "angle": "BlR",
+            "notation": "0-1 U3 e' M D' e t' 01"
+          }
+        ]
+      }
     ]
   },
   "C/X, X/C": {
@@ -33208,6 +42654,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "10 w w U' 03Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Cl/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' d D m' u E 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3 b M' t M' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Cr/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 d' D' m u' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3' b' M t' M u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Cl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 u' U' m d' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' t M' U u' U3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Cr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' u U m' d E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M t' M D' u U3 01"
           }
         ]
       }
@@ -33282,6 +42782,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "1-1 bjj 0-2 u2 u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "U' e D' 1 u2 u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e w f' u' W -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 U' e D' 01 u2 u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' w' f u W' 01"
           }
         ]
       }
@@ -33406,6 +42934,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U e' F t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 U' u2' T u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e f' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' U u2 T' u 01"
+          }
+        ]
+      }
     ]
   },
   "bad D/K, K/D": {
@@ -33489,6 +43045,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 30Adj 0-1 bjj -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Ka",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "10 e w f' M U' -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "0-1 w' D U' M e' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Km",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "0-1 e' w' f M' U 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "10 w D' U M' e u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' F M' D 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 b U' d e m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e b F' M D' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' U d' e' m E' 01"
           }
         ]
       }
@@ -33580,6 +43190,60 @@ const pblClusters = {
           {
             "angle": "B R",
             "notation": "10 30Adj D bjJ -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Km",
+        "algs": [
+          {
+            "angle": "RB",
+            "notation": "0-1 D' M m U' B' 01"
+          },
+          {
+            "angle": "RB",
+            "notation": "0-1 b' D' e U3' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Ka",
+        "algs": [
+          {
+            "angle": "RF",
+            "notation": "10 D M' m' U B -10"
+          },
+          {
+            "angle": "RF",
+            "notation": "10 b D e' U3 -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M m D' W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' U' e D3' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E b B' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U e' D3 -10"
           }
         ]
       }
@@ -33759,6 +43423,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/M",
+        "algs": [
+          {
+            "angle": "FL",
+            "notation": "10 B' u U e' T' -10"
+          },
+          {
+            "angle": "BR",
+            "notation": "0-1 u' f' B' f U' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/M",
+        "algs": [
+          {
+            "angle": "BL",
+            "notation": "0-1 B u' U' e T 01"
+          },
+          {
+            "angle": "FR",
+            "notation": "10 u f B f' U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' U e u2 01"
+          },
+          {
+            "angle": "BR",
+            "notation": "10 w D' U' d u' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d U' e' u2' -10"
+          },
+          {
+            "angle": "FR",
+            "notation": "0-1 w' D U d' u e 01"
+          }
+        ]
+      }
     ]
   },
   "bad D/O, O/D": {
@@ -33778,45 +43496,45 @@ const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "preserve D @ <R>.",
-              "alg-explanation": "PX on O → M* → NN",
+              "alg-explanation": "PX on O → 10° on D → NN",
               "cases": [
                 {
-                  "case-name": "Da/Or",
+                  "case-name": "Da/Ol",
                   "algs": [
                     {
                       "sign": "+",
                       "angle": "R",
-                      "notation": "0-1\\PX M' NN 01"
+                      "notation": "0-1\\PX -10 NN"
                     }
                   ]
                 },
                 {
-                  "case-name": "Dm/Ol",
+                  "case-name": "Dm/Or",
                   "algs": [
                     {
                       "sign": "+",
                       "angle": "R",
-                      "notation": "10/PX M NN -10"
+                      "notation": "10/PX 10 NN -11"
                     }
                   ]
                 },
                 {
-                  "case-name": "Ol/Dm",
+                  "case-name": "Ol/Da",
                   "algs": [
                     {
                       "sign": "+",
                       "angle": "R",
-                      "notation": "0-1\\XP M' NN 01"
+                      "notation": "10/XP 01 NN"
                     }
                   ]
                 },
                 {
-                  "case-name": "Or/Da",
+                  "case-name": "Or/Dm",
                   "algs": [
                     {
                       "sign": "+",
                       "angle": "R",
-                      "notation": "10/XP M NN -10"
+                      "notation": "0-1\\XP 0-1 NN -11"
                     }
                   ]
                 }
@@ -33833,42 +43551,42 @@ const pblClusters = {
               "alg-explanation": "D3° (right JN on O) → right U° to NN → left T° to cancel into M2 → OOpp going in the direction of O",
               "cases": [
                 {
-                  "case-name": "Da/Or",
+                  "case-name": "Da/Ol",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "0-1/D3' U T' D' M' d' M' 01"
+                      "notation": "0-1/D3' U T' D M' f M' 01"
                     }
                   ]
                 },
                 {
-                  "case-name": "Dm/Ol",
+                  "case-name": "Dm/Or",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "10/D3' U t' f M' f M' 01"
+                      "notation": "10/D3' U t' d' M' d' M' 01"
                     }
                   ]
                 },
                 {
-                  "case-name": "Ol/Dm",
+                  "case-name": "Ol/Da",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "0-1/U3 D' T' U' M' u' M' 01"
+                      "notation": "10/U3 D' t' u' M' u' M' 01"
                     }
                   ]
                 },
                 {
-                  "case-name": "Or/Da",
+                  "case-name": "Or/Dm",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "10/U3 D' t' F M' F M' 01"
+                      "notation": "0-1/U3 D' T' U M' F M' 01"
                     }
                   ]
                 }
@@ -33879,7 +43597,59 @@ const pblClusters = {
         {
           "solution-overview": "Adj // GoU-",
           "solution-slicecount": 8,
-          "alg-blocks": []
+          "alg-blocks": [
+            {
+              "angle-explanation": "preserve D @ <R>.",
+              "alg-explanation": "U° M* (Adj on D loose block) → E* back → u° back → U° F° T° (GoU- muscle memory)",
+              "cases": [
+                {
+                  "case-name": "Da/Ol",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "0-1/U' M E d D' F t' 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Dm/Or",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10\\U M' E' d' D F' t -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Ol/Da",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10\\D M' E u' U f' T' -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10/d M T u' U f' T' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Or/Dm",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "0-1/D' M E' u U' f T 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -33933,6 +43703,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "0-1 U' M E' d D' F T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Ol",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 U' M E d D' F t' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 U3 D w' t u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Or",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 U M' E' d' D F' t -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 U3' D' w t' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m E' u' D' f' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3' U' b t' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' E u D f u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3 U b' t u2 01"
           }
         ]
       }
@@ -34168,6 +43992,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Or",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1 f d3 U e u2' -10"
+          },
+          {
+            "angle": "R",
+            "notation": "10 u2 d' M' E' u' E' W' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Ol",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "10 f' d3' D e t' 01"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 u2' d M E u E W 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F u3 U' e' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' M' E' d' E B' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' u3' U e T 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' u M E d E' B 01"
+          }
+        ]
+      }
     ]
   },
   "D/Opp, Opp/D": {
@@ -34247,6 +44125,60 @@ const pblClusters = {
           {
             "angle": "LR R",
             "notation": "0-1\\W' W' M T2 -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D3' d' m E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E' U B' U' M T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D3 d m' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E U' B U M' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3 u m' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E D W' f' M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3' u' m E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E' D' W f M' E 01"
           }
         ]
       }
@@ -34361,6 +44293,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "1-1 bjj -31 u2 u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 U' f U F' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b D T u3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' U f' U' F u 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' D' T' u3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u2' U F' U' f u 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' U' t d3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 U' F U f' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U t' d3' -10"
           }
         ]
       }
@@ -34569,6 +44555,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 bjJ U' u2 u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' D u' T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E' M' u2' w e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W D' u T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E M u2 w' e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' U d' t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' u2' w e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B U' d t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E M u2 b' e 01"
           }
         ]
       }
@@ -34839,6 +44879,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' E' W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' M' E' U B 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b E W -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' t U' B' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w E' B -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' T' D' W' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' E B' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M T D W 01"
+          }
+        ]
+      }
     ]
   },
   "D/pN, pN/D": {
@@ -34919,6 +45013,60 @@ const pblClusters = {
           {
             "angle": "FR L",
             "notation": "0-1\\W' W' f u2 u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D3' U M t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D' m W u' B' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D3' U M' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D m' W' u B 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3 D' M' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U m' B' d W 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3 D' M t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m B d' W' -10"
           }
         ]
       }
@@ -35123,6 +45271,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' e U F2 u2' T 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 f d3 D' e' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U e' U' F2' u2 T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 f' d3' D e M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' e U F2' T u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 F' u3' U e M' E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U e' U' F2 T' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 F u3 U' e' M E' -10"
+          }
+        ]
+      }
     ]
   },
   "bad D/S, S/D": {
@@ -35297,6 +45499,60 @@ const pblClusters = {
           {
             "angle": "R L",
             "notation": "0-1\\w' U' u' e' M' E' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e w f' m' D -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' D' d' m M t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' w' f m D' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 b D d e' M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' b' F m U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U u e' M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e b F' m' U -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' U' u' e M' E 01"
           }
         ]
       }
@@ -35481,6 +45737,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M T D3 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' D e' U3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M e' D3 -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w D' e U3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' M t' U3 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' U e' D3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D M' t U3' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b U' e D3' -10"
+          }
+        ]
+      }
     ]
   },
   "D/W, W/D": {
@@ -35653,6 +45963,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d U' e' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' F' B F D T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' U e u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u F B' F' D' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Da",
+        "algs": [
+          {
+            "angle": "BlR",
+            "notation": "0-1 W' u' U' e T 01"
+          },
+          {
+            "angle": "BlR",
+            "notation": "0-1 u' T u2' m D' w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Dm",
+        "algs": [
+          {
+            "angle": "FlR",
+            "notation": "10 W u U e' T' -10"
+          },
+          {
+            "angle": "FlR",
+            "notation": "10 u T' u2 m' D w -10"
+          }
+        ]
+      }
     ]
   },
   "D/X, X/D": {
@@ -35732,6 +46096,60 @@ const pblClusters = {
           {
             "angle": "B",
             "notation": "10 d T' u2 u3' D U' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Da/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' E' u D u' T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u u2' T b' u' W -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Dm/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m E u' D' u T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' u2 T' b u W' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Da",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m E' d' U' d t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' T u2' b u B 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Dm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D m' E d U d' t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u T' u2 b' u' B' -10"
           }
         ]
       }
@@ -35839,6 +46257,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "E2 10 U' m d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' m w' m' d E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 E2' 01 U' m d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u m' w m d' E' -10"
+          }
+        ]
+      }
     ]
   },
   "good K/K": {
@@ -35937,6 +46383,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 u m' D -10 NN"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' u E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D' m U e t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m d' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' e T M U' -10"
           }
         ]
       }
@@ -36177,6 +46651,60 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "JJ 40 u M D' E' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e f2' M' U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 M' f M' d' u m' u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' f2 M U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u m' W' M' d' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' Ɇ' M' u' e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 M' u' M' UU m' U E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e f' F M' D u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 M' F M' u' D' m D' E' 01"
           }
         ]
       }
@@ -36426,6 +46954,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' D u2' b G 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 UU' f2' F' UU' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w D' u2 b' G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U f U D' U b t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b U' u2 d' u G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' F' U3' u' D T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' U u2' d u' G 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u F U3 u D' T' -10"
+          }
+        ]
+      }
     ]
   },
   "good K/O, O/K": {
@@ -36672,6 +47254,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' u2 D' d' g' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 t' U f D3 b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 u2' D d g -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 t U' f' D3' b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' u2 D' u' g' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 T D u' U3' F' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 u2' D u g -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 T' D' u U3 F u 01"
+          }
+        ]
+      }
     ]
   },
   "K/Opp, Opp/K": {
@@ -36886,6 +47522,60 @@ const pblClusters = {
           {
             "angle": "FB F",
             "notation": "0-1 bJj u' B b -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' f' W e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 M E' U w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u f W' e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' M' E U' w' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' F' B e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 M E D b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d F B' e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d3' M' E' D' b' 01"
           }
         ]
       }
@@ -37228,6 +47918,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' W' f u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ka/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' W 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' f' W' U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u f W U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U W f' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D B F' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' B 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' F' B' D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d F B D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' B' F d 01"
+          }
+        ]
+      }
     ]
   },
   "K/pJ, pJ/K": {
@@ -37435,6 +48231,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D e' W' M u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m D' u' M' F M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' e W M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m D' F M' u' M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U e' w e U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m D' f M' d' M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' e w' e' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' m D' d' M' f M' 01"
+          }
+        ]
+      }
     ]
   },
   "K/pN, pN/K": {
@@ -37608,6 +48458,60 @@ const pblClusters = {
           {
             "angle": "FL B",
             "notation": "0-1 U3' f2 U3 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W D' T' u W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3' F2 D3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' D T u' W -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3 F2' D3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' t' U B 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3' f2 U3 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d t U' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3 f2' U3' -10"
           }
         ]
       }
@@ -37820,6 +48724,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' f' D E F U t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' u' W E F' U' f -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u f D' E' F' U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w E' e D' f' U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d F U' E f' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w e' E' D' F' D' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' F' U E' f D T 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' e E D F D T 01"
+          }
+        ]
+      }
     ]
   },
   "bad K/S, S/K": {
@@ -37908,6 +48866,60 @@ const pblClusters = {
           {
             "angle": "R L",
             "notation": "1-1 W W 01 03Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M E U' d U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 b D F2' M' u' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M t' U d' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' D' F2 M u E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' M t' U u' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' U' f D' M' D E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D M' t U' u U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w U f' D M D' E' -10"
           }
         ]
       }
@@ -38003,6 +49015,60 @@ const pblClusters = {
           {
             "angle": "R L",
             "notation": "10 W W D 03Adj -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' e' B' f u 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B' d' U M' u' M' D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W e B f' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B d U' M u M D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' e' W' F d 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u' d M f' M u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B e W F' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u d' M' f M' u' -10"
           }
         ]
       }
@@ -38175,6 +49241,60 @@ const pblClusters = {
           {
             "angle": "BL R",
             "notation": "0-1\\w' w' M T T' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' D' m E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U F D' u E' f D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 D m' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' F' D u' E f' D' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Ka",
+        "algs": [
+          {
+            "angle": "FlR",
+            "notation": "10 u3 U m' E' -10"
+          },
+          {
+            "angle": "FrB",
+            "notation": "0-1 U F E d U' f D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Km",
+        "algs": [
+          {
+            "angle": "BlR",
+            "notation": "0-1 u3' U' m E 01"
+          },
+          {
+            "angle": "BrF",
+            "notation": "10 U' F' E' d' U K U' 01"
           }
         ]
       }
@@ -38368,6 +49488,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ka/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' f' b' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u3' T D U' u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Km/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u f b e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 T' D' U u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Ka",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d F w e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 t Ɇ' u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Km",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' F' w' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d3' t' Ɇ u2' u 01"
+          }
+        ]
+      }
     ]
   },
   "M/M": {
@@ -38401,6 +49575,21 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 U' m U' t M' T' T 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 F m u' M' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' e T M u e t -10"
           }
         ]
       }
@@ -38581,6 +49770,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u f D' E f' D u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w E e D' F' D u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' f' D E' f D' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' E' e' D F D' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Ol/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' F' U E' f U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 w' e E D F U' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d F U' E f' U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 w e' E' D' F' U u2' -10"
+          }
+        ]
+      }
     ]
   },
   "M/Opp, Opp/M": {
@@ -38641,6 +49884,34 @@ const pblClusters = {
           {
             "angle": "FB R",
             "notation": "0-1 w' U' f T U -30Adj 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' UU f W' T U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B d W' d' D U' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 M DD' F' B t D -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u' B u Ɇ' E 01"
           }
         ]
       }
@@ -38861,6 +50132,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b U' d e' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 F w F' T' F' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' U d' e u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 F' w' F T F u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' D f e' T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 f' b' f T F u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w D' f' e T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 f b f' T' F' u2' -10"
+          }
+        ]
+      }
     ]
   },
   "M/pJ, pJ/M": {
@@ -38908,6 +50233,34 @@ const pblClusters = {
           {
             "angle": "L F",
             "notation": "0-1\\u2' u2 u' u2 U' m' D -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U m' W m U' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u m' W m U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' w m u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U m' w m F u2 01"
           }
         ]
       }
@@ -39036,6 +50389,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' f2' T f U d 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 W' d3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' F2' t' F D u 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 B' u3' -10"
+          }
+        ]
+      }
     ]
   },
   "M/Q, Q/M": {
@@ -39145,6 +50526,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u U f2 T' D' d u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 u2' D d U e T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' e F' U F D f' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 T M D u U' M U' F' U' 01"
+          }
+        ]
+      }
     ]
   },
   "M/S, S/M": {
@@ -39225,6 +50634,60 @@ const pblClusters = {
           {
             "angle": "L L",
             "notation": "10 w w m u2' u2 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 u' M' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' f E u D F D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' u M t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U f' E' u' D' F' D 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' d M T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 U' T' B t' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 d' M' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' U T B' T' u 01"
           }
         ]
       }
@@ -39311,6 +50774,34 @@ const pblClusters = {
           {
             "angle": "BR R",
             "notation": "10 bjJ f' D' e d' t' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/W",
+        "algs": [
+          {
+            "angle": "LBl",
+            "notation": "10 w E U' T U' t -10"
+          },
+          {
+            "angle": "RBr",
+            "notation": "10 D3 F' e D' M D' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/M",
+        "algs": [
+          {
+            "angle": "BrR",
+            "notation": "10 w U E' M' U' t -10"
+          },
+          {
+            "angle": "BrR",
+            "notation": "0-1 U3' f e' U M' U 01"
           }
         ]
       }
@@ -39442,6 +50933,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "M/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 T' E U w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 UU' f2' F' UU' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/M",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 t E' D b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u F U3 u D' M E' -10"
+          }
+        ]
+      }
     ]
   },
   "bad O/O": {
@@ -39481,6 +51000,34 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "10 M' U M e M' d' M' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' u' M' m' M' f M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d M T F UU F' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' F M' m' M' d' M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 F UU' F' T' M' d' -10"
           }
         ]
       }
@@ -39528,6 +51075,34 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "10\\D M' t M' U u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 u' M' T' M' d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' t M' d' M' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m u2' m U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' f M' T' M' d' -10"
           }
         ]
       }
@@ -39656,6 +51231,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' u' M' u' M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' D M' d' t' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' f M' f M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' U M' f T u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' d' M' d' M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' U M' u' t' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' F M' F M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' D M' F T u2' -10"
+          }
+        ]
+      }
     ]
   },
   "good O/P, P/O": {
@@ -39731,6 +51360,60 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "10 f' b' b' e E' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' u3' f' E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' U' u3 D t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F u3 f E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 U u3' D' t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 f d3 F E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 U d' u d' D' t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 f' d3' F' E 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' U' d u' d D t -10"
           }
         ]
       }
@@ -39829,6 +51512,60 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "10\\U T U T' U f' E' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' f' D' d' W' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3 U d' f' u2' T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' m f D d W 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3' U' d f u2 T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d m' F' U' u' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3 D u' F' u2' T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' m F U u B 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3' D' u F u2 T' -10"
           }
         ]
       }
@@ -39974,6 +51711,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' d' F' u' F' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' T' d3 t f' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d F u F e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D T d3' t' f T 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u f d f e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' t u3 T' F' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' u' f' d' f' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U t' u3' T F t' 01"
+          }
+        ]
+      }
     ]
   },
   "O/pN, pN/O": {
@@ -40111,6 +51902,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 m U m' U m 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e u m' U t' u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 m U' m' U' m 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 T u2' U' m d' e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 m' D' m D' m' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' u m' D' t' u2' -1"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 m D m' D m 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' u m' U T u2' -10"
+          }
+        ]
+      }
     ]
   },
   "O/Q, Q/O": {
@@ -40183,6 +52028,60 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "10 e' u e' u' e' E' T T' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e u e f T u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' u e' f u2 M E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' u' e' f' T' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e u' e f' u2' M' E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e u' e F' T' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' u' e' F' u2' M' E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' u e' F T u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e u e F u2 M E' -10"
           }
         ]
       }
@@ -40367,6 +52266,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w U T b' G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 b' U3' f U' u2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' U' T' b G 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 b U3 f' U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' D' t w g' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d F D3' u U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b D t' w' g -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 d' F' D3 u' U' u2 01"
+          }
+        ]
+      }
     ]
   },
   "good O/S, S/O": {
@@ -40409,22 +52362,22 @@ const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Sm/Or",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "L",
-                      "notation": "10 d3 t D' u -54 -10"
-                    }
-                  ]
-                },
-                {
                   "case-name": "Sa/Or",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "L",
                       "notation": "0-1\\d3' T U u' -45 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Sm/Ol",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "L",
+                      "notation": "10 d3 t D' u -54 -10"
                     }
                   ]
                 }
@@ -40549,6 +52502,60 @@ const pblClusters = {
           {
             "angle": "R",
             "notation": "10\\W' b D d t u2 u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' t' D d' G 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 U' f U3' b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 t D' d G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' U f' U3 b' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d3' t' D u' G 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 U' u' D3 F' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 t D' u G' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' U u D3' F d 01"
           }
         ]
       }
@@ -40741,6 +52748,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/W",
+        "algs": [
+          {
+            "angle": "Fr",
+            "notation": "10 T D f D E F' u' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 u2 u' e' m F U' f' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/W",
+        "algs": [
+          {
+            "angle": "Bl",
+            "notation": "10 u f D E F' D' T' -10"
+          },
+          {
+            "angle": "Bl",
+            "notation": "10 u f D' E' e' d U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Ol",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 d F U E' f' U' t -10"
+          },
+          {
+            "angle": "Br",
+            "notation": "10 w e' E U f' U' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Or",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 T U f U E f' u' -10"
+          },
+          {
+            "angle": "Br",
+            "notation": "10 t' U F U' E e' w -10"
+          }
+        ]
+      }
     ]
   },
   "O/X, X/O": {
@@ -40820,6 +52881,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Ol/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e u' e f' t u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' u' e' f' u2' M' E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Or/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' u e' f t' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e u e f u2 M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Ol",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e u e F t' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' u e' F u2 M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Or",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 e' u' e' F' t u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e u' e F' u2' M' E' 01"
+          }
+        ]
+      }
     ]
   },
   "Opp/Opp": {
@@ -40863,6 +52978,21 @@ const pblClusters = {
           {
             "angle": "LR LR",
             "notation": "10 u2 M U2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' T' -10"
           }
         ]
       }
@@ -41021,6 +53151,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3' d t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' u W D E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3' f T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' W' D' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D3' F t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' D' W E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D3 F' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u2' u D W' E 01"
+          }
+        ]
+      }
     ]
   },
   "Opp/pJ, pJ/Opp": {
@@ -41098,6 +53282,34 @@ const pblClusters = {
           {
             "angle": "F FB",
             "notation": "10 bjJ D w W -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B d F Ɇ e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' U t' u' E Ɇ' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W u f DD e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W D' t u E' D U' 01"
           }
         ]
       }
@@ -41187,6 +53399,34 @@ const pblClusters = {
           {
             "angle": "FL LR",
             "notation": "10 u2 F e' W e U -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 t D' e U' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' D e' D u2 M E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u2 t U' e D' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' U e' U u2 M E -10"
           }
         ]
       }
@@ -41313,6 +53553,34 @@ const pblClusters = {
           {
             "angle": "LR",
             "notation": "10\\m jJ m' F' M -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u m' f2' m u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u m' B' m U u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/opp",
+        "algs": [
+          {
+            "angle": "F",
+            "notation": "10 D' m W m' D -10"
+          },
+          {
+            "angle": "F",
+            "notation": "10 u2 F m f D m u' -10"
           }
         ]
       }
@@ -41493,6 +53761,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u u2' U B -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W d' B' d W 01"
+          }
+        ]
+      },
+      {
+        "case-name": "opp/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B u' u2 U' B' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' d B d' W' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' F2' u e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u W u' B' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d F2 u' e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' W' u B 01"
+          }
+        ]
+      }
     ]
   },
   "Opp/W, W/Opp": {
@@ -41612,6 +53934,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 d' u2 Ɇ' F D' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 d3 B d3' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/opp",
+        "algs": [
+          {
+            "angle": "Br",
+            "notation": "10 u u2' W F' U u2' -10"
+          },
+          {
+            "angle": "Fr",
+            "notation": "10 u3 W u3' -10"
+          }
+        ]
+      }
     ]
   },
   "Opp/X, X/Opp": {
@@ -41698,6 +54048,34 @@ const pblClusters = {
           {
             "angle": "LR",
             "notation": "10 u2 M t' d' m U' m' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "opp/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 m u' m u' u2 E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 m U e t M' d' m 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/opp",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 m U m' U u2 E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 m d' M' E' e' F m 01"
           }
         ]
       }
@@ -41797,6 +54175,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "U' e D' 4-3 u2 u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "1-1 U' e D' -13 U' M u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 U' e D' 34 u2 u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "U' e D' 3-1 U' M u 01"
+          }
+        ]
+      }
     ]
   },
   "good P/P": {
@@ -41887,6 +54293,34 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "10 bjJ E' u2 u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' e U' M T 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 E M' f e' U E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' e F' M E -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 E M F' e D' E' 01"
           }
         ]
       }
@@ -42122,6 +54556,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u d' E' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D' M F' B e 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E d u' B' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' F B' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' u E' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' f W' e' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E u' d W 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' W e 01"
+          }
+        ]
+      }
     ]
   },
   "P/pN, pN/P": {
@@ -42253,6 +54741,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D3 K' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 D3 d' u2 M -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D3' K u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D3' d u2' M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U3 u u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U3' u u2' M' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U3 F u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U3 u' u2 M -10"
+          }
+        ]
+      }
     ]
   },
   "P/Q, Q/P": {
@@ -42379,6 +54921,60 @@ const pblClusters = {
           {
             "angle": "L",
             "notation": "0-1 -30Adj M W u U u2' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/Q",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1 U' T' U' T U' F -10"
+          },
+          {
+            "angle": "R",
+            "notation": "0-1 U f U' M' U' d' U' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U T U T' U F' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' f' U M U d U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' u2 U' u2' U' F' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' F' U M U u U 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U u2' U u2 U F -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U F U' M' U' u' U' -10"
           }
         ]
       }
@@ -42625,6 +55221,112 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B b -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' D u2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pl/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 b' B' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' u2 D B 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 b B -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u u2' D' B' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B' b' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B D' u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W' w' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W U' u2' u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 w' W' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' u2 U W 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 w W -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u u2' U' W' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' U u2 u' -10"
+          }
+        ]
+      }
     ]
   },
   "P/W, W/P": {
@@ -42797,6 +55499,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/W",
+        "algs": [
+          {
+            "angle": "RFr",
+            "notation": "0-1 b' D' d' e t' 01"
+          },
+          {
+            "angle": "RFr",
+            "notation": "0-1 U' M u2 W' D w' e' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/W",
+        "algs": [
+          {
+            "angle": "RBr",
+            "notation": "10 b D d e' t -10"
+          },
+          {
+            "angle": "RBr",
+            "notation": "10 U M' u2' W D' w e -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Pl",
+        "algs": [
+          {
+            "angle": "FrR",
+            "notation": "10 w U u e' T' -10"
+          },
+          {
+            "angle": "BrR",
+            "notation": "0-1 F w F' u2' f' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Pr",
+        "algs": [
+          {
+            "angle": "BrR",
+            "notation": "0-1 w' U' u' e T 01"
+          },
+          {
+            "angle": "FrR",
+            "notation": "10 F' w' F u2 f T 01"
+          }
+        ]
+      }
     ]
   },
   "P/X, X/P": {
@@ -42940,6 +55696,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Pl/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 f d3 f -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 f b f' U2 u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Pr/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 f' d3' f' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 f' b' f U2 u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Pl",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' u3' F' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 F' u4' U2 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Pr",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F u3 F -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 F u4 U2 -10"
+          }
+        ]
+      }
     ]
   },
   "pJ/pJ": {
@@ -43038,6 +55848,21 @@ const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m D' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "pJ/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U' m d' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u T' D2 D' -10"
           }
         ]
       }
@@ -43162,6 +55987,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "pJ/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 2 U 0-4 04 U' -2 -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u3 m' D w -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 0-2 D' 4 -4 D 02 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u T' D3' -10"
+          }
+        ]
+      }
     ]
   },
   "pJ/Q, Q/pJ": {
@@ -43276,6 +56129,34 @@ const pblClusters = {
           {
             "angle": "F",
             "notation": "0-1 Jj d' U' D E d u' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Q/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F U3 u U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D' m U' f U' m B' M -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' U' F' f2 W' u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D' m U' F U' m D' F M' 01"
           }
         ]
       }
@@ -43444,6 +56325,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Sa/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 U u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W e U f u 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u3' U' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 W' e' U' f' u' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 u' d u' D' u2 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' e' D' F' d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u d' u D u2' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B e D F d 01"
+          }
+        ]
+      }
     ]
   },
   "pJ/W, W/pJ": {
@@ -43550,6 +56485,34 @@ const pblClusters = {
           {
             "angle": "L FR",
             "notation": "1-1 bjj -3-2 B' w -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "W/pJ",
+        "algs": [
+          {
+            "angle": "FrL",
+            "notation": "0-1 U' M T U d' D t' 01"
+          },
+          {
+            "angle": "BrB",
+            "notation": "10 B' u d' D' m U' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M T D d' U t' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 D M' B T' B U -10"
           }
         ]
       }
@@ -43662,6 +56625,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "X/pJ",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d3 u2' D u d' E -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 W' u2' D' Ɇ' F' W' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "pJ/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 u2' D b E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 W u b' f U' F' u' -10"
+          }
+        ]
+      }
     ]
   },
   "pN/pN": {
@@ -43731,6 +56722,21 @@ const pblClusters = {
           },
           {
             "angle": "FL FR",
+            "notation": "10 u2 m' E' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "pN/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 T2 -10"
+          },
+          {
+            "angle": "",
             "notation": "10 u2 m' E' -10"
           }
         ]
@@ -43817,6 +56823,34 @@ const pblClusters = {
           {
             "angle": "FR",
             "notation": "10\\D M' f2 M F' t -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Q/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' D M' F u2 t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' D M' d' T m' E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u M f2' M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' U M' u' T m' E -10"
           }
         ]
       }
@@ -43997,6 +57031,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Sa/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u F W u2 D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u u2' W F' U m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' W F' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u F W u2 U m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u u2' B f' U' t -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 d f B u2 U m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 d f B u2 D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u u2' B f' D m' E -10"
+          }
+        ]
+      }
     ]
   },
   "pN/W, W/pN": {
@@ -44063,6 +57151,34 @@ const pblClusters = {
           {
             "angle": "FL FL",
             "notation": "0-1\\w' B f bjJ -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "W/pN",
+        "algs": [
+          {
+            "angle": "BrFl",
+            "notation": "10 u u2' D' u u2' U b -10"
+          },
+          {
+            "angle": "BlFl",
+            "notation": "10 B' u W u' D' U E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 D' u2' B f' ɇ m' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u f2 d' T e t -10"
           }
         ]
       }
@@ -44151,6 +57267,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "X/pN",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' D M' d' u2 T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' D M' F T m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "pN/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 e' U M' u' u2 T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' U M' f T m' E' -10"
+          }
+        ]
+      }
     ]
   },
   "Q/Q": {
@@ -44206,6 +57350,21 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "10 U' m E m' d u2' M' 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Q/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D M' t M' D' T' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 u2 u' M' T' M' u' E -10"
           }
         ]
       }
@@ -44503,6 +57662,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Q/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' d' f2' u2 F U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e w f' u' D' U E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Q/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F d f2 u2' F' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' w' f u D U' E 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sa/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 F u f F' u2' f' U 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 e' b' F d Ɇ E' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 F' u' f' F u2 f U' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e b F' d' Ɇ' E -10"
+          }
+        ]
+      }
     ]
   },
   "Q/W, W/Q": {
@@ -44589,6 +57802,34 @@ const pblClusters = {
           {
             "angle": "BL",
             "notation": "10 D' m D' T' d w' B 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Q/W",
+        "algs": [
+          {
+            "angle": "Br",
+            "notation": "10 d D' F2 u2' D d t -10"
+          },
+          {
+            "angle": "Bl",
+            "notation": "10 u3 t D' d U' e u2' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Q",
+        "algs": [
+          {
+            "angle": "Fl",
+            "notation": "10 b D' T u2' U b -10"
+          },
+          {
+            "angle": "Br",
+            "notation": "10 W u t D' d E' M U' -10"
           }
         ]
       }
@@ -44709,6 +57950,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Q/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' D e' u2' e D M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 m U M U' m U t E -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Q",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 M' U e u2' e' U M' 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 M' U m' U' M' U u2' E' -10"
+          }
+        ]
+      }
     ]
   },
   "bad S/S": {
@@ -44802,6 +58071,34 @@ const pblClusters = {
           {
             "angle": "F L",
             "notation": "10 30Adj 0-1 E E' -11"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Sa/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "U' -23 T2 -10 U'"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' W M D' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "1-1 E E' 01 U M' u' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U' M W' M' D E 01"
           }
         ]
       }
@@ -44952,6 +58249,34 @@ const pblClusters = {
           },
           {
             "angle": "F F",
+            "notation": "10 D' m u2' e D' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Sa/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 E U' M d 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 U M' U e' T' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 E D M' u' -10"
+          },
+          {
+            "angle": "",
             "notation": "10 D' m u2' e D' -10"
           }
         ]
@@ -45206,6 +58531,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Sa/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 U' M f' U m' u e' 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 B u' u2 U' d' U t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 U M' f U' m u' e -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 B' u u2' U d U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Sa",
+        "algs": [
+          {
+            "angle": "BlFl",
+            "notation": "10 U M' f u m' U e -10"
+          },
+          {
+            "angle": "FrBl",
+            "notation": "10 W' d u2' U u U' t -10"
+          }
+        ]
+      },
+      {
+        "case-name": "W/Sm",
+        "algs": [
+          {
+            "angle": "FlBl",
+            "notation": "0-1 U' M f' u' m U' e' 01"
+          },
+          {
+            "angle": "BrFl",
+            "notation": "0-1 W d' u2 U' u' U t' 01"
+          }
+        ]
+      }
     ]
   },
   "S/X, X/S": {
@@ -45396,6 +58775,60 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "Sa/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 W d' F' d' f' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "10 u m' M' b' f T U' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "Sm/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 W' d F d f e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 u' m M b f' T' U -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Sa",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 B' u f u F e' -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 U' u2 u3' u2 d' t' 01"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Sm",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "0-1 B u' f' u' F' e 01"
+          },
+          {
+            "angle": "",
+            "notation": "0-1 U u2' u3 u2' d t -10"
+          }
+        ]
+      }
     ]
   },
   "W/W": {
@@ -45455,6 +58888,25 @@ const pblClusters = {
           {
             "angle": "FR FL",
             "notation": "10 u M D' E' M' E' E 01"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "W/W",
+        "algs": [
+          {
+            "angle": "FlBl",
+            "notation": "10 u2 u' M' d' M' T' -10"
+          },
+          {
+            "angle": "FlBl",
+            "notation": "10 u2 e U M U' E -10"
+          },
+          {
+            "angle": "BlBr",
+            "notation": "10 U' m u2' e u e T' -10"
           }
         ]
       }
@@ -45603,6 +59055,34 @@ const pblClusters = {
           }
         ]
       }
+    ],
+    "jlminx": [
+      {
+        "case-name": "W/X",
+        "algs": [
+          {
+            "angle": "Bl",
+            "notation": "0-1 w' t u m' B d 01"
+          },
+          {
+            "angle": "Br",
+            "notation": "10 d F D3' u U m' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/W",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 u3 u2' E D' w -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 D f' U3 d' D' m u2' -10"
+          }
+        ]
+      }
     ]
   },
   "X/X": {
@@ -45685,6 +59165,21 @@ const pblClusters = {
           {
             "angle": "",
             "notation": "10 E' m D' M T M U' -10"
+          }
+        ]
+      }
+    ],
+    "jlminx": [
+      {
+        "case-name": "X/X",
+        "algs": [
+          {
+            "angle": "",
+            "notation": "10 D' m u2' m U' M E -10"
+          },
+          {
+            "angle": "",
+            "notation": "10 e' D M' t M' u' u2 T' -10"
           }
         ]
       }

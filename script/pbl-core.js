@@ -264,6 +264,7 @@ let pblLastClusterSource = null;
 const PBL_SOURCE_META = {
     matt:  { label: 'Matt',  linkText: "Matt's PBL Doc",    url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt  },
     derpy: { label: 'Derpy', linkText: "Derpy's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit', formatter: pblFormatSheet },
+    jlminx: { label: 'JLMinx', linkText: "JL Minx's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/10yJdudCtT-zIt7YVjhgPv4VfOuqXHa3u1fxYhaBPP8s/edit', formatter: pblFormatSheet },
 };
 
 // ── pblRenderCluster ──────────────────────────────────────────────────────
