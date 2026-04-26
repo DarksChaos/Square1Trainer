@@ -48,6 +48,11 @@ const karnToWCA = {
     " U2'D ":  " /6,3/ ",         " U2'D' ": " /6,-3/ ",
     " ɇ ":   " / U D / ",         " ɇ' ":  " / U' D' / ",
     " Ɇ ":   " / U D' / ",        " Ɇ' ":  " / U' D / ",
+    // jlminx
+    " E2 ": " / E E' / ",         " E2' ": " / E' E / ",
+    " A ": " /1,0/ ",             " A' ": " /-1,0/ ",
+    " G ": " /5,-4/ ",            " G' ": " /-5,4/ ",
+    " g ": " /4,-5/ ",            " g' ": " /-4,5/ ",
 };
 
 const shorthandToKarn = {
@@ -90,24 +95,14 @@ const shorthandToKarn = {
     "bss10":    "/D M' u' E/",      "bss0-1":   "/U' M d E/",
     "vv10":     "/u M u m' E'/",
     "zz10":     "/u M t' M D'/",    "zz0-1":    "/D' M t' M u/",
-    "30adj10":  "/U M' u'/",        "3adj10":   "/U M' u'/",
-    "03adj10":  "/D M' d'/",        "-30adj0-1":"/U' M u/",
+    "30adj10":  "/U M' u'/",        "-30adj0-1":"/U' M u/",
+    "03adj10":  "/D M' d'/",
     "obopp00":  "1,0/M' F M' F M'/0,1",
     "oaopp1-1": "0,1/M' u' M' u' M'/0,1",
     "but00":    "",   "also00":  "",   "done!00": "0,0",
 };
 
 const tempReplacements = {};
-
-function replaceWithDict(str, dict) {
-    const pattern = new RegExp(
-        Object.keys(dict).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
-        'g'
-    );
-    let prev;
-    do { prev = str; str = str.replace(pattern, m => dict[m]); } while (str !== prev);
-    return str;
-}
 
 function addCommas(scramble) {
     return scramble.split(' ').map(move => {
@@ -131,6 +126,7 @@ function getAlignment(topA, bottomA) {
 }
 
 function unkarnifyHelp(scramble) {
+    scramble = scramble.replaceAll('/', ' / ');
     return replaceWithDict(' ' + scramble + ' ', karnToWCA)
         .trim()
         .replaceAll(/ ?\/( \/?)*/g, '/')
@@ -165,7 +161,7 @@ function replaceShorthands(scramble) {
             if (replacement === undefined)
                 throw new Error(`"${move}" with alignment ${getAlignment(topA, bottomA)} is not defined.`);
             scramble = scramble.replace(move, replacement);
-            for (const sub of unkarnifyHelp(replacement.slice(1, -1)).split('/')) {
+            for (const sub of unkarnifyHelp(replacement).split('/')) {
                 if (!sub) continue;
                 const [u, d] = sub.split(',');
                 if (parseInt(u, 10) % 3 !== 0) topA    = !topA;
@@ -181,31 +177,59 @@ function replaceShorthands(scramble) {
 }
 
 function unkarnify(scramble) {
+    // ── 0. One-off overrides ──────────────────────────────────────────────────
     if (scramble in tempReplacements) scramble = tempReplacements[scramble];
+
+    // ── 1. Easter egg passthrough ─────────────────────────────────────────────
     if (scramble.includes('meow')) return scramble;
-    let isPScramble = scramble.startsWith('p ');
+
+    // ── 2. Pseudo-scramble ("p …/p'") wrapper ────────────────────────────────
+    let isPScramble = /^p[ /\\|]/.test(scramble);
     if (isPScramble) scramble = scramble.slice(2, -3);
+
+    // ── 3. Legacy single-character substitutions (mainwindow.cpp) ─────────────
+    // These were used in an older compact notation:
+    //   & → -1,  ^ → -2,  9 → -3,  8 → -4,  7 → -5
     scramble = scramble
-        .replaceAll('&', '-1').replaceAll('^', '-2')
-        .replaceAll('9', '-3').replaceAll('8', '-4').replaceAll('7', '-5');
+        .replaceAll('&', '-1')
+        .replaceAll('^', '-2')
+        .replaceAll('9', '-3')
+        .replaceAll('8', '-4')
+        .replaceAll('7', '-5');
+
+    // ── 4. Detect leading / trailing slice presence before stripping ──────────
     const firstToken = scramble.match(/^[^\/\\ ]*/)?.[0] ?? '';
     const firstSlice = scramble.startsWith('/') || scramble.startsWith('\\') ||
-                       (' ' + firstToken + ' ' in karnToWCA);
+                       scramble.startsWith('|') || (' ' + firstToken + ' ' in karnToWCA);
     const lastToken  = scramble.match(/[^\/\\ ]*$/)?.[0] ?? '';
     const lastSlice  = ' ' + lastToken + ' ' in karnToWCA;
+
+    // ── 5. Expand (move)N repetition groups ──────────────────────────────────
+    // e.g. "(U U')3" → "U U' U U' U U'"
     for (const group of scramble.matchAll(/(\(.*?\))(\d+)/g)) {
-        const inner = group[1].replaceAll(/[()]/g, '');
-        const count = parseInt(group[2], 10);
+        const inner   = group[1].replaceAll(/[()]/g, '');
+        const count   = parseInt(group[2], 10);
         scramble = scramble.replace(group[0], Array(count).fill(inner).join(' '));
     }
+
+    // ── 6. Normalise separators ───────────────────────────────────────────────
     scramble = scramble
-        .replaceAll(/[\/\\]/g, ' ').replaceAll(/[()]/g, '').replaceAll(/ +/g, ' ');
+        .replaceAll(/[\/\\]/g, ' ')
+        .replaceAll(/[()]/g, '')
+        .replaceAll(/ +/g, ' ');
+
+    // ── 7. Expand compact numeric tokens (e.g. "2-1" → "2,-1") ──────────────
     scramble = addCommas(scramble);
+
+    // ── 8. Replace shorthands then full dict-replace ──────────────────────────
     let final = replaceShorthands(unkarnifyHelp(scramble));
-    if (isPScramble) final = 'p/' + final + "/p'";
+
+    // ── 9. Re-attach leading / trailing slices ────────────────────────────────
     if (firstSlice)  final = '/' + final;
     if (lastSlice)   final = final + '/';
-    final = final.replaceAll('//', '/');
+    if (isPScramble) final = 'p/' + final + "/p'";
+    final = final.replaceAll(/\/+/g, '/');
+
     return final;
 }
 

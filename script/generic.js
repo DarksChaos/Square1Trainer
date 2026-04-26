@@ -1,5 +1,4 @@
 // ─── MATH UTILITIES ──────────────────────────────────────────────────────────
-// Note: mod / randInt / randrange may already be in utils.js — remove if so.
 
 function mod(n, m) {
     return ((n % m) + m) % m;
@@ -61,7 +60,7 @@ const contentEl = document.getElementById("content");
 const caseListEl    = document.getElementById("results");
 const filterInputEl = document.getElementById("pbl-filter");
 
-const eachCaseEl       = document.getElementById("allcases");
+const eachCaseEl       = document.getElementById("each-case");
 const karnEl           = document.getElementById("karn");
 const weightEl         = document.getElementById("weight");
 const globalBarflipEl  = document.getElementById("globalbarflip");
@@ -396,6 +395,26 @@ function updateSelCount() {
     selCountEl.textContent = 'Selected: ' + count;
 }
 
+// update the remainging count if each-case is on
+function updateRemainingCount() {
+    const wrapperEl = document.getElementById('each-case-remaining');
+    if (!wrapperEl) return;
+    if (!eachCaseEl.checked) {
+        wrapperEl.style.display = 'none';
+        return;
+    }
+    const spliced = trainerMode === 'obl' ? oblCaseSpliced : pblCaseSpliced;
+    const queued  = trainerMode === 'obl'
+        ? oblRemainingCases[oblUsingSpe].length
+        : pblRemaining.length;
+    console.log(trainerMode === "obl" ? oblRemainingCases[oblUsingSpe] : pblRemaining);
+    console.log(spliced);
+    // spliced is set synchronously before the splice in each generate function,
+    // so queued + 1 is always correct: the current case + everything still in the array.
+    document.getElementById('remaining-count').textContent = queued + (spliced ? 1 : 0);
+    wrapperEl.style.display = '';
+}
+
 // updateToggle: purely reads showMode + highlightedList — no trainer branching.
 function updateToggle() {
     if (showMode === 'list' && highlightedList == null) showMode = 'selected';
@@ -554,9 +573,9 @@ function removeLast() {
         return;
     }
     if (pblScrambleList.at(-2 - pblOffset) !== undefined) {
-        const base = pblPreviousCase.slice(0, -1); // strip +/- suffix
         pblSnapSelection();
         if (!pblUseBarflip) {
+            const base = pblPreviousCase.slice(0, -1); // strip +/- suffix
             pblDeselect(base + '+');
             pblDeselect(base + '-');
         } else {
@@ -638,7 +657,19 @@ filterInputEl.addEventListener("input", () => {
     if (trainerMode === 'obl') {
         filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z1-4/\- ]+/g, "");
         oblApplyFilter(filterInputEl.value);
-        // OBL filter is always live — don't touch showMode.
+        const hasFilter = filterInputEl.value.trim() !== '';
+        if (hasFilter) {
+            if (showMode !== 'searched') {
+                preSearchMode = (showMode === 'list') ? 'all' : showMode;
+                showMode = 'searched';
+            }
+        } else if (showMode === 'searched') {
+            showMode = preSearchMode;
+            if (showMode === 'selected') showSelected();
+            else if (showMode === 'list' && highlightedList != null) oblSelectList(highlightedList, false);
+            else showAll();
+        }
+        updateToggle();
         return;
     }
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!|&() ]+/g, "");
@@ -726,6 +757,12 @@ toggleUiEl.addEventListener("click", () => {
         }
     } else {
         sidebarEl.classList.toggle("hidden");
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'BUTTON') {
+        e.target.blur(); // Removes focus so key + spacebar cannot trigger a click
     }
 });
 
@@ -831,22 +868,26 @@ window.addEventListener("keydown", (e) => {
             case "k": if (!canShortcut) return; karnEl.checked = !karnEl.checked; onCheckKarn(); return;
             case "e":
                 if (!canShortcut) return;
+                if (trainerMode === 'pbl' && eachCaseEl.disabled) return;
                 eachCaseEl.checked = !eachCaseEl.checked;
                 if (trainerMode === 'pbl') pblOnEachCase(); else oblOnEachCase();
                 return;
             case "r":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
+                if (weightEl.disabled) return;
                 weightEl.checked = !weightEl.checked; pblOnWeights();
                 return;
             case "g":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
+                if (!pblUseBarflip) return;
                 globalBarflipEl.checked = !globalBarflipEl.checked; pblOnGlobalBarflip();
                 return;
             case "b":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
+                if (useBarflipEl.disabled) return;
                 useBarflipEl.checked = !useBarflipEl.checked; pblOnUseBarflip();
                 return;
             case "s": {
@@ -920,30 +961,40 @@ fileEl.addEventListener("change", (e) => {
     reader.onload = () => {
         try {
             e.target.value = '';
-            pblDeselectAll();
             const jsonData = JSON.parse(reader.result);
             // ── PBL ──
-            if ("selectedPBL" in jsonData) pblStorage.setItem("selected", jsonData["selectedPBL"]);
             let outdated = false;
+            if ("selectedPBL" in jsonData) {
+                pblDeselectAll();
+                const sel = jsonData["selectedPBL"];
+                pblStorage.setItem("selected", sel);
+                const allLists = [sel, ...Object.values(JSON.parse(jsonData["userListsPBL"] ?? '{}'))];
+                if (allLists.some(lst => Array.isArray(lst) && lst.length && !lst[0].endsWith('+') && (!lst[0].endsWith('-') || lst[0].endsWith('/-'))))
+                    outdated = true;
+            }
             if ("userListsPBL" in jsonData)   pblStorage.setItem("userLists", jsonData["userListsPBL"]);
             else if ("userLists" in jsonData) { pblStorage.setItem("userLists", jsonData["userLists"]); outdated = true; }
             if ("settingsPBL" in jsonData)    pblStorage.setItem("settings", jsonData["settingsPBL"]);
             else if ("settings" in jsonData)  { pblStorage.setItem("settings", jsonData["settings"]); outdated = true; }
-            const sel = jsonData["selectedPBL"];
-            const allLists = [sel, ...Object.values(JSON.parse(jsonData["userListsPBL"] ?? '{}'))];
-            if (allLists.some(lst => Array.isArray(lst) && lst.length && !lst[0].endsWith('+') && (!lst[0].endsWith('-') || lst[0].endsWith('/-'))))
-                outdated = true;
             // ── OBL ──
             if ("selectedOBL" in jsonData)  oblStorage.setItem("selected",  jsonData["selectedOBL"]);
             if ("userListsOBL" in jsonData) oblStorage.setItem("userLists", jsonData["userListsOBL"]);
             if ("settingsOBL" in jsonData)  oblStorage.setItem("settings",  jsonData["settingsOBL"]);
             if (outdated) alert("File formatting is outdated, re-export recommended.");
             pblLoadStorage();
+            // Always reload OBL in-memory state regardless of current trainer mode,
+            // so uploading either JSON works from either trainer without switching first.
+            oblLoadSettings();
+            oblLoadUserLists();
+            oblLoadSelected();
             if (trainerMode === 'obl') {
-                oblLoadSettings();
-                oblLoadUserLists();
-                oblLoadSelected();
                 oblRestoreGrid();
+            } else {
+                // oblLoadSettings touched shared checkboxes and oblLoadSelected may have
+                // written an OBL scramble to the display — restore PBL state on top.
+                pblRestoreSettings();
+                if (pblHasActive && pblScrambleList.length)
+                    currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
             }
             closePopup();
             showSuccess("Imported.", 1000);
@@ -1068,8 +1119,10 @@ function applyMode() {
         // Generate a scramble if none exists (e.g. first switch from OBL on initial load).
         if (!pblHasActive && pblSelected.length > 0) pblGenerateScramble();
         if (pblSelected.length > 0) showSelected(); else showAll();
+        updateRemainingCount();
     } else {
         pblSaveSettings();
+        eachCaseEl.disabled = false; // clear any PBL W↔E lock on the shared sidebar checkbox
         document.getElementById('barflip-override-row')?.classList.add('hidden');
         oblLoadSettings();
         oblInitDefaultLists();
@@ -1080,6 +1133,7 @@ function applyMode() {
         // Generate a scramble if none exists (mirrors PBL symmetry).
         if (!oblHasActiveScramble && oblSelectedCases[oblUsingSpe].length > 0) oblGenerateScramble();
         if (oblSelectedCases[oblUsingSpe].length > 0) showSelected(); else showAll();
+        updateRemainingCount();
     }
 }
 

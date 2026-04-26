@@ -15,6 +15,7 @@ let oblScrambleOffset    = 0;
 let oblPreviouslySelected = null; // null = nothing to undo
 let oblRedoSelected       = null; // null = nothing to redo
 let oblEachCase          = 0;
+let oblCaseSpliced       = false; // true once a case has been taken from remaining for display
 
 const oblStorage = {
     getItem:  k      => localStorage.getItem(k + 'OBL'),
@@ -32,6 +33,7 @@ function oblSelect(id) {
     const el = document.getElementById(id);
     if (el) el.classList.add('checked', 'checked-both');
     updateSelCount();
+    updateRemainingCount();
 }
 
 function oblDeselect(id) {
@@ -40,6 +42,7 @@ function oblDeselect(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('checked', 'checked-both');
     updateSelCount();
+    updateRemainingCount();
 }
 
 function oblSaveSelected() {
@@ -52,7 +55,7 @@ function oblSaveSelected() {
         oblGenerateScramble(true);
 }
 
-function oblEnableEachCase() {
+function oblRefillRemaining() {
     oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     oblRemainingCases[oblUsingSpe] =
         oblSelectedCases[oblUsingSpe].flatMap(el => Array(oblEachCase).fill(el));
@@ -66,13 +69,21 @@ function oblGenerateScramble(regen = false) {
         currentScrambleEl.textContent  = 'Scramble will show up here';
         previousScrambleEl.textContent = 'Last scramble will show up here';
         oblHasActiveScramble = false;
+        oblCaseSpliced       = false;
         oblScrambleList      = [];
+        updateRemainingCount();
         return;
     }
-    if (oblRemainingCases[oblUsingSpe].length === 0) oblEnableEachCase();
+    if (oblRemainingCases[oblUsingSpe].length === 0) {
+        // refill the entire array
+        oblRefillRemaining();
+        if (oblEachCase === 1 && oblCaseSpliced && !regen) showSuccess("Trained each case.", 1000)
+    }
 
+    oblCaseSpliced = true; // set synchronously before splice
     const idx    = randInt(0, oblRemainingCases[oblUsingSpe].length - 1);
     const choice = oblRemainingCases[oblUsingSpe].splice(idx, 1)[0];
+    updateRemainingCount();
     oblCurrentCase = choice;
 
     const specific = oblUsingSpe
@@ -198,10 +209,10 @@ function oblSelectList(listName, setSelection) {
         document.getElementById(id)?.classList.remove('hidden');
 
     if (setSelection) {
-
         oblDeselectAll();
         for (const id of list[oblUsingSpe]) oblSelect(id);
         oblSaveSelected();
+        updateRemainingCount();
     }
 
     showMode = 'list';
@@ -286,10 +297,12 @@ function oblLoadSelected() {
     if (!stored) return;
     oblSelectedCases = JSON.parse(stored);
     if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
-    oblEnableEachCase();
+    // Select first (oblEachCase is still 0 so oblSelect won't double-fill remaining),
+    // then enable each-case which rebuilds remaining cleanly from the complete selected list.
     oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
-    // Only generate a scramble on first load; on trainer switch an active scramble persists.
-    if (oblSelectedCases[oblUsingSpe].length && !oblHasActiveScramble) oblGenerateScramble();
+    if (oblHasActiveScramble) return; // remaining is valid from before the trainer switch; rebuilding would double-count
+    oblRefillRemaining();
+    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
 }
 
 // ─── OBL BULK SELECT ─────────────────────────────────────────────────────────
@@ -313,14 +326,13 @@ function oblDeselectAll() {
     });
     oblSaveSelected();
     updateSelCount();
+    updateRemainingCount();
 }
 
 // ─── OBL GRID ─────────────────────────────────────────────────────────────────
 
 function oblRestoreGrid() {
-    caseListEl.style.gridTemplateColumns = oblUsingSpe
-        ? 'repeat(auto-fit, minmax(160px, 1fr))'
-        : 'repeat(auto-fit, minmax(130px, 1fr))';
+    caseListEl.style.gridTemplateColumns = 'repeat(auto-fit, minmax(130px, 1fr))';
 
     caseListEl.innerHTML = oblUsingSpe
         ? possibleOBL.flatMap(obl =>
@@ -392,9 +404,14 @@ function oblLoadSettings() {
 }
 
 function oblOnEachCase() {
-    oblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
-    oblRemainingCases[oblUsingSpe] =
-        oblSelectedCases[oblUsingSpe].flatMap(id => Array(oblEachCase).fill(id));
+    oblRefillRemaining();
+    // The active case is already being displayed — remove one of its freshly-added
+    // slots so the counter doesn't double-count it.
+    if (oblCaseSpliced && oblCurrentCase) {
+        const idx = oblRemainingCases[oblUsingSpe].indexOf(oblCurrentCase);
+        if (idx !== -1) oblRemainingCases[oblUsingSpe].splice(idx, 1);
+    }
+    updateRemainingCount();
     oblSaveSettings();
 }
 
@@ -403,6 +420,16 @@ function oblOnSpe() {
     oblUsingSpe = specificEl.checked ? 1 : 0;
     oblSaveSelected(); // syncs both arrays, regenerates
     oblRestoreGrid();
+    // Re-apply the current show mode so toggling specific naming doesn't reset the sidebar.
+    if (showMode === 'selected') {
+        showSelected();
+    } else if (showMode === 'list' && highlightedList != null) {
+        oblSelectList(highlightedList, false);
+    } else if (showMode === 'searched') {
+        oblApplyFilter(filterInputEl.value);
+        updateToggle();
+    }
+    // else: showMode === 'all' — oblRestoreGrid already showed everything via oblApplyFilter('')
     oblAddDefaultLists(); // refresh counts for new spe mode
     oblAddUserLists();
     oblSaveSettings();
@@ -439,7 +466,7 @@ const oblHelpSections = [
             { keys: ['Space'],          desc: 'Start / stop timer' },
             { keys: ['Backspace'],      desc: 'Remove last case' },
             { keys: ['K'],              desc: 'Toggle karnotation' },
-            { keys: ['E'],              desc: 'Go through each case once' },
+            { keys: ['E'],              desc: 'Train each case once' },
             { keys: ['S'],              desc: 'Toggle specific case naming' },
             { keys: ['P'],              desc: 'Show Matt tracing memo' },
             null,
@@ -809,13 +836,12 @@ function oblHasAlgData(algs) {
     );
 }
 
-function oblFormatCluster(cluster, title) {
+// ── OBL source formatters ─────────────────────────────────────────────────
+
+// Formats the Matt section only (no title, no tabs).
+function oblFormatMatt(cluster, key, meta) {
     const lines = [];
-    lines.push(
-        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>`,
-        "",
-        `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit" target="blank">from Matt's OBL Doc</a></b></span>`
-    );
+    lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
 
     const matt = cluster.matt;
     if (matt?.["distinction-help"]?.trim())
@@ -834,35 +860,96 @@ function oblFormatCluster(cluster, title) {
             const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
             const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
             lines.push(
-                `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
+                `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
                 `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
                 `<span style="font-family:monospace">${notation}</span></span>`
             );
         }
     }
+    if (lines.length === 1)
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+    return lines.join("");
+}
 
-    // OBL derpy algs are plain notation strings (not {angle, notation} objects).
-    const filledDerpy = (cluster.derpy || []).filter(c => oblHasAlgData(c.algs));
-    if (filledDerpy.length) {
-        lines.push(
-            "",
-            `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit" target="blank">from Derpy's OBL Sheet</a></b></span>`
-        );
-        for (const c of filledDerpy) {
-            for (let i = 0; i < c.algs.length; i++) {
-                const algStr = c.algs[i];
-                if (!algStr?.trim()) continue;
-                const notation = usingKarn ? algStr : unkarnify(algStr);
-                const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
-                lines.push(
-                    `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
-                    `${i === 0 ? c["case-name"] + " " : ""}` +
-                    `<span style="font-family:monospace">${notation}</span></span>`
-                );
-            }
+// Formats a generic sheet source (Derpy format: [{case-name, algs:[string]}]).
+// All non-Matt OBL sources are assumed to use plain notation strings.
+function oblFormatSheet(cluster, key, meta) {
+    const sheetData = cluster[key];
+    const lines = [];
+    const linkHtml = meta.url
+        ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
+        : `<b>${meta.label}</b>`;
+    lines.push(`<span class="section-label">${linkHtml}</span>`);
+    const filled = (sheetData || []).filter(c => oblHasAlgData(c.algs));
+    if (!filled.length) {
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+        return lines.join("");
+    }
+    for (const c of filled) {
+        for (let i = 0; i < c.algs.length; i++) {
+            const algStr = c.algs[i];
+            if (!algStr?.trim()) continue;
+            const notation = usingKarn ? algStr : unkarnify(algStr);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + " " : ""}` +
+                `<span style="font-family:monospace">${notation}</span></span>`
+            );
         }
     }
     return lines.join("");
+}
+
+let oblLastClusterSource = null;
+
+const OBL_SOURCE_META = {
+    matt:  { label: 'Matt',  linkText: "Matt's OBL Doc",    url: 'https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit', formatter: oblFormatMatt  },
+    derpy: { label: 'Derpy', linkText: "Derpy's OBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit', formatter: oblFormatSheet },
+};
+
+// ── oblRenderCluster ──────────────────────────────────────────────────────
+// Renders title + source tabs + body into #cluster-modal-content.
+
+function oblRenderCluster(cluster, title, sources, activeSource) {
+    const content = document.getElementById("cluster-modal-content");
+    const window_ = content.closest('.cluster-window');
+
+    // Build or reuse the tab bar that sits outside the scroll container.
+    let tabBar = window_.querySelector('.cluster-tab-bar');
+    if (!tabBar) {
+        tabBar = document.createElement('div');
+        tabBar.className = 'cluster-tab-bar';
+        window_.insertBefore(tabBar, content);
+    }
+    tabBar.style.display = sources.length > 1 ? '' : 'none';
+    tabBar.innerHTML = sources.length > 1
+        ? `<div class="cluster-tabs">${
+              sources.map(src =>
+                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+                  `<label for="ctab-${src}" class="cluster-tab-label">${OBL_SOURCE_META[src]?.label ?? src}</label>`
+              ).join('')
+          }</div>`
+        : '';
+
+    content.innerHTML =
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<div id="cluster-source-content"></div>`;
+
+    function showSource(src) {
+        oblLastClusterSource = src;
+        const el = document.getElementById('cluster-source-content');
+        const meta = OBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: oblFormatSheet };
+        el.innerHTML = meta.formatter(cluster, src, meta);
+    }
+
+    showSource(activeSource);
+
+    tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.checked) { showSource(radio.value); clusterSizeModal(content); }
+        });
+    });
 }
 
 // ── oblOpenCluster ────────────────────────────────────────────────────────
@@ -885,7 +972,12 @@ function oblOpenCluster(caseName) {
         return;
     }
 
-    content.scrollTop = 0; // always start at top
-    content.innerHTML = oblFormatCluster(cluster, clusterTitle);
+    const SKIP    = new Set(['case-list', 'optimal-slicecount']);
+    const sources = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const active  = (oblLastClusterSource && sources.includes(oblLastClusterSource))
+        ? oblLastClusterSource : sources[0] ?? 'matt';
+
+    content.scrollTop = 0;
+    oblRenderCluster(cluster, clusterTitle, sources, active);
     clusterSizeModal(content);
 }
