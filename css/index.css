@@ -741,6 +741,53 @@ button:hover {
     overflow: hidden;
 }
 
+/* ─── CLUSTER SOURCE TABS ────────────────────────────────────────────────── */
+
+/* Tab bar lives between .cluster-header and .cluster-text in the flex column,
+   so it is always visible above the scroll area — no sticky needed. */
+.cluster-tab-bar {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 6px 20px 8px;
+    border-bottom: 1px solid #2a2a2a;
+    background: #1e1e1e;
+}
+
+.cluster-tabs {
+    display: flex;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    gap: 2px;
+}
+
+.cluster-tab-radio {
+    display: none;
+}
+
+.cluster-tab-label {
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78em;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.42);
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.cluster-tab-radio:checked + .cluster-tab-label {
+    background-color: rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
 .cluster-header {
     flex: 0 0 auto;
     padding: 16px 20px;
@@ -812,7 +859,8 @@ button:hover {
     color: var(--border-col);
 }
 
-.cluster-text>span {
+.cluster-text > span,
+#cluster-source-content > span {
     display: block;
 }
 
@@ -821,7 +869,8 @@ button:hover {
     text-indent: 2.5em;
 }
 
-.alg-lines {
+.matt-algs,
+.pure-algs {
     white-space: nowrap;
     text-indent: 0em;
     width: fit-content;

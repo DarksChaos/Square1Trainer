@@ -179,13 +179,12 @@ function pblTextWidth(text, font) {
     return ctx.measureText(text).width;
 }
 
-function pblFormatCluster(cluster, title) {
+// ── PBL source formatters ─────────────────────────────────────────────────
+
+// Formats the Matt section only (no title, no tabs).
+function pblFormatMatt(cluster, key, meta) {
     const lines = [];
-    lines.push(
-        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>`,
-        "",
-        `<span class="section-label"><b><a href="https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit" target="blank">from Matt's PBL Doc</a></b></span>`
-    );
+    lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
 
     if (cluster.matt?.["distinction-help"]?.trim())
         lines.push(`<span style="text-indent:2.5em;">${pblNab(cluster.matt["distinction-help"])}</span>`);
@@ -216,7 +215,7 @@ function pblFormatCluster(cluster, title) {
                     const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
                     const indent   = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
                     lines.push(
-                        `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
+                        `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
                         `${i === 0 ? c["case-name"] + alg.sign + " " : ""}${angle}` +
                         `<span style="font-family:monospace">${notation}</span></span>`
                     );
@@ -224,29 +223,92 @@ function pblFormatCluster(cluster, title) {
             }
         }
     }
+    if (lines.length === 1)
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+    return lines.join("");
+}
 
-    const filledDerpy = (cluster.derpy || []).filter(c => pblHasAlgData(c.algs));
-    if (filledDerpy.length) {
-        lines.push(
-            "",
-            `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit" target="blank">Optimal (from Derpy's PBL Sheet)</a></b></span>`
-        );
-        for (const c of filledDerpy) {
-            for (let i = 0; i < c.algs.length; i++) {
-                const alg = c.algs[i];
-                if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
-                const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
-                lines.push(
-                    `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
-                    `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
-                    `<span style="font-family:monospace">${notation}</span></span>`
-                );
-            }
+// Formats a generic sheet source (Derpy format: [{case-name, algs:[{sign,angle,notation}]}]).
+// All non-Matt sources are assumed to use this shape.
+function pblFormatSheet(cluster, key, meta) {
+    const sheetData = cluster[key];
+    const lines = [];
+    const linkHtml = meta.url
+        ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
+        : `<b>${meta.label}</b>`;
+    lines.push(`<span class="section-label">${linkHtml}</span>`);
+    const filled = (sheetData || []).filter(c => pblHasAlgData(c.algs));
+    if (!filled.length) {
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+        return lines.join("");
+    }
+    for (const c of filled) {
+        for (let i = 0; i < c.algs.length; i++) {
+            const alg = c.algs[i];
+            if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + (alg.sign || "") + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + (alg.sign || "") + " " : ""}${angle}` +
+                `<span style="font-family:monospace">${notation}</span></span>`
+            );
         }
     }
     return lines.join("");
+}
+
+let pblLastClusterSource = null;
+
+const PBL_SOURCE_META = {
+    matt:  { label: 'Matt',  linkText: "Matt's PBL Doc",    url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt  },
+    derpy: { label: 'Derpy', linkText: "Derpy's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit', formatter: pblFormatSheet },
+};
+
+// ── pblRenderCluster ──────────────────────────────────────────────────────
+// Renders title + source tabs + body into #cluster-modal-content.
+// Called on open (activeSource = sources[0]) and on tab switch.
+
+function pblRenderCluster(cluster, title, sources, activeSource) {
+    const content = document.getElementById("cluster-modal-content");
+    const window_ = content.closest('.cluster-window');
+
+    // Build or reuse the tab bar that sits outside the scroll container.
+    let tabBar = window_.querySelector('.cluster-tab-bar');
+    if (!tabBar) {
+        tabBar = document.createElement('div');
+        tabBar.className = 'cluster-tab-bar';
+        window_.insertBefore(tabBar, content);
+    }
+    tabBar.style.display = sources.length > 1 ? '' : 'none';
+    tabBar.innerHTML = sources.length > 1
+        ? `<div class="cluster-tabs">${
+              sources.map(src =>
+                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+                  `<label for="ctab-${src}" class="cluster-tab-label">${PBL_SOURCE_META[src]?.label ?? src}</label>`
+              ).join('')
+          }</div>`
+        : '';
+
+    content.innerHTML =
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<div id="cluster-source-content"></div>`;
+
+    function showSource(src) {
+        pblLastClusterSource = src;
+        const el = document.getElementById('cluster-source-content');
+        const meta = PBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: pblFormatSheet };
+        el.innerHTML = meta.formatter(cluster, src, meta);
+    }
+
+    showSource(activeSource);
+
+    tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.checked) { showSource(radio.value); clusterSizeModal(content); }
+        });
+    });
 }
 
 // ── pblOpenCluster ────────────────────────────────────────────────────────
@@ -272,8 +334,13 @@ async function pblOpenCluster(caseOverride) {
         return;
     }
 
-    content.scrollTop = 0; // always start at top
-    content.innerHTML = pblFormatCluster(cluster, clusterTitle);
+    const SKIP    = new Set(['case-list', 'optimal-slicecount']);
+    const sources = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const active  = (pblLastClusterSource && sources.includes(pblLastClusterSource))
+        ? pblLastClusterSource : sources[0] ?? 'matt';
+
+    content.scrollTop = 0;
+    pblRenderCluster(cluster, clusterTitle, sources, active);
     clusterSizeModal(content);
 }
 
@@ -487,7 +554,7 @@ function pblGenerateScramble(regen = false) {
     if (pblRemaining.length === 0) {
         // refill the entire array
         pblRefillRemaining();
-        if (pblEachCase && pblCaseSpliced && !regen) showSuccess("Trained each case.", 1000);
+        if (pblEachCase === 1 && pblCaseSpliced && !regen) showSuccess("Trained each case.", 1000);
     }
 
     pblCaseSpliced = true; // set synchronously before splice

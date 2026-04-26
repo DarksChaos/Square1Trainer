@@ -77,7 +77,7 @@ function oblGenerateScramble(regen = false) {
     if (oblRemainingCases[oblUsingSpe].length === 0) {
         // refill the entire array
         oblRefillRemaining();
-        if (oblEachCase && oblCaseSpliced && !regen) showSuccess("Trained each case.", 1000)
+        if (oblEachCase === 1 && oblCaseSpliced && !regen) showSuccess("Trained each case.", 1000)
     }
 
     oblCaseSpliced = true; // set synchronously before splice
@@ -836,13 +836,12 @@ function oblHasAlgData(algs) {
     );
 }
 
-function oblFormatCluster(cluster, title) {
+// ── OBL source formatters ─────────────────────────────────────────────────
+
+// Formats the Matt section only (no title, no tabs).
+function oblFormatMatt(cluster, key, meta) {
     const lines = [];
-    lines.push(
-        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>`,
-        "",
-        `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit" target="blank">from Matt's OBL Doc</a></b></span>`
-    );
+    lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
 
     const matt = cluster.matt;
     if (matt?.["distinction-help"]?.trim())
@@ -861,35 +860,96 @@ function oblFormatCluster(cluster, title) {
             const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
             const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
             lines.push(
-                `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
+                `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
                 `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
                 `<span style="font-family:monospace">${notation}</span></span>`
             );
         }
     }
+    if (lines.length === 1)
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+    return lines.join("");
+}
 
-    // OBL derpy algs are plain notation strings (not {angle, notation} objects).
-    const filledDerpy = (cluster.derpy || []).filter(c => oblHasAlgData(c.algs));
-    if (filledDerpy.length) {
-        lines.push(
-            "",
-            `<span class="section-label"><b><a href="https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit" target="blank">from Derpy's OBL Sheet</a></b></span>`
-        );
-        for (const c of filledDerpy) {
-            for (let i = 0; i < c.algs.length; i++) {
-                const algStr = c.algs[i];
-                if (!algStr?.trim()) continue;
-                const notation = usingKarn ? algStr : unkarnify(algStr);
-                const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
-                lines.push(
-                    `<span class="alg-lines" style="margin-left:calc(5em + ${indent}px);">` +
-                    `${i === 0 ? c["case-name"] + " " : ""}` +
-                    `<span style="font-family:monospace">${notation}</span></span>`
-                );
-            }
+// Formats a generic sheet source (Derpy format: [{case-name, algs:[string]}]).
+// All non-Matt OBL sources are assumed to use plain notation strings.
+function oblFormatSheet(cluster, key, meta) {
+    const sheetData = cluster[key];
+    const lines = [];
+    const linkHtml = meta.url
+        ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
+        : `<b>${meta.label}</b>`;
+    lines.push(`<span class="section-label">${linkHtml}</span>`);
+    const filled = (sheetData || []).filter(c => oblHasAlgData(c.algs));
+    if (!filled.length) {
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+        return lines.join("");
+    }
+    for (const c of filled) {
+        for (let i = 0; i < c.algs.length; i++) {
+            const algStr = c.algs[i];
+            if (!algStr?.trim()) continue;
+            const notation = usingKarn ? algStr : unkarnify(algStr);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + " " : ""}` +
+                `<span style="font-family:monospace">${notation}</span></span>`
+            );
         }
     }
     return lines.join("");
+}
+
+let oblLastClusterSource = null;
+
+const OBL_SOURCE_META = {
+    matt:  { label: 'Matt',  linkText: "Matt's OBL Doc",    url: 'https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit', formatter: oblFormatMatt  },
+    derpy: { label: 'Derpy', linkText: "Derpy's OBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit', formatter: oblFormatSheet },
+};
+
+// ── oblRenderCluster ──────────────────────────────────────────────────────
+// Renders title + source tabs + body into #cluster-modal-content.
+
+function oblRenderCluster(cluster, title, sources, activeSource) {
+    const content = document.getElementById("cluster-modal-content");
+    const window_ = content.closest('.cluster-window');
+
+    // Build or reuse the tab bar that sits outside the scroll container.
+    let tabBar = window_.querySelector('.cluster-tab-bar');
+    if (!tabBar) {
+        tabBar = document.createElement('div');
+        tabBar.className = 'cluster-tab-bar';
+        window_.insertBefore(tabBar, content);
+    }
+    tabBar.style.display = sources.length > 1 ? '' : 'none';
+    tabBar.innerHTML = sources.length > 1
+        ? `<div class="cluster-tabs">${
+              sources.map(src =>
+                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+                  `<label for="ctab-${src}" class="cluster-tab-label">${OBL_SOURCE_META[src]?.label ?? src}</label>`
+              ).join('')
+          }</div>`
+        : '';
+
+    content.innerHTML =
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<div id="cluster-source-content"></div>`;
+
+    function showSource(src) {
+        oblLastClusterSource = src;
+        const el = document.getElementById('cluster-source-content');
+        const meta = OBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: oblFormatSheet };
+        el.innerHTML = meta.formatter(cluster, src, meta);
+    }
+
+    showSource(activeSource);
+
+    tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.checked) { showSource(radio.value); clusterSizeModal(content); }
+        });
+    });
 }
 
 // ── oblOpenCluster ────────────────────────────────────────────────────────
@@ -912,7 +972,12 @@ function oblOpenCluster(caseName) {
         return;
     }
 
-    content.scrollTop = 0; // always start at top
-    content.innerHTML = oblFormatCluster(cluster, clusterTitle);
+    const SKIP    = new Set(['case-list', 'optimal-slicecount']);
+    const sources = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const active  = (oblLastClusterSource && sources.includes(oblLastClusterSource))
+        ? oblLastClusterSource : sources[0] ?? 'matt';
+
+    content.scrollTop = 0;
+    oblRenderCluster(cluster, clusterTitle, sources, active);
     clusterSizeModal(content);
 }
