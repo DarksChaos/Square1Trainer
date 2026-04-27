@@ -136,7 +136,7 @@ function unkarnifyHelp(scramble) {
 function replaceShorthands(scramble) {
     const moves = scramble.split('/');
     const allKnown = moves.every(m =>
-        !m || !isNaN(Number(m.charAt(0))) || (' ' + m + ' ' in karnToWCA)
+        !m || (' ' + m + ' ' in karnToWCA)
     );
     if (allKnown) return unkarnifyHelp(scramble);
 
@@ -214,7 +214,7 @@ function unkarnify(scramble) {
 
     // ── 6. Normalise separators ───────────────────────────────────────────────
     scramble = scramble
-        .replaceAll(/[\/\\]/g, ' ')
+        .replaceAll(/[\/\\|]/g, ' ')
         .replaceAll(/[()]/g, '')
         .replaceAll(/ +/g, ' ');
 
