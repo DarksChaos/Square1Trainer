@@ -3010,12 +3010,8 @@ const oblClusters = {
   "good C/N, N/C": {
     "case-list": [
       "Cw/Nw",
-      "Cw/Nc",
-      "Cc/Nw",
       "Cc/Nc",
       "Nw/Cw",
-      "Nc/Cw",
-      "Nw/Cc",
       "Nc/Cc"
     ],
     "optimal-slicecount": 4,
@@ -3034,24 +3030,6 @@ const oblClusters = {
             {
               "angle": "R \\",
               "notation": "0-1 F E' F' 01"
-            }
-          ]
-        },
-        {
-          "case-name": "Cw/Nc",
-          "algs": [
-            {
-              "angle": "L /",
-              "notation": "10\\t' (D' u' f') 01"
-            }
-          ]
-        },
-        {
-          "case-name": "Cc/Nw",
-          "algs": [
-            {
-              "angle": "L \\",
-              "notation": "0-1 T' (U u F) -10"
             }
           ]
         },
@@ -3078,24 +3056,6 @@ const oblClusters = {
             {
               "angle": "/ L",
               "notation": "0-1 f E' F' 01"
-            }
-          ]
-        },
-        {
-          "case-name": "Nc/Cw",
-          "algs": [
-            {
-              "angle": "\\ R",
-              "notation": "10\\T (U' d' F') 01"
-            }
-          ]
-        },
-        {
-          "case-name": "Nw/Cc",
-          "algs": [
-            {
-              "angle": "/ R",
-              "notation": "0-1\\t (D d f) -10"
             }
           ]
         },
@@ -3147,13 +3107,55 @@ const oblClusters = {
     ]
   },
   "bad C/N, N/C": {
-    "case-list": [],
+    "case-list": [
+      "Cw/Nc",
+      "Cc/Nw",
+      "Nc/Cw",
+      "Nw/Cc"
+    ],
     "optimal-slicecount": 5,
     "matt": {
       "distinction-help": "slice out of CS to break both",
       "angle-explanation": "noslice N (but slicing it works too). (preserve) C @ sides.",
       "alg-explanation": "T° → SX",
-      "cases": []
+      "cases": [
+        {
+          "case-name": "Cw/Nc",
+          "algs": [
+            {
+              "angle": "L /",
+              "notation": "10\\t' (D' u' f') 01"
+            }
+          ]
+        },
+        {
+          "case-name": "Cc/Nw",
+          "algs": [
+            {
+              "angle": "L \\",
+              "notation": "0-1 T' (U u F) -10"
+            }
+          ]
+        },
+        {
+          "case-name": "Nc/Cw",
+          "algs": [
+            {
+              "angle": "\\ R",
+              "notation": "10\\T (U' d' F') 01"
+            }
+          ]
+        },
+        {
+          "case-name": "Nw/Cc",
+          "algs": [
+            {
+              "angle": "/ R",
+              "notation": "0-1\\t (D d f) -10"
+            }
+          ]
+        }
+      ]
     },
     "derpy": [
       {
@@ -5515,4 +5517,4 @@ const oblClusters = {
       }
     ]
   }
-};
+}
