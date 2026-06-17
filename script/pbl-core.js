@@ -571,7 +571,7 @@ function pblGenerateScramble(regen = false) {
         pblWorker.onmessage = function(e) {
             pblWorkerBusy = false;
             if (e.data.error) { console.error(e.data.error); return; }
-            const final = [e.data.scramble, e.data.karn, choice.slice(0, -1)];
+            const final = [e.data.scramble, e.data.karn, choice];
             pblPreviousCase = pblCurrentCase;
             pblCurrentCase  = choice; // use full choice (with suffix) for accurate tracking
             pblScrambleList[pblScrambleList.length - 1] = final;
@@ -593,7 +593,7 @@ function pblGenerateScramble(regen = false) {
         pblPendingFor = null;
         pblPreviousCase = pblCurrentCase;
         pblCurrentCase  = choice; // use full choice (with suffix) for accurate tracking
-        const final = [data.scramble, data.karn, choice.slice(0, -1)];
+        const final = [data.scramble, data.karn, choice];
 
         if (pblScrambleList.length) {
             previousScrambleEl.textContent =
@@ -627,7 +627,7 @@ function pblGenerateScramble(regen = false) {
             const data = e.data;
             pblPreviousCase = pblCurrentCase;
             pblCurrentCase  = choice; // use full choice (with suffix) for accurate tracking
-            const final = [data.scramble, data.karn, choice.slice(0, -1)];
+            const final = [data.scramble, data.karn, choice];
 
             if (pblScrambleList.length) {
                 previousScrambleEl.textContent =
