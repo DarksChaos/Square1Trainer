@@ -117,7 +117,7 @@ function recentlyStopped() {
 
 function canInteractTimer() {
     const active = trainerMode === 'obl' ? oblHasActiveScramble : pblHasActive;
-    return active && document.activeElement !== filterInputEl && !isPopupOpen;
+    return active && document.activeElement !== filterInputEl && !isPopupOpen && !isSearchOpen;
 }
 
 function validName(n) {
@@ -760,6 +760,230 @@ toggleUiEl.addEventListener("click", () => {
     }
 });
 
+// ─── SPOTLIGHT SEARCH ─────────────────────────────────────────────────────────
+// Ctrl/Cmd+Space (or the navbar search button) opens a centered search bar.
+// It searches clusters by title for the active trainer; the "search extension"
+// below the bar lists matches. ↑/↓ move the selection, Enter opens the cluster
+// modal. The "?" button opens a per-trainer help modal (contents TBD).
+
+const searchOverlayEl   = document.getElementById("search-overlay");
+const searchInputEl     = document.getElementById("search-input");
+const searchExtensionEl = document.getElementById("search-extension");
+const searchResultsEl   = document.getElementById("search-results");
+const searchHelpBtnEl   = document.getElementById("search-help-btn");
+const searchHelpModalEl = document.getElementById("search-help-modal");
+
+let isSearchOpen   = false;
+let searchMatches  = [];   // array of cluster titles currently shown
+let searchActiveIx = -1;   // index into searchMatches of the highlighted row
+
+// Search index: per cluster, a title plus every "alias" the user might type to
+// reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
+const _searchIndexCache = { pbl: null, obl: null };
+
+function buildSearchIndex(mode) {
+    const out = [];
+
+    if (mode === 'pbl') {
+        for (const [title, data] of Object.entries(pblClusters)) {
+            const aliases = new Set([title]);
+            (data['case-list'] || []).forEach(c => aliases.add(c));
+            out.push({ title, aliases: [...aliases] });
+        }
+        return out;
+    }
+
+    // OBL: case-list entries are short codes (e.g. "Uw/THw"). Add the short codes,
+    // their reverse-mapped legacy names ("right bunny/left thumb"), and the legacy
+    // verbose names from OBLtranslation (both non-specific and specific).
+    const rev = {}; // short code → legacy name
+    for (const [legacy, short] of Object.entries(oblNaming)) rev[short] = legacy;
+
+    const byTitle = {};
+    for (const [title, data] of Object.entries(oblClusters)) {
+        const set = new Set([title]);
+        (data['case-list'] || []).forEach(code => {
+            set.add(code);
+            const [a, b] = code.split('/');
+            if (rev[a] && rev[b]) set.add(rev[a] + '/' + rev[b]);
+        });
+        byTitle[title] = set;
+    }
+
+    for (const nonSpe of Object.keys(OBLtranslation)) {
+        const title = oblFindCluster(nonSpe);
+        if (!title || !byTitle[title]) continue;
+        byTitle[title].add(nonSpe);
+        for (const spe of OBLtranslation[nonSpe]) {
+            const [a, b] = spe.split('/');
+            byTitle[title].add(spe);
+            byTitle[title].add(b + '/' + a); // mirrored specific name
+        }
+    }
+
+    for (const [title, set] of Object.entries(byTitle)) out.push({ title, aliases: [...set] });
+    return out;
+}
+
+function getSearchIndex() {
+    if (!_searchIndexCache[trainerMode]) _searchIndexCache[trainerMode] = buildSearchIndex(trainerMode);
+    return _searchIndexCache[trainerMode];
+}
+
+// Opens the cluster modal directly from a title (bypasses case→cluster lookup).
+function openClusterByTitle(title) {
+    const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
+    const cluster  = clusters && clusters[title];
+    if (!cluster) return;
+
+    const modal   = document.getElementById("cluster-modal");
+    const content = document.getElementById("cluster-modal-content");
+    modal.style.display = "flex";
+    isPopupOpen = true;
+
+    const SKIP       = new Set(['case-list', 'optimal-slicecount']);
+    const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const lastSource = trainerMode === 'pbl' ? pblLastClusterSource : oblLastClusterSource;
+    const active     = (lastSource && sources.includes(lastSource)) ? lastSource : sources[0] ?? 'matt';
+
+    content.scrollTop = 0;
+    if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active);
+    else                       oblRenderCluster(cluster, title, sources, active);
+    clusterSizeModal(content);
+}
+
+function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+}
+
+function highlightMatch(title, query) {
+    const safe = escapeHtml(title);
+    if (!query) return safe;
+    const i = title.toLowerCase().indexOf(query.toLowerCase());
+    if (i < 0) return safe;
+    return escapeHtml(title.slice(0, i)) +
+        '<mark>' + escapeHtml(title.slice(i, i + query.length)) + '</mark>' +
+        escapeHtml(title.slice(i + query.length));
+}
+
+function renderSearchResults() {
+    const query = searchInputEl.value.trim();
+    if (!query) {
+        searchMatches  = [];
+        searchActiveIx = -1;
+        searchExtensionEl.style.display = "none";
+        return;
+    }
+
+    const q = query.toLowerCase();
+    // Title matches rank above matches found only through a case/legacy alias.
+    const titleHits = [];
+    const aliasHits = [];
+    for (const entry of getSearchIndex()) {
+        if (entry.title.toLowerCase().includes(q)) {
+            titleHits.push({ title: entry.title, via: null });
+        } else {
+            const via = entry.aliases.find(a => a !== entry.title && a.toLowerCase().includes(q));
+            if (via) aliasHits.push({ title: entry.title, via });
+        }
+    }
+    searchMatches  = titleHits.concat(aliasHits);
+    searchActiveIx = searchMatches.length ? 0 : -1;
+
+    searchExtensionEl.style.display = "block";
+    if (!searchMatches.length) {
+        searchResultsEl.innerHTML = '<div class="search-empty">No matching clusters</div>';
+        return;
+    }
+
+    searchResultsEl.innerHTML = searchMatches.map((m, i) => {
+        const titleHtml = m.via ? escapeHtml(m.title) : highlightMatch(m.title, query);
+        const viaHtml   = m.via ? `<span class="search-result-via">${highlightMatch(m.via, query)}</span>` : '';
+        return `<div class="search-result${i === 0 ? ' active' : ''}" data-ix="${i}">${titleHtml}${viaHtml}</div>`;
+    }).join('');
+}
+
+function moveSearchSelection(delta) {
+    if (!searchMatches.length) return;
+    searchActiveIx = (searchActiveIx + delta + searchMatches.length) % searchMatches.length;
+    const rows = searchResultsEl.querySelectorAll('.search-result');
+    rows.forEach((r, i) => r.classList.toggle('active', i === searchActiveIx));
+    const active = rows[searchActiveIx];
+    if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function openSearchResult(ix) {
+    const match = searchMatches[ix];
+    if (!match) return;
+    closeSearch();
+    openClusterByTitle(match.title);
+}
+
+function openSearch() {
+    if (usingTimer()) return;
+    isSearchOpen = true;
+    searchOverlayEl.style.display = "flex";
+    searchInputEl.value = "";
+    renderSearchResults();
+    searchInputEl.focus();
+}
+
+function closeSearch(e) {
+    if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
+    isSearchOpen = false;
+    searchOverlayEl.style.display = "none";
+    searchInputEl.blur();
+}
+
+function toggleSearch() {
+    if (isSearchOpen) closeSearch();
+    else openSearch();
+}
+
+// ─── Search help modal ────────────────────────────────────────────────────────
+// Contents differ per trainer and are placeholders for now.
+
+const SEARCH_HELP_CONTENT = {
+    pbl: `<p>Search PBL clusters by their title.</p>
+          <p style="opacity:0.5">More PBL-specific search help coming soon.</p>`,
+    obl: `<p>Search OBL clusters by their title.</p>
+          <p style="opacity:0.5">More OBL-specific search help coming soon.</p>`,
+};
+
+function openSearchHelp() {
+    document.getElementById("search-help-title").textContent =
+        (trainerMode === 'pbl' ? 'PBL' : 'OBL') + ' search';
+    document.getElementById("search-help-content").innerHTML =
+        SEARCH_HELP_CONTENT[trainerMode] || '';
+    searchHelpModalEl.style.display = "flex";
+}
+
+function closeSearchHelp(e) {
+    if (e && e.target !== searchHelpModalEl) return;
+    searchHelpModalEl.style.display = "none";
+}
+
+document.getElementById("opensearch").addEventListener("click", () => toggleSearch());
+searchHelpBtnEl.addEventListener("click", openSearchHelp);
+searchInputEl.addEventListener("input", renderSearchResults);
+
+searchResultsEl.addEventListener("click", (e) => {
+    const row = e.target.closest('.search-result');
+    if (row) openSearchResult(Number(row.dataset.ix));
+});
+
+searchInputEl.addEventListener("keydown", (e) => {
+    switch (e.key) {
+        case "ArrowDown": e.preventDefault(); moveSearchSelection(1);  break;
+        case "ArrowUp":   e.preventDefault(); moveSearchSelection(-1); break;
+        case "Enter":     e.preventDefault(); if (searchActiveIx >= 0) openSearchResult(searchActiveIx); break;
+        case "Escape":    e.preventDefault();
+            if (searchHelpModalEl.style.display === "flex") closeSearchHelp();
+            else closeSearch();
+            break;
+    }
+});
+
 document.addEventListener('click', function(e) {
     if (e.target.tagName === 'BUTTON') {
         e.target.blur(); // Removes focus so key + spacebar cannot trigger a click
@@ -769,7 +993,16 @@ document.addEventListener('click', function(e) {
 window.addEventListener("keydown", (e) => {
     const inInput = document.activeElement === filterInputEl;
 
+    // Ctrl/Cmd+Space toggles the spotlight search from anywhere.
+    if ((isMac() ? e.metaKey : e.ctrlKey) && e.code === "Space") {
+        e.preventDefault();
+        toggleSearch();
+        return;
+    }
+
     if (e.code === "Escape") {
+        if (searchHelpModalEl.style.display === "flex") { closeSearchHelp(); return; }
+        if (isSearchOpen) { closeSearch(); return; }
         if (document.getElementById("cluster-modal").style.display === "flex") {
             closeCluster();
             return;
@@ -779,6 +1012,9 @@ window.addEventListener("keydown", (e) => {
         if (inInput) filterInputEl.blur();
         return;
     }
+
+    // While the search bar is open, let its own input handler own the keyboard.
+    if (isSearchOpen) return;
 
     if (canInteractTimer()) {
         const isSpace    = e.code === "Space";

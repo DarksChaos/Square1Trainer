@@ -66,7 +66,12 @@
         <div class="nav-left">
             <span class="squango" onclick="location.href='https://squan-go.web.app/'"><span class="squango-sq">Squan</span><span class="squango-go">Go</span></span>
             <div class="nav-divider"></div>
-            <button id="toggleui">Toggle selector</button>
+            <button id="toggleui" class="icon-btn" title="Toggle selector" aria-label="Toggle selector">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <button id="opensearch" class="icon-btn" title="Search (Ctrl+Space)" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
         </div>
         <div class="nav-center" id="mode-title" style="cursor:pointer;user-select:none;"></div>
         <div class="nav-right">
@@ -86,6 +91,29 @@
                 <div id="cluster-modal-content" class="cluster-text"></div>
             </div>
         </div>
+
+    <div id="search-overlay" class="search-overlay" style="display:none;" onclick="closeSearch(event)">
+        <div class="search-panel" onclick="event.stopPropagation()">
+            <div class="search-bar">
+                <svg class="search-bar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="search-input" class="search-input" placeholder="Search clusters…" autocomplete="off" spellcheck="false" />
+                <button id="search-help-btn" class="search-help-btn" title="Search help" aria-label="Search help">?</button>
+            </div>
+            <div id="search-extension" class="search-extension" style="display:none;">
+                <div id="search-results" class="search-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="search-help-modal" class="search-help-overlay" style="display:none;" onclick="closeSearchHelp(event)">
+        <div class="search-help-window" onclick="event.stopPropagation()">
+            <div class="search-help-header">
+                <span class="search-help-title" id="search-help-title">Search</span>
+                <button class="cluster-close-btn" onclick="closeSearchHelp()">✕</button>
+            </div>
+            <div id="search-help-content" class="search-help-content"></div>
+        </div>
+    </div>
 
     <div class="main">
         <div class="popup" id="settings-popup">
