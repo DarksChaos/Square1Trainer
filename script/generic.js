@@ -171,15 +171,6 @@ function hideSuccess() {
     }, 300);
 }
 
-function showLoading(message = "Loading...") {
-    document.getElementById("loading-message").textContent = message;
-    document.getElementById("loading-overlay").style.display = "flex";
-}
-
-function hideLoading() {
-    document.getElementById("loading-overlay").style.display = "none";
-}
-
 // ─── POPUP MANAGEMENT ────────────────────────────────────────────────────────
 
 function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; listPopupEl.classList.add("open"); }
@@ -971,8 +962,8 @@ function showClusterInSearch(title) {
 }
 
 // Widens the whole search panel (bar + extension) to fit the alg reference's
-// widest line, clamped to the viewport. Mirrors clusterSizeModal but targets the
-// search panel; the width is cleared again when returning to plain search.
+// widest line, clamped to the viewport. The width is cleared again when
+// returning to plain search.
 function sizeSearchPanel(content) {
     content.style.visibility = 'hidden';
     requestAnimationFrame(() => {
@@ -1455,77 +1446,4 @@ function applyMode() {
     }
 }
 
-
 document.getElementById('mode-title').addEventListener('click', switchMode);
-
-// ─── CLUSTER MODAL INFRASTRUCTURE ────────────────────────────────────────────
-// Shared by both trainers. Each trainer's core file holds:
-//   - its own Supabase client (different projects)
-//   - its own cluster cache + cluster worker + worker-state vars
-//   - its own openCluster() that calls these generic helpers, then its own formatter
-//
-// HTML generation (formatCluster, hasAlgData, nab, textWidth) lives in the
-// trainer's own core file so OBL can have a completely different layout.
-
-// ── Cache I/O ──────────────────────────────────────────────────────────────
-
-function clusterCacheSave(storageKey, cache) {
-    try { localStorage.setItem(storageKey, JSON.stringify(cache)); } catch (e) {}
-}
-
-function clusterCacheLoad(storageKey) {
-    try { const d = localStorage.getItem(storageKey); return d ? JSON.parse(d) : {}; }
-    catch (e) { return {}; }
-}
-
-// ── Supabase helpers ───────────────────────────────────────────────────────
-// Both functions take the trainer's own Supabase client as their first argument
-// because PBL and OBL live in different Supabase projects.
-
-async function clusterDownloadAll(sbClient, table, cache, saveFn) {
-    const { data, error } = await sbClient.from(table).select("cluster_index, data");
-    if (error || !data) return;
-    data.forEach(row => { cache[row.cluster_index] = row.data; });
-    saveFn();
-    showSuccess("Algs successfully stored.", 1000);
-}
-
-async function clusterFetch(sbClient, table, clusterIndex, cache, saveFn) {
-    if (cache[clusterIndex]) return cache[clusterIndex];
-    const { data, error } = await sbClient
-        .from(table).select("data").eq("cluster_index", clusterIndex).single();
-    if (!error && data) {
-        cache[clusterIndex] = data.data;
-        saveFn();
-        return data.data;
-    }
-    return null;
-}
-
-// ── Wait-for-ready helper ──────────────────────────────────────────────────
-// Awaits any in-flight background sync before the modal opens.
-//   workerReadyPromise  Promise | null — null means sync already finished
-//   isWorkerBusy        () => bool — getter for the busy flag
-//   cache               {} — the trainer's cluster cache object
-//   downloadFn          async () => void — full-download fallback for first-time users
-
-async function clusterEnsureReady(workerReadyPromise, isWorkerBusy, cache, downloadFn) {
-    if (workerReadyPromise) {
-        showLoading();
-        await workerReadyPromise;
-        hideLoading();
-    } else if (isWorkerBusy()) {
-        showLoading();
-        await new Promise(resolve => {
-            const check = setInterval(() => {
-                if (!isWorkerBusy()) { clearInterval(check); resolve(); }
-            }, 100);
-        });
-        hideLoading();
-    } else if (Object.keys(cache).length === 0) {
-        requestAnimationFrame(() => showLoading());
-        await downloadFn();
-        hideLoading();
-    }
-}
-

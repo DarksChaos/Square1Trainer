@@ -143,11 +143,9 @@ function pblRecolorAll() {
 }
 
 // ─── CLUSTER DATA (PBL) ──────────────────────────────────────────────────────
-// generic.js provides: clusterCacheLoad/Save, clusterDownloadAll, clusterFetch,
-// clusterEnsureReady, renderClusterInto.
-// This section holds PBL-specific: Supabase client, cache state, cluster worker,
-// case lookup, and the PBL HTML formatter.
-// When OBL gets a cluster modal, obl-core.js will have its own oblFormatCluster().
+// pblClusters is declared as const in pbl-data.js. generic.js drives rendering
+// via renderClusterInto(); this section holds PBL-specific case→cluster lookup
+// and the PBL HTML formatter (pblRenderCluster).
 
 // ── PBL cluster data ──────────────────────────────────────────────────────
 // pblClusters is declared as const in pbl-data.js.
