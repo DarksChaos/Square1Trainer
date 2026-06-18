@@ -267,9 +267,12 @@ button {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-button:hover {
-    background-color: var(--button-col);
-    border-color: var(--border-col);
+/* Guard hover styling so it doesn't "stick" after a tap on touch devices. */
+@media (hover: hover) {
+    button:hover {
+        background-color: var(--button-col);
+        border-color: var(--border-col);
+    }
 }
 
 .top-bar {
@@ -1346,8 +1349,12 @@ button:hover {
 
 .search-panel {
     width: min(640px, 92vw);
+    /* Bound to the overlay's content box, minus a little so there's always
+       breathing room at the bottom of the screen. */
+    max-height: calc(100% - 6vh);
     display: flex;
     flex-direction: column;
+    min-height: 0;
     animation: searchPop 0.14s ease;
 }
 
@@ -1357,6 +1364,7 @@ button:hover {
 }
 
 .search-bar {
+    flex: 0 0 auto;          /* never shrink when the extension fills the panel */
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1402,18 +1410,23 @@ button:hover {
 
 /* The extension is attached directly below the bar */
 .search-extension {
-    margin-top: 8px;
+    margin-top: 4px;
     background: #1e1e1e;
     border: 1px solid #333;
     border-radius: 14px;
     box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6);
     overflow: hidden;
-    max-height: min(60vh, 420px);
+    /* Grow only as tall as the content needs, but shrink to fit whatever space
+       is left under the bar (bounded by .search-panel's max-height). */
+    flex: 0 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
 }
 
 .search-results {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #444 transparent;
@@ -1446,6 +1459,19 @@ button:hover {
     background: transparent;
     color: var(--border-col);
     font-weight: bold;
+}
+
+/* Alg reference shown inline inside the extension (mirrors the cluster modal). */
+.search-cluster {
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.search-cluster .cluster-text {
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .search-result-via {

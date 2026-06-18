@@ -81,17 +81,6 @@
         <input type="file" id="fileinput" style="display: none" accept=".json" />
     </div>
 
-        <div id="cluster-modal" class="cluster-overlay"
-            style="display:none;" onclick="closeCluster(event)">
-            <div id="cluster-modal-inner" class="cluster-window" onclick="event.stopPropagation()">
-                <div class="cluster-header">
-                    <span class="cluster-window-title">Alg reference</span>
-                    <button class="cluster-close-btn" onclick="closeCluster()">✕</button>
-                </div>
-                <div id="cluster-modal-content" class="cluster-text"></div>
-            </div>
-        </div>
-
     <div id="search-overlay" class="search-overlay" style="display:none;" onclick="closeSearch(event)">
         <div class="search-panel" onclick="event.stopPropagation()">
             <div class="search-bar">
@@ -101,6 +90,9 @@
             </div>
             <div id="search-extension" class="search-extension" style="display:none;">
                 <div id="search-results" class="search-results"></div>
+                <div id="search-cluster" class="search-cluster" style="display:none;">
+                    <div id="search-cluster-content" class="cluster-text"></div>
+                </div>
             </div>
         </div>
     </div>

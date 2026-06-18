@@ -142,9 +142,9 @@ function pblRecolorAll() {
     });
 }
 
-// ─── CLUSTER MODAL (PBL) ─────────────────────────────────────────────────────
+// ─── CLUSTER DATA (PBL) ──────────────────────────────────────────────────────
 // generic.js provides: clusterCacheLoad/Save, clusterDownloadAll, clusterFetch,
-// clusterEnsureReady, clusterSizeModal, closeCluster.
+// clusterEnsureReady, renderClusterInto.
 // This section holds PBL-specific: Supabase client, cache state, cluster worker,
 // case lookup, and the PBL HTML formatter.
 // When OBL gets a cluster modal, obl-core.js will have its own oblFormatCluster().
@@ -268,12 +268,11 @@ const PBL_SOURCE_META = {
 };
 
 // ── pblRenderCluster ──────────────────────────────────────────────────────
-// Renders title + source tabs + body into #cluster-modal-content.
+// Renders title + source tabs + body into the given `content` element.
 // Called on open (activeSource = sources[0]) and on tab switch.
 
-function pblRenderCluster(cluster, title, sources, activeSource) {
-    const content = document.getElementById("cluster-modal-content");
-    const window_ = content.closest('.cluster-window');
+function pblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
+    const window_ = content.parentElement;
 
     // Build or reuse the tab bar that sits outside the scroll container.
     let tabBar = window_.querySelector('.cluster-tab-bar');
@@ -298,7 +297,7 @@ function pblRenderCluster(cluster, title, sources, activeSource) {
 
     function showSource(src) {
         pblLastClusterSource = src;
-        const el = document.getElementById('cluster-source-content');
+        const el = content.querySelector('#cluster-source-content');
         const meta = PBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: pblFormatSheet };
         el.innerHTML = meta.formatter(cluster, src, meta);
     }
@@ -307,42 +306,9 @@ function pblRenderCluster(cluster, title, sources, activeSource) {
 
     tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
         radio.addEventListener('change', () => {
-            if (radio.checked) { showSource(radio.value); clusterSizeModal(content); }
+            if (radio.checked) { showSource(radio.value); onResize?.(content); }
         });
     });
-}
-
-// ── pblOpenCluster ────────────────────────────────────────────────────────
-// Wires the generic infrastructure to PBL-specific lookup + formatting.
-// closeCluster() (shared close) lives in generic.js.
-
-async function pblOpenCluster(caseOverride) {
-    if (!pblHasActive) return;
-
-    const raw          = caseOverride ?? pblScrambleList.at(-1 - pblOffset)[2];
-    const caseName     = raw.replace(/[+-]$/, "");
-    const clusterTitle = pblFindCluster(caseName);
-    if (!clusterTitle) return;
-
-    const modal   = document.getElementById("cluster-modal");
-    const content = document.getElementById("cluster-modal-content");
-    modal.style.display = "flex";
-    isPopupOpen = true;
-
-    const cluster = pblClusters[clusterTitle];
-    if (!cluster) {
-        content.innerHTML = `<span style="opacity:0.4">No data found for "${clusterTitle}".</span>`;
-        return;
-    }
-
-    const SKIP    = new Set(['case-list', 'optimal-slicecount']);
-    const sources = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const active  = (pblLastClusterSource && sources.includes(pblLastClusterSource))
-        ? pblLastClusterSource : sources[0] ?? 'matt';
-
-    content.scrollTop = 0;
-    pblRenderCluster(cluster, clusterTitle, sources, active);
-    clusterSizeModal(content);
 }
 
 // ─── PBL STORAGE ─────────────────────────────────────────────────────────────

@@ -801,9 +801,8 @@ function passesOBLFilter(obl, filter) {
         return result_from_good_bad || result_from_non_good_bad;
     }
 }
-// ─── CLUSTER MODAL (OBL) ─────────────────────────────────────────────────────
+// ─── CLUSTER DATA (OBL) ──────────────────────────────────────────────────────
 // oblClusters is declared as const in obl-data.js.
-// Shared modal infrastructure (clusterSizeModal, closeCluster) lives in generic.js.
 // pblNab and pblTextWidth are defined in pbl-core.js (loaded before obl-core.js).
 
 // ── OBL case → cluster lookup ─────────────────────────────────────────────
@@ -909,11 +908,10 @@ const OBL_SOURCE_META = {
 };
 
 // ── oblRenderCluster ──────────────────────────────────────────────────────
-// Renders title + source tabs + body into #cluster-modal-content.
+// Renders title + source tabs + body into the given `content` element.
 
-function oblRenderCluster(cluster, title, sources, activeSource) {
-    const content = document.getElementById("cluster-modal-content");
-    const window_ = content.closest('.cluster-window');
+function oblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
+    const window_ = content.parentElement;
 
     // Build or reuse the tab bar that sits outside the scroll container.
     let tabBar = window_.querySelector('.cluster-tab-bar');
@@ -938,7 +936,7 @@ function oblRenderCluster(cluster, title, sources, activeSource) {
 
     function showSource(src) {
         oblLastClusterSource = src;
-        const el = document.getElementById('cluster-source-content');
+        const el = content.querySelector('#cluster-source-content');
         const meta = OBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: oblFormatSheet };
         el.innerHTML = meta.formatter(cluster, src, meta);
     }
@@ -947,37 +945,8 @@ function oblRenderCluster(cluster, title, sources, activeSource) {
 
     tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
         radio.addEventListener('change', () => {
-            if (radio.checked) { showSource(radio.value); clusterSizeModal(content); }
+            if (radio.checked) { showSource(radio.value); onResize?.(content); }
         });
     });
 }
 
-// ── oblOpenCluster ────────────────────────────────────────────────────────
-// Call this wherever the OBL trainer needs to open the cluster modal.
-// Pass a specific or non-specific OBL case name, or omit to use the
-// current OBL case (caller must supply oblCurrentCase or equivalent).
-
-function oblOpenCluster(caseName) {
-    const clusterTitle = oblFindCluster(caseName);
-    if (!clusterTitle) return;
-
-    const modal   = document.getElementById("cluster-modal");
-    const content = document.getElementById("cluster-modal-content");
-    modal.style.display = "flex";
-    isPopupOpen = true;
-
-    const cluster = oblClusters[clusterTitle];
-    if (!cluster) {
-        content.innerHTML = `<span style="opacity:0.4">No data found for "${clusterTitle}".</span>`;
-        return;
-    }
-
-    const SKIP    = new Set(['case-list', 'optimal-slicecount']);
-    const sources = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const active  = (oblLastClusterSource && sources.includes(oblLastClusterSource))
-        ? oblLastClusterSource : sources[0] ?? 'matt';
-
-    content.scrollTop = 0;
-    oblRenderCluster(cluster, clusterTitle, sources, active);
-    clusterSizeModal(content);
-}

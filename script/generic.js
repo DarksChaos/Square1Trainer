@@ -628,26 +628,29 @@ function oblRestoreSelection(snap) {
     updateSelCount();
 }
 
-// Open alg reference on scramble click — PBL and OBL.
+// Open alg reference (in the search bar) on scramble click — PBL and OBL.
 currentScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
-    if (trainerMode === 'pbl') pblOpenCluster();
-    else if (trainerMode === 'obl' && oblHasActiveScramble && oblScrambleList.length) {
+    if (trainerMode === 'pbl') {
+        if (!pblHasActive || !pblScrambleList.length) return;
+        const raw = pblScrambleList.at(-1 - pblOffset)?.[2];
+        if (raw) openAlgReference(pblFindCluster(raw));
+    } else if (oblHasActiveScramble && oblScrambleList.length) {
         const entry = oblScrambleList.at(-1 - oblScrambleOffset);
-        if (entry) oblOpenCluster(entry[2]);
+        if (entry) openAlgReference(oblFindCluster(entry[2]));
     }
 });
 
-// Open alg reference on previous scramble click — PBL and OBL.
+// Open alg reference (in the search bar) on previous scramble click — PBL and OBL.
 previousScrambleEl.style.cursor = "pointer";
 previousScrambleEl.addEventListener("click", () => {
     if (usingTimer()) return;
     if (trainerMode === 'pbl') {
         if (!pblPreviousCase) return;
-        pblOpenCluster(pblPreviousCase);
-    } else if (trainerMode === 'obl') {
+        openAlgReference(pblFindCluster(pblPreviousCase));
+    } else {
         const prev = oblScrambleList.at(-2 - oblScrambleOffset);
-        if (prev) oblOpenCluster(prev[2]);
+        if (prev) openAlgReference(oblFindCluster(prev[2]));
     }
 });
 
@@ -766,16 +769,20 @@ toggleUiEl.addEventListener("click", () => {
 // below the bar lists matches. ↑/↓ move the selection, Enter opens the cluster
 // modal. The "?" button opens a per-trainer help modal (contents TBD).
 
-const searchOverlayEl   = document.getElementById("search-overlay");
-const searchInputEl     = document.getElementById("search-input");
-const searchExtensionEl = document.getElementById("search-extension");
-const searchResultsEl   = document.getElementById("search-results");
-const searchHelpBtnEl   = document.getElementById("search-help-btn");
-const searchHelpModalEl = document.getElementById("search-help-modal");
+const searchOverlayEl    = document.getElementById("search-overlay");
+const searchPanelEl      = document.querySelector("#search-overlay .search-panel");
+const searchInputEl      = document.getElementById("search-input");
+const searchExtensionEl  = document.getElementById("search-extension");
+const searchResultsEl    = document.getElementById("search-results");
+const searchClusterEl    = document.getElementById("search-cluster");
+const searchClusterContentEl = document.getElementById("search-cluster-content");
+const searchHelpBtnEl    = document.getElementById("search-help-btn");
+const searchHelpModalEl  = document.getElementById("search-help-modal");
 
-let isSearchOpen   = false;
-let searchMatches  = [];   // array of cluster titles currently shown
-let searchActiveIx = -1;   // index into searchMatches of the highlighted row
+let isSearchOpen      = false;
+let searchMatches     = [];     // array of cluster titles currently shown
+let searchActiveIx    = -1;     // index into searchMatches of the highlighted row
+let searchInClusterView = false; // true while the extension shows an alg reference
 
 // Search index: per cluster, a title plus every "alias" the user might type to
 // reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
@@ -830,16 +837,13 @@ function getSearchIndex() {
     return _searchIndexCache[trainerMode];
 }
 
-// Opens the cluster modal directly from a title (bypasses case→cluster lookup).
-function openClusterByTitle(title) {
+// Renders a cluster's alg reference for `title` into an arbitrary `content`
+// element. `onResize` is the callback the source tabs use to re-fit.
+// Returns true if the cluster existed and was rendered.
+function renderClusterInto(content, title, onResize = () => {}) {
     const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
     const cluster  = clusters && clusters[title];
-    if (!cluster) return;
-
-    const modal   = document.getElementById("cluster-modal");
-    const content = document.getElementById("cluster-modal-content");
-    modal.style.display = "flex";
-    isPopupOpen = true;
+    if (!cluster) return false;
 
     const SKIP       = new Set(['case-list', 'optimal-slicecount']);
     const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
@@ -847,9 +851,18 @@ function openClusterByTitle(title) {
     const active     = (lastSource && sources.includes(lastSource)) ? lastSource : sources[0] ?? 'matt';
 
     content.scrollTop = 0;
-    if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active);
-    else                       oblRenderCluster(cluster, title, sources, active);
-    clusterSizeModal(content);
+    if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active, content, onResize);
+    else                       oblRenderCluster(cluster, title, sources, active, content, onResize);
+    return true;
+}
+
+// Opens the alg reference for a cluster title in the search bar (the only place
+// alg references are shown — there is no separate modal). Used by scramble clicks
+// and search-result selection.
+function openAlgReference(title) {
+    if (!title) return;
+    if (!isSearchOpen) openSearch();
+    showClusterInSearch(title);
 }
 
 function escapeHtml(s) {
@@ -867,6 +880,12 @@ function highlightMatch(title, query) {
 }
 
 function renderSearchResults() {
+    // Any change to the query returns the extension to plain-search mode.
+    searchInClusterView = false;
+    searchClusterEl.style.display = "none";
+    searchResultsEl.style.display = "";
+    searchPanelEl.style.width = ""; // undo any cluster-view widening
+
     const query = searchInputEl.value.trim();
     if (!query) {
         searchMatches  = [];
@@ -896,7 +915,7 @@ function renderSearchResults() {
     searchMatches  = actionHits.concat(titleHits, aliasHits);
     searchActiveIx = searchMatches.length ? 0 : -1;
 
-    searchExtensionEl.style.display = "block";
+    searchExtensionEl.style.display = "flex";
     if (!searchMatches.length) {
         searchResultsEl.innerHTML = '<div class="search-empty">No matching clusters</div>';
         return;
@@ -934,9 +953,44 @@ const SEARCH_ACTIONS = {
 function openSearchResult(ix) {
     const match = searchMatches[ix];
     if (!match) return;
-    closeSearch();
-    if (match.action) { SEARCH_ACTIONS[match.action]?.run(); return; }
-    openClusterByTitle(match.title);
+    if (match.action) { closeSearch(); SEARCH_ACTIONS[match.action]?.run(); return; }
+    showClusterInSearch(match.title);
+}
+
+// Shows a cluster's alg reference inside the search extension and sets the search
+// bar to the cluster title. Setting .value programmatically does not fire `input`,
+// so the user editing the bar (which does) reverts to plain search.
+function showClusterInSearch(title) {
+    if (!renderClusterInto(searchClusterContentEl, title, sizeSearchPanel)) return;
+    searchInClusterView = true;
+    searchInputEl.value = title;
+    searchExtensionEl.style.display = "flex";
+    searchResultsEl.style.display = "none";
+    searchClusterEl.style.display = "flex";
+    sizeSearchPanel(searchClusterContentEl);
+}
+
+// Widens the whole search panel (bar + extension) to fit the alg reference's
+// widest line, clamped to the viewport. Mirrors clusterSizeModal but targets the
+// search panel; the width is cleared again when returning to plain search.
+function sizeSearchPanel(content) {
+    content.style.visibility = 'hidden';
+    requestAnimationFrame(() => {
+        const maxW   = Math.min(900, window.innerWidth * 0.92);
+        const minW   = Math.min(640, window.innerWidth * 0.92);
+        const needed = content.scrollWidth + 40; // padding + scrollbar allowance
+        searchPanelEl.style.width = Math.max(minW, Math.min(needed, maxW)) + 'px';
+        requestAnimationFrame(() => {
+            const algSpans = content.querySelectorAll('.alg-lines');
+            const maxAlgRight = Math.max(0, ...[...algSpans].map(s => s.clientWidth + s.offsetLeft));
+            const overflows = maxAlgRight > content.clientWidth;
+            content.querySelectorAll('.cluster-text>:not(.alg-lines):not(.cluster-title)').forEach(s => {
+                if (overflows) s.style.width = (maxAlgRight - s.offsetLeft) + 'px';
+                else s.style.width = '';
+            });
+            content.style.visibility = '';
+        });
+    });
 }
 
 function openSearch() {
@@ -983,7 +1037,10 @@ function closeSearchHelp(e) {
     searchHelpModalEl.style.display = "none";
 }
 
-document.getElementById("opensearch").addEventListener("click", () => toggleSearch());
+document.getElementById("opensearch").addEventListener("click", (e) => {
+    e.currentTarget.blur(); // don't leave the nav button stuck in :focus on mobile
+    toggleSearch();
+});
 searchHelpBtnEl.addEventListener("click", openSearchHelp);
 searchInputEl.addEventListener("input", renderSearchResults);
 
@@ -993,14 +1050,19 @@ searchResultsEl.addEventListener("click", (e) => {
 });
 
 searchInputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        e.preventDefault();
+        if (searchHelpModalEl.style.display === "flex") closeSearchHelp();
+        else closeSearch();
+        return;
+    }
+    // While an alg reference is shown in the extension, leave the keys alone so
+    // the caret can move and the content can be scrolled — no result navigation.
+    if (searchInClusterView) return;
     switch (e.key) {
         case "ArrowDown": e.preventDefault(); moveSearchSelection(1);  break;
         case "ArrowUp":   e.preventDefault(); moveSearchSelection(-1); break;
         case "Enter":     e.preventDefault(); if (searchActiveIx >= 0) openSearchResult(searchActiveIx); break;
-        case "Escape":    e.preventDefault();
-            if (searchHelpModalEl.style.display === "flex") closeSearchHelp();
-            else closeSearch();
-            break;
     }
 });
 
@@ -1024,10 +1086,6 @@ window.addEventListener("keydown", (e) => {
         if (document.getElementById("tag-modal").style.display === "flex") { closeTagModal(); return; }
         if (searchHelpModalEl.style.display === "flex") { closeSearchHelp(); return; }
         if (isSearchOpen) { closeSearch(); return; }
-        if (document.getElementById("cluster-modal").style.display === "flex") {
-            closeCluster();
-            return;
-        }
         if (isPopupOpen) closePopup();
         if (usingTimer()) resetTimer(false);
         if (inInput) filterInputEl.blur();
@@ -1471,41 +1529,3 @@ async function clusterEnsureReady(workerReadyPromise, isWorkerBusy, cache, downl
     }
 }
 
-// ── Shared modal helpers ───────────────────────────────────────────────────
-
-// Resize the modal window to fit the widest content line after HTML is set.
-function clusterSizeModal(content) {
-    content.style.visibility = 'hidden';
-    requestAnimationFrame(() => {
-        const win    = document.getElementById('cluster-modal-inner');
-        const header = win.querySelector('.cluster-header');
-        const maxW   = Math.min(800, window.innerWidth * 0.80);
-        const minW   = Math.min(360, window.innerWidth * 0.95);
-        const needed = Math.max(content.scrollWidth, header ? header.scrollWidth : 0) + 2;
-        win.style.width = Math.max(minW, Math.min(needed, maxW)) + 'px';
-        // After the window width is applied, check whether the longest alg span
-        // fits inside the visible scroll area.
-        requestAnimationFrame(() => {
-            const algSpans = content.querySelectorAll('.alg-lines');
-            const maxAlgRight = Math.max(0, ...[...algSpans].map(s => {
-                return s.clientWidth + s.offsetLeft;
-            }));
-            const overflows = maxAlgRight > content.clientWidth;
-            content.querySelectorAll('.cluster-text>:not(.alg-lines):not(.cluster-title)').forEach(s => {
-                if (overflows) s.style.width = (maxAlgRight - s.offsetLeft) + 'px';
-                else s.style.width = '';
-            });
-            content.style.visibility = '';
-        });
-    });
-}
-
-// closeCluster: shared by both trainers.
-// The HTML calls this directly via onclick="closeCluster()".
-function closeCluster() {
-    document.getElementById("cluster-modal").style.display = "none";
-    document.getElementById("cluster-modal-inner").style.width = '';
-    const content = document.getElementById("cluster-modal-content");
-    if (content) content.scrollTop = 0;
-    isPopupOpen = false;
-}
