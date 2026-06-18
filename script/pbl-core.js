@@ -426,14 +426,13 @@ function pblDeselect(s) {
 // ─── PBL WEIGHTS & EACH-CASE ─────────────────────────────────────────────────
 
 function pblGetWeight(pbl) {
-    const [u, d] = pbl.replace(/[+-]$/, '').split("/");
-    return (u in weight ? weight[u] : 4) * (d in weight ? weight[d] : 4);
+    return squan.getWeight(pbl);
 }
 
 // pblGetCaseCount: used by pbl-filter.js to compute freq = weight × caseCount.
 // pbl is a [top, bottom] array (as stored in pblPossible).
 function pblGetCaseCount(pbl) {
-    return PLLextndlen[pbl[0]] * PLLextndlen[pbl[1]];
+    return squan.getPLLCaseCount(pbl);
 }
 
 function pblRefillRemaining() {
@@ -834,8 +833,8 @@ function pblSelectList(listName, setSelection) {
 
 async function pblInit() {
     // Build the full cross-product list (even×even + odd×odd).
-    for (const t of evenPLL) for (const b of evenPLL) pblPossible.push([t, b]);
-    for (const t of oddPLL)  for (const b of oddPLL)  pblPossible.push([t, b]);
+    for (const t of SquanLib.evenPLL) for (const b of SquanLib.evenPLL) pblPossible.push([t, b]);
+    for (const t of SquanLib.oddPLL)  for (const b of SquanLib.oddPLL)  pblPossible.push([t, b]);
     pblPossible = pblPossible.filter(([t,b])=> (t!=="-" || b!=="-"));
 
     // Three-layer sort: alphabetical pair → first letter of shorter-name layer →

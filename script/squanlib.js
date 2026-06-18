@@ -151,8 +151,6 @@ export default class SquanLib {
         "1,1": "M", "-1,-1": "M'",
         "5,-1": "u2", "-5,1": "u2'",
         "-1,5": "d2", "1,-5": "d2'",
-        "5,2": "K", "-5,-2": "K'",
-        "2,5": "k", "-2,-5": "k'",
     };
 
     // -------------------------------------------------------------------------
@@ -363,7 +361,21 @@ export default class SquanLib {
     static get LAYERL() { return 12; }
     static get THREE_FOUR_L() { return 18; }
     static get CUBEL() { return 24; }
-    static get SOLVED() { return "bBBbBBbBBbBBwWWwWWwWWwWW"; }
+    static get SOLVED_A() { return "bBBbBBbBBbBBwWWwWWwWWwWW"; }
+    static get SOLVED_a() { return "BBbBBbBBbBBbWWwWWwWWwWWw"; }
+    static get SLICE_a() { return "WWwWWwBBbBBbBBbBBbWWwWWw"; }
+    static get SLICE_A() { return "wWWwWWbBBbBBbBBbBBwWWwWW"; }
+
+    static A_MOVES = [
+        [3, 0], [-3, 0], [0, 3], [0, -3], [3, 3],
+        [2, -1], [-1, 2], [-4, -1], [-1, -4], [2, -4], [2, 2], [-1, -1], [5, -1]
+    ];
+    static a_MOVES = [
+        [3, 0], [-3, 0], [0, 3], [0, -3], [3, 3],
+        [-2, 1], [1, -2], [4, 1], [1, 4], [-2, 4], [-2, -2], [1, 1], [-5, 1]
+    ];
+
+    static KARNL = SquanLib.a_MOVES.length;
 
     /**
      * POSSIBLE_OBL: every OBL case as [specifier, U, D].
@@ -615,11 +627,15 @@ export default class SquanLib {
      *
      * @param {string} str the string to be replaced
      * @param {object} dict the dictionary
+     * @param {boolean} isolated whether matches need to be isolated in / \ | space or boundaries
      * @returns {string} the fully replaced string
      */
-    dictReplace(str, dict) {
+    dictReplace(str, dict, isolated = true) {
+        const body = '(?:' +
+            Object.keys(dict).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') +
+            ')';
         const pattern = new RegExp(
-            Object.keys(dict).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
+            isolated ? '(?<=^|[ /\\\\|])' + body + '(?=$|[ /\\\\|])' : body,
             'g'
         );
         let prev;
@@ -944,7 +960,7 @@ export default class SquanLib {
      * @returns {string} the cube post-moves
      */
     doMoves(ms, s) {
-        if (s === undefined) s = SquanLib.SOLVED;
+        if (s === undefined) s = SquanLib.SOLVED_A;
         for (const tok of this.unkarnify(ms).split('/')) {
             const m = tok.trim();
             if (m !== '') {
@@ -1193,7 +1209,7 @@ export default class SquanLib {
      */
     optimize(alg) {
         const optimKeys = Object.keys(SquanLib.OPTIM);
-        while (this.dictReplace(alg, SquanLib.OPTIM) !== alg) {
+        while (this.dictReplace(alg, SquanLib.OPTIM, false) !== alg) {
             const moves = alg.split('/').map(m => m.trim());
             let atSlice = 0;
             let cycleCompleted = false;
@@ -1945,9 +1961,7 @@ export default class SquanLib {
      */
     getWeight(pbl) {
         const [u, d] = pbl.replace(/[+-]$/, '').split("/");
-        if (!(u in SquanLib.PBLWeights) || !(d in SquanLib.PBLWeights))
-            throw new Error("getWeight: no weights found for pbl: " + pbl);
-        return SquanLib.PBLWeights[u] * SquanLib.PBLWeights[d];
+        return (SquanLib.PBLWeights[u] ?? 4) * (SquanLib.PBLWeights[d] ?? 4);
     }
 
     /**

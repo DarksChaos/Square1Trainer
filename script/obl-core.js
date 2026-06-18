@@ -486,56 +486,6 @@ const oblHelpSections = [
 
 // ─── OBL MAIN ─────────────────────────────────────────────────────────────────
 
-function isOBL(layer, obl) {
-    // layer: 12-char string w/ BbWw, in cs
-    // obl: a key of OBL dict
-    // return: bool
-    let target = OBL[obl]
-    // if it's top misalign, change to bottom misalign
-    if (layer.charAt(0).toUpperCase() !== layer.charAt(0)) layer = shift(layer,-1);
-    for (let move = 0; move <= 3; move++) {
-        if (target === shift(layer, 3*move)) return true;
-    }
-    if (obl.split(" ").at(-1) !== "T" && obl.split(" ").at(-1) !== "tie") {
-        // T and tie colors are specified
-        layer = layer_flip(layer);
-        for (let move = 0; move <= 3; move++) {
-            if (target === shift(layer, 3*move)) return true;
-        }}
-    return false;
-}
-
-function layer_flip(state){
-    `flips "w" to "b" and vice versa in the given state
-
-    Args:
-        state (str): the state (e.g. "BBbBBbWWwWWw")
-
-    Returns:
-        str: the flipped state (e.g. "WWwWWwBBbBBb")
-    `
-    let return_val = [];
-    for (let c of state) {
-        switch (c) {
-            case "b":
-                return_val.push("w");
-                break;
-            case "B":
-                return_val.push("W");
-                break;
-            case "w":
-                return_val.push("b");
-                break;
-            case "W":
-                return_val.push("B");
-                break;
-            default:
-                console.log(c, ": from: layer_flip(): unrecognized piece")
-        }
-    }
-    return return_val.join("")
-}
-
 function shift(a, amount) {
     // shift "ABC" to "CAB" aka cw move
     // assumes amount <= a.length (although if it's equal it makes no impact)
@@ -546,15 +496,8 @@ function shift(a, amount) {
 
 function move(cube, u,d) {
     // u,d in int
-    return shift(cube.slice(0,LAYERL), u) +
-            shift(cube.slice(LAYERL), d)
-}
-
-function slice(cube) {
-    return  cube.slice(LAYERL, THREE_FOUR_L) + // bottom sliced up
-            cube.slice(HALF_L, LAYERL) +
-            cube.slice(0,HALF_L) +
-            cube.slice(THREE_FOUR_L, CUBEL)
+    return shift(cube.slice(0,SquanLib.LAYERL), u) +
+            shift(cube.slice(SquanLib.LAYERL), d)
 }
 
 function changesAlignment(move) {
@@ -564,12 +507,12 @@ function changesAlignment(move) {
 
 function randAMove() {
     // return: element of A_MOVES
-    return JSON.parse(JSON.stringify(A_MOVES))[randInt(0,KARNL-1)];
+    return JSON.parse(JSON.stringify(SquanLib.A_MOVES))[randInt(0,SquanLib.KARNL-1)];
 }
 
 function randaMove() {
     // return: element of a_MOVES
-    return JSON.parse(JSON.stringify(a_MOVES))[randInt(0,KARNL-1)];
+    return JSON.parse(JSON.stringify(SquanLib.a_MOVES))[randInt(0,SquanLib.KARNL-1)];
 }
 
 function getOBLScramble(obl) {
@@ -585,32 +528,32 @@ function getOBLScramble(obl) {
             // A start
             moves += "A/";
             topA = true;
-            state = SLICE_A;
+            state = SquanLib.SLICE_A;
         }
         else {
             // a start
             moves += "a/";
             topA = false;
-            state = SLICE_a;
+            state = SquanLib.SLICE_a;
         }
         // first 5 slices
         for (let i = 2; i < 6; i++) {
             abf = topA ? randAMove() : randaMove();
-            state = slice(move(state, abf[0], abf[1]));
+            state = squan.doSlice(move(state, abf[0], abf[1]));
             moves += `${abf[0]},${abf[1]}/`
             if (changesAlignment(abf[0])) topA = !topA;
         }
         // slice 6-10
         for (let i = 6; i <= 10; i++){
             abf = topA ? randAMove() : randaMove();
-            state = slice(move(state, abf[0], abf[1]));
+            state = squan.doSlice(move(state, abf[0], abf[1]));
             moves += `${abf[0]},${abf[1]}/`
             if (changesAlignment(abf[0])) topA = !topA;
             // includes check for layer flip
-            if ((isOBL(state.slice(0,LAYERL), u) &&
-                isOBL(state.slice(LAYERL), d)) ||
-                (isOBL(state.slice(0,LAYERL), d) &&
-                isOBL(state.slice(LAYERL), u))) {
+            if ((squan.isOBLCase(state.slice(0,SquanLib.LAYERL), u) &&
+                squan.isOBLCase(state.slice(SquanLib.LAYERL), d)) ||
+                (squan.isOBLCase(state.slice(0,SquanLib.LAYERL), d) &&
+                squan.isOBLCase(state.slice(SquanLib.LAYERL), u))) {
                 let currentA = topA ? "A" : "a";
                 moves += currentA;
                 console.log("preoptim moves "+moves);
@@ -813,7 +756,7 @@ function oblFindCluster(caseName) {
     } catch (e) {}
     // specific name
     let [u, d] = caseName.split("/");
-    caseName = [oblNaming[u], oblNaming[d]].join("/");
+    caseName = [SquanLib.NAMING[u], SquanLib.NAMING[d]].join("/");
     for (const [title, data] of Object.entries(oblClusters)) {
         if (data["case-list"].includes(caseName)) return title;
     }

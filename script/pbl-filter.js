@@ -54,14 +54,17 @@ function getFreqSet(filterStr) {
 // SUFFIX SYSTEM
 // ============================================================================
 
-// CP lookup: maps PLL name -> "a" | "o" | "s"
-const CP_MAP = (() => {
-    const m = {};
-    for (let p of CP_Adj_PLL) m[p] = "a";
-    for (let p of CP_Opp_PLL) m[p] = "o";
-    for (let p of CP_Solved_PLL) m[p] = "s";
-    return m;
-})();
+// CP lookup: maps PLL name -> "a" | "o" | "s". Built lazily because SquanLib is
+// only available once its module has loaded (after these classic scripts).
+let _cpMap = null;
+function cpMap() {
+    if (_cpMap) return _cpMap;
+    _cpMap = {};
+    for (let p of SquanLib.CPAdjPLL) _cpMap[p] = "a";
+    for (let p of SquanLib.CPOppPLL) _cpMap[p] = "o";
+    for (let p of SquanLib.CPSolvedPLL) _cpMap[p] = "s";
+    return _cpMap;
+}
 
 // All suffix definitions. To add a new suffix:
 // add an entry here. evaluate(pbl, context) returns bool.
@@ -82,7 +85,7 @@ for (let x of ["a", "o", "s"]) {
     for (let y of ["a", "o", "s"]) {
         const cx = x, cy = y;
         SUFFIX_DEFS[`${x}${y}`] = {
-            evaluate(pbl) { return CP_MAP[pbl[0]] === cx && CP_MAP[pbl[1]] === cy; }
+            evaluate(pbl) { const cp = cpMap(); return cp[pbl[0]] === cx && cp[pbl[1]] === cy; }
         };
     }
 }

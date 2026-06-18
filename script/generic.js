@@ -796,7 +796,7 @@ function buildSearchIndex(mode) {
     // their reverse-mapped legacy names ("right bunny/left thumb"), and the legacy
     // verbose names from OBLtranslation (both non-specific and specific).
     const rev = {}; // short code → legacy name
-    for (const [legacy, short] of Object.entries(oblNaming)) rev[short] = legacy;
+    for (const [legacy, short] of Object.entries(SquanLib.NAMING)) rev[short] = legacy;
 
     const byTitle = {};
     for (const [title, data] of Object.entries(oblClusters)) {
