@@ -100,7 +100,7 @@ function oblGenerateScramble(regen = false) {
         : [randrange(-3, 7, 3), randrange(-5, 5, 3)];
 
     const raw   = start.join(',') + scramble[0].slice(1, -1) + end.join(',');
-    const final = [raw.replaceAll('/', ' / '), karnify(raw.replaceAll('/', '/')), choice];
+    const final = [raw.replaceAll('/', ' / '), squan.karnify(raw.replaceAll('/', '/')), choice];
 
     if (regen) {
         oblScrambleList[oblScrambleList.length - 1] = final;
@@ -614,9 +614,9 @@ function getOBLScramble(obl) {
                 let currentA = topA ? "A" : "a";
                 moves += currentA;
                 console.log("preoptim moves "+moves);
-                moves = optimize(moves);
+                moves = squan.optimize(moves);
                 console.log("postoptim moves "+moves);
-                return [moves, karnify(moves)];
+                return [moves, squan.karnify(moves)];
             }
         }
         moves = "";
@@ -856,7 +856,7 @@ function oblFormatMatt(cluster, key, meta) {
             const alg = c.algs[i];
             if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
             const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-            const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+            const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
             const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
@@ -888,7 +888,7 @@ function oblFormatSheet(cluster, key, meta) {
         for (let i = 0; i < c.algs.length; i++) {
             const algStr = c.algs[i];
             if (!algStr?.trim()) continue;
-            const notation = usingKarn ? algStr : unkarnify(algStr);
+            const notation = usingKarn ? algStr : squan.unkarnify(algStr);
             const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +

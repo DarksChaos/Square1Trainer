@@ -13,8 +13,6 @@
     <script src="data/obl-data.js"></script>
     <script src="data/pbl-data.js"></script>
     <script src="script/pbl-filter.js"></script>
-    <script src="script/karn.js"></script>
-    <script src="script/optimizer.js"></script>
 
 
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
@@ -283,5 +281,14 @@
     <script src="script/obl-core.js"></script>
     <script src="script/pbl-core.js"></script>
     <script src="script/tags.js"></script>
+
+    <!-- SquanLib is an ES module; expose a shared instance on the global object
+         for the classic scripts above, then start the app once it's ready. -->
+    <script type="module">
+        import SquanLib from './script/squanlib.js';
+        window.SquanLib = SquanLib;
+        window.squan = new SquanLib();
+        startApp();
+    </script>
 
 </html>

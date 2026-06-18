@@ -210,7 +210,7 @@ function pblFormatMatt(cluster, key, meta) {
                     const alg = c.algs[i];
                     if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
                     const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                    const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+                    const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
                     const indent   = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
                     lines.push(
                         `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
@@ -245,7 +245,7 @@ function pblFormatSheet(cluster, key, meta) {
             const alg = c.algs[i];
             if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
             const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-            const notation = usingKarn ? alg.notation : unkarnify(alg.notation);
+            const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
             const indent   = i > 0 ? pblTextWidth(c["case-name"] + (alg.sign || "") + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
@@ -456,11 +456,11 @@ function pblRefillRemaining() {
 
 // ─── PBL WORKER ──────────────────────────────────────────────────────────────
 
-pblWorker = new Worker('./script/worker.js');
+pblWorker = new Worker('./script/worker.js', { type: 'module' });
 
 function pblRestartWorker() {
     if (pblWorker) pblWorker.terminate();
-    pblWorker = new Worker('./script/worker.js');
+    pblWorker = new Worker('./script/worker.js', { type: 'module' });
     pblWorker.onmessage = pblNormalHandler;
     pblWorkerBusy = false;
     pblPendingFor  = null;
@@ -1267,14 +1267,20 @@ const pblHelpSections = [
 ];
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────
-// Load order: generic.js → pbl-core.js (this file).
-// generic.js must be loaded first so DOM refs, shared state, and cluster
-// infrastructure helpers are available.
+// Load order: generic.js → pbl-core.js (this file). generic.js must be loaded
+// first so DOM refs, shared state, and cluster helpers are available.
+//
+// startApp() is invoked by the SquanLib bootstrap module in index.html once
+// `squan` is available on the global object — initialization (scramble
+// generation, etc.) depends on it, and module scripts run after these classic
+// scripts have finished parsing.
 
-pblInit().then(() => {
-    applyMode();            // applies the last-used trainer mode (or 'obl' default)
-    pblApplyBarflipUI();    // must run after pblShowBarflipUI + pblBarflipOverride are loaded
-    updateSelectBtn();
-    updateDeselectBtn();
-    updateToggle();
-});
+function startApp() {
+    pblInit().then(() => {
+        applyMode();            // applies the last-used trainer mode (or 'obl' default)
+        pblApplyBarflipUI();    // must run after pblShowBarflipUI + pblBarflipOverride are loaded
+        updateSelectBtn();
+        updateDeselectBtn();
+        updateToggle();
+    });
+}

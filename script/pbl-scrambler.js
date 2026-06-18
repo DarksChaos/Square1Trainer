@@ -715,22 +715,12 @@ function getScramble(caseName, mlMode, scrambleMode = 'long', allowBottom56 = fa
     }
 }
 
-// Export for browser use
-if (typeof self !== 'undefined') {
-    self.scrambler = {
-        getScramble: getScramble
-    };
-}
-
-// For Node.js/module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        getScramble,
-        scrambleFromState,
-        parseHexFormat,
-        generateRandomCase,
-        SqCubie,
-        NonParityCases,
-        ParityCases
-    };
-}
+export {
+    getScramble,
+    scrambleFromState,
+    parseHexFormat,
+    generateRandomCase,
+    SqCubie,
+    NonParityCases,
+    ParityCases
+};
