@@ -834,8 +834,8 @@ function getSearchIndex() {
 // Returns true if the cluster existed and was rendered.
 function renderClusterInto(content, title, onResize = () => {}) {
     const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
-    const cluster  = clusters && clusters[title];
-    if (!cluster) return false;
+    if (!clusters || !clusters[title]) return false;
+    const cluster  = effectiveCluster(title); // shipped data merged with user overrides
 
     const SKIP       = new Set(['case-list', 'optimal-slicecount']);
     const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
@@ -1249,6 +1249,10 @@ downloadEl.addEventListener("click", () => {
         selectedOBL:  oblStorage.getItem('selected'),
         userListsOBL: oblStorage.getItem('userLists'),
         tags:         exportTagsRaw(),
+        algOverridesPBL:   pblStorage.getItem('algOverrides'),
+        algOverridesOBL:   oblStorage.getItem('algOverrides'),
+        tagAssignmentsPBL: pblStorage.getItem('tagAssignments'),
+        tagAssignmentsOBL: oblStorage.getItem('tagAssignments'),
     });
     const url = URL.createObjectURL(new Blob([data], { type: "text/plain" }));
     const a   = Object.assign(document.createElement("a"), { href: url, download: "TrainerData.json" });
@@ -1290,6 +1294,15 @@ fileEl.addEventListener("change", (e) => {
             if ("settingsOBL" in jsonData)  oblStorage.setItem("settings",  jsonData["settingsOBL"]);
             // ── Tags ──
             if ("tags" in jsonData) importTagsRaw(jsonData["tags"]);
+            // ── Alg-reference overrides + tag assignments (per trainer) ──
+            for (const [field, store, key] of [
+                ["algOverridesPBL",   pblStorage, "algOverrides"],
+                ["algOverridesOBL",   oblStorage, "algOverrides"],
+                ["tagAssignmentsPBL", pblStorage, "tagAssignments"],
+                ["tagAssignmentsOBL", oblStorage, "tagAssignments"],
+            ]) {
+                if (field in jsonData && jsonData[field] != null) store.setItem(key, jsonData[field]);
+            }
             if (outdated) alert("File formatting is outdated, re-export recommended.");
             pblLoadStorage();
             // Always reload OBL in-memory state regardless of current trainer mode,
