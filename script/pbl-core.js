@@ -201,8 +201,13 @@ function pblFormatMatt(cluster, key, meta) {
         if (sg["solution-overview"]?.trim())
             lines.push(`<span class="sol-overview"><b>${pblNab(sg["solution-overview"])}${slices}</b></span>`);
 
+        let lastAngleExplanation;
         for (const ab of sg["alg-blocks"] || []) {
-            if (ab["angle-explanation"]?.trim()) lines.push(`<span class="explanations">${pblNab(ab["angle-explanation"])}</span>`);
+            let angleExplanation = ab["angle-explanation"];
+            if (angleExplanation?.trim() && angleExplanation !== lastAngleExplanation) {
+                lines.push(`<span class="explanations">${pblNab(angleExplanation)}</span>`);
+                lastAngleExplanation = angleExplanation.trim();
+            }
             if (ab["alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
             for (const c of ab.cases || []) {
                 if (!pblHasAlgData(c.algs)) continue;
