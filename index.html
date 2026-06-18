@@ -115,6 +115,22 @@
         </div>
     </div>
 
+    <div id="tag-modal" class="tag-overlay" style="display:none;" onclick="closeTagModal(event)">
+        <div class="tag-window" onclick="event.stopPropagation()">
+            <div class="tag-header">
+                <span class="tag-window-title">Tags</span>
+                <button class="cluster-close-btn" onclick="closeTagModal()">✕</button>
+            </div>
+            <div id="tag-list" class="tag-list"></div>
+            <div class="tag-footer">
+                <button id="tag-add-btn" class="tag-add-btn" onclick="addTag()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add tag
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="main">
         <div class="popup" id="settings-popup">
             <div class="popup-inner settings-popup-inner">
@@ -280,5 +296,6 @@
     <script src="script/generic.js"></script>
     <script src="script/obl-core.js"></script>
     <script src="script/pbl-core.js"></script>
+    <script src="script/tags.js"></script>
 
 </html>

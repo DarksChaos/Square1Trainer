@@ -876,6 +876,12 @@ function renderSearchResults() {
     }
 
     const q = query.toLowerCase();
+
+    // Special action entries (keyword commands) rank above cluster matches.
+    const actionHits = Object.entries(SEARCH_ACTIONS)
+        .filter(([keyword, a]) => keyword.includes(q) && (a.trainer === 'both' || a.trainer === trainerMode))
+        .map(([keyword, a]) => ({ action: keyword, title: a.label, desc: a.desc }));
+
     // Title matches rank above matches found only through a case/legacy alias.
     const titleHits = [];
     const aliasHits = [];
@@ -887,7 +893,7 @@ function renderSearchResults() {
             if (via) aliasHits.push({ title: entry.title, via });
         }
     }
-    searchMatches  = titleHits.concat(aliasHits);
+    searchMatches  = actionHits.concat(titleHits, aliasHits);
     searchActiveIx = searchMatches.length ? 0 : -1;
 
     searchExtensionEl.style.display = "block";
@@ -897,9 +903,14 @@ function renderSearchResults() {
     }
 
     searchResultsEl.innerHTML = searchMatches.map((m, i) => {
+        const cls = `search-result${i === 0 ? ' active' : ''}${m.action ? ' search-action' : ''}`;
+        if (m.action) {
+            return `<div class="${cls}" data-ix="${i}">${escapeHtml(m.title)}` +
+                `<span class="search-result-via">${escapeHtml(m.desc || '')}</span></div>`;
+        }
         const titleHtml = m.via ? escapeHtml(m.title) : highlightMatch(m.title, query);
         const viaHtml   = m.via ? `<span class="search-result-via">${highlightMatch(m.via, query)}</span>` : '';
-        return `<div class="search-result${i === 0 ? ' active' : ''}" data-ix="${i}">${titleHtml}${viaHtml}</div>`;
+        return `<div class="${cls}" data-ix="${i}">${titleHtml}${viaHtml}</div>`;
     }).join('');
 }
 
@@ -912,10 +923,19 @@ function moveSearchSelection(delta) {
     if (active) active.scrollIntoView({ block: 'nearest' });
 }
 
+// Keyword commands surfaced in the search bar, keyed by the search term that
+// triggers them. Add new actions here — { label, desc, trainer, run } — and they
+// show up automatically. `trainer` ('obl' | 'pbl' | 'both') limits which
+// trainer(s) the action appears in. `run` is invoked when the entry is chosen.
+const SEARCH_ACTIONS = {
+    tags: { label: 'Tags', desc: 'Manage your tags', trainer: 'both', run: () => openTagModal() },
+};
+
 function openSearchResult(ix) {
     const match = searchMatches[ix];
     if (!match) return;
     closeSearch();
+    if (match.action) { SEARCH_ACTIONS[match.action]?.run(); return; }
     openClusterByTitle(match.title);
 }
 
@@ -1001,6 +1021,7 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (e.code === "Escape") {
+        if (document.getElementById("tag-modal").style.display === "flex") { closeTagModal(); return; }
         if (searchHelpModalEl.style.display === "flex") { closeSearchHelp(); return; }
         if (isSearchOpen) { closeSearch(); return; }
         if (document.getElementById("cluster-modal").style.display === "flex") {
@@ -1177,6 +1198,7 @@ downloadEl.addEventListener("click", () => {
         settingsOBL:  oblStorage.getItem('settings'),
         selectedOBL:  oblStorage.getItem('selected'),
         userListsOBL: oblStorage.getItem('userLists'),
+        tags:         exportTagsRaw(),
     });
     const url = URL.createObjectURL(new Blob([data], { type: "text/plain" }));
     const a   = Object.assign(document.createElement("a"), { href: url, download: "TrainerData.json" });
@@ -1216,6 +1238,8 @@ fileEl.addEventListener("change", (e) => {
             if ("selectedOBL" in jsonData)  oblStorage.setItem("selected",  jsonData["selectedOBL"]);
             if ("userListsOBL" in jsonData) oblStorage.setItem("userLists", jsonData["userListsOBL"]);
             if ("settingsOBL" in jsonData)  oblStorage.setItem("settings",  jsonData["settingsOBL"]);
+            // ── Tags ──
+            if ("tags" in jsonData) importTagsRaw(jsonData["tags"]);
             if (outdated) alert("File formatting is outdated, re-export recommended.");
             pblLoadStorage();
             // Always reload OBL in-memory state regardless of current trainer mode,

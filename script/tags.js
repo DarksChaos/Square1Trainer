@@ -1,0 +1,262 @@
+// ═══════════════════════════════════════════════════════════════════════════
+//  TAGS
+//  Self-contained tag store + management modal. Tag *assignment* to cases is
+//  implemented elsewhere later; this file owns the tag definitions only.
+//
+//  A tag is { id, name, color }. The defaults below are used until the user
+//  edits anything — once they do, the full list is persisted to localStorage
+//  as an override (per-browser only).
+// ═══════════════════════════════════════════════════════════════════════════
+
+const TAG_STORAGE_KEY = 'userTags';
+
+// Default tags. Colors are chosen to sit well on the dark theme.
+const TAG_DEFAULTS = [
+    { id: 'learning',  name: 'learning',  color: '#48cae4' }, // cyan (matches brand)
+    { id: 'shaky',     name: 'shaky',     color: '#f0883e' }, // orange
+    { id: 'perfected', name: 'perfected', color: '#57d97f' }, // green
+    { id: 'review',    name: 'review',    color: '#e9c46a' }, // yellow
+];
+
+// Curated palette offered in the color picker — one swatch per hue, ordered
+// around the colour wheel (warm → cool) with a neutral grey to finish.
+const TAG_PALETTE = [
+    '#e05c5c', // red
+    '#f0883e', // orange
+    '#e9c46a', // yellow
+    '#57d97f', // green
+    '#3fb6a8', // teal
+    '#48cae4', // cyan
+    '#5fa8f0', // blue
+    '#7f8cff', // indigo
+    '#9b8cf0', // purple
+    '#cf6fe0', // magenta
+    '#f06fa0', // pink
+    '#c8c8c8', // grey
+];
+
+let _tags = null;
+
+// ── Store ──────────────────────────────────────────────────────────────────
+
+function loadTags() {
+    if (_tags) return _tags;
+    try {
+        const raw = localStorage.getItem(TAG_STORAGE_KEY);
+        if (raw) { _tags = JSON.parse(raw); return _tags; }
+    } catch (e) {}
+    _tags = TAG_DEFAULTS.map(t => ({ ...t }));
+    return _tags;
+}
+
+function saveTags() {
+    try { localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(_tags)); } catch (e) {}
+}
+
+// Public getter for other modules (tag assignment, etc.).
+function getTags() { return loadTags(); }
+
+// ── Import / export (used by the shared JSON download/upload) ─────────────────
+
+function exportTagsRaw() { return localStorage.getItem(TAG_STORAGE_KEY); }
+
+function importTagsRaw(raw) {
+    if (raw == null) return;
+    try {
+        JSON.parse(raw); // validate before persisting
+        localStorage.setItem(TAG_STORAGE_KEY, raw);
+        _tags = null;     // force reload from the new override
+        renderTagList();
+    } catch (e) {}
+}
+
+function tagNewId() {
+    return 'tag-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// ── Mutations ──────────────────────────────────────────────────────────────
+
+function addTag() {
+    loadTags();
+    const color = TAG_PALETTE[_tags.length % TAG_PALETTE.length];
+    _tags.push({ id: tagNewId(), name: 'new tag', color });
+    saveTags();
+    renderTagList();
+    // Focus the freshly added name so the user can rename immediately.
+    const inputs = document.querySelectorAll('#tag-list .tag-name-input');
+    const last = inputs[inputs.length - 1];
+    if (last) { last.focus(); last.select(); }
+}
+
+function deleteTag(id) {
+    loadTags();
+    _tags = _tags.filter(t => t.id !== id);
+    saveTags();
+    renderTagList();
+}
+
+function renameTag(id, name) {
+    loadTags();
+    const t = _tags.find(t => t.id === id);
+    if (t) { t.name = name; saveTags(); }
+}
+
+function setTagColor(id, color, rerender = true) {
+    loadTags();
+    const t = _tags.find(t => t.id === id);
+    if (!t) return;
+    t.color = color;
+    saveTags();
+    if (rerender) {
+        renderTagList();
+    } else {
+        const dot = document.querySelector(`#tag-list .tag-color-dot[data-id="${id}"]`);
+        if (dot) dot.style.setProperty('--tag-color', color);
+    }
+}
+
+// ── Rendering ──────────────────────────────────────────────────────────────
+
+function renderTagList() {
+    const list = document.getElementById('tag-list');
+    if (!list) return;
+    const tags = loadTags();
+
+    if (!tags.length) {
+        list.innerHTML = '<div class="tag-empty">No tags. Add one below.</div>';
+        return;
+    }
+
+    list.innerHTML = tags.map((t) => `
+        <div class="tag-row" data-id="${escapeHtml(t.id)}">
+            <span class="tag-drag" title="Drag to reorder">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
+            </span>
+            <button class="tag-color-dot" data-id="${escapeHtml(t.id)}" style="--tag-color:${escapeHtml(t.color)}" title="Change color"></button>
+            <input class="tag-name-input" data-id="${escapeHtml(t.id)}" value="${escapeHtml(t.name)}" maxlength="24" spellcheck="false" />
+            <button class="tag-del-btn" data-id="${escapeHtml(t.id)}" title="Delete tag">✕</button>
+        </div>
+    `).join('');
+}
+
+// ── Modal open/close ───────────────────────────────────────────────────────
+
+function openTagModal() {
+    renderTagList();
+    document.getElementById('tag-modal').style.display = 'flex';
+    isPopupOpen = true;
+}
+
+function closeTagModal(e) {
+    if (e && e.target !== document.getElementById('tag-modal')) return; // backdrop only
+    closeColorPopover();
+    document.getElementById('tag-modal').style.display = 'none';
+    isPopupOpen = false;
+}
+
+// ── Color picker popover ───────────────────────────────────────────────────
+
+let _colorPopoverTagId = null;
+
+function openColorPopover(dotEl, tagId) {
+    closeColorPopover();
+    _colorPopoverTagId = tagId;
+
+    const pop = document.createElement('div');
+    pop.className = 'tag-color-popover';
+    pop.innerHTML =
+        '<div class="tag-swatches">' +
+        TAG_PALETTE.map(c =>
+            `<button class="tag-swatch" data-color="${c}" style="--tag-color:${c}" title="${c}"></button>`
+        ).join('') +
+        '</div>' +
+        '<label class="tag-custom-color">Custom<input type="color" class="tag-color-input" /></label>';
+    document.body.appendChild(pop);
+
+    // Position below the dot, clamped to the viewport.
+    const r = dotEl.getBoundingClientRect();
+    pop.style.top  = (r.bottom + 8) + 'px';
+    pop.style.left = r.left + 'px';
+    const pr = pop.getBoundingClientRect();
+    if (pr.right > window.innerWidth - 8)  pop.style.left = Math.max(8, window.innerWidth - 8 - pr.width) + 'px';
+    if (pr.bottom > window.innerHeight - 8) pop.style.top = Math.max(8, r.top - pr.height - 8) + 'px';
+
+    pop.querySelectorAll('.tag-swatch').forEach(sw =>
+        sw.addEventListener('click', () => { setTagColor(_colorPopoverTagId, sw.dataset.color); closeColorPopover(); }));
+
+    const ci  = pop.querySelector('.tag-color-input');
+    const cur = loadTags().find(t => t.id === tagId);
+    if (cur) ci.value = cur.color;
+    ci.addEventListener('input',  () => setTagColor(_colorPopoverTagId, ci.value, false));
+    ci.addEventListener('change', () => setTagColor(_colorPopoverTagId, ci.value));
+
+    setTimeout(() => document.addEventListener('pointerdown', _colorOutsideClick), 0);
+}
+
+function _colorOutsideClick(e) {
+    if (!e.target.closest('.tag-color-popover') && !e.target.closest('.tag-color-dot')) closeColorPopover();
+}
+
+function closeColorPopover() {
+    document.removeEventListener('pointerdown', _colorOutsideClick);
+    document.querySelectorAll('.tag-color-popover').forEach(p => p.remove());
+    _colorPopoverTagId = null;
+}
+
+// ── Drag-to-reorder (pointer events → works on mouse + touch) ───────────────
+
+let _tagDrag = null;
+
+function tagDragStart(e, handle) {
+    const row = handle.closest('.tag-row');
+    if (!row) return;
+    e.preventDefault();
+    _tagDrag = row;
+    row.classList.add('dragging');
+    document.addEventListener('pointermove', tagDragMove);
+    document.addEventListener('pointerup',   tagDragEnd);
+}
+
+function tagDragMove(e) {
+    if (!_tagDrag) return;
+    const list = document.getElementById('tag-list');
+    const others = [...list.querySelectorAll('.tag-row:not(.dragging)')];
+    const after = others.find(r => {
+        const rect = r.getBoundingClientRect();
+        return e.clientY < rect.top + rect.height / 2;
+    });
+    if (after) list.insertBefore(_tagDrag, after);
+    else       list.appendChild(_tagDrag);
+}
+
+function tagDragEnd() {
+    if (!_tagDrag) return;
+    _tagDrag.classList.remove('dragging');
+    document.removeEventListener('pointermove', tagDragMove);
+    document.removeEventListener('pointerup',   tagDragEnd);
+    _tagDrag = null;
+
+    // Commit DOM order back to the store.
+    const order = [...document.querySelectorAll('#tag-list .tag-row')].map(r => r.dataset.id);
+    _tags = order.map(id => _tags.find(t => t.id === id)).filter(Boolean);
+    saveTags();
+}
+
+// ── Event delegation ───────────────────────────────────────────────────────
+
+document.getElementById('tag-list').addEventListener('input', (e) => {
+    const input = e.target.closest('.tag-name-input');
+    if (input) renameTag(input.dataset.id, input.value);
+});
+
+document.getElementById('tag-list').addEventListener('click', (e) => {
+    const del = e.target.closest('.tag-del-btn');
+    if (del) { deleteTag(del.dataset.id); return; }
+    const dot = e.target.closest('.tag-color-dot');
+    if (dot) { openColorPopover(dot, dot.dataset.id); return; }
+});
+
+document.getElementById('tag-list').addEventListener('pointerdown', (e) => {
+    const handle = e.target.closest('.tag-drag');
+    if (handle) tagDragStart(e, handle);
+});
