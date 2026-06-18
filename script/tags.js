@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════
 //  TAGS
-//  Self-contained tag store + management modal. Tag *assignment* to cases is
-//  implemented elsewhere later; this file owns the tag definitions only.
+//  Owns the tag definitions and the management modal (add, rename, recolor,
+//  reorder, delete). Assigning tags to cases is handled separately.
 //
-//  A tag is { id, name, color }. The defaults below are used until the user
-//  edits anything — once they do, the full list is persisted to localStorage
-//  as an override (per-browser only).
+//  A tag is { id, name, color }. TAG_DEFAULTS is used until the user edits the
+//  list; from then on the full list is persisted to localStorage (per-browser)
+//  and read back as an override.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const TAG_STORAGE_KEY = 'userTags';
@@ -53,7 +53,7 @@ function saveTags() {
     try { localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(_tags)); } catch (e) {}
 }
 
-// Public getter for other modules (tag assignment, etc.).
+// Accessor for the current tag list, for use by other modules.
 function getTags() { return loadTags(); }
 
 // ── Import / export (used by the shared JSON download/upload) ─────────────────

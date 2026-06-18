@@ -5,7 +5,7 @@
 // ============================================================================
 
 // ============================================================================
-// BASE FILTER (existing logic, unchanged)
+// BASE FILTER
 // ============================================================================
 
 function isPll(pll, filter) {
@@ -199,9 +199,7 @@ function parseSuffixExpr(tokens) {
 // Splits raw input into base text and suffix expression string
 // e.g. "T/Al <o>*<aa>" -> { base: "T/Al", suffixExpr: "<o>*<aa>" }
 function splitInput(raw) {
-    const suffixStart = raw.search(/<[a-z!]+>/);
-    // find where suffix expression begins (first < that starts a tag or operator block)
-    // Actually: find first < character
+    // The suffix expression starts at the first '<'; everything before it is the base text.
     const lt = raw.indexOf("<");
     if (lt === -1) return { base: raw.trim(), suffixExpr: "" };
     return { base: raw.slice(0, lt).trim(), suffixExpr: raw.slice(lt).trim() };

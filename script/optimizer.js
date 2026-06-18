@@ -1,6 +1,5 @@
-//// Optimizer NEEDS replaceWithDict to work, resides in cube.js
-// if the following moves accur, replace them with optimized ones
-// UPDATE THIS
+// Move sequences that can be rewritten to a shorter/cleaner equivalent.
+// optimize() scans a scramble for these keys and replaces them with their value.
 const OPTIM = {
     "/0,0/": "", // special case, handled in optimize()
     "/3,3/3,3/": "-3,-3/-3,-3",
@@ -18,8 +17,8 @@ const OPTIM = {
 const OPTIM_KEYS = Array.from(Object.keys(OPTIM)); // array of keys
 
 function legalMove(move) {
-    // move: (int) -10 ~ 12 (i think)
-    // returns: -5 ~ 6
+    // move: int, expected -10 ~ 12
+    // returns: int normalized to -5 ~ 6
     if (move < -5) {
         return move + 12;
     }

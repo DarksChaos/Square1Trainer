@@ -618,10 +618,9 @@ function pblGenerateScramble(regen = false) {
     }
 }
 
-// FIX: this was the first-load / mode-switch bug. The worker's onmessage was
-// calling pblGenerateScramble's internal closure which wrote to currentScrambleEl
-// regardless of trainerMode. Now it always uses pblNormalHandler by default,
-// which only caches the result — pblGenerateScramble reads it on next call.
+// Default handler only caches the worker result; pblGenerateScramble reads it on
+// the next call. This keeps the worker from writing to currentScrambleEl while
+// the OBL trainer is active.
 pblWorker.onmessage = pblNormalHandler;
 
 function pblDisplayPrevScram() {
@@ -682,8 +681,7 @@ function pblRestoreGrid() {
 
     applyFilter(''); // in pbl-filter.js — re-run any in-memory filter on newly built DOM
 
-    // Update display — restore scramble text if we have an active scramble.
-    // FIX: was checking oblHasActiveScramble here which was always wrong.
+    // Update display — restore scramble text when a PBL scramble is active.
     if (pblHasActive && pblScrambleList.length) {
         currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
         pblDisplayPrevScram();

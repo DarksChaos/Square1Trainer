@@ -679,7 +679,7 @@ filterInputEl.addEventListener("input", () => {
             showMode = 'searched';
         }
     } else {
-        // Restoring from search — go back to wherever we were.
+        // Filter cleared: restore the previous (pre-search) display mode.
         if (showMode === 'selected') showSelected();
         else {
             showMode = preSearchMode;
@@ -756,9 +756,10 @@ toggleUiEl.addEventListener("click", () => {
 
 // ─── SPOTLIGHT SEARCH ─────────────────────────────────────────────────────────
 // Ctrl/Cmd+Space (or the navbar search button) opens a centered search bar.
-// It searches clusters by title for the active trainer; the "search extension"
-// below the bar lists matches. ↑/↓ move the selection, Enter opens the cluster
-// modal. The "?" button opens a per-trainer help modal (contents TBD).
+// It searches the active trainer's clusters by title, case name, and OBL legacy
+// name; the extension below the bar lists matches. ↑/↓ move the selection and
+// Enter opens the selected cluster's alg reference inline in the extension.
+// The "?" button opens a per-trainer help modal.
 
 const searchOverlayEl    = document.getElementById("search-overlay");
 const searchPanelEl      = document.querySelector("#search-overlay .search-panel");
@@ -1006,7 +1007,7 @@ function toggleSearch() {
 }
 
 // ─── Search help modal ────────────────────────────────────────────────────────
-// Contents differ per trainer and are placeholders for now.
+// Per-trainer help content shown by the "?" button in the search bar.
 
 const SEARCH_HELP_CONTENT = {
     pbl: `<p>Search PBL clusters by their title.</p>
