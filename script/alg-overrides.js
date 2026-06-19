@@ -83,10 +83,13 @@ function effectiveCluster(title) {
 
     const eff = { ...cluster };
 
-    if (cluster.matt) {
-        eff.matt = { ...cluster.matt, 'solution-groups': effectiveMattGroups(title) };
-        if (ov.matt && 'distinction-help' in ov.matt)
-            eff.matt['distinction-help'] = ov.matt['distinction-help'];
+    if ('matt' in ov) {
+        if (trainerMode === 'obl') {
+            eff.matt = ov.matt; // OBL matt is flat — the override replaces it wholesale
+        } else {
+            eff.matt = { ...cluster.matt, 'solution-groups': effectiveMattGroups(title) };
+            if ('distinction-help' in ov.matt) eff.matt['distinction-help'] = ov.matt['distinction-help'];
+        }
     }
 
     // Sheet sources: a present override replaces that source wholesale.
@@ -143,18 +146,20 @@ function _caseInList(base, caseList) {
     return _caseFormCandidates(base).some(c => caseList.includes(c));
 }
 
-// Splits a case field into { caseName, sign }. The trailing "-" of names like
-// "Gal/-" belongs to the name, so a trailing +/- is only treated as a barflip
-// sign when the remainder (not the whole field) is a known case.
-function parseCaseField(field, caseList) {
+// Splits a case field into { caseName, sign }. OBL has no barflip signs, so the
+// whole field is the case name. For PBL, the trailing "-" of names like "Gal/-"
+// belongs to the name, so a trailing +/- is only treated as a sign when the
+// remainder (not the whole field) is a known case.
+function parseCaseField(field, caseList, hasSign = true) {
     const v = (field || '').trim();
+    if (!hasSign) return { caseName: v, sign: '' };
     if (_caseInList(v, caseList)) return { caseName: v, sign: '' };
     if (/[+-]$/.test(v)) return { caseName: v.slice(0, -1), sign: v.slice(-1) };
     return { caseName: v, sign: '' };
 }
 
-function validateCaseField(field, caseList) {
-    const { caseName } = parseCaseField(field, caseList);
+function validateCaseField(field, caseList, hasSign = true) {
+    const { caseName } = parseCaseField(field, caseList, hasSign);
     if (!_caseInList(caseName, caseList))
         return `"${caseName || '(empty)'}" is not in this cluster's case list`;
     return null;
@@ -175,15 +180,24 @@ function _algBlockToRows(ab) {
 
 // Regroup a flat row list into the canonical cases[] shape (consecutive rows
 // with the same case-name merge; the first alg of each case carries the name).
-function _rowsToCases(rows) {
+// `serialize(row)` produces each alg in the shape this source expects.
+function _rowsToCases(rows, serialize) {
     const cases = [];
     for (const r of rows) {
         const last = cases[cases.length - 1];
-        const alg  = { sign: r.sign, angle: r.angle, notation: r.notation };
+        const alg  = serialize(r);
         if (last && last['case-name'] === r.caseName) last.algs.push(alg);
         else cases.push({ 'case-name': r.caseName, algs: [alg] });
     }
     return cases;
+}
+
+// Per-(trainer, source) alg serialization. PBL keeps {sign, angle, notation};
+// OBL matt drops sign; OBL sheet sources are plain notation strings.
+function _algSerializer(source) {
+    if (trainerMode === 'obl' && source !== 'matt') return r => r.notation;
+    if (trainerMode === 'obl')                      return r => ({ angle: r.angle, notation: r.notation });
+    return r => ({ sign: r.sign, angle: r.angle, notation: r.notation });
 }
 
 function mattGroupToDraft(group) {
@@ -204,7 +218,7 @@ function draftToMattGroup(draft) {
         'alg-blocks': draft.blocks.map(b => ({
             'angle-explanation': b.angleExp,
             'alg-explanation':   b.algExp,
-            cases: _rowsToCases(b.rows),
+            cases: _rowsToCases(b.rows, _algSerializer('matt')),
         })),
     };
     const slices = draft.slices;
@@ -262,25 +276,52 @@ function commitMattDraft(title, draft) {
     saveContentOverrides(all);
 }
 
-// Sheet source as a single editor block.
-function buildSheetDraft(title, source) {
+// A "single-block" source — i.e. anything that isn't PBL's grouped matt:
+// OBL's flat matt (distinction + one angle/alg explanation + cases), and every
+// sheet source (PBL objects or OBL plain-string algs). Draft shape:
+//   { distinction, angleExp, algExp, rows:[{caseName, sign, angle, notation}] }
+function buildSingleBlockDraft(title, source) {
+    if (source === 'matt') { // OBL flat matt
+        const matt = loadContentOverrides()[title]?.matt || _algClusters()[title]?.matt || {};
+        return {
+            distinction: matt['distinction-help'] || '',
+            angleExp:    matt['angle-explanation'] || '',
+            algExp:      matt['alg-explanation'] || '',
+            rows: (matt.cases || []).flatMap(c => (c.algs || []).map(a => ({
+                caseName: c['case-name'] || '', sign: '', angle: a.angle || '', notation: a.notation || ''
+            }))),
+        };
+    }
     const arr = loadContentOverrides()[title]?.[source] || defaultSheetSource(title, source);
-    return { angleExp: '', algExp: '', rows: (arr || []).flatMap(c =>
-        (c.algs || []).map(a => ({
-            caseName: c['case-name'] || '', sign: a.sign || '',
-            angle:    a.angle || '',        notation: a.notation || ''
-        }))
-    ) };
+    const obl = trainerMode === 'obl';
+    return {
+        distinction: '', angleExp: '', algExp: '',
+        rows: (arr || []).flatMap(c => (c.algs || []).map(a => ({
+            caseName: c['case-name'] || '',
+            sign:     obl ? '' : (a.sign || ''),
+            angle:    obl ? '' : (a.angle || ''),
+            notation: typeof a === 'string' ? a : (a?.notation || ''),
+        }))),
+    };
 }
 
-function commitSheetDraft(title, source, block) {
+function commitSingleBlockDraft(title, source, draft) {
     const all = loadContentOverrides();
-    const arr = _rowsToCases(block.rows);
-    if (_deepEqual(arr, defaultSheetSource(title, source))) {
-        if (all[title]) { delete all[title][source]; if (!Object.keys(all[title]).length) delete all[title]; }
+    if (source === 'matt') { // OBL flat matt — store/clear the whole matt object
+        const matt = {
+            'distinction-help':  draft.distinction,
+            'angle-explanation': draft.angleExp,
+            'alg-explanation':   draft.algExp,
+            cases: _rowsToCases(draft.rows, _algSerializer('matt')),
+        };
+        if (_deepEqual(matt, _algClusters()[title]?.matt)) {
+            if (all[title]) { delete all[title].matt; if (!Object.keys(all[title]).length) delete all[title]; }
+        } else { if (!all[title]) all[title] = {}; all[title].matt = matt; }
     } else {
-        if (!all[title]) all[title] = {};
-        all[title][source] = arr;
+        const arr = _rowsToCases(draft.rows, _algSerializer(source));
+        if (_deepEqual(arr, defaultSheetSource(title, source))) {
+            if (all[title]) { delete all[title][source]; if (!Object.keys(all[title]).length) delete all[title]; }
+        } else { if (!all[title]) all[title] = {}; all[title][source] = arr; }
     }
     saveContentOverrides(all);
 }

@@ -34,7 +34,12 @@ function _aeSources(title) {
     const SKIP = new Set(['case-list', 'optimal-slicecount']);
     return Object.keys(_algClusters()[title] || {}).filter(k => !SKIP.has(k));
 }
-function _aeIsMatt(source) { return source === 'matt'; }
+// Shape of the active source. Only PBL's matt is grouped (solution groups);
+// OBL matt is flat, and sheet sources are a single block. OBL has no signs, and
+// only matt sources carry an angle.
+function _aeGrouped()  { return trainerMode === 'pbl' && aeSource === 'matt'; }
+function _aeHasSign()  { return trainerMode === 'pbl'; }
+function _aeHasAngle() { return trainerMode === 'pbl' || aeSource === 'matt'; }
 
 // ── Session lifecycle ────────────────────────────────────────────────────────
 
@@ -48,12 +53,12 @@ function algEditBegin(title) {
 }
 
 function _aeLoadDraft() {
-    aeDraft = _aeIsMatt(aeSource) ? buildMattDraft(aeTitle) : buildSheetDraft(aeTitle, aeSource);
+    aeDraft = _aeGrouped() ? buildMattDraft(aeTitle) : buildSingleBlockDraft(aeTitle, aeSource);
 }
 
 function _aeCommit() {
-    if (_aeIsMatt(aeSource)) commitMattDraft(aeTitle, aeDraft);
-    else                     commitSheetDraft(aeTitle, aeSource, aeDraft);
+    if (_aeGrouped()) commitMattDraft(aeTitle, aeDraft);
+    else              commitSingleBlockDraft(aeTitle, aeSource, aeDraft);
 }
 
 function _aeAutosave() {
@@ -98,13 +103,16 @@ function _aeRowErrorInner(err) {
 
 function _aeRowHtml(bi, ri, row) {
     const caseFull = _aeEsc(row.caseName + (row.sign || ''));
-    const err = validateCaseField(row.caseName + (row.sign || ''), clusterCaseList(aeTitle));
+    const err = validateCaseField(row.caseName + (row.sign || ''), clusterCaseList(aeTitle), _aeHasSign());
+    const angle = _aeHasAngle()
+        ? `<span class="ae-bracket">&lt;</span><input class="ae-f ae-angle" data-bi="${bi}" data-ri="${ri}" data-f="angle" value="${_aeEsc(row.angle)}" placeholder="angle" spellcheck="false" /><span class="ae-bracket">&gt;</span>`
+        : '';
     return `
     <div class="ae-gap" data-bi="${bi}" data-at="${ri}" title="Add alg here"><span class="ae-gap-plus">+</span></div>
     <div class="ae-row" data-bi="${bi}" data-ri="${ri}">
         <span class="ae-grip" data-drag="row" title="Drag to reorder">${AE_GRIP_SVG}</span>
         <input class="ae-f ae-case" data-bi="${bi}" data-ri="${ri}" data-f="case" value="${caseFull}" placeholder="case" spellcheck="false" />
-        <span class="ae-bracket">&lt;</span><input class="ae-f ae-angle" data-bi="${bi}" data-ri="${ri}" data-f="angle" value="${_aeEsc(row.angle)}" placeholder="angle" spellcheck="false" /><span class="ae-bracket">&gt;</span>
+        ${angle}
         <input class="ae-f ae-notation" data-bi="${bi}" data-ri="${ri}" data-f="notation" value="${_aeEsc(row.notation)}" placeholder="notation" spellcheck="false" />
         <button class="ae-del-alg" data-bi="${bi}" data-ri="${ri}" title="Delete alg">${AE_X_SVG}</button>
     </div>
@@ -144,7 +152,8 @@ function algEditRender(content, title) {
 
     // Body
     let html = `<div class="ae-title">${_aeEsc(title)}</div>`;
-    if (_aeIsMatt(aeSource)) {
+    if (_aeGrouped()) {
+        // PBL matt — distinction + solution-group cards + add-group.
         html += `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />`;
         html += aeDraft.groups.map((g, gi) => {
             const isNew   = /^new\d+$/.test(g.id);
@@ -162,9 +171,15 @@ function algEditRender(content, title) {
         }).join('');
         html += `<button class="ae-add-group">${AE_PLUS_SVG} Add solution group</button>`;
     } else {
-        const reset = `<button class="ae-reset" data-sheet="1" title="Reset to default">${AE_RESET_SVG}</button>`;
-        html += `<div class="ae-group"><div class="ae-group-head"><span class="ae-group-label">Algs</span>${reset}</div>
-            <div class="ae-blocks">${_aeBlockHtml(0, aeDraft, false)}</div></div>`;
+        // Single-block source: OBL flat matt (distinction + explanations) or a
+        // sheet source. The whole source has one Reset.
+        const isMatt = aeSource === 'matt';
+        const reset  = `<button class="ae-reset" data-reset-source="1" title="Reset to default">${AE_RESET_SVG}</button>`;
+        const distinction = isMatt
+            ? `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />` : '';
+        html += distinction +
+            `<div class="ae-group"><div class="ae-group-head"><span class="ae-group-label">Algs</span>${reset}</div>
+            <div class="ae-blocks">${_aeBlockHtml(0, aeDraft, isMatt)}</div></div>`;
     }
     content.innerHTML = html;
 
@@ -186,13 +201,12 @@ function _aeUpdateRowError(caseInput, row) {
 // Resolves the draft block that owns the given element. For matt this is
 // (group, block); for a sheet source it's the single implicit block.
 function _aeFindBlock(el) {
-    if (_aeIsMatt(aeSource)) {
-        const group = el.closest('.ae-group');
-        const gi = +group.dataset.gi;
+    if (_aeGrouped()) {
+        const gi = +el.closest('.ae-group').dataset.gi;
         const bi = +el.closest('.ae-block, [data-bi]').dataset.bi;
         return aeDraft.groups[gi].blocks[bi];
     }
-    return aeDraft;
+    return aeDraft; // single-block sources: the draft is the block
 }
 
 // ── Interactions (delegated on the content element) ──────────────────────────
@@ -220,7 +234,7 @@ function _aeOnInput(e) {
     } else if (field === 'notation') {
         row.notation = f.value;
     } else if (field === 'case') {
-        const parsed = parseCaseField(f.value, clusterCaseList(aeTitle));
+        const parsed = parseCaseField(f.value, clusterCaseList(aeTitle), _aeHasSign());
         row.caseName = parsed.caseName; row.sign = parsed.sign;
         _aeUpdateRowError(f, row);
     }
@@ -262,11 +276,11 @@ function _aeDeleteAlg(btn) {
 
 function _aeReset(btn) {
     _aeStructuralUndo();
-    if (btn.dataset.sheet) {
-        aeDraft = buildSheetDraft(aeTitle, aeSource); // default has no override → reverts
+    if (btn.dataset.resetSource) {
+        // Revert the whole active source (OBL matt or any sheet source).
         const all = loadContentOverrides();
         if (all[aeTitle]) { delete all[aeTitle][aeSource]; if (!Object.keys(all[aeTitle]).length) delete all[aeTitle]; saveContentOverrides(all); }
-        aeDraft = buildSheetDraft(aeTitle, aeSource);
+        _aeLoadDraft();
     } else {
         const gi = +btn.dataset.gi;
         const g  = aeDraft.groups[gi];
