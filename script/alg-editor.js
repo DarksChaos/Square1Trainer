@@ -16,7 +16,6 @@ const AE_X_SVG     = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none
 const AE_PLUS_SVG  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 const AE_RESET_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg>`;
 const AE_TRASH_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
-const AE_WARN_SVG  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
 
 let aeTitle  = null;
 let aeSource = null;
@@ -97,13 +96,8 @@ function algEditRedo() {
 
 function _aeEsc(s) { return escapeHtml(String(s ?? '')); }
 
-function _aeRowErrorInner(err) {
-    return err ? `${AE_WARN_SVG}<span>${_aeEsc(err)}</span>` : '';
-}
-
 function _aeRowHtml(bi, ri, row) {
     const caseFull = _aeEsc(row.caseName + (row.sign || ''));
-    const err = validateCaseField(row.caseName + (row.sign || ''), clusterCaseList(aeTitle), _aeHasSign());
     const angle = _aeHasAngle()
         ? `<span class="ae-bracket">&lt;</span><input class="ae-f ae-angle" data-bi="${bi}" data-ri="${ri}" data-f="angle" value="${_aeEsc(row.angle)}" placeholder="angle" spellcheck="false" /><span class="ae-bracket">&gt;</span>`
         : '';
@@ -115,8 +109,7 @@ function _aeRowHtml(bi, ri, row) {
         ${angle}
         <input class="ae-f ae-notation" data-bi="${bi}" data-ri="${ri}" data-f="notation" value="${_aeEsc(row.notation)}" placeholder="notation" spellcheck="false" />
         <button class="ae-del-alg" data-bi="${bi}" data-ri="${ri}" title="Delete alg">${AE_X_SVG}</button>
-    </div>
-    <div class="ae-row-err">${_aeRowErrorInner(err)}</div>`;
+    </div>`;
 }
 
 function _aeBlockRowsHtml(bi, block) {
@@ -188,14 +181,6 @@ function algEditRender(content, title) {
     aeTextUndoPushed = false;
 }
 
-// Live-update the inline error line that sits directly after a case input's row.
-function _aeUpdateRowError(caseInput, row) {
-    const errEl = caseInput.closest('.ae-row')?.nextElementSibling;
-    if (!errEl || !errEl.classList.contains('ae-row-err')) return;
-    const err = validateCaseField(row.caseName + (row.sign || ''), clusterCaseList(aeTitle));
-    errEl.innerHTML = _aeRowErrorInner(err);
-}
-
 // ── Draft mutation accessors ─────────────────────────────────────────────────
 
 // Resolves the draft block that owns the given element. For matt this is
@@ -236,7 +221,6 @@ function _aeOnInput(e) {
     } else if (field === 'case') {
         const parsed = parseCaseField(f.value, clusterCaseList(aeTitle), _aeHasSign());
         row.caseName = parsed.caseName; row.sign = parsed.sign;
-        _aeUpdateRowError(f, row);
     }
     _aeAutosave();
 }

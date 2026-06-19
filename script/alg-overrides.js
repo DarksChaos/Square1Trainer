@@ -158,13 +158,6 @@ function parseCaseField(field, caseList, hasSign = true) {
     return { caseName: v, sign: '' };
 }
 
-function validateCaseField(field, caseList, hasSign = true) {
-    const { caseName } = parseCaseField(field, caseList, hasSign);
-    if (!_caseInList(caseName, caseList))
-        return `"${caseName || '(empty)'}" is not in this cluster's case list`;
-    return null;
-}
-
 // ── Editor-friendly draft form ───────────────────────────────────────────────
 // A "block" = { angleExp, algExp, rows:[{caseName, sign, angle, notation}] }.
 // matt group = { overview, slices, blocks:[…] }; a sheet source is one block.

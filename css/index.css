@@ -1625,15 +1625,6 @@ button {
 }
 .ae-add-group:hover { border-color: var(--border-col); color: #e0e0e0; background: var(--button-col); }
 
-/* Inline validation error, shown directly under the offending alg row */
-.ae-row-err:empty { display: none; }
-.ae-row-err {
-    display: flex; align-items: center; gap: 6px;
-    color: #ff8a8a; font-size: 0.8rem;
-    padding: 1px 0 4px 22px;
-}
-.ae-row-err svg { flex: 0 0 auto; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    TAG MODAL
    ═══════════════════════════════════════════════════════════════════════════ */
