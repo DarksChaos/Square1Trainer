@@ -106,3 +106,187 @@ function mattUnitOrder(title) {
     const ov        = loadContentOverrides()[title]?.matt;
     return ov?.order || defGroups.map((_, i) => defaultGroupId(i));
 }
+
+// ── Editing helpers ──────────────────────────────────────────────────────────
+
+function _clone(x) { return JSON.parse(JSON.stringify(x)); }
+
+// Recursively sort object keys so equality ignores key order (the editor may
+// emit fields in a different order than the shipped data).
+function _canon(x) {
+    if (Array.isArray(x)) return x.map(_canon);
+    if (x && typeof x === 'object') {
+        const o = {};
+        for (const k of Object.keys(x).sort()) o[k] = _canon(x[k]);
+        return o;
+    }
+    return x;
+}
+function _deepEqual(a, b) { return JSON.stringify(_canon(a)) === JSON.stringify(_canon(b)); }
+
+function defaultMattGroups(title)        { return _algClusters()[title]?.matt?.['solution-groups'] || []; }
+function defaultSheetSource(title, src)  { return _algClusters()[title]?.[src] || []; }
+function clusterCaseList(title)          { return _algClusters()[title]?.['case-list'] || []; }
+
+// case-name field (e.g. "Al/Al+") must end with +/- and its base must be a
+// case in the cluster's case-list. Returns an error string, or null if valid.
+// ":" is an accepted shorthand for a solved face: "Al:" ≡ "Al/-", ":Al" ≡ "-/A",
+// and a kept slash "Al/:" ≡ "Al/-". Returns every canonical spelling to test.
+function _caseFormCandidates(base) {
+    const out = [base, base.replace(/:/g, '-')];
+    if (base.startsWith(':')) out.push('-/' + base.slice(1));
+    if (base.endsWith(':'))   out.push(base.slice(0, -1) + '/-');
+    return out;
+}
+
+function _caseInList(base, caseList) {
+    return _caseFormCandidates(base).some(c => caseList.includes(c));
+}
+
+// Splits a case field into { caseName, sign }. The trailing "-" of names like
+// "Gal/-" belongs to the name, so a trailing +/- is only treated as a barflip
+// sign when the remainder (not the whole field) is a known case.
+function parseCaseField(field, caseList) {
+    const v = (field || '').trim();
+    if (_caseInList(v, caseList)) return { caseName: v, sign: '' };
+    if (/[+-]$/.test(v)) return { caseName: v.slice(0, -1), sign: v.slice(-1) };
+    return { caseName: v, sign: '' };
+}
+
+function validateCaseField(field, caseList) {
+    const { caseName } = parseCaseField(field, caseList);
+    if (!_caseInList(caseName, caseList))
+        return `"${caseName || '(empty)'}" is not in this cluster's case list`;
+    return null;
+}
+
+// ── Editor-friendly draft form ───────────────────────────────────────────────
+// A "block" = { angleExp, algExp, rows:[{caseName, sign, angle, notation}] }.
+// matt group = { overview, slices, blocks:[…] }; a sheet source is one block.
+
+function _algBlockToRows(ab) {
+    return (ab.cases || []).flatMap(c =>
+        (c.algs || []).map(a => ({
+            caseName: c['case-name'] || '', sign: a.sign || '',
+            angle:    a.angle || '',        notation: a.notation || ''
+        }))
+    );
+}
+
+// Regroup a flat row list into the canonical cases[] shape (consecutive rows
+// with the same case-name merge; the first alg of each case carries the name).
+function _rowsToCases(rows) {
+    const cases = [];
+    for (const r of rows) {
+        const last = cases[cases.length - 1];
+        const alg  = { sign: r.sign, angle: r.angle, notation: r.notation };
+        if (last && last['case-name'] === r.caseName) last.algs.push(alg);
+        else cases.push({ 'case-name': r.caseName, algs: [alg] });
+    }
+    return cases;
+}
+
+function mattGroupToDraft(group) {
+    return {
+        overview: group['solution-overview'] || '',
+        slices:   group['solution-slicecount'] ?? '',
+        blocks: (group['alg-blocks'] || []).map(ab => ({
+            angleExp: ab['angle-explanation'] || '',
+            algExp:   ab['alg-explanation'] || '',
+            rows:     _algBlockToRows(ab),
+        })),
+    };
+}
+
+function draftToMattGroup(draft) {
+    const g = {
+        'solution-overview': draft.overview,
+        'alg-blocks': draft.blocks.map(b => ({
+            'angle-explanation': b.angleExp,
+            'alg-explanation':   b.algExp,
+            cases: _rowsToCases(b.rows),
+        })),
+    };
+    const slices = draft.slices;
+    if (slices !== '' && slices != null) {
+        const n = Number(slices);
+        g['solution-slicecount'] = Number.isFinite(n) ? n : slices;
+    }
+    return g;
+}
+
+// Build the full editable draft for a cluster's matt section.
+//   { distinction, groups: [{ id, ...mattGroupToDraft }] }
+function buildMattDraft(title) {
+    const defGroups = defaultMattGroups(title);
+    const ov        = loadContentOverrides()[title]?.matt;
+    const order     = ov?.order || defGroups.map((_, i) => defaultGroupId(i));
+    const groups = order.map(id => {
+        let group;
+        if (ov?.groups && id in ov.groups) group = ov.groups[id];
+        else { const m = /^sg(\d+)$/.exec(id); group = m ? defGroups[+m[1]] : null; }
+        return group ? { id, ...mattGroupToDraft(_clone(group)) } : null;
+    }).filter(Boolean);
+    return {
+        distinction: ov && 'distinction-help' in ov
+            ? ov['distinction-help']
+            : (_algClusters()[title]?.matt?.['distinction-help'] || ''),
+        groups,
+    };
+}
+
+// Persist a matt draft as a minimal override (unchanged default groups omitted).
+function commitMattDraft(title, draft) {
+    const all       = loadContentOverrides();
+    const defGroups = defaultMattGroups(title);
+    const groups = {};
+    for (const d of draft.groups) {
+        const g = draftToMattGroup(d);
+        const m = /^sg(\d+)$/.exec(d.id);
+        if (m && _deepEqual(g, defGroups[+m[1]])) continue; // unchanged default
+        groups[d.id] = g;
+    }
+    const defaultOrder = defGroups.map((_, i) => defaultGroupId(i));
+    const order        = draft.groups.map(d => d.id);
+    const defDist      = _algClusters()[title]?.matt?.['distinction-help'] || '';
+
+    const matt = {};
+    if (!_deepEqual(order, defaultOrder)) matt.order = order;
+    if (Object.keys(groups).length)       matt.groups = groups;
+    if (draft.distinction !== defDist)     matt['distinction-help'] = draft.distinction;
+
+    if (!all[title]) all[title] = {};
+    if (Object.keys(matt).length) all[title].matt = matt;
+    else delete all[title].matt;
+    if (!Object.keys(all[title]).length) delete all[title];
+    saveContentOverrides(all);
+}
+
+// Sheet source as a single editor block.
+function buildSheetDraft(title, source) {
+    const arr = loadContentOverrides()[title]?.[source] || defaultSheetSource(title, source);
+    return { angleExp: '', algExp: '', rows: (arr || []).flatMap(c =>
+        (c.algs || []).map(a => ({
+            caseName: c['case-name'] || '', sign: a.sign || '',
+            angle:    a.angle || '',        notation: a.notation || ''
+        }))
+    ) };
+}
+
+function commitSheetDraft(title, source, block) {
+    const all = loadContentOverrides();
+    const arr = _rowsToCases(block.rows);
+    if (_deepEqual(arr, defaultSheetSource(title, source))) {
+        if (all[title]) { delete all[title][source]; if (!Object.keys(all[title]).length) delete all[title]; }
+    } else {
+        if (!all[title]) all[title] = {};
+        all[title][source] = arr;
+    }
+    saveContentOverrides(all);
+}
+
+// A blank solution group: one empty block, no algs (the user adds them via the
+// hover-+ insertion gap). Nothing is autofilled.
+function blankMattGroup() {
+    return { overview: '', slices: '', blocks: [{ angleExp: '', algExp: '', rows: [] }] };
+}

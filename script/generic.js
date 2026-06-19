@@ -775,6 +775,8 @@ let isSearchOpen      = false;
 let searchMatches     = [];     // array of cluster titles currently shown
 let searchActiveIx    = -1;     // index into searchMatches of the highlighted row
 let searchInClusterView = false; // true while the extension shows an alg reference
+let searchClusterTitle  = null;  // cluster currently shown in the extension
+let searchEditMode      = false; // true while the alg reference is being edited
 
 // Search index: per cluster, a title plus every "alias" the user might type to
 // reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
@@ -873,7 +875,9 @@ function highlightMatch(title, query) {
 
 function renderSearchResults() {
     // Any change to the query returns the extension to plain-search mode.
+    if (searchEditMode) { algEditFinish(); searchEditMode = false; }
     searchInClusterView = false;
+    searchClusterTitle = null;
     searchClusterEl.style.display = "none";
     searchResultsEl.style.display = "";
     searchPanelEl.style.width = ""; // undo any cluster-view widening
@@ -953,13 +957,39 @@ function openSearchResult(ix) {
 // bar to the cluster title. Setting .value programmatically does not fire `input`,
 // so the user editing the bar (which does) reverts to plain search.
 function showClusterInSearch(title) {
-    if (!renderClusterInto(searchClusterContentEl, title, sizeSearchPanel)) return;
+    if (!(trainerMode === 'pbl' ? pblClusters : oblClusters)?.[title]) return;
+    searchClusterTitle = title;
+    searchEditMode = false;
     searchInClusterView = true;
     searchInputEl.value = title;
     searchExtensionEl.style.display = "flex";
     searchResultsEl.style.display = "none";
     searchClusterEl.style.display = "flex";
-    sizeSearchPanel(searchClusterContentEl);
+    renderSearchClusterBody();
+}
+
+// Renders the cluster body in read or edit mode and syncs the toolbar.
+function renderSearchClusterBody() {
+    const tb = document.getElementById('search-cluster-toolbar');
+    tb.querySelector('.sct-edit').classList.toggle('active', searchEditMode);
+    tb.querySelectorAll('.sct-undo, .sct-redo').forEach(b => b.style.display = searchEditMode ? '' : 'none');
+
+    if (searchEditMode) {
+        searchPanelEl.style.width = ''; // editor uses the default panel width
+        algEditRender(searchClusterContentEl, searchClusterTitle);
+    } else {
+        renderClusterInto(searchClusterContentEl, searchClusterTitle, sizeSearchPanel);
+        sizeSearchPanel(searchClusterContentEl);
+    }
+}
+
+function toggleSearchEdit() {
+    if (!searchClusterTitle) return;
+    searchEditMode = !searchEditMode;
+    if (searchEditMode) algEditBegin(searchClusterTitle);
+    else                algEditFinish();
+    renderSearchClusterBody();
+    if (!searchEditMode) showSuccess("Saved", 800);
 }
 
 // Widens the whole search panel (bar + extension) to fit the alg reference's
@@ -996,6 +1026,7 @@ function openSearch() {
 
 function closeSearch(e) {
     if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
+    if (searchEditMode) { algEditFinish(); searchEditMode = false; showSuccess("Saved", 800); }
     isSearchOpen = false;
     searchOverlayEl.style.display = "none";
     searchInputEl.blur();
@@ -1035,6 +1066,10 @@ document.getElementById("opensearch").addEventListener("click", (e) => {
 });
 searchHelpBtnEl.addEventListener("click", openSearchHelp);
 searchInputEl.addEventListener("input", renderSearchResults);
+
+document.querySelector('#search-cluster-toolbar .sct-edit').addEventListener("click", toggleSearchEdit);
+document.querySelector('#search-cluster-toolbar .sct-undo').addEventListener("click", () => algEditUndo());
+document.querySelector('#search-cluster-toolbar .sct-redo').addEventListener("click", () => algEditRedo());
 
 searchResultsEl.addEventListener("click", (e) => {
     const row = e.target.closest('.search-result');
@@ -1082,6 +1117,16 @@ window.addEventListener("keydown", (e) => {
         if (usingTimer()) resetTimer(false);
         if (inInput) filterInputEl.blur();
         return;
+    }
+
+    // Undo/redo for the alg editor (only while editing; doesn't touch selection undo).
+    if (algEditActive()) {
+        const ctrl = isMac() ? e.metaKey : e.ctrlKey;
+        if (ctrl && !e.altKey) {
+            const k = e.key.toLowerCase();
+            if (k === "z" && !e.shiftKey) { e.preventDefault(); algEditUndo(); return; }
+            if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); algEditRedo(); return; }
+        }
     }
 
     // While the search bar is open, let its own input handler own the keyboard.
