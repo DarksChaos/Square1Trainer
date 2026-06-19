@@ -22,6 +22,7 @@ let aeSource = null;
 let aeDraft  = null;
 
 let aeUndo = [], aeRedo = [];
+let aeEnterSnapshot = null;      // cluster override JSON captured on entering edit mode
 let aeSnapshotBeforeEdit = null; // draft state captured at each render
 let aeTextUndoPushed = false;    // one undo entry per render→text-edit burst
 let aeSaveTimer = null;
@@ -48,6 +49,8 @@ function algEditBegin(title) {
     const last = trainerMode === 'obl' ? oblLastClusterSource : pblLastClusterSource;
     aeSource = (last && sources.includes(last)) ? last : sources[0];
     aeUndo = []; aeRedo = [];
+    // Snapshot the cluster's whole override (all sources) to detect real changes.
+    aeEnterSnapshot = JSON.stringify(loadContentOverrides()[title] ?? null);
     _aeLoadDraft();
 }
 
@@ -65,10 +68,19 @@ function _aeAutosave() {
     aeSaveTimer = setTimeout(_aeCommit, 300);
 }
 
+// Commits, tears down the session, and returns whether the cluster's override
+// actually changed since edit mode was entered (used to gate the "Saved." toast).
 function algEditFinish() {
-    if (aeDraft) { _aeCommit(); aeDraft = null; }
+    let dirty = false;
+    if (aeDraft) {
+        _aeCommit();
+        dirty = JSON.stringify(loadContentOverrides()[aeTitle] ?? null) !== aeEnterSnapshot;
+        aeDraft = null;
+    }
     aeTitle = aeSource = null;
     aeUndo = []; aeRedo = [];
+    aeEnterSnapshot = null;
+    return dirty;
 }
 
 // ── Undo / redo ──────────────────────────────────────────────────────────────

@@ -777,6 +777,7 @@ let searchActiveIx    = -1;     // index into searchMatches of the highlighted r
 let searchInClusterView = false; // true while the extension shows an alg reference
 let searchClusterTitle  = null;  // cluster currently shown in the extension
 let searchEditMode      = false; // true while the alg reference is being edited
+let searchClusterWidth  = '';    // cached panel width (px) for the open cluster
 
 // Search index: per cluster, a title plus every "alias" the user might type to
 // reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
@@ -875,7 +876,7 @@ function highlightMatch(title, query) {
 
 function renderSearchResults() {
     // Any change to the query returns the extension to plain-search mode.
-    if (searchEditMode) { algEditFinish(); searchEditMode = false; }
+    if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     searchInClusterView = false;
     searchClusterTitle = null;
     searchClusterEl.style.display = "none";
@@ -975,44 +976,62 @@ function renderSearchClusterBody() {
     tb.querySelectorAll('.sct-undo, .sct-redo').forEach(b => b.style.display = searchEditMode ? '' : 'none');
 
     if (searchEditMode) {
-        searchPanelEl.style.width = ''; // editor uses the default panel width
+        // Keep the current read-mode width so entering edit doesn't shrink the panel.
         algEditRender(searchClusterContentEl, searchClusterTitle);
     } else {
-        renderClusterInto(searchClusterContentEl, searchClusterTitle, sizeSearchPanel);
-        sizeSearchPanel(searchClusterContentEl);
+        applySearchClusterWidth(searchClusterTitle);
+        // On a source-tab change, reuse the cached width so switching views
+        // doesn't resize the panel.
+        renderClusterInto(searchClusterContentEl, searchClusterTitle,
+            () => { searchPanelEl.style.width = searchClusterWidth; });
     }
 }
 
 function toggleSearchEdit() {
     if (!searchClusterTitle) return;
     searchEditMode = !searchEditMode;
+    let dirty = false;
     if (searchEditMode) algEditBegin(searchClusterTitle);
-    else                algEditFinish();
+    else                dirty = algEditFinish();
     renderSearchClusterBody();
-    if (!searchEditMode) showSuccess("Saved", 800);
+    if (!searchEditMode && dirty) showSuccess("Saved.", 800);
 }
 
-// Widens the whole search panel (bar + extension) to fit the alg reference's
-// widest line, clamped to the viewport. The width is cleared again when
-// returning to plain search.
-function sizeSearchPanel(content) {
+// Sizes the whole search panel (bar + extension) to fit the cluster's widest
+// ALG LINE, measured across ALL sources so switching the Matt/Derpy/JLMinx tabs
+// keeps a constant width. Only the monospace alg lines (.matt-algs/.pure-algs,
+// which are nowrap + fit-content) count — prose explanations are free to wrap.
+// Clamped to the viewport; cached in searchClusterWidth for tab-change reuse.
+function applySearchClusterWidth(title) {
+    const content = searchClusterContentEl;
+    const cluster = effectiveCluster(title);
+    if (!cluster) return;
+    const SKIP     = new Set(['case-list', 'optimal-slicecount']);
+    const sources  = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const meta     = trainerMode === 'obl' ? OBL_SOURCE_META : PBL_SOURCE_META;
+    const sheetFmt = trainerMode === 'obl' ? oblFormatSheet : pblFormatSheet;
+
+    const prev = content.innerHTML;
+    searchPanelEl.style.width = '';   // measure at the natural (default) width
     content.style.visibility = 'hidden';
-    requestAnimationFrame(() => {
-        const maxW   = Math.min(900, window.innerWidth * 0.92);
-        const minW   = Math.min(640, window.innerWidth * 0.92);
-        const needed = content.scrollWidth + 40; // padding + scrollbar allowance
-        searchPanelEl.style.width = Math.max(minW, Math.min(needed, maxW)) + 'px';
-        requestAnimationFrame(() => {
-            const algSpans = content.querySelectorAll('.alg-lines');
-            const maxAlgRight = Math.max(0, ...[...algSpans].map(s => s.clientWidth + s.offsetLeft));
-            const overflows = maxAlgRight > content.clientWidth;
-            content.querySelectorAll('.cluster-text>:not(.alg-lines):not(.cluster-title)').forEach(s => {
-                if (overflows) s.style.width = (maxAlgRight - s.offsetLeft) + 'px';
-                else s.style.width = '';
-            });
-            content.style.visibility = '';
+    let maxRight = 0;                  // widest alg-line right edge from content's left
+    for (const src of sources) {
+        const m = meta[src] ?? { label: src, linkText: src, url: '', formatter: sheetFmt };
+        // #cluster-source-content so the ">span { display:block }" rules apply.
+        content.innerHTML = `<span class="cluster-title">${escapeHtml(title)}</span><div id="cluster-source-content">${m.formatter(cluster, src, m)}</div>`;
+        const cLeft = content.getBoundingClientRect().left;
+        content.querySelectorAll('.matt-algs, .pure-algs').forEach(el => {
+            maxRight = Math.max(maxRight, el.getBoundingClientRect().right - cLeft);
         });
-    });
+    }
+    content.innerHTML = prev;
+    content.style.visibility = '';
+
+    const maxW = Math.min(900, window.innerWidth * 0.92);
+    const minW = Math.min(640, window.innerWidth * 0.92);
+    // maxRight already spans content's left padding + the alg line; add the right padding.
+    searchClusterWidth = Math.max(minW, Math.min(maxRight + 24, maxW)) + 'px';
+    searchPanelEl.style.width = searchClusterWidth;
 }
 
 function openSearch() {
@@ -1026,7 +1045,7 @@ function openSearch() {
 
 function closeSearch(e) {
     if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
-    if (searchEditMode) { algEditFinish(); searchEditMode = false; showSuccess("Saved", 800); }
+    if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     isSearchOpen = false;
     searchOverlayEl.style.display = "none";
     searchInputEl.blur();
