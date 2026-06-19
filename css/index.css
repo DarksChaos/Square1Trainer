@@ -1689,9 +1689,12 @@ button {
     background: #2c2c2c;
     white-space: nowrap;
 }
-.hm-corner   { background: #2c2c2c; border-right: 2px solid #555; border-bottom: 2px solid #555; }
-.hm-colhead  { border-bottom: 2px solid #555; }
-.hm-rowhead  { border-right: 2px solid #555; }
+/* Borders on the header cells only — body cells stay a borderless sea of colour.
+   This delineates each family header (and how many columns/rows it spans). */
+.hm-head, .hm-corner { border: 1px solid #555; }
+.hm-corner  { background: #2c2c2c; }
+.hm-colhead { border-bottom-width: 2px; }  /* stronger divider against the body */
+.hm-rowhead { border-right-width: 2px; }
 
 .hm-cell {
     aspect-ratio: 1;

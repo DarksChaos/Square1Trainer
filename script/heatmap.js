@@ -31,6 +31,31 @@ function hmSelectedTagIds() {
     return hmSelectedTags || new Set(getTags().map(t => t.id)); // default: all
 }
 
+// Family of a single PLL ("Gal" → "G", "pJ" → "pJ", "-" → "-").
+function hmPllFamily(p) {
+    return SquanLib.PLLFamily.includes(p) ? p : (p.match(/[A-Z]/g)?.join('') || p);
+}
+
+// Group consecutive same-family PLLs (the even/odd orders keep families adjacent).
+function hmFamilyGroups(plls) {
+    const groups = [];
+    for (const p of plls) {
+        const fam = hmPllFamily(p);
+        const last = groups[groups.length - 1];
+        if (last && last.fam === fam) last.members.push(p);
+        else groups.push({ fam, members: [p] });
+    }
+    return groups;
+}
+
+// Canonicalize a case-name's solved-face shorthand: "Gal:" → "Gal/-", ":Gal" →
+// "-/Gal" (matt data uses ":" but case-lists/heatmap cells use "/-" and "-/").
+function hmCanonCase(c) {
+    if (c.startsWith(':')) c = '-/' + c.slice(1);
+    else if (c.endsWith(':')) c = c.slice(0, -1) + '/-';
+    return c.replace(/:/g, '-');
+}
+
 // caseName → { slice, overview }: the shortest slicecount among the matt
 // solution groups whose tag is in the current selection (a group is included if
 // it carries any selected tag; its slicecount applies to all its case-names).
@@ -51,7 +76,7 @@ function hmComputeCaseSlices() {
             const overview = groups[i]['solution-overview'] || '';
             const names = new Set();
             for (const ab of groups[i]['alg-blocks'] || [])
-                for (const c of ab.cases || []) if (c['case-name']) names.add(c['case-name']);
+                for (const c of ab.cases || []) if (c['case-name']) names.add(hmCanonCase(c['case-name']));
             for (const cn of names)
                 if (!result[cn] || slice < result[cn].slice) result[cn] = { slice, overview };
         }
@@ -101,18 +126,25 @@ function hmGridHtml(plls, slices) {
         if (v != null) list.push(v);
     }
     const color = hmColorFn(list);
+    const fams = hmFamilyGroups(plls);
 
-    let html = `<div class="hm-table" style="grid-template-columns:auto repeat(${plls.length}, 1fr)">`;
+    // minmax(0,1fr) lets the columns shrink to fit; same-family PLLs share one
+    // header that spans their columns/rows, so cells can be narrow.
+    let html = `<div class="hm-table" style="grid-template-columns:auto repeat(${plls.length}, minmax(0,1fr))">`;
     html += `<div class="hm-corner"></div>`;
-    for (const p of plls) html += `<div class="hm-head hm-colhead">${escapeHtml(p)}</div>`;
-    for (const r of plls) {
-        html += `<div class="hm-head hm-rowhead">${escapeHtml(r)}</div>`;
-        for (const c of plls) {
-            const cn = r + '/' + c, v = vals[cn];
-            html += v == null
-                ? `<div class="hm-cell hm-gray" data-case="${escapeHtml(cn)}"></div>`
-                : `<div class="hm-cell" data-case="${escapeHtml(cn)}" style="background:${color(v)}"></div>`;
-        }
+    for (const g of fams)
+        html += `<div class="hm-head hm-colhead" style="grid-column:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
+    for (const g of fams) {
+        g.members.forEach((r, idx) => {
+            if (idx === 0)
+                html += `<div class="hm-head hm-rowhead" style="grid-row:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
+            for (const c of plls) {
+                const cn = r + '/' + c, v = vals[cn];
+                html += v == null
+                    ? `<div class="hm-cell hm-gray" data-case="${escapeHtml(cn)}"></div>`
+                    : `<div class="hm-cell" data-case="${escapeHtml(cn)}" style="background:${color(v)}"></div>`;
+            }
+        });
     }
     return html + '</div>';
 }

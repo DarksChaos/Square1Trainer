@@ -153,7 +153,7 @@ function pblRecolorAll() {
 // ── PBL case lookup ───────────────────────────────────────────────────────
 
 function pblFindCluster(caseName) {
-    const clean = caseName.replace(/[+-]$/, "");
+    const clean = caseName.replace(/(?<!\/)[+-]$/, ""); // strip sign, keep a solved-face "-"
     for (const [title, data] of Object.entries(pblClusters)) {
         if (data["case-list"].includes(clean)) return title;
     }
@@ -444,6 +444,18 @@ function pblGetWeight(pbl) {
 // pbl is a [top, bottom] array (as stored in pblPossible).
 function pblGetCaseCount(pbl) {
     return squan.getPBLCaseCount(pbl);
+}
+
+// pblGetOptimal: optimal slicecount for a case like "Al/Ul", reversing the
+// pblOptimal compression — try the alphabetically-sorted family, then the case
+// itself, then its mirror. Throws if none are present.
+function pblGetOptimal(pbl) {
+    const fam = squan.getPBLFamily(pbl).split("/").sort().join("/");
+    if (fam in pblOptimal) return pblOptimal[fam];
+    if (pbl in pblOptimal) return pblOptimal[pbl];
+    const mirror = pbl.split("/").toReversed().join("/");
+    if (mirror in pblOptimal) return pblOptimal[mirror];
+    throw new Error("pblGetOptimal: no optimal slicecount for " + pbl);
 }
 
 function pblRefillRemaining() {
@@ -807,7 +819,7 @@ function pblSelectList(listName, setSelection) {
     if (Array.isArray(list)) {
         const shownBases = new Set();
         for (const entry of list) {
-            const base = entry.replace(/[+-]$/, '');
+            const base = entry.replace(/(?<!\/)[+-]$/, '');
             if (!shownBases.has(base)) { pblShow(base); shownBases.add(base); }
         }
     } else {

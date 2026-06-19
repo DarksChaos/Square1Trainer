@@ -547,7 +547,8 @@ export default class SquanLib {
     /**
      * oddPLL: PBL faces with parity
      */
-    static oddPLL = ["Adj", "Opp", "pJ", "pN", "Ba", "Bm", "Cl", "Cr", "Da", "Dm",
+    static oddPLL = [
+        "Adj", "Opp", "pJ", "pN", "Ba", "Bm", "Cl", "Cr", "Da", "Dm",
         "Ka", "Km", "M", "Ol", "Or", "Pl", "Pr", "Q", "Sa", "Sm", "W", "X"
     ];
 
@@ -1966,7 +1967,7 @@ export default class SquanLib {
      * @returns {number} the weight. some power of 2.
      */
     getWeight(pbl) {
-        const [u, d] = pbl.replace(/[+-]$/, '').split("/");
+        const [u, d] = pbl.replace(/(?<!\/)[+-]$/, '').split("/");
         return (SquanLib.PBLWeights[u] ?? 4) * (SquanLib.PBLWeights[d] ?? 4);
     }
 
@@ -1988,10 +1989,10 @@ export default class SquanLib {
      * @example "Al/Ul" → "A/U"
      */
     getPBLFamily(pbl) {
-        const [u, d] = pbl.replace(/[+-]$/, '').split("/");
+        const [u, d] = pbl.replace(/(?<!\/)[+-]$/, '').split("/");
         return (
-            u in SquanLib.PLLFamily ? u : u.match(/[A-Z]/g)?.join('') + "/" +
-            d in SquanLib.PLLFamily ? d : d.match(/[A-Z]/g)?.join('')
+            (SquanLib.PLLFamily.includes(u) ? u : u.match(/[A-Z]/g)?.join('')) + "/" +
+            (SquanLib.PLLFamily.includes(d) ? d : d.match(/[A-Z]/g)?.join(''))
         )
     }
 }

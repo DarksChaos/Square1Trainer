@@ -789,7 +789,12 @@ function buildSearchIndex(mode) {
     if (mode === 'pbl') {
         for (const [title, data] of Object.entries(pblClusters)) {
             const aliases = new Set([title]);
-            (data['case-list'] || []).forEach(c => aliases.add(c));
+            (data['case-list'] || []).forEach(c => {
+                aliases.add(c);
+                // also searchable via the ":" solved-face shorthand ("Al/-" ≡ "Al:")
+                if (c.endsWith('/-'))      aliases.add(c.slice(0, -2) + ':');
+                else if (c.startsWith('-/')) aliases.add(':' + c.slice(2));
+            });
             out.push({ title, aliases: [...aliases] });
         }
         return out;
