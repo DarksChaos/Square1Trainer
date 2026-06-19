@@ -180,14 +180,17 @@ function pblTextWidth(text, font) {
 // ── PBL source formatters ─────────────────────────────────────────────────
 
 // Formats the Matt section only (no title, no tabs).
-function pblFormatMatt(cluster, key, meta) {
+function pblFormatMatt(cluster, key, meta, title) {
     const lines = [];
     lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
 
     if (cluster.matt?.["distinction-help"]?.trim())
         lines.push(`<span style="text-indent:2.5em;">${pblNab(cluster.matt["distinction-help"])}</span>`);
 
-    for (const sg of cluster.matt?.["solution-groups"] || []) {
+    const order = mattUnitOrder(title); // solution-group ids, aligned with the array below
+    const groups = cluster.matt?.["solution-groups"] || [];
+    for (let gi = 0; gi < groups.length; gi++) {
+        const sg = groups[gi];
         const hasContent =
             sg["solution-overview"]?.trim() ||
             sg["alg-blocks"]?.some(ab =>
@@ -197,9 +200,12 @@ function pblFormatMatt(cluster, key, meta) {
             );
         if (!hasContent) continue;
         lines.push("");
-        const slices = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
-        if (sg["solution-overview"]?.trim())
-            lines.push(`<span class="sol-overview"><b>${pblNab(sg["solution-overview"])}${slices}</b></span>`);
+        // Solution-overview line with the per-group tag control at its end
+        // (matt's smallest unit).
+        const slices  = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
+        const ovText  = sg["solution-overview"]?.trim() ? `<b>${pblNab(sg["solution-overview"])}${slices}</b>` : "";
+        const tagsRef = unitRef(title, 'matt', order[gi] ?? 'sg' + gi);
+        lines.push(`<span class="sol-overview unit-head">${ovText}${unitTagsHtml(tagsRef)}</span>`);
 
         let lastAngleExplanation;
         for (const ab of sg["alg-blocks"] || []) {
@@ -233,13 +239,13 @@ function pblFormatMatt(cluster, key, meta) {
 
 // Formats a generic sheet source (Derpy format: [{case-name, algs:[{sign,angle,notation}]}]).
 // All non-Matt sources are assumed to use this shape.
-function pblFormatSheet(cluster, key, meta) {
+function pblFormatSheet(cluster, key, meta, title) {
     const sheetData = cluster[key];
     const lines = [];
     const linkHtml = meta.url
         ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
         : `<b>${meta.label}</b>`;
-    lines.push(`<span class="section-label">${linkHtml}</span>`);
+    lines.push(`<span class="section-label unit-head">${linkHtml}${unitTagsHtml(unitRef(title, key, '*'))}</span>`);
     const filled = (sheetData || []).filter(c => pblHasAlgData(c.algs));
     if (!filled.length) {
         lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
@@ -302,7 +308,7 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
         pblLastClusterSource = src;
         const el = content.querySelector('#cluster-source-content');
         const meta = PBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: pblFormatSheet };
-        el.innerHTML = meta.formatter(cluster, src, meta);
+        el.innerHTML = meta.formatter(cluster, src, meta, title);
     }
 
     showSource(activeSource);

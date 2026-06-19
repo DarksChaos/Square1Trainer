@@ -781,9 +781,10 @@ function oblHasAlgData(algs) {
 // ── OBL source formatters ─────────────────────────────────────────────────
 
 // Formats the Matt section only (no title, no tabs).
-function oblFormatMatt(cluster, key, meta) {
+function oblFormatMatt(cluster, key, meta, title) {
     const lines = [];
-    lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
+    // OBL matt is one whole unit — tag control at the end of the source link.
+    lines.push(`<span class="section-label unit-head"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>${unitTagsHtml(unitRef(title, 'matt', '*'))}</span>`);
 
     const matt = cluster.matt;
     if (matt?.["distinction-help"]?.trim())
@@ -815,13 +816,13 @@ function oblFormatMatt(cluster, key, meta) {
 
 // Formats a generic sheet source (Derpy format: [{case-name, algs:[string]}]).
 // All non-Matt OBL sources are assumed to use plain notation strings.
-function oblFormatSheet(cluster, key, meta) {
+function oblFormatSheet(cluster, key, meta, title) {
     const sheetData = cluster[key];
     const lines = [];
     const linkHtml = meta.url
         ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
         : `<b>${meta.label}</b>`;
-    lines.push(`<span class="section-label">${linkHtml}</span>`);
+    lines.push(`<span class="section-label unit-head">${linkHtml}${unitTagsHtml(unitRef(title, key, '*'))}</span>`);
     const filled = (sheetData || []).filter(c => oblHasAlgData(c.algs));
     if (!filled.length) {
         lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
@@ -881,7 +882,7 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
         oblLastClusterSource = src;
         const el = content.querySelector('#cluster-source-content');
         const meta = OBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: oblFormatSheet };
-        el.innerHTML = meta.formatter(cluster, src, meta);
+        el.innerHTML = meta.formatter(cluster, src, meta, title);
     }
 
     showSource(activeSource);

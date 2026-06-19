@@ -877,6 +877,7 @@ function highlightMatch(title, query) {
 function renderSearchResults() {
     // Any change to the query returns the extension to plain-search mode.
     if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
+    closeUnitTagPopover();
     searchInClusterView = false;
     searchClusterTitle = null;
     searchClusterEl.style.display = "none";
@@ -971,6 +972,7 @@ function showClusterInSearch(title) {
 
 // Renders the cluster body in read or edit mode and syncs the toolbar.
 function renderSearchClusterBody() {
+    closeUnitTagPopover();
     const tb = document.getElementById('search-cluster-toolbar');
     tb.querySelector('.sct-edit').classList.toggle('active', searchEditMode);
     tb.querySelectorAll('.sct-undo, .sct-redo').forEach(b => b.style.display = searchEditMode ? '' : 'none');
@@ -981,9 +983,12 @@ function renderSearchClusterBody() {
     } else {
         applySearchClusterWidth(searchClusterTitle);
         // On a source-tab change, reuse the cached width so switching views
-        // doesn't resize the panel.
-        renderClusterInto(searchClusterContentEl, searchClusterTitle,
-            () => { searchPanelEl.style.width = searchClusterWidth; });
+        // doesn't resize the panel, and re-check tag-chip overflow.
+        renderClusterInto(searchClusterContentEl, searchClusterTitle, () => {
+            searchPanelEl.style.width = searchClusterWidth;
+            applyUnitTagOverflow(searchClusterContentEl);
+        });
+        applyUnitTagOverflow(searchClusterContentEl);
     }
 }
 
@@ -1046,6 +1051,7 @@ function openSearch() {
 function closeSearch(e) {
     if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
     if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
+    closeUnitTagPopover();
     isSearchOpen = false;
     searchOverlayEl.style.display = "none";
     searchInputEl.blur();
@@ -1089,6 +1095,76 @@ searchInputEl.addEventListener("input", renderSearchResults);
 document.querySelector('#search-cluster-toolbar .sct-edit').addEventListener("click", toggleSearchEdit);
 document.querySelector('#search-cluster-toolbar .sct-undo').addEventListener("click", () => algEditUndo());
 document.querySelector('#search-cluster-toolbar .sct-redo').addEventListener("click", () => algEditRedo());
+
+// ── Per-unit tag attach (read mode) ──────────────────────────────────────────
+let _unitTagRef = null;
+
+searchClusterContentEl.addEventListener("click", (e) => {
+    if (searchEditMode) return;
+    const add = e.target.closest('.unit-tag-add');
+    if (add) { e.stopPropagation(); openUnitTagPopover(add, add.dataset.ref); }
+});
+
+function _unitTagPopoverInner(refs) {
+    const tags = getTags();
+    if (!tags.length) return `<div class="unit-tag-empty">No tags yet — create them in the Tags menu.</div>`;
+    return tags.map(t => {
+        const state = tagUnitState(t.id, refs); // 'none' | 'some' | 'all'
+        const cls   = state === 'all' ? ' checked' : state === 'some' ? ' partial' : '';
+        return `<button class="unit-tag-opt" data-tag="${escapeHtml(t.id)}">
+            <span class="unit-tag-dot" style="--tag-color:${escapeHtml(t.color)}"></span>
+            <span class="unit-tag-name">${escapeHtml(t.name)}</span>
+            <span class="unit-tag-box${cls}"></span>
+        </button>`;
+    }).join('');
+}
+
+function openUnitTagPopover(btn, ref) {
+    closeUnitTagPopover();
+    _unitTagRef = ref;
+    const pop = document.createElement('div');
+    pop.className = 'unit-tag-popover';
+    pop.innerHTML = _unitTagPopoverInner([ref]);
+    document.body.appendChild(pop);
+
+    const r = btn.getBoundingClientRect();
+    pop.style.top  = (r.bottom + 6) + 'px';
+    pop.style.left = r.left + 'px';
+    const pr = pop.getBoundingClientRect();
+    if (pr.right  > window.innerWidth  - 8) pop.style.left = Math.max(8, window.innerWidth  - 8 - pr.width) + 'px';
+    if (pr.bottom > window.innerHeight - 8) pop.style.top  = Math.max(8, r.top - pr.height - 6) + 'px';
+
+    pop.addEventListener('click', (e) => {
+        const opt = e.target.closest('.unit-tag-opt');
+        if (!opt) return;
+        toggleUnitTag(_unitTagRef, opt.dataset.tag);
+        searchClusterContentEl.querySelectorAll(`.unit-tags[data-ref="${_unitTagRef}"]`)
+            .forEach(el => { el.innerHTML = unitTagsInner(_unitTagRef); });
+        applyUnitTagOverflow(searchClusterContentEl);
+        pop.innerHTML = _unitTagPopoverInner([_unitTagRef]);
+    });
+    setTimeout(() => document.addEventListener('pointerdown', _unitTagOutside), 0);
+}
+
+// Collapse a unit's tag chips to dots when they don't fit on the line.
+function applyUnitTagOverflow(content) {
+    content.querySelectorAll('.unit-tags').forEach(ut => {
+        const list = ut.querySelector('.unit-tag-list');
+        if (!list) return;
+        ut.classList.remove('dots');                       // measure in chip mode
+        if (list.scrollWidth > list.clientWidth + 1) ut.classList.add('dots');
+    });
+}
+
+function _unitTagOutside(e) {
+    if (!e.target.closest('.unit-tag-popover') && !e.target.closest('.unit-tag-add')) closeUnitTagPopover();
+}
+
+function closeUnitTagPopover() {
+    document.removeEventListener('pointerdown', _unitTagOutside);
+    document.querySelectorAll('.unit-tag-popover').forEach(p => p.remove());
+    _unitTagRef = null;
+}
 
 searchResultsEl.addEventListener("click", (e) => {
     const row = e.target.closest('.search-result');

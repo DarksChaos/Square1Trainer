@@ -54,7 +54,52 @@ function nextNewGroupId(mattOverride) {
 }
 
 // Canonical "title|source|unitId" reference used as the value in tagAssignments.
+// PBL matt addresses a solution group by its id; every other source (OBL matt,
+// any sheet) is a single whole-source unit addressed with "*".
 function unitRef(title, source, unitId) { return `${title}|${source}|${unitId}`; }
+
+// ── Tag attachment (tagAssignments is the source of truth) ───────────────────
+
+const UNIT_TAG_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none"/></svg>`;
+
+function tagsForUnit(ref) {
+    const a = loadTagAssignments();
+    return Object.keys(a).filter(tid => a[tid].includes(ref));
+}
+
+function toggleUnitTag(ref, tagId) {
+    const a = loadTagAssignments();
+    if (!a[tagId]) a[tagId] = [];
+    const i = a[tagId].indexOf(ref);
+    if (i >= 0) a[tagId].splice(i, 1); else a[tagId].push(ref);
+    if (!a[tagId].length) delete a[tagId];
+    saveTagAssignments(a);
+}
+
+// Selection state of a tag across a set of unit refs: 'none' | 'some' | 'all'.
+// (Single-unit today; multi-unit selection will use 'some' later.)
+function tagUnitState(tagId, refs) {
+    const set = loadTagAssignments()[tagId] || [];
+    const n = refs.filter(r => set.includes(r)).length;
+    return n === 0 ? 'none' : n === refs.length ? 'all' : 'some';
+}
+
+// Inner HTML of a unit's tag control: the chip list (collapses to dots on
+// overflow via the .dots class) + the fixed add button on the right.
+function unitTagsInner(ref) {
+    const tags = getTags();
+    const chips = tagsForUnit(ref).map(id => {
+        const t = tags.find(x => x.id === id);
+        return t ? `<span class="unit-tag-chip" style="--tag-color:${escapeHtml(t.color)}" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>` : '';
+    }).join('');
+    return `<span class="unit-tag-list">${chips}</span>` +
+        `<button class="unit-tag-add" data-ref="${escapeHtml(ref)}" title="Tags">${UNIT_TAG_SVG}</button>`;
+}
+
+// Full tag control for a unit (emitted by the read formatters).
+function unitTagsHtml(ref) {
+    return `<span class="unit-tags" data-ref="${escapeHtml(ref)}">${unitTagsInner(ref)}</span>`;
+}
 
 // ── Merge (read path) ────────────────────────────────────────────────────────
 
