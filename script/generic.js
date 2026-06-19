@@ -888,9 +888,20 @@ function renderSearchResults() {
     if (!query) {
         searchMatches  = [];
         searchActiveIx = -1;
-        searchExtensionEl.style.display = "none";
+        // Empty query in PBL shows the heatmaps; OBL shows nothing.
+        if (trainerMode === 'pbl') {
+            searchExtensionEl.style.display = "flex";
+            searchResultsEl.style.display = "none";
+            hmEl.style.display = "flex";
+            searchPanelEl.style.width = "min(1180px, 96vw)";
+            renderHeatmaps();
+        } else {
+            searchExtensionEl.style.display = "none";
+        }
         return;
     }
+    hmEl.style.display = "none";
+    hmCloseFilter();
 
     const q = query.toLowerCase();
 
@@ -966,6 +977,8 @@ function showClusterInSearch(title) {
     searchInputEl.value = title;
     searchExtensionEl.style.display = "flex";
     searchResultsEl.style.display = "none";
+    hmEl.style.display = "none";
+    hmCloseFilter();
     searchClusterEl.style.display = "flex";
     renderSearchClusterBody();
 }
@@ -1052,6 +1065,7 @@ function closeSearch(e) {
     if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
     if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     closeUnitTagPopover();
+    hmCloseFilter();
     isSearchOpen = false;
     searchOverlayEl.style.display = "none";
     searchInputEl.blur();

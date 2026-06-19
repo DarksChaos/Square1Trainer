@@ -574,6 +574,12 @@ export default class SquanLib {
         Ol: 1, Or: 1, pN: 2, Q: 1, X: 1, Z: 2,
     };
 
+
+    /**
+     * PLL Family: the PLLs that are special (and are their own family)
+     */
+    static PLLFamily = ["-", "Adj", "pJ", "pN", "Opp"];
+
     /**
      * PLLFamilyLen: the length of the PLL family that contains a PLL
      * e.g. Gal: 4, because ["Gal", "Gol", "Gor", "Gar"] is 4 long
@@ -1965,12 +1971,27 @@ export default class SquanLib {
     }
 
     /**
-     * getPLLCaseCount: multiplies the PLLFamilyLen of the top and bottom case
+     * getPBLCaseCount: multiplies the PLLFamilyLen of the top and bottom case
      *
      * @param {string[]} pbl an array of [u, d] that represents a PBL case
      * @returns {number} the case counts in the family that contanis this PBL
      */
-    getPLLCaseCount(pbl) {
+    getPBLCaseCount(pbl) {
         return SquanLib.PLLFamilyLen[pbl[0]] * SquanLib.PLLFamilyLen[pbl[1]];
+    }
+
+    /**
+     * getPBLFamily: get the family name of a PBL
+     *
+     * @param {string} pbl the PBL, with slashes and optional barflip sign
+     * @returns {string} the PBL family name
+     * @example "Al/Ul" → "A/U"
+     */
+    getPBLFamily(pbl) {
+        const [u, d] = pbl.replace(/[+-]$/, '').split("/");
+        return (
+            u in SquanLib.PLLFamily ? u : u.match(/[A-Z]/g)?.join('') + "/" +
+            d in SquanLib.PLLFamily ? d : d.match(/[A-Z]/g)?.join('')
+        )
     }
 }

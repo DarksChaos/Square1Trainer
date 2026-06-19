@@ -443,7 +443,7 @@ function pblGetWeight(pbl) {
 // pblGetCaseCount: used by pbl-filter.js to compute freq = weight × caseCount.
 // pbl is a [top, bottom] array (as stored in pblPossible).
 function pblGetCaseCount(pbl) {
-    return squan.getPLLCaseCount(pbl);
+    return squan.getPBLCaseCount(pbl);
 }
 
 function pblRefillRemaining() {

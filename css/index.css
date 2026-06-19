@@ -1626,6 +1626,104 @@ button {
 .ae-add-group:hover { border-color: var(--border-col); color: #e0e0e0; background: var(--button-col); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   PBL HEATMAPS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.search-heatmaps {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    position: relative;            /* tooltip anchor */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #444 transparent;
+}
+
+.hm-tagbar { display: flex; justify-content: center; }
+
+.hm-tag-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border: 1px solid #3a3a3a;
+    border-radius: 9px;
+    background: #232323;
+    color: #d8d8d8;
+    font-size: 0.9rem;
+}
+.hm-tag-btn:hover { border-color: var(--border-col); background: var(--button-col); color: #fff; }
+
+.hm-grids {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+}
+
+.hm-grid {
+    flex: 1 1 480px;
+    min-width: 260px;
+    max-width: 580px;
+}
+
+.hm-table {
+    display: grid;
+    width: 100%;
+    border: 1px solid #444;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.hm-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 4px;
+    font-size: 0.66rem;
+    font-weight: bold;
+    color: #cfcfcf;
+    background: #2c2c2c;
+    white-space: nowrap;
+}
+.hm-corner   { background: #2c2c2c; border-right: 2px solid #555; border-bottom: 2px solid #555; }
+.hm-colhead  { border-bottom: 2px solid #555; }
+.hm-rowhead  { border-right: 2px solid #555; }
+
+.hm-cell {
+    aspect-ratio: 1;
+    cursor: pointer;
+}
+.hm-gray { background: #565656; }
+
+.hm-tip {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 6px));
+    z-index: 10;
+    pointer-events: none;
+    background: #15181c;
+    border: 1px solid var(--border-col);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    padding: 6px 10px;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+.hm-tip-case    { font-weight: bold; color: #fff; }
+.hm-tip-cluster { color: var(--border-col); }
+.hm-tip-sol     { color: #bbb; font-family: monospace; }
+.hm-tip-dim     { color: #777; font-style: italic; }
+
+@media screen and (max-width: 1080px) {
+    .hm-grids { flex-direction: column; align-items: center; }
+    .hm-grid  { max-width: 560px; width: 100%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    PER-UNIT TAGS (read mode)
    ═══════════════════════════════════════════════════════════════════════════ */
 
