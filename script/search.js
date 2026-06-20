@@ -1,4 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
+//  SEARCH OVERLAY
+//  The spotlight search and everything shown inside its extension, in sections:
+//    1. PBL heatmaps (this section)
+//    2. The spotlight search core (overlay, results, cluster view, help)
+//    3. Tag view + list view detail panels
+//  Cluster alg references are rendered via renderClusterInto() in alg-reference.js.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
 //  PBL HEATMAPS
 //  Two heatmaps (evenPLL × evenPLL, oddPLL × oddPLL) shown in the search
 //  extension when the query is empty (PBL trainer only). Each cell is a case
@@ -6,7 +15,7 @@
 //  matt solution groups count; per case we take the shortest tagged slicecount,
 //  and colour the cell by (slicecount − optimal) × weight × caseCount.
 //
-//  Requires pblGetOptimal(caseName) (a local lookup, added separately).
+//  Uses pblGetOptimal(caseName) from pbl-core.js.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const hmEl = document.getElementById('search-heatmaps');
@@ -382,24 +391,6 @@ function getSearchIndex() {
     return _searchIndexCache[trainerMode];
 }
 
-// Renders a cluster's alg reference for `title` into an arbitrary `content`
-// element. `onResize` is the callback the source tabs use to re-fit.
-// Returns true if the cluster existed and was rendered.
-function renderClusterInto(content, title, onResize = () => {}) {
-    const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
-    if (!clusters || !clusters[title]) return false;
-    const cluster  = effectiveCluster(title); // shipped data merged with user overrides
-
-    const SKIP       = new Set(['case-list', 'optimal-slicecount']);
-    const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const lastSource = trainerMode === 'pbl' ? pblLastClusterSource : oblLastClusterSource;
-    const active     = (lastSource && sources.includes(lastSource)) ? lastSource : sources[0] ?? 'matt';
-
-    content.scrollTop = 0;
-    if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active, content, onResize);
-    else                       oblRenderCluster(cluster, title, sources, active, content, onResize);
-    return true;
-}
 
 // Opens the alg reference for a cluster title in the search bar (the only place
 // alg references are shown — there is no separate modal). Used by scramble clicks

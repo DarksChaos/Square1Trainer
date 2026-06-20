@@ -412,8 +412,6 @@ function updateRemainingCount() {
     const queued  = trainerMode === 'obl'
         ? oblRemainingCases[oblUsingSpe].length
         : pblRemaining.length;
-    console.log(trainerMode === "obl" ? oblRemainingCases[oblUsingSpe] : pblRemaining);
-    console.log(spliced);
     // spliced is set synchronously before the splice in each generate function,
     // so queued + 1 is always correct: the current case + everything still in the array.
     document.getElementById('remaining-count').textContent = queued + (spliced ? 1 : 0);
@@ -684,7 +682,7 @@ filterInputEl.addEventListener("input", () => {
     }
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!|&() ]+/g, "");
     setHighlighted(null);
-    applyFilter(filterInputEl.value); // in pbl-filter.js
+    applyFilter(filterInputEl.value); // in pbl-core.js
     updateSelectBtn();
     updateDeselectBtn();
 

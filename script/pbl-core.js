@@ -142,184 +142,6 @@ function pblRecolorAll() {
     });
 }
 
-// ─── CLUSTER DATA (PBL) ──────────────────────────────────────────────────────
-// pblClusters is declared as const in pbl-data.js. generic.js drives rendering
-// via renderClusterInto(); this section holds PBL-specific case→cluster lookup
-// and the PBL HTML formatter (pblRenderCluster).
-
-// ── PBL cluster data ──────────────────────────────────────────────────────
-// pblClusters is declared as const in pbl-data.js.
-
-// ── PBL case lookup ───────────────────────────────────────────────────────
-
-function pblFindCluster(caseName) {
-    const clean = caseName.replace(/(?<!\/)[+-]$/, ""); // strip sign, keep a solved-face "-"
-    for (const [title, data] of Object.entries(pblClusters)) {
-        if (data["case-list"].includes(clean)) return title;
-    }
-    return null;
-}
-
-// ── PBL HTML formatter ────────────────────────────────────────────────────
-
-function pblHasAlgData(algs) {
-    return algs && algs.some(a => a.angle?.trim() || a.notation?.trim());
-}
-
-function pblNab(text) { // normalize angle brackets for safe HTML insertion
-    return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-}
-
-function pblTextWidth(text, font) {
-    const canvas = document.createElement('canvas');
-    const ctx    = canvas.getContext('2d');
-    ctx.font     = font || getComputedStyle(document.body).font;
-    return ctx.measureText(text).width;
-}
-
-// ── PBL source formatters ─────────────────────────────────────────────────
-
-// Formats the Matt section only (no title, no tabs).
-function pblFormatMatt(cluster, key, meta, title) {
-    const lines = [];
-    lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
-
-    if (cluster.matt?.["distinction-help"]?.trim())
-        lines.push(`<span style="text-indent:2.5em;">${pblNab(cluster.matt["distinction-help"])}</span>`);
-
-    const order = mattUnitOrder(title); // solution-group ids, aligned with the array below
-    const groups = cluster.matt?.["solution-groups"] || [];
-    for (let gi = 0; gi < groups.length; gi++) {
-        const sg = groups[gi];
-        const hasContent =
-            sg["solution-overview"]?.trim() ||
-            sg["alg-blocks"]?.some(ab =>
-                ab["alg-explanation"]?.trim() ||
-                ab["angle-explanation"]?.trim() ||
-                ab.cases?.some(c => pblHasAlgData(c.algs))
-            );
-        if (!hasContent) continue;
-        lines.push("");
-        // Solution-overview line with the per-group tag control at its end
-        // (matt's smallest unit).
-        const slices  = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
-        const ovText  = sg["solution-overview"]?.trim() ? `<b>${pblNab(sg["solution-overview"])}${slices}</b>` : "";
-        const tagsRef = unitRef(title, 'matt', order[gi] ?? 'sg' + gi);
-        lines.push(`<span class="sol-overview unit-head">${ovText}${unitTagsHtml(tagsRef)}</span>`);
-
-        let lastAngleExplanation;
-        for (const ab of sg["alg-blocks"] || []) {
-            let angleExplanation = ab["angle-explanation"];
-            if (angleExplanation?.trim() && angleExplanation !== lastAngleExplanation) {
-                lines.push(`<span class="explanations">${pblNab(angleExplanation)}</span>`);
-                lastAngleExplanation = angleExplanation.trim();
-            }
-            if (ab["alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
-            for (const c of ab.cases || []) {
-                if (!pblHasAlgData(c.algs)) continue;
-                for (let i = 0; i < c.algs.length; i++) {
-                    const alg = c.algs[i];
-                    if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                    const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-                    const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
-                    const indent   = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
-                    lines.push(
-                        `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
-                        `${i === 0 ? c["case-name"] + alg.sign + " " : ""}${angle}` +
-                        `<span style="font-family:monospace">${notation}</span></span>`
-                    );
-                }
-            }
-        }
-    }
-    if (lines.length === 1)
-        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
-    return lines.join("");
-}
-
-// Formats a generic sheet source (Derpy format: [{case-name, algs:[{sign,angle,notation}]}]).
-// All non-Matt sources are assumed to use this shape.
-function pblFormatSheet(cluster, key, meta, title) {
-    const sheetData = cluster[key];
-    const lines = [];
-    const linkHtml = meta.url
-        ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
-        : `<b>${meta.label}</b>`;
-    lines.push(`<span class="section-label unit-head">${linkHtml}${unitTagsHtml(unitRef(title, key, '*'))}</span>`);
-    const filled = (sheetData || []).filter(c => pblHasAlgData(c.algs));
-    if (!filled.length) {
-        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
-        return lines.join("");
-    }
-    for (const c of filled) {
-        for (let i = 0; i < c.algs.length; i++) {
-            const alg = c.algs[i];
-            if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
-            const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
-            const indent   = i > 0 ? pblTextWidth(c["case-name"] + (alg.sign || "") + " ", "11pt Arial") : 0;
-            lines.push(
-                `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
-                `${i === 0 ? c["case-name"] + (alg.sign || "") + " " : ""}${angle}` +
-                `<span style="font-family:monospace">${notation}</span></span>`
-            );
-        }
-    }
-    return lines.join("");
-}
-
-let pblLastClusterSource = null;
-
-const PBL_SOURCE_META = {
-    matt:  { label: 'Matt',  linkText: "Matt's PBL Doc",    url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt  },
-    derpy: { label: 'Derpy', linkText: "Derpy's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit', formatter: pblFormatSheet },
-    jlminx: { label: 'JLMinx', linkText: "JL Minx's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/10yJdudCtT-zIt7YVjhgPv4VfOuqXHa3u1fxYhaBPP8s/edit', formatter: pblFormatSheet },
-};
-
-// ── pblRenderCluster ──────────────────────────────────────────────────────
-// Renders title + source tabs + body into the given `content` element.
-// Called on open (activeSource = sources[0]) and on tab switch.
-
-function pblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
-    const window_ = content.parentElement;
-
-    // Build or reuse the tab bar that sits outside the scroll container.
-    let tabBar = window_.querySelector('.cluster-tab-bar');
-    if (!tabBar) {
-        tabBar = document.createElement('div');
-        tabBar.className = 'cluster-tab-bar';
-        window_.insertBefore(tabBar, content);
-    }
-    tabBar.style.display = sources.length > 1 ? '' : 'none';
-    tabBar.innerHTML = sources.length > 1
-        ? `<div class="cluster-tabs">${
-              sources.map(src =>
-                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
-                  `<label for="ctab-${src}" class="cluster-tab-label">${PBL_SOURCE_META[src]?.label ?? src}</label>`
-              ).join('')
-          }</div>`
-        : '';
-
-    content.innerHTML =
-        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
-        `<div id="cluster-source-content"></div>`;
-
-    function showSource(src) {
-        pblLastClusterSource = src;
-        const el = content.querySelector('#cluster-source-content');
-        const meta = PBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: pblFormatSheet };
-        el.innerHTML = meta.formatter(cluster, src, meta, title);
-    }
-
-    showSource(activeSource);
-
-    tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
-        radio.addEventListener('change', () => {
-            if (radio.checked) { showSource(radio.value); onResize?.(content); }
-        });
-    });
-}
-
 // ─── PBL STORAGE ─────────────────────────────────────────────────────────────
 
 const pblStorage = {
@@ -691,7 +513,7 @@ function pblRestoreGrid() {
         pblSetDomClass(caseEl, pblCaseMode(base));
     });
 
-    applyFilter(''); // in pbl-filter.js — re-run any in-memory filter on newly built DOM
+    applyFilter(''); // re-run any in-memory filter on the newly built DOM
 
     // Update display — restore scramble text when a PBL scramble is active.
     if (pblHasActive && pblScrambleList.length) {
@@ -1312,7 +1134,7 @@ const pblHelpSections = [
 ];
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────
-// Load order: generic.js → pbl-core.js (this file). generic.js must be loaded
+// Load order: app.js → pbl-core.js (this file). app.js must be loaded
 // first so DOM refs, shared state, and cluster helpers are available.
 //
 // startApp() is invoked by the SquanLib bootstrap module in index.html once

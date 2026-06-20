@@ -1,6 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
-//  ALG-REFERENCE OVERRIDES + TAG ASSIGNMENTS
-//  User edits to alg-reference content and tag attachments, stored per trainer
+//  ALG REFERENCE
+//  Everything behind the alg-reference shown in the search overlay, in four
+//  sections below:
+//    1. Override + tag-assignment store (this section)
+//    2. The alg-reference editor (edit mode)
+//    3. Cluster alg-reference rendering (case→cluster lookup, formatters,
+//       renderClusterInto)
+//
+//  User edits to alg-reference content and tag attachments are stored per trainer
 //  in localStorage. The shipped cluster data (pblClusters / oblClusters) is never
 //  mutated — effectiveCluster() merges overrides on top at render time.
 //
@@ -442,8 +449,8 @@ function blankMattGroup() {
 // ═══════════════════════════════════════════════════════════════════════════
 //  ALG-REFERENCE EDITOR
 //  Edit-mode rendering + interactions for the alg reference shown in the search
-//  extension. Reads/writes overrides via alg-overrides.js; the shipped data is
-//  never touched. matt is edited as solution-group cards; sheet sources (derpy,
+//  extension. Reads/writes overrides via the override store above; the shipped
+//  data is never touched. matt is edited as solution-group cards; sheet sources (derpy,
 //  jlminx) are a single explanation-less alg-block.
 //
 //  Draft model (in memory, committed to the override store on every change):
@@ -808,9 +815,371 @@ function _aeOnPointerUp() {
     algEditRender(searchClusterContentEl, aeTitle);
 }
 
-// Wire delegated listeners once (content element is stable).
-if (searchClusterContentEl) {
-    searchClusterContentEl.addEventListener('input', e => { if (algEditActive()) _aeOnInput(e); });
-    searchClusterContentEl.addEventListener('click', e => { if (algEditActive()) _aeOnClick(e); });
-    searchClusterContentEl.addEventListener('pointerdown', e => { if (algEditActive()) _aeOnPointerDown(e); });
+// Wire delegated listeners once (content element is stable). Resolve the element
+// directly — searchClusterContentEl is owned by search.js, which loads after this
+// file, so referencing it here at load time would be a temporal-dead-zone error.
+{
+    const aeContentEl = document.getElementById('search-cluster-content');
+    if (aeContentEl) {
+        aeContentEl.addEventListener('input',       e => { if (algEditActive()) _aeOnInput(e); });
+        aeContentEl.addEventListener('click',       e => { if (algEditActive()) _aeOnClick(e); });
+        aeContentEl.addEventListener('pointerdown', e => { if (algEditActive()) _aeOnPointerDown(e); });
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CLUSTER ALG-REFERENCE RENDERING
+//  Case → cluster lookup, the per-source HTML formatters, and the cluster
+//  renderers for both trainers. renderClusterInto() is the shared entry point
+//  used by the search overlay to draw a cluster's alg reference.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── CLUSTER DATA (PBL) ──────────────────────────────────────────────────────
+// pblClusters is declared as const in pbl-data.js. renderClusterInto() (below)
+// drives rendering; this section holds PBL-specific case→cluster lookup
+// and the PBL HTML formatter (pblRenderCluster).
+
+// ── PBL cluster data ──────────────────────────────────────────────────────
+// pblClusters is declared as const in pbl-data.js.
+
+// ── PBL case lookup ───────────────────────────────────────────────────────
+
+function pblFindCluster(caseName) {
+    const clean = caseName.replace(/(?<!\/)[+-]$/, ""); // strip sign, keep a solved-face "-"
+    for (const [title, data] of Object.entries(pblClusters)) {
+        if (data["case-list"].includes(clean)) return title;
+    }
+    return null;
+}
+
+// ── PBL HTML formatter ────────────────────────────────────────────────────
+
+function pblHasAlgData(algs) {
+    return algs && algs.some(a => a.angle?.trim() || a.notation?.trim());
+}
+
+function pblNab(text) { // normalize angle brackets for safe HTML insertion
+    return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+function pblTextWidth(text, font) {
+    const canvas = document.createElement('canvas');
+    const ctx    = canvas.getContext('2d');
+    ctx.font     = font || getComputedStyle(document.body).font;
+    return ctx.measureText(text).width;
+}
+
+// ── PBL source formatters ─────────────────────────────────────────────────
+
+// Formats the Matt section only (no title, no tabs).
+function pblFormatMatt(cluster, key, meta, title) {
+    const lines = [];
+    lines.push(`<span class="section-label"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b></span>`);
+
+    if (cluster.matt?.["distinction-help"]?.trim())
+        lines.push(`<span style="text-indent:2.5em;">${pblNab(cluster.matt["distinction-help"])}</span>`);
+
+    const order = mattUnitOrder(title); // solution-group ids, aligned with the array below
+    const groups = cluster.matt?.["solution-groups"] || [];
+    for (let gi = 0; gi < groups.length; gi++) {
+        const sg = groups[gi];
+        const hasContent =
+            sg["solution-overview"]?.trim() ||
+            sg["alg-blocks"]?.some(ab =>
+                ab["alg-explanation"]?.trim() ||
+                ab["angle-explanation"]?.trim() ||
+                ab.cases?.some(c => pblHasAlgData(c.algs))
+            );
+        if (!hasContent) continue;
+        lines.push("");
+        // Solution-overview line with the per-group tag control at its end
+        // (matt's smallest unit).
+        const slices  = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
+        const ovText  = sg["solution-overview"]?.trim() ? `<b>${pblNab(sg["solution-overview"])}${slices}</b>` : "";
+        const tagsRef = unitRef(title, 'matt', order[gi] ?? 'sg' + gi);
+        lines.push(`<span class="sol-overview unit-head">${ovText}${unitTagsHtml(tagsRef)}</span>`);
+
+        let lastAngleExplanation;
+        for (const ab of sg["alg-blocks"] || []) {
+            let angleExplanation = ab["angle-explanation"];
+            if (angleExplanation?.trim() && angleExplanation !== lastAngleExplanation) {
+                lines.push(`<span class="explanations">${pblNab(angleExplanation)}</span>`);
+                lastAngleExplanation = angleExplanation.trim();
+            }
+            if (ab["alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
+            for (const c of ab.cases || []) {
+                if (!pblHasAlgData(c.algs)) continue;
+                for (let i = 0; i < c.algs.length; i++) {
+                    const alg = c.algs[i];
+                    if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+                    const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                    const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
+                    const indent   = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
+                    lines.push(
+                        `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
+                        `${i === 0 ? c["case-name"] + alg.sign + " " : ""}${angle}` +
+                        `<span style="font-family:monospace">${notation}</span></span>`
+                    );
+                }
+            }
+        }
+    }
+    if (lines.length === 1)
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+    return lines.join("");
+}
+
+// Formats a generic sheet source (Derpy format: [{case-name, algs:[{sign,angle,notation}]}]).
+// All non-Matt sources are assumed to use this shape.
+function pblFormatSheet(cluster, key, meta, title) {
+    const sheetData = cluster[key];
+    const lines = [];
+    const linkHtml = meta.url
+        ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
+        : `<b>${meta.label}</b>`;
+    lines.push(`<span class="section-label unit-head">${linkHtml}${unitTagsHtml(unitRef(title, key, '*'))}</span>`);
+    const filled = (sheetData || []).filter(c => pblHasAlgData(c.algs));
+    if (!filled.length) {
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+        return lines.join("");
+    }
+    for (const c of filled) {
+        for (let i = 0; i < c.algs.length; i++) {
+            const alg = c.algs[i];
+            if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + (alg.sign || "") + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + (alg.sign || "") + " " : ""}${angle}` +
+                `<span style="font-family:monospace">${notation}</span></span>`
+            );
+        }
+    }
+    return lines.join("");
+}
+
+let pblLastClusterSource = null;
+
+const PBL_SOURCE_META = {
+    matt:  { label: 'Matt',  linkText: "Matt's PBL Doc",    url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt  },
+    derpy: { label: 'Derpy', linkText: "Derpy's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit', formatter: pblFormatSheet },
+    jlminx: { label: 'JLMinx', linkText: "JL Minx's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/10yJdudCtT-zIt7YVjhgPv4VfOuqXHa3u1fxYhaBPP8s/edit', formatter: pblFormatSheet },
+};
+
+// ── pblRenderCluster ──────────────────────────────────────────────────────
+// Renders title + source tabs + body into the given `content` element.
+// Called on open (activeSource = sources[0]) and on tab switch.
+
+function pblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
+    const window_ = content.parentElement;
+
+    // Build or reuse the tab bar that sits outside the scroll container.
+    let tabBar = window_.querySelector('.cluster-tab-bar');
+    if (!tabBar) {
+        tabBar = document.createElement('div');
+        tabBar.className = 'cluster-tab-bar';
+        window_.insertBefore(tabBar, content);
+    }
+    tabBar.style.display = sources.length > 1 ? '' : 'none';
+    tabBar.innerHTML = sources.length > 1
+        ? `<div class="cluster-tabs">${
+              sources.map(src =>
+                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+                  `<label for="ctab-${src}" class="cluster-tab-label">${PBL_SOURCE_META[src]?.label ?? src}</label>`
+              ).join('')
+          }</div>`
+        : '';
+
+    content.innerHTML =
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<div id="cluster-source-content"></div>`;
+
+    function showSource(src) {
+        pblLastClusterSource = src;
+        const el = content.querySelector('#cluster-source-content');
+        const meta = PBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: pblFormatSheet };
+        el.innerHTML = meta.formatter(cluster, src, meta, title);
+    }
+
+    showSource(activeSource);
+
+    tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.checked) { showSource(radio.value); onResize?.(content); }
+        });
+    });
+}
+
+
+// ─── CLUSTER DATA (OBL) ──────────────────────────────────────────────────────
+// oblClusters is declared as const in obl-data.js.
+
+// ── OBL case → cluster lookup ─────────────────────────────────────────────
+
+function oblFindCluster(caseName) {
+    try {
+        caseName = getSpe(caseName)[0];
+    } catch (e) {}
+    // specific name
+    let [u, d] = caseName.split("/");
+    caseName = [SquanLib.NAMING[u], SquanLib.NAMING[d]].join("/");
+    for (const [title, data] of Object.entries(oblClusters)) {
+        if (data["case-list"].includes(caseName)) return title;
+    }
+    return null;
+}
+
+// ── OBL HTML formatter ────────────────────────────────────────────────────
+// Structural differences vs pblFormatCluster:
+//   • matt is flat: distinction-help / angle-explanation / alg-explanation / cases[]
+//     (no solution-groups or alg-blocks nesting)
+//   • matt.cases[].algs are {angle, notation} objects (no "sign" field)
+//   • derpy[].algs are plain notation strings (not objects)
+
+function oblHasAlgData(algs) {
+    if (!algs || !algs.length) return false;
+    // algs may be strings (derpy) or objects (matt) — check both shapes
+    return algs.some(a =>
+        typeof a === "string" ? a.trim() : (a.angle?.trim() || a.notation?.trim())
+    );
+}
+
+// ── OBL source formatters ─────────────────────────────────────────────────
+
+// Formats the Matt section only (no title, no tabs).
+function oblFormatMatt(cluster, key, meta, title) {
+    const lines = [];
+    // OBL matt is one whole unit — tag control at the end of the source link.
+    lines.push(`<span class="section-label unit-head"><b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>${unitTagsHtml(unitRef(title, 'matt', '*'))}</span>`);
+
+    const matt = cluster.matt;
+    if (matt?.["distinction-help"]?.trim())
+        lines.push(`<span style="text-indent:2.5em;">${pblNab(matt["distinction-help"])}</span>`);
+    if (matt?.["angle-explanation"]?.trim())
+        lines.push(`<span class="explanations">${pblNab(matt["angle-explanation"])}</span>`);
+    if (matt?.["alg-explanation"]?.trim())
+        lines.push(`<span class="explanations">${pblNab(matt["alg-explanation"])}</span>`);
+
+    for (const c of matt?.cases || []) {
+        if (!oblHasAlgData(c.algs)) continue;
+        for (let i = 0; i < c.algs.length; i++) {
+            const alg = c.algs[i];
+            if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
+            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
+                `<span style="font-family:monospace">${notation}</span></span>`
+            );
+        }
+    }
+    if (lines.length === 1)
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+    return lines.join("");
+}
+
+// Formats a generic sheet source (Derpy format: [{case-name, algs:[string]}]).
+// All non-Matt OBL sources are assumed to use plain notation strings.
+function oblFormatSheet(cluster, key, meta, title) {
+    const sheetData = cluster[key];
+    const lines = [];
+    const linkHtml = meta.url
+        ? `<b><a href="${meta.url}" target="blank">${meta.linkText}</a></b>`
+        : `<b>${meta.label}</b>`;
+    lines.push(`<span class="section-label unit-head">${linkHtml}${unitTagsHtml(unitRef(title, key, '*'))}</span>`);
+    const filled = (sheetData || []).filter(c => oblHasAlgData(c.algs));
+    if (!filled.length) {
+        lines.push(`<span style="opacity:0.4;font-style:italic;">No algs available.</span>`);
+        return lines.join("");
+    }
+    for (const c of filled) {
+        for (let i = 0; i < c.algs.length; i++) {
+            const algStr = c.algs[i];
+            if (!algStr?.trim()) continue;
+            const notation = usingKarn ? algStr : squan.unkarnify(algStr);
+            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            lines.push(
+                `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
+                `${i === 0 ? c["case-name"] + " " : ""}` +
+                `<span style="font-family:monospace">${notation}</span></span>`
+            );
+        }
+    }
+    return lines.join("");
+}
+
+let oblLastClusterSource = null;
+
+const OBL_SOURCE_META = {
+    matt:  { label: 'Matt',  linkText: "Matt's OBL Doc",    url: 'https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit', formatter: oblFormatMatt  },
+    derpy: { label: 'Derpy', linkText: "Derpy's OBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit', formatter: oblFormatSheet },
+};
+
+// ── oblRenderCluster ──────────────────────────────────────────────────────
+// Renders title + source tabs + body into the given `content` element.
+
+function oblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
+    const window_ = content.parentElement;
+
+    // Build or reuse the tab bar that sits outside the scroll container.
+    let tabBar = window_.querySelector('.cluster-tab-bar');
+    if (!tabBar) {
+        tabBar = document.createElement('div');
+        tabBar.className = 'cluster-tab-bar';
+        window_.insertBefore(tabBar, content);
+    }
+    tabBar.style.display = sources.length > 1 ? '' : 'none';
+    tabBar.innerHTML = sources.length > 1
+        ? `<div class="cluster-tabs">${
+              sources.map(src =>
+                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+                  `<label for="ctab-${src}" class="cluster-tab-label">${OBL_SOURCE_META[src]?.label ?? src}</label>`
+              ).join('')
+          }</div>`
+        : '';
+
+    content.innerHTML =
+        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<div id="cluster-source-content"></div>`;
+
+    function showSource(src) {
+        oblLastClusterSource = src;
+        const el = content.querySelector('#cluster-source-content');
+        const meta = OBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: oblFormatSheet };
+        el.innerHTML = meta.formatter(cluster, src, meta, title);
+    }
+
+    showSource(activeSource);
+
+    tabBar.querySelectorAll('.cluster-tab-radio').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.checked) { showSource(radio.value); onResize?.(content); }
+        });
+    });
+}
+
+
+
+// Renders a cluster's alg reference for `title` into an arbitrary `content`
+// element. `onResize` is the callback the source tabs use to re-fit.
+// Returns true if the cluster existed and was rendered.
+function renderClusterInto(content, title, onResize = () => {}) {
+    const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
+    if (!clusters || !clusters[title]) return false;
+    const cluster  = effectiveCluster(title); // shipped data merged with user overrides
+
+    const SKIP       = new Set(['case-list', 'optimal-slicecount']);
+    const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const lastSource = trainerMode === 'pbl' ? pblLastClusterSource : oblLastClusterSource;
+    const active     = (lastSource && sources.includes(lastSource)) ? lastSource : sources[0] ?? 'matt';
+
+    content.scrollTop = 0;
+    if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active, content, onResize);
+    else                       oblRenderCluster(cluster, title, sources, active, content, onResize);
+    return true;
 }
