@@ -733,10 +733,6 @@ function closeSearchHelp(e) {
     searchHelpModalEl.style.display = "none";
 }
 
-document.getElementById("opensearch").addEventListener("click", (e) => {
-    e.currentTarget.blur(); // don't leave the nav button stuck in :focus on mobile
-    toggleSearch();
-});
 searchHelpBtnEl.addEventListener("click", openSearchHelp);
 searchInputEl.addEventListener("input", renderSearchResults);
 

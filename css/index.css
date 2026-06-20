@@ -955,6 +955,10 @@ button {
         display: block;
     }
 
+    .mobilebar {
+        display: flex;
+    }
+
     .full-width-mobile {
         width: 100%;
         border: 0;
@@ -1260,6 +1264,89 @@ button {
 
 .icon-btn svg {
     display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LEFT RAIL (desktop)  +  BOTTOM BAR (mobile)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rail {
+    flex-shrink: 0;
+    width: 64px;
+    background-color: #1a1a1a;
+    border-right: 2px solid #333;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.4rem;
+    overflow: hidden;
+    transition: width 0.18s ease;
+}
+.rail:not(.collapsed) { width: 210px; }
+
+.rail-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #cfcfcf;
+}
+.rail:not(.collapsed) .rail-toggle { justify-content: flex-start; padding-left: 11px; }
+.rail-toggle:hover { background: rgba(255, 255, 255, 0.08); border-color: #444; color: #fff; }
+
+.rail-actions { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 1.4rem; }
+.rail-extra   { display: flex; flex-direction: column; gap: 0.3rem; margin-top: auto; }
+
+.rail-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    padding: 0 11px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #cfcfcf;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.rail-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: #444; color: #fff; }
+.rail-btn-icon  { display: flex; flex-shrink: 0; line-height: 0; }
+.rail-btn-label { font-size: 0.95rem; font-weight: 600; }
+.rail.collapsed .rail-btn       { justify-content: center; padding: 0; gap: 0; }
+.rail.collapsed .rail-btn-label { display: none; }
+
+/* Bottom bar — mobile only, shown via media query below */
+.mobilebar {
+    display: none;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    background-color: #1a1a1a;
+    border-top: 2px solid #333;
+    box-sizing: border-box;
+}
+.mobilebar .rail-btn { width: 48px; height: 48px; justify-content: center; padding: 0; gap: 0; }
+.mobilebar .rail-btn-label { display: none; }
+
+/* Case-selector modal body (the former sidebar) */
+.cases-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1rem 1rem;
+    box-sizing: border-box;
+}
+.cases-body .pbl-grid {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
