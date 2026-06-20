@@ -594,6 +594,13 @@ export default class SquanLib {
     };
 
     /**
+     * OBLWeights: the weight factor of OBL faces that are not 4
+     */
+    static OBLWeights = {
+        "-": 1, V: 2, F: 2, Q: 1, N: 2,
+    };
+
+    /**
      * @param {object} [tempReplacements] initial manual unkarnifications.
      */
     constructor(tempReplacements = { "meow :3": "meow :3" }) {
@@ -1958,15 +1965,15 @@ export default class SquanLib {
     }
 
     // =========================================================================
-    // SECTION 10: Miscellaneous
+    // SECTION 10: Statistics
     // =========================================================================
     /**
-     * getWeight: get the weight factor of a PBL
+     * getPBLWeight: get the weight factor of a PBL
      *
      * @param {string} pbl the PBL, with slashes and optional barflip sign
      * @returns {number} the weight. some power of 2.
      */
-    getWeight(pbl) {
+    getPBLWeight(pbl) {
         const [u, d] = pbl.replace(/(?<!\/)[+-]$/, '').split("/");
         return (SquanLib.PBLWeights[u] ?? 4) * (SquanLib.PBLWeights[d] ?? 4);
     }
@@ -1994,5 +2001,20 @@ export default class SquanLib {
             (SquanLib.PLLFamily.includes(u) ? u : u.match(/[A-Z]/g)?.join('')) + "/" +
             (SquanLib.PLLFamily.includes(d) ? d : d.match(/[A-Z]/g)?.join(''))
         )
+    }
+
+    /**
+     * getOBLWeight: get the weight of a specific OBL
+     *
+     * @param {string} obl new naming OBL, joined by a slash
+     * @returns {number} the weight of the OBL
+     * @example "D/D" → 16
+     * "TH/TH" → 16
+     * "J/V" → 8
+     */
+    getOBLWeight(obl) {
+        const [u, d] = obl.split("/");
+        return (SquanLib.OBLWeights[u.match(/[A-Z]/g)?.join('')] ?? 4) *
+            (SquanLib.OBLWeights[d.match(/[A-Z]/g)?.join('')] ?? 4);
     }
 }

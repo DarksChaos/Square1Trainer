@@ -93,6 +93,16 @@ function toggleUnitTag(ref, tagId) {
     saveTagAssignments(a);
 }
 
+// Set of cluster titles (in the current trainer) that have at least one unit
+// tagged with any tag.
+function taggedClusterTitles() {
+    const set = new Set();
+    for (const refs of Object.values(loadTagAssignments())) {
+        for (const ref of refs) set.add(ref.split('|')[0]);
+    }
+    return set;
+}
+
 // Distinct cluster titles that have at least one unit tagged with `tagId`.
 function tagClusterTitles(tagId) {
     const refs = loadTagAssignments()[tagId] || [];

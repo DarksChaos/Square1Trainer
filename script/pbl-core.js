@@ -223,7 +223,7 @@ function pblSelect(s) {
         // are distributed evenly instead of stacking separately.
         pblRemaining = pblRemaining.filter(r => r.slice(0, -1) !== base);
         const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
-        const count = pblEachCase * (pblWeight ? squan.getWeight(base) : 1);
+        const count = pblEachCase * (pblWeight ? squan.getPBLWeight(base) : 1);
         // If a case was already spliced this cycle and it belongs to this base,
         // that slot is already "in use" on screen — don't add it back.
         const alreadyConsumed = pblCaseSpliced && pblCurrentCase.slice(0, -1) === base ? 1 : 0;
@@ -282,7 +282,7 @@ function pblRefillRemaining() {
         if (!seenBases.has(base)) { seenBases.add(base); dedupedBases.push(base); }
     }
     pblRemaining = dedupedBases.flatMap(base => {
-        const count    = pblEachCase * (pblWeight ? squan.getWeight(base) : 1);
+        const count    = pblEachCase * (pblWeight ? squan.getPBLWeight(base) : 1);
         const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
         return Array.from({ length: count }, () => base + suffixes[randInt(0, suffixes.length - 1)]);
     });
@@ -1200,7 +1200,7 @@ function getFreqSet(filterStr) {
     const freq = parseInt(freqStr, 10);
     for (let pbl of pblPossible) {
         const n = pblName(pbl);
-        if (squan.getWeight(n) * squan.getPBLCaseCount(pbl) === freq) result.add(n);
+        if (squan.getPBLWeight(n) * squan.getPBLCaseCount(pbl) === freq) result.add(n);
     }
     return result;
 }

@@ -99,7 +99,7 @@ function hmCellValue(caseName, row, col, slices) {
     if (!s) return null;
     const optimal = pblGetOptimal(caseName);
     if (optimal == null) return null;
-    return (s.slice - optimal) * squan.getWeight(caseName) * squan.getPBLCaseCount([row, col]);
+    return (s.slice - optimal) * squan.getPBLWeight(caseName) * squan.getPBLCaseCount([row, col]);
 }
 
 // ── Colour (rank-based: ~even cells per band, green→yellow→orange→red) ───────
@@ -511,12 +511,49 @@ function moveSearchSelection(delta) {
     if (active) active.scrollIntoView({ block: 'nearest' });
 }
 
+// Weighted probability of a cluster: the weight of a single case (all cases in a
+// cluster share the same weight) times how many cases the cluster has. Works for
+// both trainers — OBL case-lists are already in the new naming getOBLWeight wants.
+function clusterWeightedProbability(caseList) {
+    if (!caseList || !caseList.length) return 0;
+    const w = trainerMode === 'pbl'
+        ? squan.getPBLWeight(caseList[0])
+        : squan.getOBLWeight(caseList[0]);
+    return w * caseList.length;
+}
+
+// Picks a cluster title at random, weighted by clusterWeightedProbability so that
+// more-likely-to-occur clusters come up more often. An optional predicate
+// (title, data) limits the pool (e.g. only untagged clusters).
+function randomClusterTitle(filter = null) {
+    let entries = Object.entries(trainerMode === 'pbl' ? pblClusters : oblClusters);
+    if (filter) entries = entries.filter(([title, data]) => filter(title, data));
+    if (!entries.length) return null;
+    let total = 0;
+    const cumulative = entries.map(([, data]) => (total += clusterWeightedProbability(data['case-list'])));
+    if (total <= 0) return entries[randInt(0, entries.length - 1)][0]; // degenerate: uniform
+    const r = Math.random() * total;
+    const i = cumulative.findIndex(c => r < c);
+    return entries[i < 0 ? entries.length - 1 : i][0];
+}
+
+// Opens a weighted-random cluster, optionally restricted by `filter`. Shows a
+// notice when the (filtered) pool is empty instead of doing nothing.
+function openRandomCluster(filter = null, emptyMsg = 'No matching clusters.') {
+    const title = randomClusterTitle(filter);
+    if (title) openAlgReference(title);
+    else showInfo(emptyMsg);
+}
+
 // Keyword commands surfaced in the search bar, keyed by the search term that
 // triggers them. Add new actions here — { label, desc, trainer, run } — and they
 // show up automatically. `trainer` ('obl' | 'pbl' | 'both') limits which
 // trainer(s) the action appears in. `run` is invoked when the entry is chosen.
 const SEARCH_ACTIONS = {
-    tags: { label: 'Tags', desc: 'Manage your tags', trainer: 'both', run: () => openTagModal() },
+    tags:             { label: 'Tags',            desc: 'Manage your tags',                          trainer: 'both', run: () => openTagModal() },
+    random:           { label: 'Random',          desc: 'Open a weighted-random cluster',            trainer: 'both', run: () => openRandomCluster() },
+    'random untagged': { label: 'Random Untagged', desc: 'Random cluster with no tagged solutions',  trainer: 'both',
+        run: () => { const tagged = taggedClusterTitles(); openRandomCluster(title => !tagged.has(title), 'Every cluster has a tagged solution.'); } },
 };
 
 function openSearchResult(ix) {
