@@ -114,20 +114,20 @@ function _aeRowHtml(bi, ri, row) {
         ? `<span class="ae-bracket">&lt;</span><input class="ae-f ae-angle" data-bi="${bi}" data-ri="${ri}" data-f="angle" value="${_aeEsc(row.angle)}" placeholder="angle" spellcheck="false" /><span class="ae-bracket">&gt;</span>`
         : '';
     return `
-    <div class="ae-gap" data-bi="${bi}" data-at="${ri}" title="Add alg here"><span class="ae-gap-plus">+</span></div>
+    <div class="ae-gap" data-bi="${bi}" data-at="${ri}" data-tip="Add alg here"><span class="ae-gap-plus">+</span></div>
     <div class="ae-row" data-bi="${bi}" data-ri="${ri}">
-        <span class="ae-grip" data-drag="row" title="Drag to reorder">${AE_GRIP_SVG}</span>
+        <span class="ae-grip" data-drag="row" data-tip="Drag to reorder">${AE_GRIP_SVG}</span>
         <input class="ae-f ae-case" data-bi="${bi}" data-ri="${ri}" data-f="case" value="${caseFull}" placeholder="case" spellcheck="false" />
         ${angle}
         <input class="ae-f ae-notation" data-bi="${bi}" data-ri="${ri}" data-f="notation" value="${_aeEsc(row.notation)}" placeholder="notation" spellcheck="false" />
-        <button class="ae-del-alg" data-bi="${bi}" data-ri="${ri}" title="Delete alg">${AE_X_SVG}</button>
+        <button class="ae-del-alg" data-bi="${bi}" data-ri="${ri}" data-tip="Delete alg">${AE_X_SVG}</button>
     </div>`;
 }
 
 function _aeBlockRowsHtml(bi, block) {
     const rows = block.rows.map((r, ri) => _aeRowHtml(bi, ri, r)).join('');
     // trailing gap so the user can append after the last alg
-    return `<div class="ae-rows">${rows}<div class="ae-gap" data-bi="${bi}" data-at="${block.rows.length}" title="Add alg here"><span class="ae-gap-plus">+</span></div></div>`;
+    return `<div class="ae-rows">${rows}<div class="ae-gap" data-bi="${bi}" data-at="${block.rows.length}" data-tip="Add alg here"><span class="ae-gap-plus">+</span></div></div>`;
 }
 
 function _aeBlockHtml(bi, block, withExplanations) {
@@ -162,11 +162,11 @@ function algEditRender(content, title) {
         html += `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />`;
         html += aeDraft.groups.map((g, gi) => {
             const isNew   = /^new\d+$/.test(g.id);
-            const resetBtn = `<button class="ae-reset" data-gi="${gi}" title="${isNew ? 'Delete group' : 'Reset to default'}">${isNew ? AE_TRASH_SVG : AE_RESET_SVG}</button>`;
+            const resetBtn = `<button class="ae-reset" data-gi="${gi}" data-tip="${isNew ? 'Delete group' : 'Reset to default'}">${isNew ? AE_TRASH_SVG : AE_RESET_SVG}</button>`;
             const blocks  = g.blocks.map((b, bi) => _aeBlockHtml(bi, b, true)).join('');
             return `<div class="ae-group" data-gi="${gi}">
                 <div class="ae-group-head">
-                    <span class="ae-grip" data-drag="group" data-gi="${gi}" title="Drag to reorder">${AE_GRIP_SVG}</span>
+                    <span class="ae-grip" data-drag="group" data-gi="${gi}" data-tip="Drag to reorder">${AE_GRIP_SVG}</span>
                     <input class="ae-f ae-overview" data-gi="${gi}" data-f="overview" value="${_aeEsc(g.overview)}" placeholder="Solution overview" />
                     <input class="ae-f ae-slices" data-gi="${gi}" data-f="slices" value="${_aeEsc(g.slices)}" placeholder="#" />
                     ${resetBtn}
@@ -179,7 +179,7 @@ function algEditRender(content, title) {
         // Single-block source: OBL flat matt (distinction + explanations) or a
         // sheet source. The whole source has one Reset.
         const isMatt = aeSource === 'matt';
-        const reset  = `<button class="ae-reset" data-reset-source="1" title="Reset to default">${AE_RESET_SVG}</button>`;
+        const reset  = `<button class="ae-reset" data-reset-source="1" data-tip="Reset to default">${AE_RESET_SVG}</button>`;
         const distinction = isMatt
             ? `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />` : '';
         html += distinction +

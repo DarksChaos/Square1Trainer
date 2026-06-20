@@ -45,7 +45,7 @@ function getFreqSet(filterStr) {
     const freq = parseInt(freqStr, 10);
     for (let pbl of pblPossible) {
         const n = pblName(pbl);
-        if (pblGetWeight(n) * pblGetCaseCount(pbl) === freq) result.add(n);
+        if (squan.getWeight(n) * squan.getPBLCaseCount(pbl) === freq) result.add(n);
     }
     return result;
 }

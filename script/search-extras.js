@@ -52,7 +52,7 @@ function renderTagView() {
             `<span class="stv-title">` +
                 `<span class="search-result-swatch" style="--tag-color:${escapeHtml(tag.color)}"></span>` +
                 `${escapeHtml(tag.name)}</span>` +
-            `<button class="stv-tagsel" title="Bulk re-tag these">${UNIT_TAG_SVG}<span>Tags</span></button>` +
+            `<button class="stv-tagsel" data-tip="Bulk re-tag these">${UNIT_TAG_SVG}<span>Tags</span></button>` +
         `</div>`;
 
     const body = clusters.length
@@ -277,7 +277,7 @@ function _slvGoReference(cell) {
 
 // Edit a case (Select mode), updating just the tapped cell.
 function _slvEditCell(cell) {
-    if (_slvDefault) { showSuccess("Default lists can’t be edited.", 1200); return; }
+    if (_slvDefault) { showError("Default lists can’t be edited.", 1200); return; }
     if (trainerMode === 'obl') {
         const id = cell.dataset.id;
         const arr = _slvList[oblUsingSpe];

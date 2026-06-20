@@ -150,7 +150,7 @@ function hmGridHtml(plls, slices) {
 }
 
 function hmTagBarHtml() {
-    return `<button class="hm-tag-btn" title="Filter by tags">${UNIT_TAG_SVG}<span>Tags</span></button>`;
+    return `<button class="hm-tag-btn" data-tip="Filter by tags">${UNIT_TAG_SVG}<span>Tags</span></button>`;
 }
 
 // Fills only the grids (used on first render and on tag-filter changes).

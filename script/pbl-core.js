@@ -401,7 +401,7 @@ function pblSelect(s) {
         // are distributed evenly instead of stacking separately.
         pblRemaining = pblRemaining.filter(r => r.slice(0, -1) !== base);
         const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
-        const count = pblEachCase * (pblWeight ? pblGetWeight(base) : 1);
+        const count = pblEachCase * (pblWeight ? squan.getWeight(base) : 1);
         // If a case was already spliced this cycle and it belongs to this base,
         // that slot is already "in use" on screen — don't add it back.
         const alreadyConsumed = pblCaseSpliced && pblCurrentCase.slice(0, -1) === base ? 1 : 0;
@@ -436,16 +436,6 @@ function pblDeselect(s) {
 
 // ─── PBL WEIGHTS & EACH-CASE ─────────────────────────────────────────────────
 
-function pblGetWeight(pbl) {
-    return squan.getWeight(pbl);
-}
-
-// pblGetCaseCount: used by pbl-filter.js to compute freq = weight × caseCount.
-// pbl is a [top, bottom] array (as stored in pblPossible).
-function pblGetCaseCount(pbl) {
-    return squan.getPBLCaseCount(pbl);
-}
-
 // pblGetOptimal: optimal slicecount for a case like "Al/Ul", reversing the
 // pblOptimal compression — try the alphabetically-sorted family, then the case
 // itself, then its mirror. Throws if none are present.
@@ -470,7 +460,7 @@ function pblRefillRemaining() {
         if (!seenBases.has(base)) { seenBases.add(base); dedupedBases.push(base); }
     }
     pblRemaining = dedupedBases.flatMap(base => {
-        const count    = pblEachCase * (pblWeight ? pblGetWeight(base) : 1);
+        const count    = pblEachCase * (pblWeight ? squan.getWeight(base) : 1);
         const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
         return Array.from({ length: count }, () => base + suffixes[randInt(0, suffixes.length - 1)]);
     });

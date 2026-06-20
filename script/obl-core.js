@@ -260,25 +260,25 @@ function oblSelectTag(tagId, setSelection) {
 
 // ─── OBL LIST BUTTON HANDLERS ─────────────────────────────────────────────────
 
-function oblNewList() {
+async function oblNewList() {
     if (usingTimer()) return;
     if (oblSelectedCases[oblUsingSpe].length === 0) {
-        alert('Please select OBLs to create a list!'); return;
+        showError('Please select OBLs to create a list!'); return;
     }
-    let name = prompt('Name of your list:');
+    let name = await appPrompt('Name of your list:', { title: 'New list', placeholder: 'List name' });
     if (!name) return;
     name = name.trim();
     if (!name || !validName(name)) {
-        alert('Please enter a valid name (only letters, numbers, slashes, and spaces)'); return;
+        showError('Please enter a valid name (only letters, numbers, slashes, and spaces)'); return;
     }
     if (Object.keys(oblDefaultLists).includes(name)) {
-        alert('A default list already has this name!'); return;
+        showError('A default list already has this name!'); return;
     }
     if (Object.keys(oblUserLists).includes(name)) {
-        alert('You already gave this name to a list.'); return;
+        showError('You already gave this name to a list.'); return;
     }
     if (document.getElementById(name)) {
-        alert("You can't give this name to a list (id taken)."); return;
+        showError("You can't give this name to a list (id taken)."); return;
     }
     const newList = [[], []];
     newList[oblUsingSpe] = [...oblSelectedCases[oblUsingSpe]];
@@ -290,16 +290,16 @@ function oblNewList() {
     showSuccess('Successfully created the list.');
 }
 
-function oblOverwriteList() {
+async function oblOverwriteList() {
     if (usingTimer()) return;
     if (highlightedList == null) return;
     if (Object.keys(oblDefaultLists).includes(highlightedList)) {
-        alert('You cannot overwrite a default list.'); return;
+        showError('You cannot overwrite a default list.'); return;
     }
     if (oblSelectedCases[oblUsingSpe].length === 0) {
-        alert('Please select OBLs to overwrite the list!'); return;
+        showError('Please select OBLs to overwrite the list!'); return;
     }
-    if (confirm('You are about to overwrite list ' + highlightedList)) {
+    if (await appConfirm(`Overwrite list “${highlightedList}” with the current selection?`, { title: 'Overwrite list', okText: 'Overwrite', danger: true })) {
         const newList = [[], []];
         newList[oblUsingSpe] = [...oblSelectedCases[oblUsingSpe]];
         if (oblUsingSpe) newList[0] = getNonSpeList(newList[1]);
@@ -313,13 +313,13 @@ function oblOverwriteList() {
     }
 }
 
-function oblDeleteList() {
+async function oblDeleteList() {
     if (highlightedList == null) return;
     if (Object.keys(oblDefaultLists).includes(highlightedList)) {
-        alert('You cannot delete a default list.'); return;
+        showError('You cannot delete a default list.'); return;
     }
     if (Object.keys(oblUserLists).includes(highlightedList)) {
-        if (confirm('You are about to delete list ' + highlightedList)) {
+        if (await appConfirm(`Delete list “${highlightedList}”?`, { title: 'Delete list', okText: 'Delete', danger: true })) {
             delete oblUserLists[highlightedList];
             highlightedList = null;
             oblAddUserLists();
@@ -327,7 +327,7 @@ function oblDeleteList() {
         }
         return;
     }
-    alert('Error: list not found.');
+    showError('Error: list not found.');
 }
 
 function oblLoadSelected() {

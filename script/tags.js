@@ -130,12 +130,12 @@ function renderTagList() {
 
     list.innerHTML = tags.map((t) => `
         <div class="tag-row" data-id="${escapeHtml(t.id)}">
-            <span class="tag-drag" title="Drag to reorder">
+            <span class="tag-drag" data-tip="Drag to reorder">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
             </span>
-            <button class="tag-color-dot" data-id="${escapeHtml(t.id)}" style="--tag-color:${escapeHtml(t.color)}" title="Change color"></button>
+            <button class="tag-color-dot" data-id="${escapeHtml(t.id)}" style="--tag-color:${escapeHtml(t.color)}" data-tip="Change color"></button>
             <input class="tag-name-input" data-id="${escapeHtml(t.id)}" value="${escapeHtml(t.name)}" maxlength="24" spellcheck="false" />
-            <button class="tag-del-btn" data-id="${escapeHtml(t.id)}" title="Delete tag">✕</button>
+            <button class="tag-del-btn" data-id="${escapeHtml(t.id)}" data-tip="Delete tag">✕</button>
         </div>
     `).join('');
 
@@ -195,7 +195,7 @@ function openColorPopover(dotEl, tagId) {
     pop.innerHTML =
         '<div class="tag-swatches">' +
         TAG_PALETTE.map(c =>
-            `<button class="tag-swatch" data-color="${c}" style="--tag-color:${c}" title="${c}"></button>`
+            `<button class="tag-swatch" data-color="${c}" style="--tag-color:${c}" data-tip="${c}"></button>`
         ).join('') +
         '</div>' +
         '<label class="tag-custom-color">Custom<input type="color" class="tag-color-input" /></label>';

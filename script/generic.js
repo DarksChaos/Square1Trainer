@@ -138,9 +138,17 @@ function updateColors(hue) {
 let _successTimer = null;
 let _hideTimer    = null;
 
-function showSuccess(message = "Done!", duration = 2000) {
+// Per-type icon for the toast (success ✓, error ✕, info ℹ).
+const TOAST_ICONS = {
+    success: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.25C6.61522 2.25 2.25 6.61522 2.25 12C2.25 17.3848 6.61522 21.75 12 21.75C17.3848 21.75 21.75 17.3848 21.75 12C21.75 6.61522 17.3848 2.25 12 2.25ZM16.5303 9.96967C16.8232 10.2626 16.8232 10.7374 16.5303 11.0303L11.5303 16.0303C11.2374 16.3232 10.7626 16.3232 10.4697 16.0303L7.46967 13.0303C7.17678 12.7374 7.17678 12.2626 7.46967 11.9697C7.76256 11.6768 8.23744 11.6768 8.53033 11.9697L11 14.4393L15.4697 9.96967C15.7626 9.67678 16.2374 9.67678 16.5303 9.96967Z" fill="currentColor"/></svg>`,
+    error:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.25C6.61522 2.25 2.25 6.61522 2.25 12C2.25 17.3848 6.61522 21.75 12 21.75C17.3848 21.75 21.75 17.3848 21.75 12C21.75 6.61522 17.3848 2.25 12 2.25ZM9.53 8.47a.75.75 0 0 0-1.06 1.06L10.94 12l-2.47 2.47a.75.75 0 1 0 1.06 1.06L12 13.06l2.47 2.47a.75.75 0 1 0 1.06-1.06L13.06 12l2.47-2.47a.75.75 0 0 0-1.06-1.06L12 10.94 9.53 8.47Z" fill="currentColor"/></svg>`,
+    info:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.25C6.61522 2.25 2.25 6.61522 2.25 12C2.25 17.3848 6.61522 21.75 12 21.75C17.3848 21.75 21.75 17.3848 21.75 12C21.75 6.61522 17.3848 2.25 12 2.25ZM12 7a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-.75 3.5a.75.75 0 0 1 1.5 0v6a.75.75 0 0 1-1.5 0v-6Z" fill="currentColor"/></svg>`,
+};
+
+// Transient toast. `type` ('success' | 'error' | 'info') sets the colour + icon.
+function showToast(message, type = 'success', duration = 2000) {
     const toast = document.getElementById("success-toast");
-    const box   = toast.querySelector('.success-box');
+    const box   = document.getElementById("toast-box");
 
     // Cancel any pending dismiss or fade-out completion.
     if (_successTimer) { clearTimeout(_successTimer); _successTimer = null; }
@@ -149,6 +157,8 @@ function showSuccess(message = "Done!", duration = 2000) {
     // Stop any fade-out, ensure visible.
     toast.classList.remove("fading");
     toast.style.display = "flex";
+    box.className = 'success-box toast-' + type;
+    document.getElementById("toast-icon").innerHTML = TOAST_ICONS[type] || TOAST_ICONS.success;
     document.getElementById("success-message").textContent = message;
 
     // Restart the entry animation directly on the box element.
@@ -159,6 +169,10 @@ function showSuccess(message = "Done!", duration = 2000) {
 
     _successTimer = setTimeout(hideSuccess, duration);
 }
+
+function showSuccess(message = "Done!", duration = 2000) { showToast(message, 'success', duration); }
+function showError(message, duration = 2400)             { showToast(message, 'error',   duration); }
+function showInfo(message,  duration = 2200)             { showToast(message, 'info',    duration); }
 
 function hideSuccess() {
     _successTimer = null; // clear reference before the async cleanup
@@ -418,7 +432,7 @@ function updateToggle() {
     else                              state = 'all';
     const MAX = 11;
     const display = state.length > MAX ? state.slice(0, MAX - 1) + '…' : state;
-    showToggleEl.title = `Showing: ${state}`;
+    showToggleEl.setAttribute('data-tip', `Showing: ${state}`);
     showToggleEl.innerHTML =
         `<span style="font-size:0.65em;opacity:0.8;font-weight:normal;letter-spacing:0.05em">SHOWING:</span>` +
         `<span style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${display}</span>`;
@@ -1345,7 +1359,7 @@ window.addEventListener("keydown", (e) => {
                         oblPreviouslySelected = null;
                         oblRestoreSelection(undoSnap);
                     }
-                    showSuccess("Undo", 500);
+                    showInfo("Undo", 500);
                     return;
                 }
 
@@ -1363,7 +1377,7 @@ window.addEventListener("keydown", (e) => {
                         oblRedoSelected       = null;
                         oblRestoreSelection(redoSnap);
                     }
-                    showSuccess("Redo", 500);
+                    showInfo("Redo", 500);
                     return;
                 }
             }
@@ -1511,7 +1525,7 @@ fileEl.addEventListener("change", (e) => {
             ]) {
                 if (field in jsonData && jsonData[field] != null) store.setItem(key, jsonData[field]);
             }
-            if (outdated) alert("File formatting is outdated, re-export recommended.");
+            if (outdated) showInfo("File formatting is outdated, re-export recommended.");
             pblLoadStorage();
             // Always reload OBL in-memory state regardless of current trainer mode,
             // so uploading either JSON works from either trainer without switching first.
@@ -1536,31 +1550,31 @@ fileEl.addEventListener("change", (e) => {
 
 // ─── LIST POPUP BUTTON LISTENERS (shared, trainer-aware) ─────────────────────
 
-newListEl.addEventListener("click", () => {
+newListEl.addEventListener("click", async () => {
     if (trainerMode === 'obl') { oblNewList(); return; }
     if (usingTimer()) return;
-    if (pblSelected.length === 0) { alert("Please select PBLs to create a list!"); return; }
-    let name = prompt("Name of your list:");
+    if (pblSelected.length === 0) { showError("Please select PBLs to create a list!"); return; }
+    let name = await appPrompt("Name of your list:", { title: "New list", placeholder: "List name" });
     if (!name) return;
     name = name.trim();
-    if (!name || !validName(name)) { alert("Please enter a valid name (only letters, numbers, slashes, and spaces)"); return; }
-    if (Object.keys(pblDefaultLists).includes(name)) { alert("A default list already has this name!"); return; }
-    if (Object.keys(pblUserLists).includes(name))    { alert("You already gave this name to a list."); return; }
-    if (document.getElementById(name))               { alert("You can't give this name to a list (id taken)."); return; }
+    if (!name || !validName(name)) { showError("Please enter a valid name (only letters, numbers, slashes, and spaces)"); return; }
+    if (Object.keys(pblDefaultLists).includes(name)) { showError("A default list already has this name!"); return; }
+    if (Object.keys(pblUserLists).includes(name))    { showError("You already gave this name to a list."); return; }
+    if (document.getElementById(name))               { showError("You can't give this name to a list (id taken)."); return; }
     pblUserLists[name] = [...pblSelected];
     pblAddUserLists();
     setHighlighted(name);
     showSuccess("Successfully created the list.");
 });
 
-overwriteListEl.addEventListener("click", () => {
-    if (highlightedTagId() != null) { alert("Tags can't be overwritten here — edit them in the Tags menu."); return; }
+overwriteListEl.addEventListener("click", async () => {
+    if (highlightedTagId() != null) { showError("Tags can't be overwritten here — edit them in the Tags menu."); return; }
     if (trainerMode === 'obl') { oblOverwriteList(); return; }
     if (usingTimer()) return;
     if (highlightedList == null) return;
-    if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot overwrite a default list."); return; }
-    if (pblSelected.length === 0) { alert("Please select PBLs to overwrite the list!"); return; }
-    if (confirm("You are about to overwrite list " + highlightedList)) {
+    if (Object.keys(pblDefaultLists).includes(highlightedList)) { showError("You cannot overwrite a default list."); return; }
+    if (pblSelected.length === 0) { showError("Please select PBLs to overwrite the list!"); return; }
+    if (await appConfirm(`Overwrite list “${highlightedList}” with the current selection?`, { title: "Overwrite list", okText: "Overwrite", danger: true })) {
         pblUserLists[highlightedList] = [...pblSelected];
         pblAddUserLists();
         pblSelectList(highlightedList, false);
@@ -1578,18 +1592,18 @@ selectListEl.addEventListener("click", () => {
         showSuccess("Viewing the tag.", 1000);
         return;
     }
-    if (highlightedList == null) { alert("Please click on a list."); return; }
+    if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { oblSelectList(highlightedList, false); }
     else                       { pblSelectList(highlightedList, false); }
     closePopup();
     showSuccess("Selected the list.", 1000);
 });
 
-deleteListEl.addEventListener("click", () => {
+deleteListEl.addEventListener("click", async () => {
     const tagId = highlightedTagId();
     if (tagId != null) {
         const t = getTags().find(x => x.id === tagId);
-        if (t && confirm('Delete tag "' + t.name + '"? This removes it everywhere.')) {
+        if (t && await appConfirm(`Delete tag “${t.name}”? This removes it everywhere.`, { title: "Delete tag", okText: "Delete", danger: true })) {
             deleteTag(tagId);
             highlightedList = null;
             renderTagMenu();
@@ -1599,9 +1613,9 @@ deleteListEl.addEventListener("click", () => {
     }
     if (trainerMode === 'obl') { oblDeleteList(); return; }
     if (highlightedList == null) return;
-    if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot delete a default list."); return; }
+    if (Object.keys(pblDefaultLists).includes(highlightedList)) { showError("You cannot delete a default list."); return; }
     if (Object.keys(pblUserLists).includes(highlightedList)) {
-        if (confirm("You are about to delete list " + highlightedList)) {
+        if (await appConfirm(`Delete list “${highlightedList}”?`, { title: "Delete list", okText: "Delete", danger: true })) {
             delete pblUserLists[highlightedList];
             highlightedList = null;
             pblAddUserLists();
@@ -1609,7 +1623,7 @@ deleteListEl.addEventListener("click", () => {
         }
         return;
     }
-    alert("Error: list not found.");
+    showError("Error: list not found.");
 });
 
 trainListEl.addEventListener("click", () => {
@@ -1620,7 +1634,7 @@ trainListEl.addEventListener("click", () => {
         showSuccess("Training the tag.", 1000);
         return;
     }
-    if (highlightedList == null) { alert("Please click on a list."); return; }
+    if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { oblSelectList(highlightedList, true); }
     else                       { pblSelectList(highlightedList, true); }
     closePopup();

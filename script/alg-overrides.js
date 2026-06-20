@@ -158,10 +158,10 @@ function unitTagsInner(ref) {
     const tags = getTags();
     const chips = tagsForUnit(ref).map(id => {
         const t = tags.find(x => x.id === id);
-        return t ? `<span class="unit-tag-chip" style="--tag-color:${escapeHtml(t.color)}" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>` : '';
+        return t ? `<span class="unit-tag-chip" style="--tag-color:${escapeHtml(t.color)}" data-tip="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>` : '';
     }).join('');
     return `<span class="unit-tag-list">${chips}</span>` +
-        `<button class="unit-tag-add" data-ref="${escapeHtml(ref)}" title="Tags">${UNIT_TAG_SVG}</button>`;
+        `<button class="unit-tag-add" data-ref="${escapeHtml(ref)}" data-tip="Tags">${UNIT_TAG_SVG}</button>`;
 }
 
 // Full tag control for a unit (emitted by the read formatters).
