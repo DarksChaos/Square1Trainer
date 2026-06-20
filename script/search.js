@@ -137,9 +137,18 @@ function hmGridHtml(plls, slices) {
     const color = hmColorFn(list);
     const fams = hmFamilyGroups(plls);
 
-    // minmax(0,1fr) lets the columns shrink to fit; same-family PLLs share one
-    // header that spans their columns/rows, so cells can be narrow.
-    let html = `<div class="hm-table" style="grid-template-columns:auto repeat(${plls.length}, minmax(0,1fr))">`;
+    // A family whose key is more than one character needs a wider column so the
+    // key fits at full size. Map each PLL to whether its family is "wide".
+    const wideFam = {};
+    for (const g of fams) for (const m of g.members) wideFam[m] = g.fam.length >= 2;
+
+    // Track minimum 0 ⇒ columns always shrink to fit the panel (never overflow).
+    // Wide-family columns get a larger fraction; every other column shares 1fr
+    // equally. Wide-column cells drop the square aspect-ratio and stretch to the
+    // (square, normal-cell-driven) row height, so they're wider rectangles without
+    // forcing gaps — normal columns, and the whole evenPLL grid, stay square.
+    const cols = plls.map(p => wideFam[p] ? 'minmax(0,1.8fr)' : 'minmax(0,1fr)').join(' ');
+    let html = `<div class="hm-table" style="grid-template-columns:auto ${cols}">`;
     html += `<div class="hm-corner"></div>`;
     for (const g of fams)
         html += `<div class="hm-head hm-colhead" style="grid-column:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
@@ -149,9 +158,10 @@ function hmGridHtml(plls, slices) {
                 html += `<div class="hm-head hm-rowhead" style="grid-row:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
             for (const c of plls) {
                 const cn = r + '/' + c, v = vals[cn];
+                const wcls = wideFam[c] ? ' hm-wide-col' : '';
                 html += v == null
-                    ? `<div class="hm-cell hm-gray" data-case="${escapeHtml(cn)}"></div>`
-                    : `<div class="hm-cell" data-case="${escapeHtml(cn)}" style="background:${color(v)}"></div>`;
+                    ? `<div class="hm-cell hm-gray${wcls}" data-case="${escapeHtml(cn)}"></div>`
+                    : `<div class="hm-cell${wcls}" data-case="${escapeHtml(cn)}" style="background:${color(v)}"></div>`;
             }
         });
     }
@@ -236,6 +246,11 @@ hmEl.addEventListener('pointerover', e => {
 hmEl.addEventListener('pointerout', e => {
     if (e.pointerType !== 'mouse') return;
     if (e.target.closest('.hm-cell')) hmHideTip();
+});
+
+// A tap anywhere that isn't a heatmap cell dismisses the (touch) tooltip.
+document.addEventListener('pointerdown', e => {
+    if (hmTapCase && !e.target.closest('.hm-cell')) { hmHideTip(); hmTapCase = null; }
 });
 
 // ── Tag-filter popover ───────────────────────────────────────────────────────

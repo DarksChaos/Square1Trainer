@@ -367,6 +367,16 @@ function oblDeselectAll() {
     updateRemainingCount();
 }
 
+// Deselect only the currently visible cases (counterpart to oblSelectAll, which
+// likewise operates on visible cases). Used when a subset is being shown.
+function oblDeselectThese() {
+    if (usingTimer()) return;
+    document.querySelectorAll('.case').forEach(caseEl => {
+        if (!caseEl.classList.contains('hidden')) oblDeselect(caseEl.id);
+    });
+    oblSaveSelected();
+}
+
 // ─── OBL GRID ─────────────────────────────────────────────────────────────────
 
 function oblRestoreGrid() {

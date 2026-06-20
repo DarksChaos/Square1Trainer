@@ -1701,14 +1701,20 @@ button {
     border: 1px solid #444;
     border-radius: 6px;
     overflow: hidden;
+    /* Same as an empty cell, so any sub-pixel gaps between grid tracks (from
+       fractional 1fr widths at small/mobile sizes) blend into the sea of colour
+       instead of showing the dark page background as horizontal bands. */
+    background: #565656;
 }
 
 .hm-head {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 4px;
+    padding: 2px 1px;            /* tight sides keep each column's min-content small */
     font-size: 0.66rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
     font-weight: bold;
     color: #cfcfcf;
     background: #2c2c2c;
@@ -1723,8 +1729,13 @@ button {
 
 .hm-cell {
     aspect-ratio: 1;
+    min-width: 0;   /* don't let an aspect-ratio cell impose a min track width */
     cursor: pointer;
 }
+/* Cells in a wider (multi-char) family column: keep the square normal cells
+   driving the row height, and just stretch to fill it — wider, same height, so no
+   gaps appear and only these columns are non-square. */
+.hm-cell.hm-wide-col { aspect-ratio: auto; height: auto; }
 .hm-gray { background: #565656; }
 
 .hm-tip {
@@ -1748,7 +1759,9 @@ button {
 
 @media screen and (max-width: 1080px) {
     .hm-grids { flex-direction: column; align-items: center; }
-    .hm-grid  { max-width: 560px; width: 100%; }
+    /* flex: none so the 480px basis (a width hint for the row layout) doesn't become
+       a forced height in this column layout — each grid is just as tall as its table. */
+    .hm-grid  { flex: none; max-width: 560px; width: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

@@ -434,14 +434,24 @@ function updateToggle() {
     showToggleEl.innerHTML =
         `<span style="font-size:0.65em;opacity:0.8;font-weight:normal;letter-spacing:0.05em">SHOWING:</span>` +
         `<span style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${display}</span>`;
+    // The select/deselect buttons act on "these" whenever a subset is shown.
+    updateSelectBtn();
+    updateDeselectBtn();
+}
+
+// True when the grid is showing only a subset of cases — either a live filter is
+// applied, or the view is anything other than "all". In that state the
+// select/deselect buttons operate on the visible cases ("these") rather than all.
+function isShowingSubset() {
+    return filterInputEl.value.trim() !== '' || showMode !== 'all';
 }
 
 function updateSelectBtn() {
-    selectAllEl.textContent = filterInputEl.value.trim() !== '' ? 'Select these' : 'Select ALL';
+    selectAllEl.textContent = isShowingSubset() ? 'Select these' : 'Select ALL';
 }
 
 function updateDeselectBtn() {
-    deselectAllEl.textContent = filterInputEl.value.trim() !== '' ? 'Deselect these' : 'Deselect ALL';
+    deselectAllEl.textContent = isShowingSubset() ? 'Deselect these' : 'Deselect ALL';
 }
 
 // showAll / showSelected: shared entry points that delegate to the active trainer.
@@ -705,21 +715,21 @@ filterInputEl.addEventListener("input", () => {
 });
 
 selectAllEl.addEventListener("click", () => {
-    if (trainerMode === 'obl') { oblSelectAll(); return; }
-    if (filterInputEl.value.trim() !== '') pblSelectThese(false);
+    if (trainerMode === 'obl') { oblSelectAll(); return; } // already operates on visible cases
+    if (isShowingSubset()) pblSelectThese(false);
     else pblSelectAll(false);
 });
 
 selectAllEl.addEventListener("contextmenu", (e) => {
     e.preventDefault();
     if (trainerMode === 'obl') { oblDeselectAll(); return; }
-    if (filterInputEl.value.trim() !== '') pblSelectThese(true);
+    if (isShowingSubset()) pblSelectThese(true);
     else pblSelectAll(true);
 });
 
 deselectAllEl.addEventListener("click", () => {
-    if (trainerMode === 'obl') { oblDeselectAll(); return; }
-    if (filterInputEl.value.trim() !== '') pblDeselectThese();
+    if (trainerMode === 'obl') { isShowingSubset() ? oblDeselectThese() : oblDeselectAll(); return; }
+    if (isShowingSubset()) pblDeselectThese();
     else pblDeselectAll();
 });
 
