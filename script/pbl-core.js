@@ -121,8 +121,8 @@ function pblSyncSettingsDisabled() {
     const wRow = weightEl.closest('.settings-row');
     if (wRow) { wRow.classList.toggle('settings-disabled', eachOn);   weightEl.disabled     = eachOn; }
 
-    // eachCaseEl lives in the sidebar (.checkbox-wrapper), not .settings-row,
-    // so .disabled must be set unconditionally regardless of which ancestor is found.
+    // eachCaseEl lives in Settings (.settings-row); set .disabled unconditionally
+    // and toggle whichever wrapper ancestor is present.
     eachCaseEl.disabled = weightOn;
     const eachWrapper = eachCaseEl.closest('.checkbox-wrapper');
     if (eachWrapper) eachWrapper.classList.toggle('settings-disabled', weightOn);

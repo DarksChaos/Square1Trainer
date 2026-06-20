@@ -34,22 +34,26 @@ html {
 .navbar {
     background-color: #1f1f1f;
     color: #ffffff;
-    padding: 0.5rem;
+    padding: 0.7rem 1rem;
     font-size: 1.2rem;
     border-bottom: 2px solid #333;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     position: relative;
 }
 
-.nav-left,
-.nav-right {
+/* nav-left holds the logo (left-aligned); nav-spacer mirrors it so the title
+   stays centered until the logo grows wide enough to push it right. The `gap`
+   guarantees a minimum space between logo and title. */
+.nav-left {
+    flex: 1 1 0;
     display: flex;
     align-items: center;
     gap: 0.3rem;
-    position: relative;
-    z-index: 1;
+}
+.nav-spacer {
+    flex: 1 1 0;
 }
 
 /* Squango brand title in navbar */
@@ -82,9 +86,8 @@ html {
 }
 
 .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: 0 0 auto;
+    white-space: nowrap;
     pointer-events: auto;
     cursor: pointer;
     user-select: none;
@@ -388,9 +391,9 @@ button {
 }
 
 .popup.open {
-    background-color: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     z-index: 999;
 }
 
@@ -923,10 +926,6 @@ button {
 }
 
 @media screen and (max-width: 900px) {
-    .sidebar {
-        width: 30%;
-    }
-
     /* Keyboard shortcuts in settings labels aren't useful on touch devices */
     .settings-checkbox span>b {
         display: none;
@@ -937,31 +936,12 @@ button {
         height: 100%;
     }
 
-    .sidebar {
-        width: 35%;
-    }
-
-    .nav-center {
-        position: static;
-        transform: none;
-        pointer-events: auto;
-    }
-
     .hidden-mobile {
         display: none;
     }
 
     .visible-mobile {
         display: block;
-    }
-
-    .mobilebar {
-        display: flex;
-    }
-
-    .full-width-mobile {
-        width: 100%;
-        border: 0;
     }
 
     .selection-grid {
@@ -979,47 +959,19 @@ button {
     }
 }
 
-@media screen and (max-width: 500px) {
-    .navbar {
-        display: grid;
-        grid-template-areas:
-            "center"
-            "buttons";
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto;
-        row-gap: 0.5rem;
-        justify-items: center;
-        align-items: center;
-    }
+/* The flex push (.nav-left / .nav-spacer) keeps the logo + title on one line down
+   to ~290px at full size. Only below that — once pushing can no longer make room —
+   do we shrink the type as a last resort. */
+@media screen and (max-width: 310px) {
+    .navbar  { gap: 0.6rem; padding: 0.55rem 0.7rem; }
+    .squango { font-size: 1.05rem; }
+    .nav-center { font-size: 1rem; }
+}
 
-    .nav-center {
-        grid-area: center;
-        width: 100%;
-        text-align: center;
-        position: static;
-        transform: none;
-    }
-
-    .nav-left {
-        grid-area: buttons;
-        display: flex;
-        gap: 0.3rem;
-        justify-content: flex-start;
-        margin-right: auto;
-    }
-
-    .nav-right {
-        grid-area: buttons;
-        display: flex;
-        gap: 0.3rem;
-        justify-content: flex-end;
-        margin-left: auto;
-    }
-
-    .nav-left button,
-    .nav-right button {
-        flex-shrink: 0;
-    }
+@media screen and (max-width: 270px) {
+    .navbar  { gap: 0.4rem; padding: 0.5rem 0.55rem; }
+    .squango { font-size: 0.85rem; }
+    .nav-center { font-size: 0.8rem; }
 }
 
 @media screen and (max-width: 290px) {
@@ -1285,17 +1237,19 @@ button {
 }
 .rail:not(.collapsed) { width: 210px; }
 
+/* Buttons keep a constant left padding in both states so the icon never shifts
+   horizontally while the rail width animates (no "teleport"). */
 .rail-toggle {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     height: 44px;
+    padding: 0 11px;
     flex-shrink: 0;
     background: transparent;
     border: 1px solid transparent;
     color: #cfcfcf;
 }
-.rail:not(.collapsed) .rail-toggle { justify-content: flex-start; padding-left: 11px; }
 .rail-toggle:hover { background: rgba(255, 255, 255, 0.08); border-color: #444; color: #fff; }
 
 .rail-actions { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 1.4rem; }
@@ -1304,6 +1258,7 @@ button {
 .rail-btn {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 12px;
     height: 44px;
     padding: 0 11px;
@@ -1316,10 +1271,9 @@ button {
 .rail-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: #444; color: #fff; }
 .rail-btn-icon  { display: flex; flex-shrink: 0; line-height: 0; }
 .rail-btn-label { font-size: 0.95rem; font-weight: 600; }
-.rail.collapsed .rail-btn       { justify-content: center; padding: 0; gap: 0; }
 .rail.collapsed .rail-btn-label { display: none; }
 
-/* Bottom bar — mobile only, shown via media query below */
+/* Bottom bar — mobile only (shown via the trailing media query) */
 .mobilebar {
     display: none;
     flex-shrink: 0;
@@ -1334,19 +1288,71 @@ button {
 .mobilebar .rail-btn { width: 48px; height: 48px; justify-content: center; padding: 0; gap: 0; }
 .mobilebar .rail-btn-label { display: none; }
 
-/* Case-selector modal body (the former sidebar) */
+/* Case-selector modal — matches the polished settings/help modal look. */
+.cases-popup-inner {
+    /* ~50vw on large screens, but allowed to grow toward 80vw as the screen
+       narrows so the case grid keeps breathing room (capped at 80vw). */
+    width: min(80vw, max(50vw, 560px));
+    height: auto !important;
+    max-height: 90vh;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #333;
+    box-shadow: 0 16px 56px rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    background-color: #1e1e1e;
+}
 .cases-body {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 0.75rem 1rem 1rem;
+    gap: 14px;
+    padding: 18px 24px 24px;
     box-sizing: border-box;
+}
+.cases-body .barflip-override-row { padding: 0; }
+.cases-body .filter-input {
+    border-radius: 10px;
+    padding: 11px 12px;
+    border: 1px solid #555;
+}
+.cases-body .selection-text {
+    margin: 0;
+    width: auto;
+    background: transparent;
+    font-size: 1.05rem;
+}
+.cases-body .selection-grid { padding: 0; gap: 10px; }
+.cases-body .selection-btn {
+    min-height: 44px;
+    border-radius: 10px;
+    border: 1px solid #555;
+    background-color: #2a2a2a;
+}
+.cases-body .selection-btn:hover {
+    background-color: var(--button-col);
+    border-color: var(--border-col);
 }
 .cases-body .pbl-grid {
     flex: 1;
     min-height: 0;
     max-height: none;
+    gap: 8px;
+    padding-top: 2px;
+}
+
+/* Desktop rail hidden on mobile; bottom bar shown. Placed after the base
+   .rail/.mobilebar rules so it wins on source order. */
+@media screen and (max-width: 900px) {
+    .rail      { display: none; }
+    .mobilebar { display: flex; }
+}
+
+/* Case-selector goes fullscreen only on genuinely small screens. */
+@media screen and (max-width: 600px) {
+    .cases-popup-inner { width: 100%; height: 100% !important; max-height: 100%; border-radius: 0; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1357,7 +1363,7 @@ button {
     position: fixed;
     inset: 0;
     z-index: 10000;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: flex-start;
     justify-content: center;
