@@ -397,6 +397,14 @@ button {
     z-index: 999;
 }
 
+/* A stacked (non-top) modal stays visible but drops its backdrop, so the
+   darken + blur never compound when several modals are open at once. */
+.popup.open.behind {
+    background-color: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
 .popup-inner {
     background-color: #2d2a2a;
     width: 50%;
@@ -525,6 +533,21 @@ button {
     max-width: 95dvw;
     height: auto !important;
     max-height: 90vh;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #333;
+    box-shadow: 0 16px 56px rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    background-color: #1e1e1e;
+}
+
+/* Manage-lists popup — same polished rounded look as settings/cases. Wide enough
+   for the whole footer to sit on one line on roomy screens. */
+.list-popup-inner {
+    width: min(92vw, 720px);
+    height: auto !important;
+    max-height: 85vh;
     border-radius: 18px;
     overflow: hidden;
     border: 1px solid #333;
@@ -931,11 +954,6 @@ button {
         display: none;
     }
 
-    .popup-inner {
-        width: 100%;
-        height: 100%;
-    }
-
     .hidden-mobile {
         display: none;
     }
@@ -947,13 +965,19 @@ button {
     .selection-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-
-    .help-popup-inner {
-        width: 90dvw;
-    }
 }
 
+/* Modals go properly fullscreen (width AND height) only on small screens. */
 @media screen and (max-width: 600px) {
+    .popup-inner {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        border: 0 !important;
+    }
+
     .selection-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1175,8 +1199,11 @@ button {
 }
 
 /* help modal on small screens */
+/* The footer keeps both button groups on one centered line when they fit; when
+   they don't, the groups wrap and each row stays centered (like mobile). */
 .list-buttons {
     flex-wrap: wrap;
+    justify-content: center;
     row-gap: 5px;
 }
 
@@ -1184,22 +1211,7 @@ button {
 .list-btn-group {
     display: flex;
     align-items: center;
-}
-
-/* Right group: pushed to the far right on desktop, wraps to its own row on small screens */
-.list-btn-group-right {
-    margin-left: auto;
-}
-
-/* On small screens when the groups stack, center both rows */
-@media (max-width: 480px) {
-    .list-buttons {
-        justify-content: center;
-    }
-    .list-btn-group-right {
-        margin-left: 0;
-        justify-content: center;
-    }
+    justify-content: center;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1350,9 +1362,19 @@ button {
     .mobilebar { display: flex; }
 }
 
-/* Case-selector goes fullscreen only on genuinely small screens. */
+/* Cases and help carry their own !important sizing defined after the generic
+   .popup-inner mobile rule, so they need explicit fullscreen overrides here
+   (placed last so they win on source order). */
 @media screen and (max-width: 600px) {
-    .cases-popup-inner { width: 100%; height: 100% !important; max-height: 100%; border-radius: 0; }
+    .cases-popup-inner,
+    .help-popup-inner {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        border: 0 !important;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

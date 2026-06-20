@@ -574,7 +574,12 @@ const SEARCH_ACTIONS = {
 function openSearchResult(ix) {
     const match = searchMatches[ix];
     if (!match) return;
-    if (match.kind === 'action') { closeSearch(); SEARCH_ACTIONS[match.action]?.run(); return; }
+    if (match.kind === 'action') {
+        closeOverlayForTransition();
+        SEARCH_ACTIONS[match.action]?.run();
+        abandonTransition();   // no-op if the action opened a replacement overlay
+        return;
+    }
     if (match.kind === 'tag')    { showTagInSearch(match.tagId); return; }
     if (match.kind === 'list')   { showListInSearch(match.name); return; }
     showClusterInSearch(match.title);
@@ -687,15 +692,17 @@ function applySearchClusterWidth(title) {
 
 function openSearch() {
     if (usingTimer()) return;
+    if (isSearchOpen) return;
     isSearchOpen = true;
     searchOverlayEl.style.display = "flex";
     searchInputEl.value = "";
     renderSearchResults();
     searchInputEl.focus();
+    pushOverlay({ el: searchOverlayEl, isPopup: false, close: closeSearchRaw });
 }
 
-function closeSearch(e) {
-    if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
+// Raw hide — runs from the overlay stack (no history side effects).
+function closeSearchRaw() {
     if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     closeUnitTagPopover();
     _stvCloseSelector();
@@ -705,8 +712,14 @@ function closeSearch(e) {
     searchInputEl.blur();
 }
 
+// Public close (backdrop onclick / programmatic) → single Back step.
+function closeSearch(e) {
+    if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
+    dismissTopOverlay();
+}
+
 function toggleSearch() {
-    if (isSearchOpen) closeSearch();
+    if (isSearchOpen) dismissTopOverlay();
     else openSearch();
 }
 
@@ -726,11 +739,12 @@ function openSearchHelp() {
     document.getElementById("search-help-content").innerHTML =
         SEARCH_HELP_CONTENT[trainerMode] || '';
     searchHelpModalEl.style.display = "flex";
+    pushOverlay({ el: searchHelpModalEl, isPopup: false, close: () => { searchHelpModalEl.style.display = "none"; } });
 }
 
 function closeSearchHelp(e) {
     if (e && e.target !== searchHelpModalEl) return;
-    searchHelpModalEl.style.display = "none";
+    dismissTopOverlay();
 }
 
 searchHelpBtnEl.addEventListener("click", openSearchHelp);
@@ -818,8 +832,8 @@ searchResultsEl.addEventListener("click", (e) => {
 searchInputEl.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
         e.preventDefault();
-        if (searchHelpModalEl.style.display === "flex") closeSearchHelp();
-        else closeSearch();
+        e.stopPropagation();   // don't let the window-level Esc also fire
+        dismissTopOverlay();
         return;
     }
     // While an alg reference is shown in the extension, leave the keys alone so

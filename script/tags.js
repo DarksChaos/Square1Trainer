@@ -171,15 +171,14 @@ function highlightedTagId() {
 
 function openTagModal() {
     renderTagList();
-    document.getElementById('tag-modal').style.display = 'flex';
-    isPopupOpen = true;
+    const el = document.getElementById('tag-modal');
+    el.style.display = 'flex';
+    pushOverlay({ el, isPopup: true, close: () => { closeColorPopover(); el.style.display = 'none'; } });
 }
 
 function closeTagModal(e) {
     if (e && e.target !== document.getElementById('tag-modal')) return; // backdrop only
-    closeColorPopover();
-    document.getElementById('tag-modal').style.display = 'none';
-    isPopupOpen = false;
+    dismissTopOverlay();
 }
 
 // ── Color picker popover ───────────────────────────────────────────────────
