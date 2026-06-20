@@ -770,505 +770,10 @@ toggleUiEl.addEventListener("click", () => {
     }
 });
 
-// ─── SPOTLIGHT SEARCH ─────────────────────────────────────────────────────────
-// Ctrl/Cmd+Space (or the navbar search button) opens a centered search bar.
-// It searches the active trainer's clusters by title, case name, and OBL legacy
-// name; the extension below the bar lists matches. ↑/↓ move the selection and
-// Enter opens the selected cluster's alg reference inline in the extension.
-// The "?" button opens a per-trainer help modal.
-
-const searchOverlayEl    = document.getElementById("search-overlay");
-const searchPanelEl      = document.querySelector("#search-overlay .search-panel");
-const searchInputEl      = document.getElementById("search-input");
-const searchExtensionEl  = document.getElementById("search-extension");
-const searchResultsEl    = document.getElementById("search-results");
-const searchClusterEl    = document.getElementById("search-cluster");
-const searchClusterContentEl = document.getElementById("search-cluster-content");
-const searchTagViewEl    = document.getElementById("search-tagview");
-const searchListViewEl   = document.getElementById("search-listview");
-const searchHelpBtnEl    = document.getElementById("search-help-btn");
-const searchHelpModalEl  = document.getElementById("search-help-modal");
-
-let isSearchOpen      = false;
-let searchMatches     = [];     // array of cluster titles currently shown
-let searchActiveIx    = -1;     // index into searchMatches of the highlighted row
-let searchInClusterView = false; // true while the extension shows an alg reference
-let searchClusterTitle  = null;  // cluster currently shown in the extension
-let searchEditMode      = false; // true while the alg reference is being edited
-let searchClusterWidth  = '';    // cached panel width (px) for the open cluster
-
-// Search index: per cluster, a title plus every "alias" the user might type to
-// reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
-const _searchIndexCache = { pbl: null, obl: null };
-
-function buildSearchIndex(mode) {
-    const out = [];
-
-    if (mode === 'pbl') {
-        for (const [title, data] of Object.entries(pblClusters)) {
-            const aliases = new Set([title]);
-            (data['case-list'] || []).forEach(c => {
-                aliases.add(c);
-                // also searchable via the ":" solved-face shorthand ("Al/-" ≡ "Al:")
-                if (c.endsWith('/-'))      aliases.add(c.slice(0, -2) + ':');
-                else if (c.startsWith('-/')) aliases.add(':' + c.slice(2));
-            });
-            out.push({ title, aliases: [...aliases] });
-        }
-        return out;
-    }
-
-    // OBL: case-list entries are short codes (e.g. "Uw/THw"). Add the short codes,
-    // their reverse-mapped legacy names ("right bunny/left thumb"), and the legacy
-    // verbose names from OBLtranslation (both non-specific and specific).
-    const rev = {}; // short code → legacy name
-    for (const [legacy, short] of Object.entries(SquanLib.NAMING)) rev[short] = legacy;
-
-    const byTitle = {};
-    for (const [title, data] of Object.entries(oblClusters)) {
-        const set = new Set([title]);
-        (data['case-list'] || []).forEach(code => {
-            set.add(code);
-            const [a, b] = code.split('/');
-            if (rev[a] && rev[b]) set.add(rev[a] + '/' + rev[b]);
-        });
-        byTitle[title] = set;
-    }
-
-    for (const nonSpe of Object.keys(OBLtranslation)) {
-        const title = oblFindCluster(nonSpe);
-        if (!title || !byTitle[title]) continue;
-        byTitle[title].add(nonSpe);
-        for (const spe of OBLtranslation[nonSpe]) {
-            const [a, b] = spe.split('/');
-            byTitle[title].add(spe);
-            byTitle[title].add(b + '/' + a); // mirrored specific name
-        }
-    }
-
-    for (const [title, set] of Object.entries(byTitle)) out.push({ title, aliases: [...set] });
-    return out;
-}
-
-function getSearchIndex() {
-    if (!_searchIndexCache[trainerMode]) _searchIndexCache[trainerMode] = buildSearchIndex(trainerMode);
-    return _searchIndexCache[trainerMode];
-}
-
-// Renders a cluster's alg reference for `title` into an arbitrary `content`
-// element. `onResize` is the callback the source tabs use to re-fit.
-// Returns true if the cluster existed and was rendered.
-function renderClusterInto(content, title, onResize = () => {}) {
-    const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
-    if (!clusters || !clusters[title]) return false;
-    const cluster  = effectiveCluster(title); // shipped data merged with user overrides
-
-    const SKIP       = new Set(['case-list', 'optimal-slicecount']);
-    const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const lastSource = trainerMode === 'pbl' ? pblLastClusterSource : oblLastClusterSource;
-    const active     = (lastSource && sources.includes(lastSource)) ? lastSource : sources[0] ?? 'matt';
-
-    content.scrollTop = 0;
-    if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active, content, onResize);
-    else                       oblRenderCluster(cluster, title, sources, active, content, onResize);
-    return true;
-}
-
-// Opens the alg reference for a cluster title in the search bar (the only place
-// alg references are shown — there is no separate modal). Used by scramble clicks
-// and search-result selection.
-function openAlgReference(title) {
-    if (!title) return;
-    if (!isSearchOpen) openSearch();
-    showClusterInSearch(title);
-}
-
+// ─── HTML ESCAPE ─────────────────────────────────────────────────────────────
 function escapeHtml(s) {
     return s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 }
-
-function highlightMatch(title, query) {
-    const safe = escapeHtml(title);
-    if (!query) return safe;
-    const i = title.toLowerCase().indexOf(query.toLowerCase());
-    if (i < 0) return safe;
-    return escapeHtml(title.slice(0, i)) +
-        '<mark>' + escapeHtml(title.slice(i, i + query.length)) + '</mark>' +
-        escapeHtml(title.slice(i + query.length));
-}
-
-function renderSearchResults() {
-    // Any change to the query returns the extension to plain-search mode.
-    if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
-    closeUnitTagPopover();
-    _stvCloseSelector();
-    searchInClusterView = false;
-    searchClusterTitle = null;
-    searchClusterEl.style.display = "none";
-    searchTagViewEl.style.display = "none";
-    searchListViewEl.style.display = "none";
-    searchResultsEl.style.display = "";
-    searchPanelEl.style.width = ""; // undo any cluster-view widening
-
-    const query = searchInputEl.value.trim();
-    if (!query) {
-        searchMatches  = [];
-        searchActiveIx = -1;
-        // Empty query in PBL shows the heatmaps; OBL shows nothing.
-        if (trainerMode === 'pbl') {
-            searchExtensionEl.style.display = "flex";
-            searchResultsEl.style.display = "none";
-            hmEl.style.display = "flex";
-            searchPanelEl.style.width = "min(1180px, 96vw)";
-            renderHeatmaps();
-        } else {
-            searchExtensionEl.style.display = "none";
-        }
-        return;
-    }
-    hmEl.style.display = "none";
-    hmCloseFilter();
-
-    const q = query.toLowerCase();
-
-    // Special action entries (keyword commands) rank above cluster matches.
-    const actionHits = Object.entries(SEARCH_ACTIONS)
-        .filter(([keyword, a]) => keyword.includes(q) && (a.trainer === 'both' || a.trainer === trainerMode))
-        .map(([keyword, a]) => ({ kind: 'action', action: keyword, title: a.label, desc: a.desc }));
-
-    // Title matches rank above matches found only through a case/legacy alias.
-    const titleHits = [];
-    const aliasHits = [];
-    for (const entry of getSearchIndex()) {
-        if (entry.title.toLowerCase().includes(q)) {
-            titleHits.push({ kind: 'cluster', title: entry.title, via: null });
-        } else {
-            const via = entry.aliases.find(a => a !== entry.title && a.toLowerCase().includes(q));
-            if (via) aliasHits.push({ kind: 'cluster', title: entry.title, via });
-        }
-    }
-
-    // Tags and lists are searchable by name, shown with their own result style.
-    const tagHits = getTags()
-        .filter(t => t.name.toLowerCase().includes(q))
-        .map(t => ({ kind: 'tag', tagId: t.id, name: t.name, color: t.color, count: tagCaseBases(t.id).length }));
-    const listHits = searchableListNames()
-        .filter(name => name.toLowerCase().includes(q))
-        .map(name => ({ kind: 'list', name, count: listCaseCount(name) }));
-
-    searchMatches  = actionHits.concat(titleHits, tagHits, listHits, aliasHits);
-    searchActiveIx = searchMatches.length ? 0 : -1;
-
-    searchExtensionEl.style.display = "flex";
-    if (!searchMatches.length) {
-        searchResultsEl.innerHTML = '<div class="search-empty">No matching clusters</div>';
-        return;
-    }
-
-    searchResultsEl.innerHTML = searchMatches.map((m, i) => {
-        const act  = m.kind === 'action';
-        const cls  = `search-result${i === 0 ? ' active' : ''}${act ? ' search-action' : ''}`;
-        if (act) {
-            return `<div class="${cls}" data-ix="${i}">${escapeHtml(m.title)}` +
-                `<span class="search-result-via">${escapeHtml(m.desc || '')}</span></div>`;
-        }
-        if (m.kind === 'tag') {
-            return `<div class="${cls}" data-ix="${i}">` +
-                `<span class="search-result-swatch" style="--tag-color:${escapeHtml(m.color)}"></span>` +
-                `${highlightMatch(m.name, query)}` +
-                `<span class="search-result-meta">tag · ${m.count} case${m.count === 1 ? '' : 's'}</span></div>`;
-        }
-        if (m.kind === 'list') {
-            return `<div class="${cls}" data-ix="${i}">${highlightMatch(m.name, query)}` +
-                `<span class="search-result-meta">list · ${m.count} case${m.count === 1 ? '' : 's'}</span></div>`;
-        }
-        const titleHtml = m.via ? escapeHtml(m.title) : highlightMatch(m.title, query);
-        const viaHtml   = m.via ? `<span class="search-result-via">${highlightMatch(m.via, query)}</span>` : '';
-        return `<div class="${cls}" data-ix="${i}">${titleHtml}${viaHtml}</div>`;
-    }).join('');
-}
-
-function moveSearchSelection(delta) {
-    if (!searchMatches.length) return;
-    searchActiveIx = (searchActiveIx + delta + searchMatches.length) % searchMatches.length;
-    const rows = searchResultsEl.querySelectorAll('.search-result');
-    rows.forEach((r, i) => r.classList.toggle('active', i === searchActiveIx));
-    const active = rows[searchActiveIx];
-    if (active) active.scrollIntoView({ block: 'nearest' });
-}
-
-// Keyword commands surfaced in the search bar, keyed by the search term that
-// triggers them. Add new actions here — { label, desc, trainer, run } — and they
-// show up automatically. `trainer` ('obl' | 'pbl' | 'both') limits which
-// trainer(s) the action appears in. `run` is invoked when the entry is chosen.
-const SEARCH_ACTIONS = {
-    tags: { label: 'Tags', desc: 'Manage your tags', trainer: 'both', run: () => openTagModal() },
-};
-
-function openSearchResult(ix) {
-    const match = searchMatches[ix];
-    if (!match) return;
-    if (match.kind === 'action') { closeSearch(); SEARCH_ACTIONS[match.action]?.run(); return; }
-    if (match.kind === 'tag')    { showTagInSearch(match.tagId); return; }
-    if (match.kind === 'list')   { showListInSearch(match.name); return; }
-    showClusterInSearch(match.title);
-}
-
-// Lists searchable in the current trainer (defaults + user-created).
-function searchableListNames() {
-    return trainerMode === 'obl'
-        ? [...Object.keys(oblDefaultLists), ...Object.keys(oblUserLists)]
-        : [...Object.keys(pblDefaultLists), ...Object.keys(pblUserLists)];
-}
-
-// Distinct-case count of a list, matching the lists-modal badge.
-function listCaseCount(name) {
-    if (trainerMode === 'obl') {
-        const l = oblDefaultLists[name] || oblUserLists[name];
-        return l ? l[oblUsingSpe].length : 0;
-    }
-    const l = pblDefaultLists[name] || pblUserLists[name];
-    return l ? new Set(l.map(s => s.slice(0, -1))).size : 0;
-}
-
-// Shows a cluster's alg reference inside the search extension and sets the search
-// bar to the cluster title. Setting .value programmatically does not fire `input`,
-// so the user editing the bar (which does) reverts to plain search.
-function showClusterInSearch(title) {
-    if (!(trainerMode === 'pbl' ? pblClusters : oblClusters)?.[title]) return;
-    searchClusterTitle = title;
-    searchEditMode = false;
-    searchInClusterView = true;
-    searchInputEl.value = title;
-    searchExtensionEl.style.display = "flex";
-    searchResultsEl.style.display = "none";
-    searchTagViewEl.style.display = "none";
-    searchListViewEl.style.display = "none";
-    hmEl.style.display = "none";
-    hmCloseFilter();
-    searchClusterEl.style.display = "flex";
-    renderSearchClusterBody();
-}
-
-// Renders the cluster body in read or edit mode and syncs the toolbar.
-function renderSearchClusterBody() {
-    closeUnitTagPopover();
-    const tb = document.getElementById('search-cluster-toolbar');
-    tb.querySelector('.sct-edit').classList.toggle('active', searchEditMode);
-    tb.querySelectorAll('.sct-undo, .sct-redo').forEach(b => b.style.display = searchEditMode ? '' : 'none');
-
-    if (searchEditMode) {
-        // Keep the current read-mode width so entering edit doesn't shrink the panel.
-        algEditRender(searchClusterContentEl, searchClusterTitle);
-    } else {
-        applySearchClusterWidth(searchClusterTitle);
-        // On a source-tab change, reuse the cached width so switching views
-        // doesn't resize the panel, and re-check tag-chip overflow.
-        renderClusterInto(searchClusterContentEl, searchClusterTitle, () => {
-            searchPanelEl.style.width = searchClusterWidth;
-            applyUnitTagOverflow(searchClusterContentEl);
-        });
-        applyUnitTagOverflow(searchClusterContentEl);
-    }
-}
-
-function toggleSearchEdit() {
-    if (!searchClusterTitle) return;
-    searchEditMode = !searchEditMode;
-    let dirty = false;
-    if (searchEditMode) algEditBegin(searchClusterTitle);
-    else                dirty = algEditFinish();
-    renderSearchClusterBody();
-    if (!searchEditMode && dirty) showSuccess("Saved.", 800);
-}
-
-// Sizes the whole search panel (bar + extension) to fit the cluster's widest
-// ALG LINE, measured across ALL sources so switching the Matt/Derpy/JLMinx tabs
-// keeps a constant width. Only the monospace alg lines (.matt-algs/.pure-algs,
-// which are nowrap + fit-content) count — prose explanations are free to wrap.
-// Clamped to the viewport; cached in searchClusterWidth for tab-change reuse.
-function applySearchClusterWidth(title) {
-    const content = searchClusterContentEl;
-    const cluster = effectiveCluster(title);
-    if (!cluster) return;
-    const SKIP     = new Set(['case-list', 'optimal-slicecount']);
-    const sources  = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const meta     = trainerMode === 'obl' ? OBL_SOURCE_META : PBL_SOURCE_META;
-    const sheetFmt = trainerMode === 'obl' ? oblFormatSheet : pblFormatSheet;
-
-    const prev = content.innerHTML;
-    searchPanelEl.style.width = '';   // measure at the natural (default) width
-    content.style.visibility = 'hidden';
-    let maxRight = 0;                  // widest alg-line right edge from content's left
-    for (const src of sources) {
-        const m = meta[src] ?? { label: src, linkText: src, url: '', formatter: sheetFmt };
-        // #cluster-source-content so the ">span { display:block }" rules apply.
-        content.innerHTML = `<span class="cluster-title">${escapeHtml(title)}</span><div id="cluster-source-content">${m.formatter(cluster, src, m)}</div>`;
-        const cLeft = content.getBoundingClientRect().left;
-        content.querySelectorAll('.matt-algs, .pure-algs').forEach(el => {
-            maxRight = Math.max(maxRight, el.getBoundingClientRect().right - cLeft);
-        });
-    }
-    content.innerHTML = prev;
-    content.style.visibility = '';
-
-    const maxW = Math.min(900, window.innerWidth * 0.92);
-    const minW = Math.min(640, window.innerWidth * 0.92);
-    // maxRight already spans content's left padding + the alg line; add the right padding.
-    searchClusterWidth = Math.max(minW, Math.min(maxRight + 24, maxW)) + 'px';
-    searchPanelEl.style.width = searchClusterWidth;
-}
-
-function openSearch() {
-    if (usingTimer()) return;
-    isSearchOpen = true;
-    searchOverlayEl.style.display = "flex";
-    searchInputEl.value = "";
-    renderSearchResults();
-    searchInputEl.focus();
-}
-
-function closeSearch(e) {
-    if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
-    if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
-    closeUnitTagPopover();
-    _stvCloseSelector();
-    hmCloseFilter();
-    isSearchOpen = false;
-    searchOverlayEl.style.display = "none";
-    searchInputEl.blur();
-}
-
-function toggleSearch() {
-    if (isSearchOpen) closeSearch();
-    else openSearch();
-}
-
-// ─── Search help modal ────────────────────────────────────────────────────────
-// Per-trainer help content shown by the "?" button in the search bar.
-
-const SEARCH_HELP_CONTENT = {
-    pbl: `<p>Search PBL clusters by their title.</p>
-          <p style="opacity:0.5">More PBL-specific search help coming soon.</p>`,
-    obl: `<p>Search OBL clusters by their title.</p>
-          <p style="opacity:0.5">More OBL-specific search help coming soon.</p>`,
-};
-
-function openSearchHelp() {
-    document.getElementById("search-help-title").textContent =
-        (trainerMode === 'pbl' ? 'PBL' : 'OBL') + ' search';
-    document.getElementById("search-help-content").innerHTML =
-        SEARCH_HELP_CONTENT[trainerMode] || '';
-    searchHelpModalEl.style.display = "flex";
-}
-
-function closeSearchHelp(e) {
-    if (e && e.target !== searchHelpModalEl) return;
-    searchHelpModalEl.style.display = "none";
-}
-
-document.getElementById("opensearch").addEventListener("click", (e) => {
-    e.currentTarget.blur(); // don't leave the nav button stuck in :focus on mobile
-    toggleSearch();
-});
-searchHelpBtnEl.addEventListener("click", openSearchHelp);
-searchInputEl.addEventListener("input", renderSearchResults);
-
-document.querySelector('#search-cluster-toolbar .sct-edit').addEventListener("click", toggleSearchEdit);
-document.querySelector('#search-cluster-toolbar .sct-undo').addEventListener("click", () => algEditUndo());
-document.querySelector('#search-cluster-toolbar .sct-redo').addEventListener("click", () => algEditRedo());
-
-// ── Per-unit tag attach (read mode) ──────────────────────────────────────────
-let _unitTagRef = null;
-
-searchClusterContentEl.addEventListener("click", (e) => {
-    if (searchEditMode) return;
-    const add = e.target.closest('.unit-tag-add');
-    if (add) { e.stopPropagation(); openUnitTagPopover(add, add.dataset.ref); }
-});
-
-function _unitTagPopoverInner(refs) {
-    const tags = getTags();
-    if (!tags.length) return `<div class="unit-tag-empty">No tags yet — create them in the Tags menu.</div>`;
-    return tags.map(t => {
-        const state = tagUnitState(t.id, refs); // 'none' | 'some' | 'all'
-        const cls   = state === 'all' ? ' checked' : state === 'some' ? ' partial' : '';
-        return `<button class="unit-tag-opt" data-tag="${escapeHtml(t.id)}">
-            <span class="unit-tag-dot" style="--tag-color:${escapeHtml(t.color)}"></span>
-            <span class="unit-tag-name">${escapeHtml(t.name)}</span>
-            <span class="unit-tag-box${cls}"></span>
-        </button>`;
-    }).join('');
-}
-
-function openUnitTagPopover(btn, ref) {
-    closeUnitTagPopover();
-    _unitTagRef = ref;
-    const pop = document.createElement('div');
-    pop.className = 'unit-tag-popover';
-    pop.innerHTML = _unitTagPopoverInner([ref]);
-    document.body.appendChild(pop);
-
-    const r = btn.getBoundingClientRect();
-    pop.style.top  = (r.bottom + 6) + 'px';
-    pop.style.left = r.left + 'px';
-    const pr = pop.getBoundingClientRect();
-    if (pr.right  > window.innerWidth  - 8) pop.style.left = Math.max(8, window.innerWidth  - 8 - pr.width) + 'px';
-    if (pr.bottom > window.innerHeight - 8) pop.style.top  = Math.max(8, r.top - pr.height - 6) + 'px';
-
-    pop.addEventListener('click', (e) => {
-        const opt = e.target.closest('.unit-tag-opt');
-        if (!opt) return;
-        toggleUnitTag(_unitTagRef, opt.dataset.tag);
-        searchClusterContentEl.querySelectorAll(`.unit-tags[data-ref="${_unitTagRef}"]`)
-            .forEach(el => { el.innerHTML = unitTagsInner(_unitTagRef); });
-        applyUnitTagOverflow(searchClusterContentEl);
-        pop.innerHTML = _unitTagPopoverInner([_unitTagRef]);
-    });
-    setTimeout(() => document.addEventListener('pointerdown', _unitTagOutside), 0);
-}
-
-// Collapse a unit's tag chips to dots when they don't fit on the line.
-function applyUnitTagOverflow(content) {
-    content.querySelectorAll('.unit-tags').forEach(ut => {
-        const list = ut.querySelector('.unit-tag-list');
-        if (!list) return;
-        ut.classList.remove('dots');                       // measure in chip mode
-        if (list.scrollWidth > list.clientWidth + 1) ut.classList.add('dots');
-    });
-}
-
-function _unitTagOutside(e) {
-    if (!e.target.closest('.unit-tag-popover') && !e.target.closest('.unit-tag-add')) closeUnitTagPopover();
-}
-
-function closeUnitTagPopover() {
-    document.removeEventListener('pointerdown', _unitTagOutside);
-    document.querySelectorAll('.unit-tag-popover').forEach(p => p.remove());
-    _unitTagRef = null;
-}
-
-searchResultsEl.addEventListener("click", (e) => {
-    const row = e.target.closest('.search-result');
-    if (row) openSearchResult(Number(row.dataset.ix));
-});
-
-searchInputEl.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-        e.preventDefault();
-        if (searchHelpModalEl.style.display === "flex") closeSearchHelp();
-        else closeSearch();
-        return;
-    }
-    // While an alg reference is shown in the extension, leave the keys alone so
-    // the caret can move and the content can be scrolled — no result navigation.
-    if (searchInClusterView) return;
-    switch (e.key) {
-        case "ArrowDown": e.preventDefault(); moveSearchSelection(1);  break;
-        case "ArrowUp":   e.preventDefault(); moveSearchSelection(-1); break;
-        case "Enter":     e.preventDefault(); if (searchActiveIx >= 0) openSearchResult(searchActiveIx); break;
-    }
-});
 
 document.addEventListener('click', function(e) {
     if (e.target.tagName === 'BUTTON') {
@@ -1710,3 +1215,190 @@ function applyMode() {
 }
 
 document.getElementById('mode-title').addEventListener('click', switchMode);
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  APP DIALOG
+//  Designed replacements for the browser's alert / confirm / prompt. Each opens
+//  a styled modal and returns a Promise, so callers `await` the result instead
+//  of blocking the main thread.
+//
+//   appAlert(msg)   → Promise<void>             (resolves when dismissed)
+//   appConfirm(msg) → Promise<boolean>          (true = confirmed)
+//   appPrompt(msg)  → Promise<string | null>    (null = cancelled)
+//
+//  Transient, non-blocking feedback uses the toast (showError / showInfo /
+//  showSuccess) instead — dialogs are only for acknowledgement or input.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Low-level builder. `buttons` is [{ label, value, variant }]; `input`, when
+// given, adds a text field and Enter submits the primary button's value.
+function appDialog({ title = '', message = '', buttons, input = null, cancelValue }) {
+    return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'app-dialog-overlay';
+
+        const box = document.createElement('div');
+        box.className = 'app-dialog';
+        box.innerHTML =
+            (title ? `<div class="app-dialog-title"></div>` : '') +
+            `<div class="app-dialog-msg"></div>` +
+            (input ? `<input type="text" class="app-dialog-input" spellcheck="false" autocomplete="off" />` : '') +
+            `<div class="app-dialog-buttons"></div>`;
+        if (title) box.querySelector('.app-dialog-title').textContent = title;
+        box.querySelector('.app-dialog-msg').textContent = message;
+
+        const field = input ? box.querySelector('.app-dialog-input') : null;
+        if (field) {
+            if (input.placeholder) field.placeholder = input.placeholder;
+            if (input.value)       field.value = input.value;
+        }
+
+        let done = false;
+        function finish(value) {
+            if (done) return;
+            done = true;
+            document.removeEventListener('keydown', onKey, true);
+            overlay.classList.add('closing');
+            setTimeout(() => overlay.remove(), 150);
+            resolve(value);
+        }
+
+        // The primary button (last one) is what Enter triggers.
+        const btnRow = box.querySelector('.app-dialog-buttons');
+        buttons.forEach(b => {
+            const el = document.createElement('button');
+            el.className = 'app-dialog-btn' + (b.variant ? ' ' + b.variant : '');
+            el.textContent = b.label;
+            el.addEventListener('click', () => finish(field ? (b.primary ? field.value : b.value) : b.value));
+            btnRow.appendChild(el);
+        });
+
+        function onKey(e) {
+            if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(cancelValue); }
+            else if (e.key === 'Enter') {
+                e.preventDefault(); e.stopPropagation();
+                const primary = buttons.find(b => b.primary);
+                finish(field ? (primary ? field.value : (primary?.value)) : (primary ?? buttons.at(-1)).value);
+            }
+        }
+        document.addEventListener('keydown', onKey, true);
+
+        overlay.addEventListener('mousedown', e => { if (e.target === overlay) finish(cancelValue); });
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        // Focus the input (prompt) or the primary button.
+        if (field) { field.focus(); field.select(); }
+        else (btnRow.querySelector('.primary') || btnRow.lastElementChild)?.focus();
+    });
+}
+
+function appAlert(message, { title = 'Notice', okText = 'OK' } = {}) {
+    return appDialog({
+        title, message, cancelValue: undefined,
+        buttons: [{ label: okText, value: undefined, variant: 'primary', primary: true }],
+    });
+}
+
+function appConfirm(message, { title = 'Confirm', okText = 'OK', cancelText = 'Cancel', danger = false } = {}) {
+    return appDialog({
+        title, message, cancelValue: false,
+        buttons: [
+            { label: cancelText, value: false, variant: 'ghost' },
+            { label: okText, value: true, variant: danger ? 'danger' : 'primary', primary: true },
+        ],
+    });
+}
+
+function appPrompt(message, { title = '', okText = 'OK', cancelText = 'Cancel', value = '', placeholder = '' } = {}) {
+    return appDialog({
+        title, message, cancelValue: null,
+        input: { value, placeholder },
+        buttons: [
+            { label: cancelText, value: null, variant: 'ghost' },
+            { label: okText, variant: 'primary', primary: true },
+        ],
+    });
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TOOLTIP
+//  A single designed tooltip shared by every element carrying `data-tip`,
+//  replacing the browser's native `title` bubble (which is unstyled and never
+//  appears on touch devices). Shows on hover (after a short delay) and on
+//  keyboard focus; hides on leave, click, scroll, or focus loss.
+// ═══════════════════════════════════════════════════════════════════════════
+
+(function () {
+    let tipEl = null, current = null, showTimer = null;
+
+    function ensure() {
+        if (!tipEl) {
+            tipEl = document.createElement('div');
+            tipEl.className = 'app-tooltip';
+            tipEl.setAttribute('role', 'tooltip');
+            document.body.appendChild(tipEl);
+        }
+        return tipEl;
+    }
+
+    function position(target) {
+        const el = tipEl;
+        const r  = target.getBoundingClientRect();
+        el.style.left = '0px';
+        el.style.top  = '0px';                 // reset so we can measure natural size
+        const tr = el.getBoundingClientRect();
+
+        let left   = r.left + r.width / 2 - tr.width / 2;
+        let top    = r.top - tr.height - 8;
+        let below  = false;
+        if (top < 6) { top = r.bottom + 8; below = true; }
+        left = Math.max(6, Math.min(left, window.innerWidth - 6 - tr.width));
+
+        el.style.left = left + 'px';
+        el.style.top  = top + 'px';
+        el.classList.toggle('below', below);
+    }
+
+    function show(target) {
+        const text = target.getAttribute('data-tip');
+        if (!text) return;
+        const el = ensure();
+        el.textContent = text;
+        el.style.display = 'block';
+        position(target);
+        el.classList.add('visible');
+    }
+
+    function hide() {
+        clearTimeout(showTimer);
+        showTimer = null;
+        current = null;
+        if (tipEl) { tipEl.classList.remove('visible'); tipEl.style.display = 'none'; }
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        const t = e.target.closest('[data-tip]');
+        if (t === current) return;
+        hide();
+        if (!t) return;
+        current = t;
+        showTimer = setTimeout(() => { if (current === t) show(t); }, 350);
+    });
+    document.addEventListener('mouseout', (e) => {
+        const t = e.target.closest('[data-tip]');
+        if (t && t === current) hide();
+    });
+
+    document.addEventListener('focusin', (e) => {
+        const t = e.target.closest?.('[data-tip]');
+        if (t) { current = t; show(t); }
+    });
+    document.addEventListener('focusout', hide);
+
+    // Any click (e.g. pressing the button the tip describes) or scroll dismisses it.
+    document.addEventListener('click', hide, true);
+    window.addEventListener('scroll', hide, true);
+})();
