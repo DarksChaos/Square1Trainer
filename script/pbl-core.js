@@ -852,6 +852,39 @@ function pblSelectList(listName, setSelection) {
     pblSaveUserLists();
 }
 
+// Show (and optionally select) every case belonging to a tag's clusters. Cases
+// are selected as both barflips, or as the global override barflip if one is set.
+function pblSelectTag(tagId, setSelection) {
+    const bases = tagCaseBases(tagId);
+
+    pblPossible.forEach(pbl => pblHide(pblName(pbl)));
+    for (const base of bases) pblShow(base);
+
+    if (setSelection) {
+        const ovr = pblEffectiveOverride(); // null | '+' | '-'
+        pblSnapSelection();
+        pblDeselectAll();
+        for (const base of bases) {
+            if (ovr === '+')      pblSelect(base + '+');
+            else if (ovr === '-') pblSelect(base + '-');
+            else { pblSelect(base + '+'); pblSelect(base + '-'); }
+        }
+        if (pblEachCase > 0) {
+            pblRefillRemaining();
+            if (pblCaseSpliced && pblCurrentCase) {
+                const b   = pblCurrentCase.slice(0, -1);
+                const idx = pblRemaining.findIndex(r => r.slice(0, -1) === b);
+                if (idx !== -1) pblRemaining.splice(idx, 1);
+            }
+        }
+        pblSaveSelected();
+        updateRemainingCount();
+    }
+
+    showMode = 'list';
+    updateToggle();
+}
+
 // ─── PBL INIT ─────────────────────────────────────────────────────────────────
 
 async function pblInit() {

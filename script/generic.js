@@ -173,7 +173,7 @@ function hideSuccess() {
 
 // ─── POPUP MANAGEMENT ────────────────────────────────────────────────────────
 
-function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; listPopupEl.classList.add("open"); }
+function openListPopup()     { if (usingTimer()) return; isPopupOpen = true; renderTagMenu(); listPopupEl.classList.add("open"); }
 
 const HELP_HOME_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path fill-rule="evenodd" clip-rule="evenodd" d="M16.25 3.75V5.43953L18.25 7.03953V3.75H16.25ZM19.75 8.23953V3.5C19.75 2.80964 19.1904 2.25 18.5 2.25H16C15.3097 2.25 14.75 2.80964 14.75 3.5V4.23953L14.3426 3.91362C12.9731 2.81796 11.027 2.81796 9.65742 3.91362L1.53151 10.4143C1.20806 10.6731 1.15562 11.1451 1.41438 11.4685C1.67313 11.792 2.1451 11.8444 2.46855 11.5857L3.25003 10.9605V21.25H2.00003C1.58581 21.25 1.25003 21.5858 1.25003 22C1.25003 22.4142 1.58581 22.75 2.00003 22.75H22C22.4142 22.75 22.75 22.4142 22.75 22C22.75 21.5858 22.4142 21.25 22 21.25H20.75V10.9605L21.5315 11.5857C21.855 11.8444 22.3269 11.792 22.5857 11.4685C22.8444 11.1451 22.792 10.6731 22.4685 10.4143L19.75 8.23953ZM19.25 9.76047L13.4056 5.08492C12.5838 4.42753 11.4162 4.42753 10.5945 5.08492L4.75003 9.76047V21.25H8.25003L8.25003 16.9506C8.24999 16.2858 8.24996 15.7129 8.31163 15.2542C8.37773 14.7625 8.52679 14.2913 8.90904 13.909C9.29128 13.5268 9.76255 13.3777 10.2542 13.3116C10.7129 13.2499 11.2858 13.25 11.9507 13.25H12.0494C12.7143 13.25 13.2871 13.2499 13.7459 13.3116C14.2375 13.3777 14.7088 13.5268 15.091 13.909C15.4733 14.2913 15.6223 14.7625 15.6884 15.2542C15.7501 15.7129 15.7501 16.2858 15.75 16.9506L15.75 21.25H19.25V9.76047ZM14.25 21.25V17C14.25 16.2717 14.2484 15.8009 14.2018 15.454C14.1581 15.1287 14.0875 15.0268 14.0304 14.9697C13.9733 14.9126 13.8713 14.842 13.546 14.7982C13.1991 14.7516 12.7283 14.75 12 14.75C11.2717 14.75 10.8009 14.7516 10.4541 14.7982C10.1288 14.842 10.0268 14.9126 9.9697 14.9697C9.9126 15.0268 9.84199 15.1287 9.79826 15.454C9.75162 15.8009 9.75003 16.2717 9.75003 17V21.25H14.25ZM12 8.25C11.3097 8.25 10.75 8.80964 10.75 9.5C10.75 10.1904 11.3097 10.75 12 10.75C12.6904 10.75 13.25 10.1904 13.25 9.5C13.25 8.80964 12.6904 8.25 12 8.25ZM9.25003 9.5C9.25003 7.98122 10.4812 6.75 12 6.75C13.5188 6.75 14.75 7.98122 14.75 9.5C14.75 11.0188 13.5188 12.25 12 12.25C10.4812 12.25 9.25003 11.0188 9.25003 9.5Z" fill="currentColor"/>
@@ -410,7 +410,9 @@ function updateRemainingCount() {
 function updateToggle() {
     if (showMode === 'list' && highlightedList == null) showMode = 'selected';
     let state;
-    if      (showMode === 'list')     state = `list: ${highlightedList}`;
+    const tagId = highlightedTagId();
+    if      (showMode === 'list' && tagId != null) state = `tag: ${getTags().find(t => t.id === tagId)?.name ?? tagId}`;
+    else if (showMode === 'list')     state = `list: ${highlightedList}`;
     else if (showMode === 'searched') state = 'searched';
     else if (showMode === 'selected') state = 'selected';
     else                              state = 'all';
@@ -768,6 +770,8 @@ const searchExtensionEl  = document.getElementById("search-extension");
 const searchResultsEl    = document.getElementById("search-results");
 const searchClusterEl    = document.getElementById("search-cluster");
 const searchClusterContentEl = document.getElementById("search-cluster-content");
+const searchTagViewEl    = document.getElementById("search-tagview");
+const searchListViewEl   = document.getElementById("search-listview");
 const searchHelpBtnEl    = document.getElementById("search-help-btn");
 const searchHelpModalEl  = document.getElementById("search-help-modal");
 
@@ -883,9 +887,12 @@ function renderSearchResults() {
     // Any change to the query returns the extension to plain-search mode.
     if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     closeUnitTagPopover();
+    _stvCloseSelector();
     searchInClusterView = false;
     searchClusterTitle = null;
     searchClusterEl.style.display = "none";
+    searchTagViewEl.style.display = "none";
+    searchListViewEl.style.display = "none";
     searchResultsEl.style.display = "";
     searchPanelEl.style.width = ""; // undo any cluster-view widening
 
@@ -913,20 +920,29 @@ function renderSearchResults() {
     // Special action entries (keyword commands) rank above cluster matches.
     const actionHits = Object.entries(SEARCH_ACTIONS)
         .filter(([keyword, a]) => keyword.includes(q) && (a.trainer === 'both' || a.trainer === trainerMode))
-        .map(([keyword, a]) => ({ action: keyword, title: a.label, desc: a.desc }));
+        .map(([keyword, a]) => ({ kind: 'action', action: keyword, title: a.label, desc: a.desc }));
 
     // Title matches rank above matches found only through a case/legacy alias.
     const titleHits = [];
     const aliasHits = [];
     for (const entry of getSearchIndex()) {
         if (entry.title.toLowerCase().includes(q)) {
-            titleHits.push({ title: entry.title, via: null });
+            titleHits.push({ kind: 'cluster', title: entry.title, via: null });
         } else {
             const via = entry.aliases.find(a => a !== entry.title && a.toLowerCase().includes(q));
-            if (via) aliasHits.push({ title: entry.title, via });
+            if (via) aliasHits.push({ kind: 'cluster', title: entry.title, via });
         }
     }
-    searchMatches  = actionHits.concat(titleHits, aliasHits);
+
+    // Tags and lists are searchable by name, shown with their own result style.
+    const tagHits = getTags()
+        .filter(t => t.name.toLowerCase().includes(q))
+        .map(t => ({ kind: 'tag', tagId: t.id, name: t.name, color: t.color, count: tagCaseBases(t.id).length }));
+    const listHits = searchableListNames()
+        .filter(name => name.toLowerCase().includes(q))
+        .map(name => ({ kind: 'list', name, count: listCaseCount(name) }));
+
+    searchMatches  = actionHits.concat(titleHits, tagHits, listHits, aliasHits);
     searchActiveIx = searchMatches.length ? 0 : -1;
 
     searchExtensionEl.style.display = "flex";
@@ -936,10 +952,21 @@ function renderSearchResults() {
     }
 
     searchResultsEl.innerHTML = searchMatches.map((m, i) => {
-        const cls = `search-result${i === 0 ? ' active' : ''}${m.action ? ' search-action' : ''}`;
-        if (m.action) {
+        const act  = m.kind === 'action';
+        const cls  = `search-result${i === 0 ? ' active' : ''}${act ? ' search-action' : ''}`;
+        if (act) {
             return `<div class="${cls}" data-ix="${i}">${escapeHtml(m.title)}` +
                 `<span class="search-result-via">${escapeHtml(m.desc || '')}</span></div>`;
+        }
+        if (m.kind === 'tag') {
+            return `<div class="${cls}" data-ix="${i}">` +
+                `<span class="search-result-swatch" style="--tag-color:${escapeHtml(m.color)}"></span>` +
+                `${highlightMatch(m.name, query)}` +
+                `<span class="search-result-meta">tag · ${m.count} case${m.count === 1 ? '' : 's'}</span></div>`;
+        }
+        if (m.kind === 'list') {
+            return `<div class="${cls}" data-ix="${i}">${highlightMatch(m.name, query)}` +
+                `<span class="search-result-meta">list · ${m.count} case${m.count === 1 ? '' : 's'}</span></div>`;
         }
         const titleHtml = m.via ? escapeHtml(m.title) : highlightMatch(m.title, query);
         const viaHtml   = m.via ? `<span class="search-result-via">${highlightMatch(m.via, query)}</span>` : '';
@@ -967,8 +994,27 @@ const SEARCH_ACTIONS = {
 function openSearchResult(ix) {
     const match = searchMatches[ix];
     if (!match) return;
-    if (match.action) { closeSearch(); SEARCH_ACTIONS[match.action]?.run(); return; }
+    if (match.kind === 'action') { closeSearch(); SEARCH_ACTIONS[match.action]?.run(); return; }
+    if (match.kind === 'tag')    { showTagInSearch(match.tagId); return; }
+    if (match.kind === 'list')   { showListInSearch(match.name); return; }
     showClusterInSearch(match.title);
+}
+
+// Lists searchable in the current trainer (defaults + user-created).
+function searchableListNames() {
+    return trainerMode === 'obl'
+        ? [...Object.keys(oblDefaultLists), ...Object.keys(oblUserLists)]
+        : [...Object.keys(pblDefaultLists), ...Object.keys(pblUserLists)];
+}
+
+// Distinct-case count of a list, matching the lists-modal badge.
+function listCaseCount(name) {
+    if (trainerMode === 'obl') {
+        const l = oblDefaultLists[name] || oblUserLists[name];
+        return l ? l[oblUsingSpe].length : 0;
+    }
+    const l = pblDefaultLists[name] || pblUserLists[name];
+    return l ? new Set(l.map(s => s.slice(0, -1))).size : 0;
 }
 
 // Shows a cluster's alg reference inside the search extension and sets the search
@@ -982,6 +1028,8 @@ function showClusterInSearch(title) {
     searchInputEl.value = title;
     searchExtensionEl.style.display = "flex";
     searchResultsEl.style.display = "none";
+    searchTagViewEl.style.display = "none";
+    searchListViewEl.style.display = "none";
     hmEl.style.display = "none";
     hmCloseFilter();
     searchClusterEl.style.display = "flex";
@@ -1070,6 +1118,7 @@ function closeSearch(e) {
     if (e && e.target !== searchOverlayEl) return; // only the backdrop click closes
     if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     closeUnitTagPopover();
+    _stvCloseSelector();
     hmCloseFilter();
     isSearchOpen = false;
     searchOverlayEl.style.display = "none";
@@ -1505,6 +1554,7 @@ newListEl.addEventListener("click", () => {
 });
 
 overwriteListEl.addEventListener("click", () => {
+    if (highlightedTagId() != null) { alert("Tags can't be overwritten here — edit them in the Tags menu."); return; }
     if (trainerMode === 'obl') { oblOverwriteList(); return; }
     if (usingTimer()) return;
     if (highlightedList == null) return;
@@ -1521,6 +1571,13 @@ overwriteListEl.addEventListener("click", () => {
 });
 
 selectListEl.addEventListener("click", () => {
+    const tagId = highlightedTagId();
+    if (tagId != null) {
+        if (trainerMode === 'obl') oblSelectTag(tagId, false); else pblSelectTag(tagId, false);
+        closePopup();
+        showSuccess("Viewing the tag.", 1000);
+        return;
+    }
     if (highlightedList == null) { alert("Please click on a list."); return; }
     if (trainerMode === 'obl') { oblSelectList(highlightedList, false); }
     else                       { pblSelectList(highlightedList, false); }
@@ -1529,6 +1586,17 @@ selectListEl.addEventListener("click", () => {
 });
 
 deleteListEl.addEventListener("click", () => {
+    const tagId = highlightedTagId();
+    if (tagId != null) {
+        const t = getTags().find(x => x.id === tagId);
+        if (t && confirm('Delete tag "' + t.name + '"? This removes it everywhere.')) {
+            deleteTag(tagId);
+            highlightedList = null;
+            renderTagMenu();
+            showSuccess("Deleted the tag.");
+        }
+        return;
+    }
     if (trainerMode === 'obl') { oblDeleteList(); return; }
     if (highlightedList == null) return;
     if (Object.keys(pblDefaultLists).includes(highlightedList)) { alert("You cannot delete a default list."); return; }
@@ -1545,6 +1613,13 @@ deleteListEl.addEventListener("click", () => {
 });
 
 trainListEl.addEventListener("click", () => {
+    const tagId = highlightedTagId();
+    if (tagId != null) {
+        if (trainerMode === 'obl') oblSelectTag(tagId, true); else pblSelectTag(tagId, true);
+        closePopup();
+        showSuccess("Training the tag.", 1000);
+        return;
+    }
     if (highlightedList == null) { alert("Please click on a list."); return; }
     if (trainerMode === 'obl') { oblSelectList(highlightedList, true); }
     else                       { pblSelectList(highlightedList, true); }
@@ -1617,6 +1692,7 @@ function applyMode() {
         if (oblSelectedCases[oblUsingSpe].length > 0) showSelected(); else showAll();
         updateRemainingCount();
     }
+    renderTagMenu(); // tag case-counts are trainer-specific
 }
 
 document.getElementById('mode-title').addEventListener('click', switchMode);

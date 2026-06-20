@@ -103,6 +103,8 @@
                     </div>
                     <div id="search-cluster-content" class="cluster-text"></div>
                 </div>
+                <div id="search-tagview" class="search-tagview" style="display:none;"></div>
+                <div id="search-listview" class="search-listview" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -199,6 +201,8 @@
                     <div id="defaultlists" class="sublist-menu"></div>
                     <div class="sublist-name">Your lists</div>
                     <div id="userlists" class="sublist-menu"></div>
+                    <div class="sublist-name">Your tags</div>
+                    <div id="usertags" class="sublist-menu"></div>
                 </div>
                 <div class="list-buttons">
                     <div class="list-btn-group">
@@ -296,6 +300,7 @@
     <script src="script/alg-overrides.js"></script>
     <script src="script/alg-editor.js"></script>
     <script src="script/heatmap.js"></script>
+    <script src="script/search-extras.js"></script>
 
     <!-- SquanLib is an ES module; expose a shared instance on the global object
          for the classic scripts above, then start the app once it's ready. -->

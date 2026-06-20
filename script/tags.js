@@ -92,6 +92,7 @@ function deleteTag(id) {
     loadTags();
     _tags = _tags.filter(t => t.id !== id);
     saveTags();
+    purgeTagFromAssignments(id); // drop its case attachments in both trainers
     renderTagList();
 }
 
@@ -137,6 +138,33 @@ function renderTagList() {
             <button class="tag-del-btn" data-id="${escapeHtml(t.id)}" title="Delete tag">✕</button>
         </div>
     `).join('');
+
+    renderTagMenu(); // keep the lists-modal "Your tags" submenu in sync
+}
+
+// Renders the read-only "Your tags" submenu in the lists modal. Each row shows
+// the tag's colour and how many cases it currently covers (in this trainer).
+// Selecting/viewing/deleting is handled by the shared list-button listeners.
+function renderTagMenu() {
+    const el = document.getElementById('usertags');
+    if (!el) return;
+    const tags = loadTags();
+    el.innerHTML = tags.length
+        ? tags.map(t =>
+            `<div id="tagsel-${escapeHtml(t.id)}" class="list-item tag-list-item" data-tagid="${escapeHtml(t.id)}">` +
+            `<span class="tag-swatch-dot" style="--tag-color:${escapeHtml(t.color)}"></span>` +
+            `${escapeHtml(t.name)} (${tagCaseBases(t.id).length})</div>`
+          ).join('')
+        : '<div class="sublist-empty">No tags yet.</div>';
+    el.querySelectorAll('.list-item').forEach(addListItemEvent);
+}
+
+// Resolves the tag id of the currently highlighted "Your tags" row, or null.
+function highlightedTagId() {
+    if (typeof highlightedList === 'string' && highlightedList.startsWith('tagsel-')) {
+        return highlightedList.slice('tagsel-'.length);
+    }
+    return null;
 }
 
 // ── Modal open/close ───────────────────────────────────────────────────────

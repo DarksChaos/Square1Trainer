@@ -220,6 +220,44 @@ function oblSelectList(listName, setSelection) {
     oblSaveUserLists();
 }
 
+// Maps a cluster case-list short code ("Uw/THw") to the grid's English id
+// ("right bunny/left thumb"), using the same reverse NAMING map as the search
+// index. Returns null if either half has no legacy name.
+function oblCodeToGridId(code) {
+    const [a, b] = code.split('/');
+    const la = SquanLib.NAMING_REV?.[a] ?? _oblRevName(a);
+    const lb = SquanLib.NAMING_REV?.[b] ?? _oblRevName(b);
+    return (la && lb) ? la + '/' + lb : null;
+}
+
+let _oblRevCache = null;
+function _oblRevName(short) {
+    if (!_oblRevCache) {
+        _oblRevCache = {};
+        for (const [legacy, s] of Object.entries(SquanLib.NAMING)) _oblRevCache[s] = legacy;
+    }
+    return _oblRevCache[short];
+}
+
+// Show (and optionally select) every case belonging to a tag's clusters.
+function oblSelectTag(tagId, setSelection) {
+    let ids = tagCaseBases(tagId).map(oblCodeToGridId).filter(Boolean);
+    if (oblUsingSpe) ids = getSpeList(ids);
+
+    document.querySelectorAll('.case').forEach(el => el.classList.add('hidden'));
+    for (const id of ids) document.getElementById(id)?.classList.remove('hidden');
+
+    if (setSelection) {
+        oblDeselectAll();
+        for (const id of ids) oblSelect(id);
+        oblSaveSelected();
+        updateRemainingCount();
+    }
+
+    showMode = 'list';
+    updateToggle();
+}
+
 // ─── OBL LIST BUTTON HANDLERS ─────────────────────────────────────────────────
 
 function oblNewList() {

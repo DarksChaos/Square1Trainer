@@ -38,6 +38,16 @@ function saveTagAssignments(assignments) {
     _algStore().setItem('tagAssignments', JSON.stringify(assignments));
 }
 
+// Removes a deleted tag's attachments from both trainers' stores.
+function purgeTagFromAssignments(tagId) {
+    for (const store of [pblStorage, oblStorage]) {
+        try {
+            const a = JSON.parse(store.getItem('tagAssignments')) || {};
+            if (a[tagId]) { delete a[tagId]; store.setItem('tagAssignments', JSON.stringify(a)); }
+        } catch (e) {}
+    }
+}
+
 // ── Unit ids ─────────────────────────────────────────────────────────────────
 
 // Stable id for the n-th shipped (default) solution group.
@@ -74,6 +84,64 @@ function toggleUnitTag(ref, tagId) {
     if (i >= 0) a[tagId].splice(i, 1); else a[tagId].push(ref);
     if (!a[tagId].length) delete a[tagId];
     saveTagAssignments(a);
+}
+
+// Distinct cluster titles that have at least one unit tagged with `tagId`.
+function tagClusterTitles(tagId) {
+    const refs = loadTagAssignments()[tagId] || [];
+    const titles = [];
+    for (const ref of refs) {
+        const title = ref.split('|')[0];
+        if (!titles.includes(title)) titles.push(title);
+    }
+    return titles;
+}
+
+// Union of the case-list cases of every cluster a tag touches. These match the
+// grid cell ids (PBL "Al/Al", "Gal/-"; OBL "Uw/THw"), so they can be selected /
+// shown directly. Order follows the clusters' own case-list order.
+function tagCaseBases(tagId) {
+    const out = [];
+    for (const title of tagClusterTitles(tagId)) {
+        for (const c of (effectiveCluster(title)?.['case-list'] || [])) {
+            if (!out.includes(c)) out.push(c);
+        }
+    }
+    return out;
+}
+
+// The matt solution group addressed by `unitId` (sg<n>/new<n>). effectiveMattGroups
+// and mattUnitOrder share the same order, so their indices line up.
+function mattGroupById(title, unitId) {
+    const order  = mattUnitOrder(title);
+    const groups = effectiveMattGroups(title);
+    const i = order.indexOf(unitId);
+    return i >= 0 ? groups[i] : null;
+}
+
+// Human-readable label for a tagged unit: a PBL matt group shows its solution
+// overview; every whole-source unit ("*") shows that source's display label.
+function unitOverview(title, source, unitId) {
+    if (trainerMode === 'pbl' && source === 'matt') {
+        const g = mattGroupById(title, unitId);
+        return g ? (g['solution-overview'] || '(no overview)') : '(removed group)';
+    }
+    const meta = (trainerMode === 'obl' ? OBL_SOURCE_META : PBL_SOURCE_META)[source];
+    return meta?.label || source;
+}
+
+// Groups a tag's assignments by cluster, resolving each ref to a display label.
+//   [{ title, entries: [{ ref, source, unitId, overview }] }]
+function tagUnitsByCluster(tagId) {
+    const refs = loadTagAssignments()[tagId] || [];
+    const byTitle = new Map();
+    for (const ref of refs) {
+        const [title, source, unitId] = ref.split('|');
+        if (!_algClusters()[title]) continue; // stale ref (cluster gone)
+        if (!byTitle.has(title)) byTitle.set(title, []);
+        byTitle.get(title).push({ ref, source, unitId, overview: unitOverview(title, source, unitId) });
+    }
+    return [...byTitle.entries()].map(([title, entries]) => ({ title, entries }));
 }
 
 // Selection state of a tag across a set of unit refs: 'none' | 'some' | 'all'.

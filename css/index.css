@@ -2107,3 +2107,176 @@ button {
     background: transparent;
     cursor: pointer;
 }
+
+/* ─── Lists modal: "Your tags" submenu ──────────────────────────────────────── */
+
+.tag-list-item { display: flex; align-items: center; gap: 9px; }
+
+.tag-swatch-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--tag-color, #888);
+    flex: 0 0 auto;
+}
+
+.sublist-empty {
+    padding: 10px 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.9rem;
+}
+
+/* ─── Search result chips for tags ──────────────────────────────────────────── */
+
+.search-result-meta {
+    margin-left: 8px;
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.search-result-swatch {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--tag-color, #888);
+    margin-right: 8px;
+    vertical-align: -1px;
+}
+
+/* ─── Search extension: tag view ────────────────────────────────────────────── */
+
+.search-tagview {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #444 transparent;
+    padding: 10px;
+}
+
+.stv-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 2px 4px 10px;
+    border-bottom: 1px solid #2c2c2c;
+    margin-bottom: 8px;
+}
+
+.stv-title {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #eee;
+}
+
+.stv-tagsel {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border: 1px solid #3a3a3a;
+    border-radius: 9px;
+    background: #232323;
+    color: #d8d8d8;
+    font-size: 0.88rem;
+    flex: 0 0 auto;
+}
+.stv-tagsel:hover { border-color: var(--border-col); background: var(--button-col); color: #fff; }
+
+.stv-cluster { margin-bottom: 10px; }
+
+.stv-cluster-title {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 7px;
+    background: #262626;
+    color: #c9d6e5;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.stv-cluster-title:hover { background: var(--button-col); color: #fff; }
+
+.stv-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    margin-top: 3px;
+    padding: 7px 10px 7px 18px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #cfcfcf;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.stv-entry:hover { background: rgba(255, 255, 255, 0.06); }
+.stv-entry .stv-go { color: rgba(255, 255, 255, 0.4); flex: 0 0 auto; display: inline-flex; }
+.stv-entry:hover .stv-go { color: var(--border-col); }
+.stv-overview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ─── Search extension: list view ───────────────────────────────────────────── */
+
+.search-listview {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #444 transparent;
+    padding: 10px;
+}
+
+.slv-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 2px 4px 8px;
+}
+
+.slv-title { font-size: 1.05rem; font-weight: bold; color: #eee; }
+.slv-default { font-size: 0.8rem; font-weight: normal; color: rgba(255, 255, 255, 0.4); }
+
+.slv-modes { display: inline-flex; flex: 0 0 auto; border: 1px solid #3a3a3a; border-radius: 9px; overflow: hidden; }
+.slv-modes button {
+    padding: 6px 14px;
+    border: none;
+    background: #232323;
+    color: #cfcfcf;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+.slv-modes button + button { border-left: 1px solid #3a3a3a; }
+.slv-modes button.active { background: var(--button-col); color: #fff; }
+.slv-modes button:hover:not(.active) { background: #2c2c2c; }
+
+.slv-hint {
+    padding: 0 4px 10px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.slv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 6px;
+}
+.slv-grid .case {
+    min-width: 0;
+    height: 40px;
+    font-size: 0.9rem;
+    border-width: 2px;
+}
+/* In Reference mode every case is a link target, so signal it. */
+.slv-grid.reference .case:hover { border-color: var(--border-col); }
