@@ -1156,6 +1156,10 @@ fileEl.addEventListener("change", (e) => {
             } else {
                 // oblLoadSettings touched shared checkboxes and oblLoadSelected may have
                 // written an OBL scramble to the display — restore PBL state on top.
+                // oblLoadUserLists also re-rendered OBL lists into the shared list DOM,
+                // so re-render PBL lists last to keep the lists modal correct.
+                pblAddDefaultLists();
+                pblAddUserLists();
                 pblRestoreSettings();
                 if (pblHasActive && pblScrambleList.length)
                     currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];

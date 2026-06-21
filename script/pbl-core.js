@@ -822,6 +822,7 @@ export function pblLoadStorage() {
     }
 
     updateSelCount();
+    pblRecolorAll(); // re-sync each cell's selected styling (e.g. after an upload)
     if (pblSelected.length > 0) showSelected();
     else showAll();
 

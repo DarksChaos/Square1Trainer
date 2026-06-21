@@ -628,6 +628,14 @@ function _aeBlockHtml(bi, block, withExplanations) {
     return `<div class="ae-block" data-bi="${bi}">${exp}${_aeBlockRowsHtml(bi, block)}</div>`;
 }
 
+// Mount the source-tab bar at the end of the toolbar row so the view switcher
+// sits at the right edge, opposite the back/edit/save/undo/redo group.
+function _aeMountTabBar(window_, tabBar) {
+    const toolbar = window_.querySelector('.search-cluster-toolbar');
+    if (toolbar) toolbar.appendChild(tabBar);
+    else window_.insertBefore(tabBar, window_.querySelector('.cluster-text, #search-cluster-content'));
+}
+
 export function algEditRender(content, title) {
     aeTitle = title;
     const sources = _aeSources(title);
@@ -636,7 +644,7 @@ export function algEditRender(content, title) {
     // Source tabs (same markup as read mode) live in the shared tab bar.
     const window_ = content.parentElement;
     let tabBar = window_.querySelector('.cluster-tab-bar');
-    if (!tabBar) { tabBar = document.createElement('div'); tabBar.className = 'cluster-tab-bar'; window_.insertBefore(tabBar, content); }
+    if (!tabBar) { tabBar = document.createElement('div'); tabBar.className = 'cluster-tab-bar'; _aeMountTabBar(window_, tabBar); }
     tabBar.style.display = sources.length > 1 ? '' : 'none';
     tabBar.innerHTML = sources.length > 1
         ? `<div class="cluster-tabs">${sources.map(src =>
@@ -1025,7 +1033,7 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
     if (!tabBar) {
         tabBar = document.createElement('div');
         tabBar.className = 'cluster-tab-bar';
-        window_.insertBefore(tabBar, content);
+        _aeMountTabBar(window_, tabBar);
     }
     tabBar.style.display = sources.length > 1 ? '' : 'none';
     tabBar.innerHTML = sources.length > 1
@@ -1175,7 +1183,7 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
     if (!tabBar) {
         tabBar = document.createElement('div');
         tabBar.className = 'cluster-tab-bar';
-        window_.insertBefore(tabBar, content);
+        _aeMountTabBar(window_, tabBar);
     }
     tabBar.style.display = sources.length > 1 ? '' : 'none';
     tabBar.innerHTML = sources.length > 1
