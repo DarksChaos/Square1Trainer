@@ -483,8 +483,6 @@ let aeUndo = [], aeRedo = [];
 let aeEnterSnapshot = null;      // cluster override JSON captured on entering edit mode
 let aeSnapshotBeforeEdit = null; // draft state captured at each render
 let aeTextUndoPushed = false;    // one undo entry per render→text-edit burst
-let aeSaveTimer = null;
-
 function algEditActive() { return searchEditMode && aeDraft != null; }
 
 function _aeSourceMeta() { return trainerMode === 'obl' ? OBL_SOURCE_META : PBL_SOURCE_META; }
@@ -521,24 +519,51 @@ function _aeCommit() {
     else              commitSingleBlockDraft(aeTitle, aeSource, aeDraft);
 }
 
-function _aeAutosave() {
-    clearTimeout(aeSaveTimer);
-    aeSaveTimer = setTimeout(_aeCommit, 300);
+function _aeSyncDirtyState() {
+    if (typeof syncSearchClusterToolbar === 'function') syncSearchClusterToolbar();
 }
 
-// Commits, tears down the session, and returns whether the cluster's override
-// actually changed since edit mode was entered (used to gate the "Saved." toast).
-function algEditFinish() {
-    let dirty = false;
-    if (aeDraft) {
-        _aeCommit();
-        dirty = JSON.stringify(loadContentOverrides()[aeTitle] ?? null) !== aeEnterSnapshot;
-        aeDraft = null;
-    }
+// Changes are reflected in the override store during the live edit session so
+// source switching and rendering continue to use one data path. The entry
+// snapshot is the transaction boundary: Save advances it; Back restores it.
+function _aeAutosave() {
+    _aeCommit();
+    _aeSyncDirtyState();
+}
+
+function algEditDirty() {
+    if (!aeDraft || !aeTitle) return false;
+    const current = loadContentOverrides()[aeTitle] ?? null;
+    const saved   = JSON.parse(aeEnterSnapshot);
+    return !_deepEqual(current, saved);
+}
+
+function algEditSave() {
+    if (!aeDraft) return false;
+    _aeCommit();
+    const dirty = algEditDirty();
+    aeEnterSnapshot = JSON.stringify(loadContentOverrides()[aeTitle] ?? null);
+    _aeSyncDirtyState();
+    return dirty;
+}
+
+function _aeTearDown() {
+    aeDraft = null;
     aeTitle = aeSource = null;
     aeUndo = []; aeRedo = [];
     aeEnterSnapshot = null;
-    return dirty;
+}
+
+// Leave edit mode without saving changes made since the latest Save click.
+function algEditCancel() {
+    if (aeDraft && aeTitle) {
+        const all = loadContentOverrides();
+        const saved = JSON.parse(aeEnterSnapshot);
+        if (saved == null) delete all[aeTitle];
+        else               all[aeTitle] = saved;
+        saveContentOverrides(all);
+    }
+    _aeTearDown();
 }
 
 // ── Undo / redo ──────────────────────────────────────────────────────────────
@@ -649,6 +674,7 @@ function algEditRender(content, title) {
     // capture undo baseline for this render
     aeSnapshotBeforeEdit = _clone(aeDraft);
     aeTextUndoPushed = false;
+    _aeSyncDirtyState();
 }
 
 // ── Draft mutation accessors ─────────────────────────────────────────────────

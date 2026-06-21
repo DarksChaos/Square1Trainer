@@ -255,8 +255,24 @@ function abandonTransition() {
     if (_reuseHistorySlot) { _reuseHistorySlot = false; history.back(); }
 }
 
-window.addEventListener('popstate', (e) => {
+let _overlayPopPending = false;
+window.addEventListener('popstate', async (e) => {
     const target = e.state?.overlayDepth ?? 0;
+    if (_overlayPopPending || overlayStack.length <= target) return;
+
+    // A layer may veto navigation while it waits for a custom confirmation
+    // modal (the alg editor uses this for unsaved changes). History has already
+    // moved, so a veto walks it forward to the still-open overlay entry.
+    const top = overlayStack[overlayStack.length - 1];
+    if (top?.beforeClose) {
+        _overlayPopPending = true;
+        const allow = await top.beforeClose();
+        _overlayPopPending = false;
+        if (!allow) {
+            history.go(overlayStack.length - target);
+            return;
+        }
+    }
     while (overlayStack.length > target) popOverlayRaw();
 });
 
@@ -940,6 +956,7 @@ window.addEventListener("keydown", (e) => {
         const ctrl = isMac() ? e.metaKey : e.ctrlKey;
         if (ctrl && !e.altKey) {
             const k = e.key.toLowerCase();
+            if (k === "s") { e.preventDefault(); saveSearchEdit(); return; }
             if (k === "z" && !e.shiftKey) { e.preventDefault(); algEditUndo(); return; }
             if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); algEditRedo(); return; }
         }

@@ -11,6 +11,7 @@
     --panel-bg:       #06101f;
     --panel-raised:   #09182c;
     --panel-muted:    #071321;
+    --editor-group-bg: #0b1c2f;
     --field-bg:       #0a1a30;
     --field-focus-bg: #030b17;
     --case-bg:        #071426;
@@ -33,9 +34,9 @@
     --danger-bg:      #280912;
 
     /* Heatmap */
-    --hm-empty:       #12263d;
-    --hm-header-bg:   #08182a;
-    --hm-border:      #3f5f86;
+    --hm-empty:       #020813;
+    --hm-header-bg:   #132837;
+    --hm-border:      #001424;
 }
 
 body,
@@ -1680,6 +1681,13 @@ button {
     color: rgba(255, 255, 255, 0.7);
 }
 
+.sct-btn:disabled {
+    opacity: 0.32;
+    cursor: default;
+    border-color: var(--divider-col);
+    color: var(--text-muted);
+}
+
 .sct-edit.active {
     background: var(--button-col);
     border-color: var(--border-col);
@@ -1711,7 +1719,7 @@ button {
 .ae-distinction { display: block; width: 100%; box-sizing: border-box; margin-bottom: 14px; }
 
 .ae-group {
-    background: #242424;
+    background: var(--editor-group-bg);
     border: 1px solid var(--divider-col);
     border-radius: 12px;
     padding: 10px;
@@ -1851,12 +1859,13 @@ button {
 .hm-grid {
     flex: 1 1 480px;
     min-width: 260px;
-    max-width: 580px;
+    max-width: 700px;
 }
 
 .hm-table {
     display: grid;
     width: 100%;
+    aspect-ratio: 1;
     border: 1px solid var(--hm-border);
     border-radius: 6px;
     overflow: hidden;
@@ -1879,6 +1888,12 @@ button {
     background: var(--hm-header-bg);
     white-space: nowrap;
 }
+.hm-colhead {
+    padding: 1px 0;
+    font-family: "Arial Narrow", Arial, sans-serif;
+    font-stretch: condensed;
+    font-weight: 400;
+}
 /* Thin borders on the header cells ONLY. Each header's width/height defines its
    whole column/row; the body cells under it have no borders, so a family reads as
    one solid block with no internal grid lines. */
@@ -1886,18 +1901,25 @@ button {
 .hm-corner  { background: var(--hm-header-bg); }
 
 .hm-cell {
-    aspect-ratio: 1;
-    min-width: 0;   /* don't let an aspect-ratio cell impose a min track width */
+    position: relative;
+    min-width: 0;
+    min-height: 0;
     cursor: pointer;
 }
 /* Family-boundary lines: only the first column/row of each family draws an edge,
-   so families read as blocks with no internal per-cell grid. */
-.hm-cell.hm-fam-left { border-left: 1px solid var(--hm-border); }
-.hm-cell.hm-fam-top  { border-top:  1px solid var(--hm-border); }
-/* Cells in a wider (multi-char) family column: keep the square normal cells
-   driving the row height, and just stretch to fill it — wider, same height, so no
-   gaps appear and only these columns are non-square. */
-.hm-cell.hm-wide-col { aspect-ratio: auto; height: auto; }
+   so families read as blocks with no internal per-cell grid. Pseudo-elements put
+   the divider above both empty and coloured backgrounds without changing the
+   grid track's size. */
+.hm-cell.hm-fam-left::before,
+.hm-cell.hm-fam-top::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    background: var(--hm-border);
+}
+.hm-cell.hm-fam-left::before { inset: 0 auto 0 0; width: 1px; }
+.hm-cell.hm-fam-top::after   { inset: 0 0 auto 0; height: 1px; }
 .hm-gray { background: var(--hm-empty); }
 
 .hm-tip {

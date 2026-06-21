@@ -139,29 +139,24 @@ function hmGridHtml(plls, slices) {
     const color = hmColorFn(list);
     const fams = hmFamilyGroups(plls);
 
-    // A family whose key is more than one character needs a wider column so the
-    // key fits at full size. Map each PLL to whether its family is "wide".
-    // "Wide" only when the header text can't fit the columns it spans (more chars
-    // than member columns), e.g. a single-column "Adj"/"pJ". A 2-char family that
-    // spans 2 columns like "Ga"/"Go" fits fine and stays normal width.
-    const wideFam = {};
-    for (const g of fams) for (const m of g.members) wideFam[m] = g.fam.length > g.members.length;
-
-    // Track minimum 0 ⇒ columns always shrink to fit the panel (never overflow).
-    // Wide-family columns get a larger fraction; every other column shares 1fr
-    // equally. Wide-column cells drop the square aspect-ratio and stretch to the
-    // (square, normal-cell-driven) row height, so they're wider rectangles without
-    // forcing gaps — normal columns, and the whole evenPLL grid, stay square.
-    const cols = plls.map(p => wideFam[p] ? 'minmax(0,1.8fr)' : 'minmax(0,1fr)').join(' ');
+    // Every PLL is one case, so every body column gets exactly one fraction. The
+    // header text must adapt to the data column rather than making one case look
+    // almost twice as complete as another.
+    const cols = plls.map(() => 'minmax(0,1fr)').join(' ');
     // First PLL of each family — body cells in these columns/rows draw the family
     // boundary line so the header's divisions continue through the grid (with no
     // internal per-cell borders inside a family block).
     const famFirst = new Set(fams.map(g => g.members[0]));
 
-    let html = `<div class="hm-table" style="grid-template-columns:auto ${cols}">`;
+    const rows = `auto repeat(${plls.length},minmax(0,1fr))`;
+    let html = `<div class="hm-table" style="grid-template-columns:auto ${cols};grid-template-rows:${rows}">`;
     html += `<div class="hm-corner"></div>`;
-    for (const g of fams)
-        html += `<div class="hm-head hm-colhead" style="grid-column:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
+    for (const g of fams) {
+        // The two three-letter, single-case parity headers are shortened to the
+        // same two-character footprint as pJ/pN. Row labels stay unabridged.
+        const colLabel = ({ Adj: 'Ad', Opp: 'Op' })[g.fam] ?? g.fam;
+        html += `<div class="hm-head hm-colhead" style="grid-column:span ${g.members.length}">${escapeHtml(colLabel)}</div>`;
+    }
     for (const g of fams) {
         g.members.forEach((r, idx) => {
             if (idx === 0)
@@ -169,7 +164,6 @@ function hmGridHtml(plls, slices) {
             for (const c of plls) {
                 const cn = r + '/' + c, v = vals[cn];
                 let cls = 'hm-cell';
-                if (wideFam[c])      cls += ' hm-wide-col';
                 if (famFirst.has(c)) cls += ' hm-fam-left';
                 if (idx === 0)       cls += ' hm-fam-top';
                 if (v == null)       cls += ' hm-gray';
@@ -423,6 +417,7 @@ let searchInClusterView = false; // true while the extension shows an alg refere
 let searchClusterTitle  = null;  // cluster currently shown in the extension
 let searchEditMode      = false; // true while the alg reference is being edited
 let searchClusterWidth  = '';    // cached panel width (px) for the open cluster
+let searchClusterReturn = { kind: 'trainer' };
 
 // Search index: per cluster, a title plus every "alias" the user might type to
 // reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
@@ -488,8 +483,9 @@ function getSearchIndex() {
 // and search-result selection.
 function openAlgReference(title) {
     if (!title) return;
+    const returnTo = isSearchOpen ? currentSearchReturnTarget() : { kind: 'trainer' };
     if (!isSearchOpen) openSearch();
-    showClusterInSearch(title);
+    showClusterInSearch(title, returnTo);
 }
 
 function highlightMatch(title, query) {
@@ -504,7 +500,6 @@ function highlightMatch(title, query) {
 
 function renderSearchResults() {
     // Any change to the query returns the extension to plain-search mode.
-    if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
     closeUnitTagPopover();
     _stvCloseSelector();
     searchInClusterView = false;
@@ -524,7 +519,7 @@ function renderSearchResults() {
             searchExtensionEl.style.display = "flex";
             searchResultsEl.style.display = "none";
             hmEl.style.display = "flex";
-            searchPanelEl.style.width = "min(1180px, 96vw)";
+            searchPanelEl.style.width = "min(1440px, 96vw)";
             renderHeatmaps();
         } else {
             searchExtensionEl.style.display = "none";
@@ -681,8 +676,17 @@ function listCaseCount(name) {
 // Shows a cluster's alg reference inside the search extension and sets the search
 // bar to the cluster title. Setting .value programmatically does not fire `input`,
 // so the user editing the bar (which does) reverts to plain search.
-function showClusterInSearch(title) {
+function currentSearchReturnTarget() {
+    if (hmEl.style.display !== 'none')             return { kind: 'heatmap' };
+    if (searchTagViewEl.style.display !== 'none')  return { kind: 'tag', id: _stvTagId };
+    if (searchListViewEl.style.display !== 'none') return { kind: 'list', name: _slvName };
+    if (searchResultsEl.style.display !== 'none')  return { kind: 'results', query: searchInputEl.value };
+    return { kind: 'trainer' };
+}
+
+function showClusterInSearch(title, returnTo = null) {
     if (!(trainerMode === 'pbl' ? pblClusters : oblClusters)?.[title]) return;
+    searchClusterReturn = returnTo || currentSearchReturnTarget();
     searchClusterTitle = title;
     searchEditMode = false;
     searchInClusterView = true;
@@ -697,12 +701,27 @@ function showClusterInSearch(title) {
     renderSearchClusterBody();
 }
 
+function syncSearchClusterToolbar() {
+    const tb = document.getElementById('search-cluster-toolbar');
+    if (!tb) return;
+    const navBack = tb.querySelector('.sct-back');
+    const edit    = tb.querySelector('.sct-edit');
+    const save    = tb.querySelector('.sct-save');
+    navBack.style.display = searchEditMode ? 'none' : '';
+    edit.classList.toggle('active', searchEditMode);
+    edit.dataset.tip = searchEditMode ? 'Back to reference' : 'Edit alg reference';
+    edit.setAttribute('aria-label', searchEditMode ? 'Back to reference' : 'Edit');
+    edit.querySelector('.sct-pencil-icon').style.display = searchEditMode ? 'none' : '';
+    edit.querySelector('.sct-edit-back-icon').style.display = searchEditMode ? '' : 'none';
+    save.style.display = searchEditMode ? '' : 'none';
+    save.disabled = !searchEditMode || !algEditDirty();
+    tb.querySelectorAll('.sct-undo, .sct-redo').forEach(b => b.style.display = searchEditMode ? '' : 'none');
+}
+
 // Renders the cluster body in read or edit mode and syncs the toolbar.
 function renderSearchClusterBody() {
     closeUnitTagPopover();
-    const tb = document.getElementById('search-cluster-toolbar');
-    tb.querySelector('.sct-edit').classList.toggle('active', searchEditMode);
-    tb.querySelectorAll('.sct-undo, .sct-redo').forEach(b => b.style.display = searchEditMode ? '' : 'none');
+    syncSearchClusterToolbar();
 
     if (searchEditMode) {
         // Keep the current read-mode width so entering edit doesn't shrink the panel.
@@ -719,14 +738,73 @@ function renderSearchClusterBody() {
     }
 }
 
-function toggleSearchEdit() {
+let searchEditDiscardPrompt = null;
+
+function confirmDiscardSearchEdit() {
+    if (!searchEditMode || !algEditDirty()) return Promise.resolve(true);
+    if (!searchEditDiscardPrompt) {
+        searchEditDiscardPrompt = appConfirm(
+            'You have unsaved changes. Discard them and leave the editor?',
+            { title: 'Unsaved changes', okText: 'Discard', cancelText: 'Keep editing', danger: true }
+        ).finally(() => { searchEditDiscardPrompt = null; });
+    }
+    return searchEditDiscardPrompt;
+}
+
+async function leaveSearchEdit() {
+    if (!searchEditMode) return true;
+    if (!await confirmDiscardSearchEdit()) return false;
+    algEditCancel();
+    searchEditMode = false;
+    return true;
+}
+
+async function handleSearchEditButton() {
     if (!searchClusterTitle) return;
-    searchEditMode = !searchEditMode;
-    let dirty = false;
-    if (searchEditMode) algEditBegin(searchClusterTitle);
-    else                dirty = algEditFinish();
+    if (searchEditMode) {
+        if (!await leaveSearchEdit()) return;
+    } else {
+        searchEditMode = true;
+        algEditBegin(searchClusterTitle);
+    }
     renderSearchClusterBody();
-    if (!searchEditMode && dirty) showSuccess("Saved.", 800);
+}
+
+function saveSearchEdit() {
+    if (!searchEditMode || !algEditDirty()) return;
+    if (algEditSave()) showSuccess("Saved.", 800);
+    syncSearchClusterToolbar();
+}
+
+async function handleSearchInput() {
+    if (!searchEditMode) { renderSearchResults(); return; }
+    const nextQuery = searchInputEl.value;
+    searchInputEl.value = searchClusterTitle;
+    if (!await leaveSearchEdit()) return;
+    searchInputEl.value = nextQuery;
+    renderSearchResults();
+}
+
+function backFromSearchCluster() {
+    if (searchEditMode) return;
+    const target = searchClusterReturn;
+    searchClusterTitle = null;
+    searchInClusterView = false;
+    searchClusterEl.style.display = 'none';
+
+    if (target.kind === 'heatmap') {
+        searchInputEl.value = '';
+        renderSearchResults();
+    } else if (target.kind === 'tag' && target.id) {
+        showTagInSearch(target.id);
+    } else if (target.kind === 'list' && target.name) {
+        showListInSearch(target.name);
+    } else if (target.kind === 'results') {
+        searchInputEl.value = target.query || '';
+        renderSearchResults();
+    } else {
+        dismissTopOverlay();
+    }
 }
 
 // Sizes the whole search panel (bar + extension) to fit the cluster's widest
@@ -774,12 +852,17 @@ function openSearch() {
     searchInputEl.value = "";
     renderSearchResults();
     searchInputEl.focus();
-    pushOverlay({ el: searchOverlayEl, isPopup: false, close: closeSearchRaw });
+    pushOverlay({
+        el: searchOverlayEl,
+        isPopup: false,
+        close: closeSearchRaw,
+        beforeClose: confirmDiscardSearchEdit,
+    });
 }
 
 // Raw hide — runs from the overlay stack (no history side effects).
 function closeSearchRaw() {
-    if (searchEditMode) { const dirty = algEditFinish(); searchEditMode = false; if (dirty) showSuccess("Saved.", 800); }
+    if (searchEditMode) { algEditCancel(); searchEditMode = false; }
     closeUnitTagPopover();
     _stvCloseSelector();
     hmCloseFilter();
@@ -824,9 +907,11 @@ function closeSearchHelp(e) {
 }
 
 searchHelpBtnEl.addEventListener("click", openSearchHelp);
-searchInputEl.addEventListener("input", renderSearchResults);
+searchInputEl.addEventListener("input", handleSearchInput);
 
-document.querySelector('#search-cluster-toolbar .sct-edit').addEventListener("click", toggleSearchEdit);
+document.querySelector('#search-cluster-toolbar .sct-back').addEventListener("click", backFromSearchCluster);
+document.querySelector('#search-cluster-toolbar .sct-edit').addEventListener("click", handleSearchEditButton);
+document.querySelector('#search-cluster-toolbar .sct-save').addEventListener("click", saveSearchEdit);
 document.querySelector('#search-cluster-toolbar .sct-undo').addEventListener("click", () => algEditUndo());
 document.querySelector('#search-cluster-toolbar .sct-redo').addEventListener("click", () => algEditRedo());
 
