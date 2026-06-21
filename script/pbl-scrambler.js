@@ -318,7 +318,7 @@ class Search {
                 top = bottom = 0;
             }
         }
-        if (top == 0 && bottom == 0) { } else {
+        if (top != 0 || bottom != 0) {
             s += " (" + top + "," + bottom + ") ";
         }
         return s;

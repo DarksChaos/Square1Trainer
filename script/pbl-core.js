@@ -1,32 +1,47 @@
+import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
+import { tagCaseBases } from './alg-reference.js';
+import { HELP_CTRL_SVG, HELP_HOME_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { SquanLib, squan } from './squan.js';
+
 // ─── PBL STATE ────────────────────────────────────────────────────────────────
 
-let pblPossible  = [];  // [[top, bottom], ...]
-let pblSelected  = [];  // entries end with '+' or '-'  e.g. "Al/Ar+"
-let pblScrambleList = []; // [[normal, karn, caseName], ...]
-let pblRemaining = [];
+export let pblPossible  = [];  // [[top, bottom], ...]
+export let pblSelected  = [];  // entries end with '+' or '-'  e.g. "Al/Ar+"
+export let pblScrambleList = []; // [[normal, karn, caseName], ...]
+export let pblRemaining = [];
 let pblEachCase  = 0;   // 0 = random, 1+ = fixed count per cycle
 let pblWeight    = false;
-let pblUseBarflip = false;
-let pblHasActive    = false;
-let pblCaseSpliced  = false; // true once a case has been taken from remaining for display
+export let pblUseBarflip = false;
+export let pblHasActive    = false;
+export let pblCaseSpliced  = false; // true once a case has been taken from remaining for display
 
-let pblOffset      = 0;  // how far back in pblScrambleList we're browsing
+export let pblOffset      = 0;  // how far back in pblScrambleList we're browsing
 let pblCurrentCase  = "";
-let pblPreviousCase = "";
+export let pblPreviousCase = "";
 
-let pblPreviouslySelected = null; // null = nothing to undo
-let pblRedoSelected       = null; // null = nothing to redo
+export let pblPreviouslySelected = null; // null = nothing to undo
+export let pblRedoSelected       = null; // null = nothing to redo
 
-let pblScrambleMode  = 'long'; // 'long' | 'short'
+export function pblSetOffset(value) { pblOffset = value; }
+export function pblSetHistory(previous, redo) {
+    pblPreviouslySelected = previous;
+    pblRedoSelected = redo;
+}
+export function pblResetSelection() {
+    pblSelected = [];
+    pblRemaining = [];
+}
+
+export let pblScrambleMode  = 'long'; // 'long' | 'short'
 let pblAllowBottom56 = false;
 
 let pblWorker     = null;
-let pblWorkerBusy = false;
-let pblPending    = null; // null | 'waiting' | worker-result object
+export let pblWorkerBusy = false;
+export let pblPending    = null; // null | 'waiting' | worker-result object
 let pblPendingFor = null; // the choice string used to request pblPending (for match validation)
 
 // pblDefaultLists is declared as const in pbl-data.js (JSON moved there).
-let pblUserLists    = {};
+export let pblUserLists    = {};
 
 // ─── BARFLIP STATE ───────────────────────────────────────────────────────────
 
@@ -60,7 +75,7 @@ function pblCaseMode(base) {
 }
 
 // Updates the DOM class on a .case element.
-function pblSetDomClass(el, mode) {
+export function pblSetDomClass(el, mode) {
     el.classList.remove('checked-both', 'checked-plus', 'checked-minus');
     if      (mode === 'both')  el.classList.add('checked-both');
     else if (mode === 'plus')  el.classList.add('checked-plus');
@@ -72,7 +87,7 @@ function pblNextModeForw(m)   { return m === 'none' ? 'both'  : m === 'both'  ? 
 function pblNextModeBack(m)  { return m === 'none' ? 'minus' : m === 'minus' ? 'plus' : m === 'plus' ? 'both'  : 'minus'; }
 function pblNextModeToggle(m) { return m === 'both' ? 'none'  : 'both'; }
 
-function pblName(pbl) { return `${pbl[0]}/${pbl[1]}`; }
+export function pblName(pbl) { return `${pbl[0]}/${pbl[1]}`; }
 
 function pblEffectiveOverride() {
     return (pblShowBarflipUI && pblUseBarflip) ? pblBarflipOverride : null;
@@ -144,7 +159,7 @@ function pblRecolorAll() {
 
 // ─── PBL STORAGE ─────────────────────────────────────────────────────────────
 
-const pblStorage = {
+export const pblStorage = {
     getItem:    k      => localStorage.getItem(k + 'PBL'),
     setItem:    (k, v) => localStorage.setItem(k + 'PBL', v),
     removeItem: k      => localStorage.removeItem(k + 'PBL'),
@@ -167,7 +182,7 @@ function pblMigrateLegacyStorage() {
     if (migrated) console.log('Migrated legacy PBL data to pblStorage.');
 }
 
-function pblSaveSelected() {
+export function pblSaveSelected() {
     pblStorage.setItem("selected", JSON.stringify(pblSelected));
     // Regenerate scramble if: nothing active, selection gone, or current case was removed.
     if (!pblHasActive || pblSelected.length === 0) pblGenerateScramble();
@@ -175,7 +190,7 @@ function pblSaveSelected() {
     pblSyncSettingsDisabled();
 }
 
-function pblSaveUserLists() {
+export function pblSaveUserLists() {
     pblStorage.setItem("userLists", JSON.stringify(pblUserLists));
 }
 
@@ -183,7 +198,7 @@ function pblSaveBarflipOverride() {
     pblStorage.setItem("barflipOverride", pblBarflipOverride ?? '');
 }
 
-function pblSaveSettings() {
+export function pblSaveSettings() {
     let store = "";
     for (const el of pblSettingList) store += el.checked ? "1" : "0";
     pblStorage.setItem("settings", store);
@@ -192,14 +207,14 @@ function pblSaveSettings() {
 }
 
 // Restore PBL checkbox states from storage when switching back from OBL.
-function pblRestoreSettings() {
+export function pblRestoreSettings() {
     const stored = pblStorage.getItem('settings');
     if (stored !== null) {
         for (let i = 0; i < pblSettingList.length; i++)
             pblSettingList[i].checked = stored[i] === '1';
     }
     // Sync derived state that depends on checkbox values.
-    usingKarn        = karnEl.checked        ? 1 : 0;
+    setUsingKarn(karnEl.checked ? 1 : 0);
     pblWeight        = weightEl.checked;
     pblUseBarflip    = useBarflipEl.checked;
     pblShowBarflipUI = globalBarflipEl.checked;
@@ -208,12 +223,12 @@ function pblRestoreSettings() {
 
 // ─── PBL CASE GRID HELPERS ────────────────────────────────────────────────────
 
-function pblShow(id) { document.getElementById(id)?.classList.remove("hidden"); }
-function pblHide(id) { document.getElementById(id)?.classList.add("hidden"); }
+export function pblShow(id) { document.getElementById(id)?.classList.remove("hidden"); }
+export function pblHide(id) { document.getElementById(id)?.classList.add("hidden"); }
 
 // ─── PBL SELECTION ────────────────────────────────────────────────────────────
 
-function pblSelect(s) {
+export function pblSelect(s) {
     // s must end with '+' or '-'
     const base = s.slice(0, -1);
     const el   = document.getElementById(base);
@@ -240,7 +255,7 @@ function pblSelect(s) {
     updateRemainingCount();
 }
 
-function pblDeselect(s) {
+export function pblDeselect(s) {
     // s must end with '+' or '-'
     if (!pblSelected.includes(s)) return;
     const base = s.slice(0, -1);
@@ -261,7 +276,7 @@ function pblDeselect(s) {
 // pblGetOptimal: optimal slicecount for a case like "Al/Ul", reversing the
 // pblOptimal compression — try the alphabetically-sorted family, then the case
 // itself, then its mirror. Throws if none are present.
-function pblGetOptimal(pbl) {
+export function pblGetOptimal(pbl) {
     const fam = squan.getPBLFamily(pbl).split("/").sort().join("/");
     if (fam in pblOptimal) return pblOptimal[fam];
     if (pbl in pblOptimal) return pblOptimal[pbl];
@@ -306,7 +321,7 @@ function pblNormalHandler(e) {
     pblPending = e.data;
 }
 
-function pblRequestScramble(choice) {
+export function pblRequestScramble(choice) {
     if (pblWorkerBusy) return;
     pblWorkerBusy = true;
     pblPending    = null;
@@ -334,7 +349,7 @@ function pblCancelIfConflicting(newMode, newBottom56) {
 
 // ─── PBL SCRAMBLE GENERATION ─────────────────────────────────────────────────
 
-function pblGenerateScramble(regen = false) {
+export function pblGenerateScramble(regen = false) {
     if (pblSelected.length === 0) {
         timerEl.textContent            = "--:--";
         currentScrambleEl.textContent  = "Scramble will show up here";
@@ -457,7 +472,7 @@ function pblGenerateScramble(regen = false) {
 // the OBL trainer is active.
 pblWorker.onmessage = pblNormalHandler;
 
-function pblDisplayPrevScram() {
+export function pblDisplayPrevScram() {
     const prev = pblScrambleList.at(-2 - pblOffset);
     previousScrambleEl.textContent = prev
         ? "Previous scramble: " + prev[usingKarn] + " (" + prev[2] + ")"
@@ -466,7 +481,7 @@ function pblDisplayPrevScram() {
 
 // ─── PBL GRID ─────────────────────────────────────────────────────────────────
 
-function pblRestoreGrid() {
+export function pblRestoreGrid() {
     caseListEl.style.gridTemplateColumns = '';
     caseListEl.innerHTML = pblPossible
         .map(([t, b]) => `<div class="case" id="${t}/${b}">${t} / ${b}</div>`)
@@ -553,7 +568,7 @@ function pblApplyModeToList(bases, mode) {
     pblSaveSelected();
 }
 
-function pblSelectAll(isRightClick = false) {
+export function pblSelectAll(isRightClick = false) {
     if (usingTimer()) return;
     pblSnapSelection();
     const bases = pblPossible.map(pbl => pblName(pbl));
@@ -562,7 +577,7 @@ function pblSelectAll(isRightClick = false) {
     pblApplyModeToList(bases, pblSelectBtnState);
 }
 
-function pblDeselectAll() {
+export function pblDeselectAll() {
     if (usingTimer()) return;
     pblSnapSelection();
     pblSelectBtnState = 'none';
@@ -574,7 +589,7 @@ function pblDeselectAll() {
     pblSaveSelected();
 }
 
-function pblSelectThese(isRightClick = false) {
+export function pblSelectThese(isRightClick = false) {
     if (usingTimer()) return;
     pblSnapSelection();
     const bases = pblGetVisibleBases();
@@ -583,7 +598,7 @@ function pblSelectThese(isRightClick = false) {
     pblApplyModeToList(bases, pblSelectBtnState);
 }
 
-function pblDeselectThese() {
+export function pblDeselectThese() {
     if (usingTimer()) return;
     pblSnapSelection();
     pblSelectBtnState = 'none';
@@ -598,7 +613,7 @@ function pblDeselectThese() {
 
 // ─── PBL LIST MANAGEMENT ─────────────────────────────────────────────────────
 
-function pblAddUserLists() {
+export function pblAddUserLists() {
     let html = "";
     for (const k of Object.keys(pblUserLists)) {
         const count = new Set(pblUserLists[k].map(s => s.slice(0, -1))).size;
@@ -609,7 +624,7 @@ function pblAddUserLists() {
     pblSaveUserLists();
 }
 
-function pblAddDefaultLists() {
+export function pblAddDefaultLists() {
     let html = "";
     for (const k of Object.keys(pblDefaultLists)) {
         const count = new Set(pblDefaultLists[k].map(s => s.slice(0, -1))).size;
@@ -619,7 +634,7 @@ function pblAddDefaultLists() {
     document.querySelectorAll("#defaultlists>.list-item").forEach(addListItemEvent);
 }
 
-function pblSelectList(listName, setSelection) {
+export function pblSelectList(listName, setSelection) {
     if (listName == null) { showAll(); return; }
 
     const list = Object.keys(pblDefaultLists).includes(listName)
@@ -659,14 +674,14 @@ function pblSelectList(listName, setSelection) {
         updateRemainingCount();
     }
 
-    showMode = 'list';
+    setShowMode('list');
     updateToggle();
     pblSaveUserLists();
 }
 
 // Show (and optionally select) every case belonging to a tag's clusters. Cases
 // are selected as both barflips, or as the global override barflip if one is set.
-function pblSelectTag(tagId, setSelection) {
+export function pblSelectTag(tagId, setSelection) {
     const bases = tagCaseBases(tagId);
 
     pblPossible.forEach(pbl => pblHide(pblName(pbl)));
@@ -693,7 +708,7 @@ function pblSelectTag(tagId, setSelection) {
         updateRemainingCount();
     }
 
-    showMode = 'list';
+    setShowMode('list');
     updateToggle();
 }
 
@@ -730,7 +745,7 @@ async function pblInit() {
     pblAddDefaultLists();
 }
 
-function pblLoadStorage(buildGrid = false) {
+export function pblLoadStorage(buildGrid = false) {
     pblMigrateLegacyStorage();
 
     const storedSelected  = pblStorage.getItem("selected");
@@ -857,7 +872,7 @@ function pblLoadStorage(buildGrid = false) {
 
 // ─── PBL SETTINGS HANDLERS ────────────────────────────────────────────────────
 
-function pblOnEachCase() {
+export function pblOnEachCase() {
     pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     pblRefillRemaining();
     // The active case is already being displayed — remove one of its freshly-added
@@ -872,7 +887,7 @@ function pblOnEachCase() {
     pblSyncSettingsDisabled();
 }
 
-function pblOnWeights() {
+export function pblOnWeights() {
     pblWeight = weightEl.checked;
     pblRefillRemaining();
     // The active case is already being displayed — remove one of its freshly-added
@@ -914,7 +929,7 @@ const pblBarflipOverrideRow = document.getElementById('barflip-override-row');
 const pblFlippedBtn         = document.getElementById('barflip-flipped');
 const pblSolvedBtn          = document.getElementById('barflip-solved');
 
-function pblApplyBarflipUI() {
+export function pblApplyBarflipUI() {
     const showOverride = pblShowBarflipUI && pblUseBarflip;
     if (pblBarflipOverrideRow) pblBarflipOverrideRow.classList.toggle('hidden', !showOverride);
     if (pblFlippedBtn) pblFlippedBtn.classList.toggle('active', showOverride && pblBarflipOverride === '+');
@@ -933,15 +948,7 @@ function pblSetBarflipOverride(value) {
     }
 }
 
-function pblOnGlobalBarflip() {
-    pblShowBarflipUI = globalBarflipEl.checked;
-    pblApplyBarflipUI();
-    pblRecolorAll();
-    if (pblHasActive) { pblPending = null; pblGenerateScramble(true); }
-    pblSaveSettings();
-}
-
-function pblOnUseBarflip() {
+export function pblOnUseBarflip() {
     // Prevent unchecking B when single-barflip cases are selected.
     if (!useBarflipEl.checked && pblIsBarflipRequired()) {
         useBarflipEl.checked = true;
@@ -964,7 +971,7 @@ function pblOnUseBarflip() {
     pblSyncSettingsDisabled();
 }
 
-function pblOnGlobalBarflip() {
+export function pblOnGlobalBarflip() {
     const prevEffective = pblEffectiveOverride();
     pblShowBarflipUI = globalBarflipEl.checked;
     pblApplyBarflipUI();
@@ -1002,7 +1009,7 @@ const HELP_EQ_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
     <rect x="9.41" y="5" width="12.59" height="14" rx="1"/>
 </svg>`
 
-const pblHelpSections = [
+export const pblHelpSections = [
     {
         id: 'pbl-home',
         title: 'Navigation',
@@ -1142,14 +1149,13 @@ const pblHelpSections = [
 // generation, etc.) depends on it, and module scripts run after these classic
 // scripts have finished parsing.
 
-function startApp() {
-    pblInit().then(() => {
-        applyMode();            // applies the last-used trainer mode (or 'obl' default)
-        pblApplyBarflipUI();    // must run after pblShowBarflipUI + pblBarflipOverride are loaded
-        updateSelectBtn();
-        updateDeselectBtn();
-        updateToggle();
-    });
+export async function startApp() {
+    await pblInit();
+    applyMode();            // applies the last-used trainer mode (or 'obl' default)
+    pblApplyBarflipUI();    // must run after pblShowBarflipUI + pblBarflipOverride are loaded
+    updateSelectBtn();
+    updateDeselectBtn();
+    updateToggle();
 }
 
 
@@ -1408,7 +1414,7 @@ function getFilteredSet(raw) {
 // APPLY FILTER TO DOM
 // ============================================================================
 
-function applyFilter(raw) {
+export function applyFilter(raw) {
     const visible = getFilteredSet(raw);
     for (let pbl of pblPossible) {
         const n = pblName(pbl);

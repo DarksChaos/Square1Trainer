@@ -1,3 +1,11 @@
+import { oblClusters, pblClusters } from '../data/alg-data.js';
+import { escapeHtml, trainerMode, usingKarn } from './app.js';
+import { getSpe, oblStorage } from './obl-core.js';
+import { pblStorage } from './pbl-core.js';
+import { searchClusterContentEl, searchEditMode, syncSearchClusterToolbar } from './search.js';
+import { SquanLib, squan } from './squan.js';
+import { getTags } from './tags.js';
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  ALG REFERENCE
 //  Everything behind the alg-reference shown in the search overlay, in four
@@ -37,16 +45,16 @@ function saveContentOverrides(overrides) {
     _algStore().setItem('algOverrides', JSON.stringify(overrides));
 }
 
-function loadTagAssignments() {
+export function loadTagAssignments() {
     try { return JSON.parse(_algStore().getItem('tagAssignments')) || {}; }
     catch (e) { return {}; }
 }
-function saveTagAssignments(assignments) {
+export function saveTagAssignments(assignments) {
     _algStore().setItem('tagAssignments', JSON.stringify(assignments));
 }
 
 // Removes a deleted tag's attachments from both trainers' stores.
-function purgeTagFromAssignments(tagId) {
+export function purgeTagFromAssignments(tagId) {
     for (const store of [pblStorage, oblStorage]) {
         try {
             const a = JSON.parse(store.getItem('tagAssignments')) || {};
@@ -73,18 +81,18 @@ function nextNewGroupId(mattOverride) {
 // Canonical "title|source|unitId" reference used as the value in tagAssignments.
 // PBL matt addresses a solution group by its id; every other source (OBL matt,
 // any sheet) is a single whole-source unit addressed with "*".
-function unitRef(title, source, unitId) { return `${title}|${source}|${unitId}`; }
+export function unitRef(title, source, unitId) { return `${title}|${source}|${unitId}`; }
 
 // ── Tag attachment (tagAssignments is the source of truth) ───────────────────
 
-const UNIT_TAG_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none"/></svg>`;
+export const UNIT_TAG_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none"/></svg>`;
 
 function tagsForUnit(ref) {
     const a = loadTagAssignments();
     return Object.keys(a).filter(tid => a[tid].includes(ref));
 }
 
-function toggleUnitTag(ref, tagId) {
+export function toggleUnitTag(ref, tagId) {
     const a = loadTagAssignments();
     if (!a[tagId]) a[tagId] = [];
     const i = a[tagId].indexOf(ref);
@@ -95,7 +103,7 @@ function toggleUnitTag(ref, tagId) {
 
 // Set of cluster titles (in the current trainer) that have at least one unit
 // tagged with any tag.
-function taggedClusterTitles() {
+export function taggedClusterTitles() {
     const set = new Set();
     for (const refs of Object.values(loadTagAssignments())) {
         for (const ref of refs) set.add(ref.split('|')[0]);
@@ -117,7 +125,7 @@ function tagClusterTitles(tagId) {
 // Union of the case-list cases of every cluster a tag touches. These match the
 // grid cell ids (PBL "Al/Al", "Gal/-"; OBL "Uw/THw"), so they can be selected /
 // shown directly. Order follows the clusters' own case-list order.
-function tagCaseBases(tagId) {
+export function tagCaseBases(tagId) {
     const out = [];
     for (const title of tagClusterTitles(tagId)) {
         for (const c of (effectiveCluster(title)?.['case-list'] || [])) {
@@ -149,7 +157,7 @@ function unitOverview(title, source, unitId) {
 
 // Groups a tag's assignments by cluster, resolving each ref to a display label.
 //   [{ title, entries: [{ ref, source, unitId, overview }] }]
-function tagUnitsByCluster(tagId) {
+export function tagUnitsByCluster(tagId) {
     const refs = loadTagAssignments()[tagId] || [];
     const byTitle = new Map();
     for (const ref of refs) {
@@ -163,7 +171,7 @@ function tagUnitsByCluster(tagId) {
 
 // Selection state of a tag across a set of unit refs: 'none' | 'some' | 'all'.
 // (Single-unit today; multi-unit selection will use 'some' later.)
-function tagUnitState(tagId, refs) {
+export function tagUnitState(tagId, refs) {
     const set = loadTagAssignments()[tagId] || [];
     const n = refs.filter(r => set.includes(r)).length;
     return n === 0 ? 'none' : n === refs.length ? 'all' : 'some';
@@ -171,7 +179,7 @@ function tagUnitState(tagId, refs) {
 
 // Inner HTML of a unit's tag control: the chip list (collapses to dots on
 // overflow via the .dots class) + the fixed add button on the right.
-function unitTagsInner(ref) {
+export function unitTagsInner(ref) {
     const tags = getTags();
     const chips = tagsForUnit(ref).map(id => {
         const t = tags.find(x => x.id === id);
@@ -189,7 +197,7 @@ function unitTagsHtml(ref) {
 // ── Merge (read path) ────────────────────────────────────────────────────────
 
 // Resolves a cluster's matt solution-groups with overrides applied, in order.
-function effectiveMattGroups(title) {
+export function effectiveMattGroups(title) {
     const cluster   = _algClusters()[title];
     const defGroups = cluster?.matt?.['solution-groups'] || [];
     const ov        = loadContentOverrides()[title]?.matt;
@@ -205,7 +213,7 @@ function effectiveMattGroups(title) {
 
 // Returns a cluster object with all overrides applied (default if none).
 // case-list and optimal-slicecount are never editable, so they pass through.
-function effectiveCluster(title) {
+export function effectiveCluster(title) {
     const cluster = _algClusters()[title];
     if (!cluster) return cluster;
     const ov = loadContentOverrides()[title];
@@ -233,7 +241,7 @@ function effectiveCluster(title) {
 // Returns the ordered list of matt unit ids for a cluster (defaults + added),
 // matching the order effectiveMattGroups() renders them in. Used by the editor
 // and tag display to address units.
-function mattUnitOrder(title) {
+export function mattUnitOrder(title) {
     const cluster   = _algClusters()[title];
     const defGroups = cluster?.matt?.['solution-groups'] || [];
     const ov        = loadContentOverrides()[title]?.matt;
@@ -483,7 +491,7 @@ let aeUndo = [], aeRedo = [];
 let aeEnterSnapshot = null;      // cluster override JSON captured on entering edit mode
 let aeSnapshotBeforeEdit = null; // draft state captured at each render
 let aeTextUndoPushed = false;    // one undo entry per render→text-edit burst
-function algEditActive() { return searchEditMode && aeDraft != null; }
+export function algEditActive() { return searchEditMode && aeDraft != null; }
 
 function _aeSourceMeta() { return trainerMode === 'obl' ? OBL_SOURCE_META : PBL_SOURCE_META; }
 function _aeSources(title) {
@@ -499,7 +507,7 @@ function _aeHasAngle() { return trainerMode === 'pbl' || aeSource === 'matt'; }
 
 // ── Session lifecycle ────────────────────────────────────────────────────────
 
-function algEditBegin(title) {
+export function algEditBegin(title) {
     aeTitle  = title;
     const sources = _aeSources(title);
     const last = trainerMode === 'obl' ? oblLastClusterSource : pblLastClusterSource;
@@ -531,14 +539,14 @@ function _aeAutosave() {
     _aeSyncDirtyState();
 }
 
-function algEditDirty() {
+export function algEditDirty() {
     if (!aeDraft || !aeTitle) return false;
     const current = loadContentOverrides()[aeTitle] ?? null;
     const saved   = JSON.parse(aeEnterSnapshot);
     return !_deepEqual(current, saved);
 }
 
-function algEditSave() {
+export function algEditSave() {
     if (!aeDraft) return false;
     _aeCommit();
     const dirty = algEditDirty();
@@ -555,7 +563,7 @@ function _aeTearDown() {
 }
 
 // Leave edit mode without saving changes made since the latest Save click.
-function algEditCancel() {
+export function algEditCancel() {
     if (aeDraft && aeTitle) {
         const all = loadContentOverrides();
         const saved = JSON.parse(aeEnterSnapshot);
@@ -572,14 +580,14 @@ function _aePushUndo(state) { aeUndo.push(state); aeRedo = []; if (aeUndo.length
 function _aeStructuralUndo() { _aePushUndo(_clone(aeDraft)); }
 function _aeTextUndoOnce() { if (!aeTextUndoPushed) { _aePushUndo(aeSnapshotBeforeEdit); aeTextUndoPushed = true; } }
 
-function algEditUndo() {
+export function algEditUndo() {
     if (!aeUndo.length) return;
     aeRedo.push(_clone(aeDraft));
     aeDraft = aeUndo.pop();
     _aeCommit();
     algEditRender(searchClusterContentEl, aeTitle);
 }
-function algEditRedo() {
+export function algEditRedo() {
     if (!aeRedo.length) return;
     aeUndo.push(_clone(aeDraft));
     aeDraft = aeRedo.pop();
@@ -620,7 +628,7 @@ function _aeBlockHtml(bi, block, withExplanations) {
     return `<div class="ae-block" data-bi="${bi}">${exp}${_aeBlockRowsHtml(bi, block)}</div>`;
 }
 
-function algEditRender(content, title) {
+export function algEditRender(content, title) {
     aeTitle = title;
     const sources = _aeSources(title);
     const meta    = _aeSourceMeta();
@@ -881,7 +889,7 @@ function _aeOnPointerUp() {
 
 // ── PBL case lookup ───────────────────────────────────────────────────────
 
-function pblFindCluster(caseName) {
+export function pblFindCluster(caseName) {
     const clean = caseName.replace(/(?<!\/)[+-]$/, ""); // strip sign, keep a solved-face "-"
     for (const [title, data] of Object.entries(pblClusters)) {
         if (data["case-list"].includes(clean)) return title;
@@ -968,7 +976,7 @@ function pblFormatMatt(cluster, key, meta, title) {
 
 // Formats a generic sheet source (Derpy format: [{case-name, algs:[{sign,angle,notation}]}]).
 // All non-Matt sources are assumed to use this shape.
-function pblFormatSheet(cluster, key, meta, title) {
+export function pblFormatSheet(cluster, key, meta, title) {
     const sheetData = cluster[key];
     const lines = [];
     const linkHtml = meta.url
@@ -999,7 +1007,7 @@ function pblFormatSheet(cluster, key, meta, title) {
 
 let pblLastClusterSource = null;
 
-const PBL_SOURCE_META = {
+export const PBL_SOURCE_META = {
     matt:  { label: 'Matt',  linkText: "Matt's PBL Doc",    url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt  },
     derpy: { label: 'Derpy', linkText: "Derpy's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit', formatter: pblFormatSheet },
     jlminx: { label: 'JLMinx', linkText: "JL Minx's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/10yJdudCtT-zIt7YVjhgPv4VfOuqXHa3u1fxYhaBPP8s/edit', formatter: pblFormatSheet },
@@ -1055,7 +1063,7 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
 
 // ── OBL case → cluster lookup ─────────────────────────────────────────────
 
-function oblFindCluster(caseName) {
+export function oblFindCluster(caseName) {
     try {
         caseName = getSpe(caseName)[0];
     } catch (e) {}
@@ -1121,7 +1129,7 @@ function oblFormatMatt(cluster, key, meta, title) {
 
 // Formats a generic sheet source (Derpy format: [{case-name, algs:[string]}]).
 // All non-Matt OBL sources are assumed to use plain notation strings.
-function oblFormatSheet(cluster, key, meta, title) {
+export function oblFormatSheet(cluster, key, meta, title) {
     const sheetData = cluster[key];
     const lines = [];
     const linkHtml = meta.url
@@ -1151,7 +1159,7 @@ function oblFormatSheet(cluster, key, meta, title) {
 
 let oblLastClusterSource = null;
 
-const OBL_SOURCE_META = {
+export const OBL_SOURCE_META = {
     matt:  { label: 'Matt',  linkText: "Matt's OBL Doc",    url: 'https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit', formatter: oblFormatMatt  },
     derpy: { label: 'Derpy', linkText: "Derpy's OBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit', formatter: oblFormatSheet },
 };
@@ -1204,7 +1212,7 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
 // Renders a cluster's alg reference for `title` into an arbitrary `content`
 // element. `onResize` is the callback the source tabs use to re-fit.
 // Returns true if the cluster existed and was rendered.
-function renderClusterInto(content, title, onResize = () => {}) {
+export function renderClusterInto(content, title, onResize = () => {}) {
     const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
     if (!clusters || !clusters[title]) return false;
     const cluster  = effectiveCluster(title); // shipped data merged with user overrides

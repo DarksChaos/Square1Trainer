@@ -1,4 +1,15 @@
-# PBL Trainer
-PBL Trainer for Square-1
+# Unified Trainer
 
-Access OBL and PBL trainers at : https://squan-trainers.web.app/
+OBL and PBL trainers for Square-1.
+
+## Development
+
+```sh
+npm install
+npm run lint
+npm run build
+```
+
+`npm run build` recreates `public/` with bundled, minified, and identifier-mangled ES modules. Algorithm-reference data is emitted as deferred chunks and loaded after the initial UI paint.
+
+Live site: https://squan-trainers.web.app/

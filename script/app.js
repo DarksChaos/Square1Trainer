@@ -1,15 +1,22 @@
+import { pblDefaultLists } from '../data/pbl-data.js';
+import { algEditActive, algEditRedo, algEditUndo, oblFindCluster, pblFindCluster } from './alg-reference.js';
+import { oblAddDefaultLists, oblApplyFilter, oblCaseSpliced, oblDeleteList, oblDeselect, oblDeselectAll, oblDeselectThese, oblDisplayCurrentScramble, oblGenerateScramble, oblHasActiveScramble, oblHelpSections, oblInitDefaultLists, oblLoadSelected, oblLoadSettings, oblLoadUserLists, oblNewList, oblOnEachCase, oblOnMemo, oblOnSpe, oblOverwriteList, oblPreviouslySelected, oblRedoSelected, oblRemainingCases, oblResetSelection, oblRestoreGrid, oblSaveSelected, oblSaveSettings, oblScrambleList, oblScrambleOffset, oblSelect, oblSelectAll, oblSelectList, oblSelectTag, oblSelectedCases, oblSetHistory, oblSetScrambleOffset, oblStorage, oblUsingSpe } from './obl-core.js';
+import { applyFilter, pblAddDefaultLists, pblAddUserLists, pblApplyBarflipUI, pblCaseSpliced, pblDeselect, pblDeselectAll, pblDeselectThese, pblDisplayPrevScram, pblGenerateScramble, pblHasActive, pblHelpSections, pblHide, pblLoadStorage, pblName, pblOffset, pblOnEachCase, pblOnGlobalBarflip, pblOnUseBarflip, pblOnWeights, pblPending, pblPossible, pblPreviousCase, pblPreviouslySelected, pblRedoSelected, pblRemaining, pblRequestScramble, pblResetSelection, pblRestoreGrid, pblRestoreSettings, pblSaveSelected, pblSaveSettings, pblScrambleList, pblScrambleMode, pblSelect, pblSelectAll, pblSelectList, pblSelectTag, pblSelectThese, pblSelected, pblSetDomClass, pblSetHistory, pblSetOffset, pblShow, pblStorage, pblUseBarflip, pblUserLists, pblWorkerBusy } from './pbl-core.js';
+import { isSearchOpen, openAlgReference, saveSearchEdit, toggleSearch } from './search.js';
+import { deleteTag, exportTagsRaw, getTags, highlightedTagId, importTagsRaw, renderTagMenu } from './tags.js';
+
 // ─── MATH UTILITIES ──────────────────────────────────────────────────────────
 
-function mod(n, m) {
+export function mod(n, m) {
     return ((n % m) + m) % m;
 }
 
-function randInt(min, max) {
+export function randInt(min, max) {
     // max included
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function randrange(start, stop, step = 1) {
+export function randrange(start, stop, step = 1) {
     if (stop === undefined) { stop = start; start = 0; }
     const width = Math.ceil((stop - start) / step);
     if (width <= 0) throw new Error("Invalid range");
@@ -18,12 +25,14 @@ function randrange(start, stop, step = 1) {
 
 // ─── SHARED CONSTANTS ─────────────────────────────────────────────────────────
 
-const MIN_EACHCASE = 2;
-const MAX_EACHCASE = 4;
+export const MIN_EACHCASE = 2;
+export const MAX_EACHCASE = 4;
 
 // ─── SHARED STATE ─────────────────────────────────────────────────────────────
 
-let usingKarn = 0; // 0 = standard, 1 = karn; shared by both trainers
+export let usingKarn = 0; // 0 = standard, 1 = karn; shared by both trainers
+
+export function setUsingKarn(value) { usingKarn = value; }
 
 let isPopupOpen = false;
 
@@ -42,32 +51,36 @@ const startDelay    = 200;
 // Both trainers share showMode, preSearchMode, and highlightedList.
 // applyMode() resets them to neutral values on every trainer switch.
 
-let showMode      = 'all'; // 'all' | 'selected' | 'searched' | 'list'
+export let showMode      = 'all'; // 'all' | 'selected' | 'searched' | 'list'
 let preSearchMode = 'all';
-let highlightedList = null;
+export let highlightedList = null;
+
+export function setShowMode(value) { showMode = value; }
+export function setHighlightedList(value) { highlightedList = value; }
 
 // ─── DOM ELEMENT REFERENCES ───────────────────────────────────────────────────
 
 const fileEl          = document.getElementById("fileinput");
 
-const sidebarEl = document.getElementById("sidebar");
-const contentEl = document.getElementById("content");
+document.getElementById('squango-home').addEventListener('click', () => {
+    location.href = 'https://squan-go.web.app/';
+});
 
 const railEl       = document.getElementById("rail");
 const railToggleEl = document.getElementById("rail-toggle");
 
 // Shared case-list container and filter — used by both trainers.
-const caseListEl    = document.getElementById("results");
-const filterInputEl = document.getElementById("pbl-filter");
+export const caseListEl    = document.getElementById("results");
+export const filterInputEl = document.getElementById("pbl-filter");
 
-const eachCaseEl       = document.getElementById("each-case");
-const karnEl           = document.getElementById("karn");
-const weightEl         = document.getElementById("weight");
-const globalBarflipEl  = document.getElementById("globalbarflip");
-const globalBarflipRow = document.getElementById("globalbarfliprow");
-const useBarflipEl     = document.getElementById("usebarflip");
-const bottom56El       = document.getElementById("allow-bottom56");
-const bottom56Row      = document.getElementById('bottom56-row');
+export const eachCaseEl       = document.getElementById("each-case");
+export const karnEl           = document.getElementById("karn");
+export const weightEl         = document.getElementById("weight");
+export const globalBarflipEl  = document.getElementById("globalbarflip");
+export const globalBarflipRow = document.getElementById("globalbarfliprow");
+export const useBarflipEl     = document.getElementById("usebarflip");
+export const bottom56El       = document.getElementById("allow-bottom56");
+export const bottom56Row      = document.getElementById('bottom56-row');
 
 const removeLastEl    = document.getElementById("unselprev");
 const selectAllEl     = document.getElementById("sela");
@@ -76,8 +89,8 @@ const showToggleEl    = document.getElementById("showtoggle");
 const selCountEl      = document.getElementById("selcount");
 
 const openListsEl     = document.getElementById("openlists");
-const userListsEl     = document.getElementById("userlists");
-const defaultListsEl  = document.getElementById("defaultlists");
+export const userListsEl     = document.getElementById("userlists");
+export const defaultListsEl  = document.getElementById("defaultlists");
 const newListEl       = document.getElementById("newlist");
 const deleteListEl    = document.getElementById("dellist");
 const overwriteListEl = document.getElementById("overwritelist");
@@ -88,27 +101,23 @@ const helpPopupEl     = document.getElementById("help-popup");
 const settingsPopupEl = document.getElementById("settings-popup");
 const casesPopupEl    = document.getElementById("cases-popup");
 
-const currentScrambleEl  = document.getElementById("cur-scram");
+export const currentScrambleEl  = document.getElementById("cur-scram");
 currentScrambleEl.style.cursor = "pointer";
-const previousScrambleEl = document.getElementById("prev-scram");
+export const previousScrambleEl = document.getElementById("prev-scram");
 const prevScrambleButton = document.getElementById("prev");
 const nextScrambleButton = document.getElementById("next");
-const timerEl    = document.getElementById("timer");
+export const timerEl    = document.getElementById("timer");
 const timerBoxEl = document.getElementById("timerbox");
 
 // ─── SHARED HELPERS ───────────────────────────────────────────────────────────
 
-function usingTimer() {
+export function usingTimer() {
     return isRunning || pressStartTime != null;
 }
 
 function isMac() {
     if (navigator.userAgentData) return navigator.userAgentData.platform === "macOS";
     return navigator.userAgent.toUpperCase().includes("MAC");
-}
-
-function isTouchDevice() {
-    return window.matchMedia('(pointer: coarse)').matches;
 }
 
 function recentlyStopped() {
@@ -120,17 +129,12 @@ function canInteractTimer() {
     return active && document.activeElement !== filterInputEl && !isPopupOpen && !isSearchOpen;
 }
 
-function validName(n) {
+export function validName(n) {
     for (const l of n) {
         if (l.toLowerCase() === l.toUpperCase() && isNaN(parseInt(l)) && !" /".includes(l))
             return false;
     }
     return true;
-}
-
-function updateColors(hue) {
-    document.documentElement.style.setProperty("--border-col", `hsl(${hue}, 80%, 70%)`);
-    document.documentElement.style.setProperty("--button-col", `hsla(${hue}, 30%, 15%, 0.5)`);
 }
 
 // ─── TOAST / LOADING ─────────────────────────────────────────────────────────
@@ -170,9 +174,9 @@ function showToast(message, type = 'success', duration = 2000) {
     _successTimer = setTimeout(hideSuccess, duration);
 }
 
-function showSuccess(message = "Done!", duration = 2000) { showToast(message, 'success', duration); }
-function showError(message, duration = 2400)             { showToast(message, 'error',   duration); }
-function showInfo(message,  duration = 2200)             { showToast(message, 'info',    duration); }
+export function showSuccess(message = "Done!", duration = 2000) { showToast(message, 'success', duration); }
+export function showError(message, duration = 2400)             { showToast(message, 'error',   duration); }
+export function showInfo(message,  duration = 2200)             { showToast(message, 'info',    duration); }
 
 function hideSuccess() {
     _successTimer = null; // clear reference before the async cleanup
@@ -215,7 +219,7 @@ function syncOverlayBackdrops() {
     });
 }
 
-function pushOverlay(entry) {
+export function pushOverlay(entry) {
     overlayStack.push(entry);
     recomputePopupFlag();
     syncOverlayBackdrops();
@@ -234,7 +238,7 @@ function popOverlayRaw() {
 
 // UI single-step close (Esc / ✕ / backdrop) → routed through history so it and
 // the hardware Back button share one path.
-function dismissTopOverlay() { if (overlayStack.length) history.back(); }
+export function dismissTopOverlay() { if (overlayStack.length) history.back(); }
 
 // Close the whole stack at once (an action that finalizes, e.g. picking a list).
 function dismissAllOverlays() { if (overlayStack.length) history.go(-overlayStack.length); }
@@ -242,7 +246,7 @@ function dismissAllOverlays() { if (overlayStack.length) history.go(-overlayStac
 // Close the top layer in anticipation of opening another in its place; the next
 // pushOverlay reuses this history slot. If nothing reopens, the caller should
 // clear the reservation with abandonTransition().
-function closeOverlayForTransition() {
+export function closeOverlayForTransition() {
     const entry = overlayStack.pop();
     if (entry) entry.close();
     recomputePopupFlag();
@@ -251,7 +255,7 @@ function closeOverlayForTransition() {
 }
 
 // No replacement opened after a transition — discard the now-empty history slot.
-function abandonTransition() {
+export function abandonTransition() {
     if (_reuseHistorySlot) { _reuseHistorySlot = false; history.back(); }
 }
 
@@ -290,11 +294,11 @@ function pushModal(el, onOpen) {
 function openListPopup()     { pushModal(listPopupEl, renderTagMenu); }
 function openCasesPopup()    { pushModal(casesPopupEl); }
 
-const HELP_HOME_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const HELP_HOME_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path fill-rule="evenodd" clip-rule="evenodd" d="M16.25 3.75V5.43953L18.25 7.03953V3.75H16.25ZM19.75 8.23953V3.5C19.75 2.80964 19.1904 2.25 18.5 2.25H16C15.3097 2.25 14.75 2.80964 14.75 3.5V4.23953L14.3426 3.91362C12.9731 2.81796 11.027 2.81796 9.65742 3.91362L1.53151 10.4143C1.20806 10.6731 1.15562 11.1451 1.41438 11.4685C1.67313 11.792 2.1451 11.8444 2.46855 11.5857L3.25003 10.9605V21.25H2.00003C1.58581 21.25 1.25003 21.5858 1.25003 22C1.25003 22.4142 1.58581 22.75 2.00003 22.75H22C22.4142 22.75 22.75 22.4142 22.75 22C22.75 21.5858 22.4142 21.25 22 21.25H20.75V10.9605L21.5315 11.5857C21.855 11.8444 22.3269 11.792 22.5857 11.4685C22.8444 11.1451 22.792 10.6731 22.4685 10.4143L19.75 8.23953ZM19.25 9.76047L13.4056 5.08492C12.5838 4.42753 11.4162 4.42753 10.5945 5.08492L4.75003 9.76047V21.25H8.25003L8.25003 16.9506C8.24999 16.2858 8.24996 15.7129 8.31163 15.2542C8.37773 14.7625 8.52679 14.2913 8.90904 13.909C9.29128 13.5268 9.76255 13.3777 10.2542 13.3116C10.7129 13.2499 11.2858 13.25 11.9507 13.25H12.0494C12.7143 13.25 13.2871 13.2499 13.7459 13.3116C14.2375 13.3777 14.7088 13.5268 15.091 13.909C15.4733 14.2913 15.6223 14.7625 15.6884 15.2542C15.7501 15.7129 15.7501 16.2858 15.75 16.9506L15.75 21.25H19.25V9.76047ZM14.25 21.25V17C14.25 16.2717 14.2484 15.8009 14.2018 15.454C14.1581 15.1287 14.0875 15.0268 14.0304 14.9697C13.9733 14.9126 13.8713 14.842 13.546 14.7982C13.1991 14.7516 12.7283 14.75 12 14.75C11.2717 14.75 10.8009 14.7516 10.4541 14.7982C10.1288 14.842 10.0268 14.9126 9.9697 14.9697C9.9126 15.0268 9.84199 15.1287 9.79826 15.454C9.75162 15.8009 9.75003 16.2717 9.75003 17V21.25H14.25ZM12 8.25C11.3097 8.25 10.75 8.80964 10.75 9.5C10.75 10.1904 11.3097 10.75 12 10.75C12.6904 10.75 13.25 10.1904 13.25 9.5C13.25 8.80964 12.6904 8.25 12 8.25ZM9.25003 9.5C9.25003 7.98122 10.4812 6.75 12 6.75C13.5188 6.75 14.75 7.98122 14.75 9.5C14.75 11.0188 13.5188 12.25 12 12.25C10.4812 12.25 9.25003 11.0188 9.25003 9.5Z" fill="currentColor"/>
 </svg>`;
 
-const HELP_CTRL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+export const HELP_CTRL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
   <rect x="2" y="6" width="20" height="13" rx="2"/>
   <line x1="6"  y1="10" x2="6"  y2="10"/>
   <line x1="10" y1="10" x2="10" y2="10"/>
@@ -309,7 +313,7 @@ const HELP_CTRL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
  * buildHelpShortcuts — turns an array of {keys, desc} (or null for a spacer)
  * into the HTML for a shortcut list.
  */
-function buildHelpShortcuts(rows) {
+export function buildHelpShortcuts(rows) {
     return '<div class="help-shortcut-group">' + rows.map(row => {
         if (!row) return '<div class="help-shortcut-sep"></div>';
         const combo = row.keys.map((k, i) =>
@@ -385,7 +389,7 @@ function openSettingsPopup() { pushModal(settingsPopupEl); }
 
 // closePopup closes the ENTIRE overlay stack (used when an action finalizes, e.g.
 // picking a list). Going back through history keeps the browser entries in sync.
-function closePopup() { dismissAllOverlays(); }
+export function closePopup() { dismissAllOverlays(); }
 
 [listPopupEl, helpPopupEl, settingsPopupEl, casesPopupEl].forEach(el => {
     el.addEventListener('click', (e) => { if (e.target === el) closeTopModal(); });
@@ -447,10 +451,10 @@ function timerBeginTouch(spaceEquivalent) {
     if (isRunning) {
         stopTimer();
         if (trainerMode === 'obl') {
-            oblScrambleOffset--;
+            oblSetScrambleOffset(oblScrambleOffset - 1);
             oblGenerateScramble();
         } else {
-            pblOffset--;
+            pblSetOffset(pblOffset - 1);
             pblGenerateScramble();
         }
         if (!spaceEquivalent) otherKeyPressed += 1;
@@ -485,7 +489,7 @@ function timerEndTouch(spaceEquivalent) {
 
 // updateSelCount: one function for both trainers.
 // OBL counts the selected array directly; PBL de-dupes by base name (strip +/-).
-function updateSelCount() {
+export function updateSelCount() {
     let count;
     if (trainerMode === 'obl') {
         count = oblSelectedCases[oblUsingSpe].length;
@@ -496,7 +500,7 @@ function updateSelCount() {
 }
 
 // update the remainging count if each-case is on
-function updateRemainingCount() {
+export function updateRemainingCount() {
     const wrapperEl = document.getElementById('each-case-remaining');
     if (!wrapperEl) return;
     if (!eachCaseEl.checked) {
@@ -514,7 +518,7 @@ function updateRemainingCount() {
 }
 
 // updateToggle: purely reads showMode + highlightedList — no trainer branching.
-function updateToggle() {
+export function updateToggle() {
     if (showMode === 'list' && highlightedList == null) showMode = 'selected';
     let state;
     const tagId = highlightedTagId();
@@ -541,17 +545,17 @@ function isShowingSubset() {
     return filterInputEl.value.trim() !== '' || showMode !== 'all';
 }
 
-function updateSelectBtn() {
+export function updateSelectBtn() {
     selectAllEl.textContent = isShowingSubset() ? 'Select these' : 'Select ALL';
 }
 
-function updateDeselectBtn() {
+export function updateDeselectBtn() {
     deselectAllEl.textContent = isShowingSubset() ? 'Deselect these' : 'Deselect ALL';
 }
 
 // showAll / showSelected: shared entry points that delegate to the active trainer.
 // Both set showMode and call updateToggle so the button label always stays in sync.
-function showAll() {
+export function showAll() {
     if (trainerMode === 'obl') {
         document.querySelectorAll('.case').forEach(el => el.classList.remove('hidden'));
     } else {
@@ -562,7 +566,7 @@ function showAll() {
     updateToggle();
 }
 
-function showSelected() {
+export function showSelected() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
         document.querySelectorAll('.case').forEach(el => {
@@ -582,7 +586,7 @@ function showSelected() {
 }
 
 // setHighlighted: manages the highlighted list item — no trainer-specific logic.
-function setHighlighted(id) {
+export function setHighlighted(id) {
     if (id === "all") id = null;
     if (highlightedList != null) {
         const prev = document.getElementById(highlightedList);
@@ -596,7 +600,7 @@ function setHighlighted(id) {
 }
 
 // addListItemEvent: generic toggle-highlight click. Used by both trainers' list UIs.
-function addListItemEvent(item) {
+export function addListItemEvent(item) {
     item.addEventListener("click", () => {
         if (item.classList.contains("highlighted")) {
             item.classList.remove("highlighted");
@@ -629,7 +633,7 @@ function prevScram() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
         if (!oblScrambleList.length) return;
-        oblScrambleOffset = Math.min(oblScrambleOffset + 1, oblScrambleList.length - 1);
+        oblSetScrambleOffset(Math.min(oblScrambleOffset + 1, oblScrambleList.length - 1));
         oblDisplayCurrentScramble();
         const prev = oblScrambleList.at(-2 - oblScrambleOffset);
         previousScrambleEl.textContent = prev
@@ -638,7 +642,7 @@ function prevScram() {
         return;
     }
     if (!pblScrambleList.length) return;
-    pblOffset = Math.min(pblOffset + 1, pblScrambleList.length - 1);
+    pblSetOffset(Math.min(pblOffset + 1, pblScrambleList.length - 1));
     currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
     pblDisplayPrevScram();
 }
@@ -647,9 +651,9 @@ function nextScram() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
         if (!oblScrambleList.length) return;
-        oblScrambleOffset--;
+        oblSetScrambleOffset(oblScrambleOffset - 1);
         if (oblScrambleOffset < 0) {
-            oblScrambleOffset = 0;
+            oblSetScrambleOffset(0);
             oblGenerateScramble();
         } else {
             oblDisplayCurrentScramble();
@@ -661,9 +665,9 @@ function nextScram() {
         return;
     }
     if (!pblScrambleList.length) return;
-    pblOffset--;
+    pblSetOffset(pblOffset - 1);
     if (pblOffset < 0) {
-        pblOffset = 0;
+        pblSetOffset(0);
         pblGenerateScramble();
     } else {
         currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
@@ -707,15 +711,13 @@ removeLastEl.addEventListener("click", removeLast);
 // Ctrl+Y: saves current→undo, restores redo (guards with null check).
 
 // Called by pbl-core action functions before they mutate pblSelected.
-function pblSnapSelection() {
-    pblPreviouslySelected = [...pblSelected];
-    pblRedoSelected = null; // new action clears redo
+export function pblSnapSelection() {
+    pblSetHistory([...pblSelected], null); // new action clears redo
 }
 
 // Restore pblSelected to a snapshot, re-render DOM, and save.
 function pblRestoreSelection(snap) {
-    pblSelected  = [];
-    pblRemaining = [];
+    pblResetSelection();
     document.querySelectorAll('.case').forEach(el => pblSetDomClass(el, 'none'));
     for (const s of snap) pblSelect(s);
     pblSaveSelected();
@@ -724,14 +726,12 @@ function pblRestoreSelection(snap) {
 
 // Called by obl-core action functions before they mutate oblSelectedCases.
 function oblSnapSelection() {
-    oblPreviouslySelected = [...oblSelectedCases[oblUsingSpe]];
-    oblRedoSelected = null; // new action clears redo
+    oblSetHistory([...oblSelectedCases[oblUsingSpe]], null); // new action clears redo
 }
 
 // Restore oblSelectedCases to a snapshot, re-render DOM, and save.
 function oblRestoreSelection(snap) {
-    oblSelectedCases[oblUsingSpe]  = [];
-    oblRemainingCases[oblUsingSpe] = [];
+    oblResetSelection();
     document.querySelectorAll('.case').forEach(el => el.classList.remove('checked', 'checked-both'));
     for (const id of snap) oblSelect(id);
     oblSaveSelected();
@@ -924,7 +924,7 @@ railToggleEl.addEventListener('click', () => {
 });
 
 // ─── HTML ESCAPE ─────────────────────────────────────────────────────────────
-function escapeHtml(s) {
+export function escapeHtml(s) {
     return s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 }
 
@@ -1008,14 +1008,12 @@ window.addEventListener("keydown", (e) => {
                     if (trainerMode === 'pbl') {
                         if (pblPreviouslySelected === null) return;
                         const undoSnap        = pblPreviouslySelected;
-                        pblRedoSelected       = [...pblSelected];
-                        pblPreviouslySelected = null;
+                        pblSetHistory(null, [...pblSelected]);
                         pblRestoreSelection(undoSnap);
                     } else {
                         if (oblPreviouslySelected === null) return;
                         const undoSnap        = oblPreviouslySelected;
-                        oblRedoSelected       = [...oblSelectedCases[oblUsingSpe]];
-                        oblPreviouslySelected = null;
+                        oblSetHistory(null, [...oblSelectedCases[oblUsingSpe]]);
                         oblRestoreSelection(undoSnap);
                     }
                     showInfo("Undo", 500);
@@ -1026,14 +1024,12 @@ window.addEventListener("keydown", (e) => {
                     if (trainerMode === 'pbl') {
                         if (pblRedoSelected === null) return;
                         const redoSnap        = pblRedoSelected;
-                        pblPreviouslySelected = [...pblSelected];
-                        pblRedoSelected       = null;
+                        pblSetHistory([...pblSelected], null);
                         pblRestoreSelection(redoSnap);
                     } else {
                         if (oblRedoSelected === null) return;
                         const redoSnap        = oblRedoSelected;
-                        oblPreviouslySelected = [...oblSelectedCases[oblUsingSpe]];
-                        oblRedoSelected       = null;
+                        oblSetHistory([...oblSelectedCases[oblUsingSpe]], null);
                         oblRestoreSelection(redoSnap);
                     }
                     showInfo("Redo", 500);
@@ -1303,7 +1299,7 @@ trainListEl.addEventListener("click", () => {
 // ─── MODE SYSTEM ──────────────────────────────────────────────────────────────
 
 const MODE_KEY  = 'trainerMode';
-let trainerMode = localStorage.getItem(MODE_KEY) || 'pbl'; // 'pbl' | 'obl'
+export let trainerMode = localStorage.getItem(MODE_KEY) || 'pbl'; // 'pbl' | 'obl'
 
 function switchMode() {
     trainerMode = trainerMode === 'pbl' ? 'obl' : 'pbl';
@@ -1311,7 +1307,7 @@ function switchMode() {
     applyMode();
 }
 
-function applyMode() {
+export function applyMode() {
     const isPBL = trainerMode === 'pbl';
     const modeTitleEl = document.getElementById('mode-title');
     modeTitleEl.textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
@@ -1450,14 +1446,7 @@ function appDialog({ title = '', message = '', buttons, input = null, cancelValu
     });
 }
 
-function appAlert(message, { title = 'Notice', okText = 'OK' } = {}) {
-    return appDialog({
-        title, message, cancelValue: undefined,
-        buttons: [{ label: okText, value: undefined, variant: 'primary', primary: true }],
-    });
-}
-
-function appConfirm(message, { title = 'Confirm', okText = 'OK', cancelText = 'Cancel', danger = false } = {}) {
+export function appConfirm(message, { title = 'Confirm', okText = 'OK', cancelText = 'Cancel', danger = false } = {}) {
     return appDialog({
         title, message, cancelValue: false,
         buttons: [
@@ -1467,7 +1456,7 @@ function appConfirm(message, { title = 'Confirm', okText = 'OK', cancelText = 'C
     });
 }
 
-function appPrompt(message, { title = '', okText = 'OK', cancelText = 'Cancel', value = '', placeholder = '' } = {}) {
+export function appPrompt(message, { title = '', okText = 'OK', cancelText = 'Cancel', value = '', placeholder = '' } = {}) {
     return appDialog({
         title, message, cancelValue: null,
         input: { value, placeholder },

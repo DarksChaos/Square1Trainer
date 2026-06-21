@@ -1,3 +1,6 @@
+import { purgeTagFromAssignments, tagCaseBases } from './alg-reference.js';
+import { addListItemEvent, dismissTopOverlay, escapeHtml, highlightedList, pushOverlay } from './app.js';
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  TAGS
 //  Owns the tag definitions and the management modal (add, rename, recolor,
@@ -54,13 +57,13 @@ function saveTags() {
 }
 
 // Accessor for the current tag list, for use by other modules.
-function getTags() { return loadTags(); }
+export function getTags() { return loadTags(); }
 
 // ── Import / export (used by the shared JSON download/upload) ─────────────────
 
-function exportTagsRaw() { return localStorage.getItem(TAG_STORAGE_KEY); }
+export function exportTagsRaw() { return localStorage.getItem(TAG_STORAGE_KEY); }
 
-function importTagsRaw(raw) {
+export function importTagsRaw(raw) {
     if (raw == null) return;
     try {
         JSON.parse(raw); // validate before persisting
@@ -88,7 +91,7 @@ function addTag() {
     if (last) { last.focus(); last.select(); }
 }
 
-function deleteTag(id) {
+export function deleteTag(id) {
     loadTags();
     _tags = _tags.filter(t => t.id !== id);
     saveTags();
@@ -145,7 +148,7 @@ function renderTagList() {
 // Renders the read-only "Your tags" submenu in the lists modal. Each row shows
 // the tag's colour and how many cases it currently covers (in this trainer).
 // Selecting/viewing/deleting is handled by the shared list-button listeners.
-function renderTagMenu() {
+export function renderTagMenu() {
     const el = document.getElementById('usertags');
     if (!el) return;
     const tags = loadTags();
@@ -160,7 +163,7 @@ function renderTagMenu() {
 }
 
 // Resolves the tag id of the currently highlighted "Your tags" row, or null.
-function highlightedTagId() {
+export function highlightedTagId() {
     if (typeof highlightedList === 'string' && highlightedList.startsWith('tagsel-')) {
         return highlightedList.slice('tagsel-'.length);
     }
@@ -169,7 +172,7 @@ function highlightedTagId() {
 
 // ── Modal open/close ───────────────────────────────────────────────────────
 
-function openTagModal() {
+export function openTagModal() {
     renderTagList();
     const el = document.getElementById('tag-modal');
     el.style.display = 'flex';
@@ -287,3 +290,7 @@ document.getElementById('tag-list').addEventListener('pointerdown', (e) => {
     const handle = e.target.closest('.tag-drag');
     if (handle) tagDragStart(e, handle);
 });
+
+document.getElementById('tag-add-btn').addEventListener('click', addTag);
+document.getElementById('tag-modal-close').addEventListener('click', () => closeTagModal());
+document.getElementById('tag-modal').addEventListener('click', closeTagModal);

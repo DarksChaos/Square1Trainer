@@ -1,3 +1,13 @@
+import { oblClusters, pblClusters } from '../data/alg-data.js';
+import { OBLtranslation, possibleOBL } from '../data/obl-data.js';
+import { pblDefaultLists } from '../data/pbl-data.js';
+import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseBases, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
+import { abandonTransition, appConfirm, closeOverlayForTransition, dismissTopOverlay, escapeHtml, pushOverlay, randInt, showError, showInfo, showSuccess, trainerMode, usingTimer } from './app.js';
+import { OBLname, getNonSpeList, getSpe, getSpeList, oblAddUserLists, oblDefaultLists, oblSaveUserLists, oblUserLists, oblUsingSpe } from './obl-core.js';
+import { pblAddUserLists, pblGetOptimal, pblPossible, pblSaveUserLists, pblUseBarflip, pblUserLists } from './pbl-core.js';
+import { SquanLib, squan } from './squan.js';
+import { getTags, openTagModal, renderTagMenu } from './tags.js';
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  SEARCH OVERLAY
 //  The spotlight search and everything shown inside its extension, in sections:
@@ -404,18 +414,18 @@ const searchInputEl      = document.getElementById("search-input");
 const searchExtensionEl  = document.getElementById("search-extension");
 const searchResultsEl    = document.getElementById("search-results");
 const searchClusterEl    = document.getElementById("search-cluster");
-const searchClusterContentEl = document.getElementById("search-cluster-content");
+export const searchClusterContentEl = document.getElementById("search-cluster-content");
 const searchTagViewEl    = document.getElementById("search-tagview");
 const searchListViewEl   = document.getElementById("search-listview");
 const searchHelpBtnEl    = document.getElementById("search-help-btn");
 const searchHelpModalEl  = document.getElementById("search-help-modal");
 
-let isSearchOpen      = false;
+export let isSearchOpen      = false;
 let searchMatches     = [];     // array of cluster titles currently shown
 let searchActiveIx    = -1;     // index into searchMatches of the highlighted row
 let searchInClusterView = false; // true while the extension shows an alg reference
 let searchClusterTitle  = null;  // cluster currently shown in the extension
-let searchEditMode      = false; // true while the alg reference is being edited
+export let searchEditMode      = false; // true while the alg reference is being edited
 let searchClusterWidth  = '';    // cached panel width (px) for the open cluster
 let searchClusterReturn = { kind: 'trainer' };
 
@@ -481,7 +491,7 @@ function getSearchIndex() {
 // Opens the alg reference for a cluster title in the search bar (the only place
 // alg references are shown — there is no separate modal). Used by scramble clicks
 // and search-result selection.
-function openAlgReference(title) {
+export function openAlgReference(title) {
     if (!title) return;
     const returnTo = isSearchOpen ? currentSearchReturnTarget() : { kind: 'trainer' };
     if (!isSearchOpen) openSearch();
@@ -701,7 +711,7 @@ function showClusterInSearch(title, returnTo = null) {
     renderSearchClusterBody();
 }
 
-function syncSearchClusterToolbar() {
+export function syncSearchClusterToolbar() {
     const tb = document.getElementById('search-cluster-toolbar');
     if (!tb) return;
     const navBack = tb.querySelector('.sct-back');
@@ -770,7 +780,7 @@ async function handleSearchEditButton() {
     renderSearchClusterBody();
 }
 
-function saveSearchEdit() {
+export function saveSearchEdit() {
     if (!searchEditMode || !algEditDirty()) return;
     if (algEditSave()) showSuccess("Saved.", 800);
     syncSearchClusterToolbar();
@@ -877,7 +887,7 @@ function closeSearch(e) {
     dismissTopOverlay();
 }
 
-function toggleSearch() {
+export function toggleSearch() {
     if (isSearchOpen) dismissTopOverlay();
     else openSearch();
 }
@@ -907,6 +917,9 @@ function closeSearchHelp(e) {
 }
 
 searchHelpBtnEl.addEventListener("click", openSearchHelp);
+searchOverlayEl.addEventListener('click', closeSearch);
+document.getElementById('search-help-close').addEventListener('click', () => closeSearchHelp());
+searchHelpModalEl.addEventListener('click', closeSearchHelp);
 searchInputEl.addEventListener("input", handleSearchInput);
 
 document.querySelector('#search-cluster-toolbar .sct-back').addEventListener("click", backFromSearchCluster);
