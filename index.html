@@ -5,6 +5,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>PBL Trainer</title>
+    <script>
+        try {
+            document.documentElement.dataset.theme = localStorage.getItem('trainerTheme') || 'gray';
+        } catch (e) {
+            document.documentElement.dataset.theme = 'gray';
+        }
+    </script>
     <link rel="stylesheet" href="css/index.css" />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800&display=swap" rel="stylesheet" />
 
@@ -162,6 +169,14 @@
                         <input type="checkbox" id="oblp" />
                         <span>Show Matt tracing memo <b>(P)</b></span>
                     </label>
+                    <div class="settings-row settings-theme-row">
+                        <span>Theme:</span>
+                        <select id="theme-select" class="theme-select" aria-label="Theme">
+                            <option value="gray">Gray</option>
+                            <option value="dark-blue">Dark-blue</option>
+                            <option value="black">Black</option>
+                        </select>
+                    </div>
                     <div class="settings-row" id="scramble-length-row">
                         <span>Scramble length:</span>
                         <div class="equator-options">

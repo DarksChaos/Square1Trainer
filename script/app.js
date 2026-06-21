@@ -68,6 +68,7 @@ const globalBarflipRow = document.getElementById("globalbarfliprow");
 const useBarflipEl     = document.getElementById("usebarflip");
 const bottom56El       = document.getElementById("allow-bottom56");
 const bottom56Row      = document.getElementById('bottom56-row');
+const themeSelectEl    = document.getElementById("theme-select");
 
 const removeLastEl    = document.getElementById("unselprev");
 const selectAllEl     = document.getElementById("sela");
@@ -132,6 +133,24 @@ function updateColors(hue) {
     document.documentElement.style.setProperty("--border-col", `hsl(${hue}, 80%, 70%)`);
     document.documentElement.style.setProperty("--button-col", `hsla(${hue}, 30%, 15%, 0.5)`);
 }
+
+// ─── THEME ───────────────────────────────────────────────────────────────────
+
+const THEME_KEY = 'trainerTheme';
+const THEMES = new Set(['gray', 'dark-blue', 'black']);
+
+function normalizeTheme(theme) {
+    return THEMES.has(theme) ? theme : 'gray';
+}
+
+function applyTheme(theme, persist = true) {
+    const nextTheme = normalizeTheme(theme);
+    document.documentElement.dataset.theme = nextTheme;
+    if (themeSelectEl) themeSelectEl.value = nextTheme;
+    if (persist) localStorage.setItem(THEME_KEY, nextTheme);
+}
+
+applyTheme(localStorage.getItem(THEME_KEY) || document.documentElement.dataset.theme, false);
 
 // ─── TOAST / LOADING ─────────────────────────────────────────────────────────
 
@@ -833,6 +852,10 @@ showToggleEl.addEventListener("click", () => {
 });
 
 openListsEl.addEventListener("click",    () => { if (usingTimer()) return; openListPopup(); });
+
+if (themeSelectEl) {
+    themeSelectEl.addEventListener("change", () => applyTheme(themeSelectEl.value));
+}
 
 // ─── RAIL / MOBILE BAR ───────────────────────────────────────────────────────
 // The desktop left rail and the mobile bottom bar share the same icon buttons.
