@@ -481,7 +481,24 @@ export function pblDisplayPrevScram() {
 
 // ─── PBL GRID ─────────────────────────────────────────────────────────────────
 
-export function pblRestoreGrid() {
+let pblGridBuildScheduled = false;
+
+export function pblEnsureGrid() {
+    if (caseListEl.dataset.trainerGrid === 'pbl' && caseListEl.childElementCount === pblPossible.length)
+        return;
+    if (pblGridBuildScheduled) return;
+    pblGridBuildScheduled = true;
+
+    // Let the modal become visible before doing the expensive DOM construction.
+    requestAnimationFrame(() => {
+        pblGridBuildScheduled = false;
+        if (trainerMode === 'pbl') pblRestoreGrid(true);
+    });
+}
+
+export function pblRestoreGrid(buildGrid = false) {
+    if (buildGrid) {
+    caseListEl.dataset.trainerGrid = 'pbl';
     caseListEl.style.gridTemplateColumns = '';
     caseListEl.innerHTML = pblPossible
         .map(([t, b]) => `<div class="case" id="${t}/${b}">${t} / ${b}</div>`)
@@ -529,6 +546,7 @@ export function pblRestoreGrid() {
     });
 
     applyFilter(''); // re-run any in-memory filter on the newly built DOM
+    }
 
     // Update display — restore scramble text when a PBL scramble is active.
     if (pblHasActive && pblScrambleList.length) {
@@ -737,7 +755,7 @@ async function pblInit() {
     });
 
     // Load settings, selection, lists from storage.
-    pblLoadStorage(true);
+    pblLoadStorage();
 
     // Fetch default lists JSON.
     for (const k of Object.keys(pblDefaultLists))
@@ -745,7 +763,7 @@ async function pblInit() {
     pblAddDefaultLists();
 }
 
-export function pblLoadStorage(buildGrid = false) {
+export function pblLoadStorage() {
     pblMigrateLegacyStorage();
 
     const storedSelected  = pblStorage.getItem("selected");
@@ -754,48 +772,6 @@ export function pblLoadStorage(buildGrid = false) {
     const storedBot56     = pblStorage.getItem("allowBottom56");
     const storedBarflip   = pblStorage.getItem("barflipOverride");
     const storedUserLists = pblStorage.getItem("userLists");
-
-    if (buildGrid) {
-        // Build the case grid DOM from pblPossible.
-        caseListEl.innerHTML = pblPossible
-            .map(([t, b]) => `<div class="case" id="${t}/${b}">${t} / ${b}</div>`)
-            .join('');
-
-        document.querySelectorAll(".case").forEach(caseEl => {
-            const base = caseEl.id;
-            caseEl.addEventListener("click", () => {
-                if (usingTimer()) return;
-                pblSnapSelection();
-                const mode = pblCaseMode(base);
-                if (!pblUseBarflip) {
-                    if (mode === 'both') { pblDeselect(base+'+'); pblDeselect(base+'-'); }
-                    else                 { pblSelect(base+'+');   pblSelect(base+'-'); }
-                } else {
-                    if      (mode === 'none')  { pblSelect(base+'+');   pblSelect(base+'-'); }
-                    else if (mode === 'both')  { pblSelect(base+'+');   pblDeselect(base+'-'); }
-                    else if (mode === 'plus')  { pblDeselect(base+'+'); pblSelect(base+'-'); }
-                    else                       { pblDeselect(base+'+'); pblDeselect(base+'-'); }
-                }
-                pblSaveSelected();
-            });
-            caseEl.addEventListener("contextmenu", e => {
-                e.preventDefault();
-                if (usingTimer()) return;
-                pblSnapSelection();
-                const mode = pblCaseMode(base);
-                if (!pblUseBarflip) {
-                    if (mode === 'both') { pblDeselect(base+'+'); pblDeselect(base+'-'); }
-                    else                 { pblSelect(base+'+');   pblSelect(base+'-'); }
-                } else {
-                    if      (mode === 'none')  { pblDeselect(base+'+'); pblSelect(base+'-'); }
-                    else if (mode === 'both')  { pblDeselect(base+'+'); pblDeselect(base+'-'); }
-                    else if (mode === 'plus')  { pblSelect(base+'+');   pblSelect(base+'-'); }
-                    else                       { pblSelect(base+'+');   pblDeselect(base+'-'); }
-                }
-                pblSaveSelected();
-            });
-        });
-    }
 
     // Apply settings checkboxes.
     for (const el of pblSettingList) if (el.checked) el.click();
@@ -832,18 +808,16 @@ export function pblLoadStorage(buildGrid = false) {
     if (storedSelected !== null) {
         pblSelected = pblMigrateLegacy(JSON.parse(storedSelected));
         pblStorage.setItem("selected", JSON.stringify(pblSelected)); // persist migrated form
-        for (const k of pblSelected) pblSelect(k);
         pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
         pblRefillRemaining();
         // Only generate scramble immediately if PBL is the active trainer.
         // If starting in OBL mode, applyMode will handle OBL; PBL generates when switched to.
         if (trainerMode === 'pbl') pblGenerateScramble();
-    } else if (buildGrid) {
+    } else {
         // First-ever load — select all cases in 'both' mode.
-        for (const pbl of pblPossible) {
-            pblSelect(pblName(pbl)+'+');
-            pblSelect(pblName(pbl)+'-');
-        }
+        pblSelected = pblPossible.flatMap(pbl => [pblName(pbl) + '+', pblName(pbl) + '-']);
+        pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
+        pblRefillRemaining();
         pblSaveSelected();
     }
 

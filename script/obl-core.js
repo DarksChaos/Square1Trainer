@@ -400,6 +400,7 @@ export function oblDeselectThese() {
 // ─── OBL GRID ─────────────────────────────────────────────────────────────────
 
 export function oblRestoreGrid() {
+    caseListEl.dataset.trainerGrid = 'obl';
     caseListEl.style.gridTemplateColumns = 'repeat(auto-fit, minmax(130px, 1fr))';
 
     caseListEl.innerHTML = oblUsingSpe
