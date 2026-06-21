@@ -1,6 +1,7 @@
 import { OBL_DEFAULT_LISTS_RAW, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { tagCaseBases } from './alg-reference.js';
-import { HELP_CTRL_SVG, HELP_HOME_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, updateRemainingCount, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { HELP_CTRL_SVG, HELP_HOME_SVG } from './help-icons.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, updateRemainingCount, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
 
 // ─── OBL STATE ────────────────────────────────────────────────────────────────

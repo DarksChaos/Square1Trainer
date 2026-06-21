@@ -1,6 +1,7 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { tagCaseBases } from './alg-reference.js';
-import { HELP_CTRL_SVG, HELP_HOME_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
 
 // ─── PBL STATE ────────────────────────────────────────────────────────────────
@@ -974,15 +975,6 @@ if (pblSolvedBtn) {
 
 // ─── PBL HELP CONTENT ────────────────────────────────────────────────────────
 // Add extra sections here as {id, title, svg, html} objects.
-
-const HELP_FILTER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="3 4 21 4 14 13 14 20 10 20 10 13 3 4"/>
-</svg>`;
-
-const HELP_EQ_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="5" width="7.41" height="14" rx="1"/>
-    <rect x="9.41" y="5" width="12.59" height="14" rx="1"/>
-</svg>`
 
 export const pblHelpSections = [
     {
