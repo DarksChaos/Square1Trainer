@@ -2,6 +2,11 @@
     --border-col: #75b3f0;
     --button-col: #263631bf;
     --success-toast-inner: #a7ffa7;
+
+    /* Heatmap palette */
+    --hm-empty:     #565656;  /* empty/gray cells + table backdrop (masks sub-pixel gaps) */
+    --hm-header-bg: #2c2c2c;  /* header + corner background */
+    --hm-border:    #9a9a9a;  /* cell + family-boundary outlines — distinct from the gray */
 }
 
 body,
@@ -1823,13 +1828,13 @@ button {
 .hm-table {
     display: grid;
     width: 100%;
-    border: 1px solid #444;
+    border: 1px solid var(--hm-border);
     border-radius: 6px;
     overflow: hidden;
     /* Same as an empty cell, so any sub-pixel gaps between grid tracks (from
        fractional 1fr widths at small/mobile sizes) blend into the sea of colour
        instead of showing the dark page background as horizontal bands. */
-    background: #565656;
+    background: var(--hm-empty);
 }
 
 .hm-head {
@@ -1842,29 +1847,29 @@ button {
     letter-spacing: -0.02em;
     font-weight: bold;
     color: #cfcfcf;
-    background: #2c2c2c;
+    background: var(--hm-header-bg);
     white-space: nowrap;
 }
-/* Borders on the header cells only — body cells stay a borderless sea of colour.
-   This delineates each family header (and how many columns/rows it spans). */
-.hm-head, .hm-corner { border: 1px solid #555; }
-.hm-corner  { background: #2c2c2c; }
-.hm-colhead { border-bottom-width: 2px; }  /* stronger divider against the body */
-.hm-rowhead { border-right-width: 2px; }
+/* Thin borders on the header cells ONLY. Each header's width/height defines its
+   whole column/row; the body cells under it have no borders, so a family reads as
+   one solid block with no internal grid lines. */
+.hm-head, .hm-corner { border: 1px solid var(--hm-border); }
+.hm-corner  { background: var(--hm-header-bg); }
 
 .hm-cell {
     aspect-ratio: 1;
     min-width: 0;   /* don't let an aspect-ratio cell impose a min track width */
     cursor: pointer;
-    /* Very thin outline so individual cells read as a grid, consistent across the
-       coloured and gray (empty) cells alike. */
-    border: 1px solid rgba(0, 0, 0, 0.32);
 }
+/* Family-boundary lines: only the first column/row of each family draws an edge,
+   so families read as blocks with no internal per-cell grid. */
+.hm-cell.hm-fam-left { border-left: 1px solid var(--hm-border); }
+.hm-cell.hm-fam-top  { border-top:  1px solid var(--hm-border); }
 /* Cells in a wider (multi-char) family column: keep the square normal cells
    driving the row height, and just stretch to fill it — wider, same height, so no
    gaps appear and only these columns are non-square. */
 .hm-cell.hm-wide-col { aspect-ratio: auto; height: auto; }
-.hm-gray { background: #565656; }
+.hm-gray { background: var(--hm-empty); }
 
 .hm-tip {
     position: absolute;

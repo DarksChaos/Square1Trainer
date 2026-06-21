@@ -42,7 +42,9 @@ function hmSelectedTagIds() {
 
 // Family of a single PLL ("Gal" → "G", "pJ" → "pJ", "-" → "-").
 function hmPllFamily(p) {
-    return SquanLib.PLLFamily.includes(p) ? p : (p.match(/[A-Z]/g)?.join('') || p);
+    // Single source of truth: getPBLFamily decides how PLLs group into families,
+    // so the Gal/Gar→"Ga", Gol/Gor→"Go" split is driven entirely from there.
+    return squan.getPBLFamily(p + '/' + p).split('/')[0];
 }
 
 // Group consecutive same-family PLLs (the even/odd orders keep families adjacent).
@@ -139,8 +141,11 @@ function hmGridHtml(plls, slices) {
 
     // A family whose key is more than one character needs a wider column so the
     // key fits at full size. Map each PLL to whether its family is "wide".
+    // "Wide" only when the header text can't fit the columns it spans (more chars
+    // than member columns), e.g. a single-column "Adj"/"pJ". A 2-char family that
+    // spans 2 columns like "Ga"/"Go" fits fine and stays normal width.
     const wideFam = {};
-    for (const g of fams) for (const m of g.members) wideFam[m] = g.fam.length >= 2;
+    for (const g of fams) for (const m of g.members) wideFam[m] = g.fam.length > g.members.length;
 
     // Track minimum 0 ⇒ columns always shrink to fit the panel (never overflow).
     // Wide-family columns get a larger fraction; every other column shares 1fr
@@ -148,6 +153,11 @@ function hmGridHtml(plls, slices) {
     // (square, normal-cell-driven) row height, so they're wider rectangles without
     // forcing gaps — normal columns, and the whole evenPLL grid, stay square.
     const cols = plls.map(p => wideFam[p] ? 'minmax(0,1.8fr)' : 'minmax(0,1fr)').join(' ');
+    // First PLL of each family — body cells in these columns/rows draw the family
+    // boundary line so the header's divisions continue through the grid (with no
+    // internal per-cell borders inside a family block).
+    const famFirst = new Set(fams.map(g => g.members[0]));
+
     let html = `<div class="hm-table" style="grid-template-columns:auto ${cols}">`;
     html += `<div class="hm-corner"></div>`;
     for (const g of fams)
@@ -158,10 +168,12 @@ function hmGridHtml(plls, slices) {
                 html += `<div class="hm-head hm-rowhead" style="grid-row:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
             for (const c of plls) {
                 const cn = r + '/' + c, v = vals[cn];
-                const wcls = wideFam[c] ? ' hm-wide-col' : '';
-                html += v == null
-                    ? `<div class="hm-cell hm-gray${wcls}" data-case="${escapeHtml(cn)}"></div>`
-                    : `<div class="hm-cell${wcls}" data-case="${escapeHtml(cn)}" style="background:${color(v)}"></div>`;
+                let cls = 'hm-cell';
+                if (wideFam[c])      cls += ' hm-wide-col';
+                if (famFirst.has(c)) cls += ' hm-fam-left';
+                if (idx === 0)       cls += ' hm-fam-top';
+                if (v == null)       cls += ' hm-gray';
+                html += `<div class="${cls}" data-case="${escapeHtml(cn)}"${v == null ? '' : ` style="background:${color(v)}"`}></div>`;
             }
         });
     }
