@@ -846,6 +846,22 @@ searchInputEl.addEventListener("keydown", (e) => {
     }
 });
 
+// While the search bar is open but focus has drifted off its input (e.g. the user
+// clicked a result, a heatmap cell, or the backdrop), send every keystroke back
+// to the search input so typing — and shortcuts like Ctrl+A — act on the search
+// field instead of being swallowed. Runs in the capture phase so the input is
+// focused before the keypress that produces the character is dispatched.
+window.addEventListener("keydown", (e) => {
+    if (!isSearchOpen) return;
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.isContentEditable)) return;
+    if (e.key === "Escape" || e.key === "Tab") return; // leave navigation/close keys alone
+    searchInputEl.focus();
+    // Place the caret at the end rather than selecting/starting at the beginning.
+    const end = searchInputEl.value.length;
+    searchInputEl.setSelectionRange(end, end);
+}, true);
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  SEARCH EXTENSION: TAG VIEW + LIST VIEW
