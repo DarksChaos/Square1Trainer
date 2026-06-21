@@ -1,5 +1,6 @@
 unused/
 .vscode/
 *.dat
+*.bat
 old.json
 sq1opt-master
