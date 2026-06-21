@@ -332,7 +332,13 @@ async function oblDeleteList() {
 
 function oblLoadSelected() {
     const stored = oblStorage.getItem('selected');
-    if (!stored) return;
+    if (!stored) {
+        // First-ever load — select every OBL case (mirrors PBL's default).
+        possibleOBL.forEach(obl => oblSelect(OBLname(obl)));
+        oblRefillRemaining();
+        oblSaveSelected(); // persists (incl. the specific-naming mirror) + makes a scramble
+        return;
+    }
     oblSelectedCases = JSON.parse(stored);
     if (!Array.isArray(oblSelectedCases[0])) oblSelectedCases = [oblSelectedCases, []]; // legacy
     // Select first (oblEachCase is still 0 so oblSelect won't double-fill remaining),

@@ -217,27 +217,91 @@ function hmNavigate(cn) {
     if (title) showClusterInSearch(title);
 }
 
-// ── Cell interaction (pointer events; pan vs tap decided on pointerup) ────────
+// ── Cell interaction ─────────────────────────────────────────────────────────
+// Mouse:  press does nothing; release navigates to whatever cell is under the
+//         cursor (so you can press, drag to refine, and release on the target).
+//         Tooltips follow the cursor the whole time (via hover below).
+// Touch:  a normal tap still shows the tooltip, and a second tap navigates; a
+//         plain drag pans the page. But a long-press engages a drag mode where
+//         the tooltip tracks the finger and releasing navigates to the cell
+//         under it.
 
-let _hmDown = null;
+const HM_LONGPRESS_MS  = 420;
+const HM_PAN_THRESHOLD = 10;
+let _hmTouch     = null;   // { startX, startY, timer, panned }
+let _hmTouchDrag = false;  // long-press drag active
+
+function hmCellAtPoint(x, y) {
+    const el = document.elementFromPoint(x, y);
+    return el ? el.closest('.hm-cell') : null;
+}
 
 hmEl.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;     // mouse: act on release, not press
     const cell = e.target.closest('.hm-cell');
-    if (cell) _hmDown = { x: e.clientX, y: e.clientY, cell, type: e.pointerType };
+    if (!cell) return;
+    _hmTouchDrag = false;
+    _hmTouch = {
+        startX: e.clientX, startY: e.clientY, panned: false,
+        timer: setTimeout(() => {
+            _hmTouchDrag = true;               // held still long enough → drag mode
+            const c = hmCellAtPoint(_hmTouch.startX, _hmTouch.startY) || cell;
+            if (c) { hmShowTip(c, c.dataset.case); hmTapCase = c.dataset.case; }
+        }, HM_LONGPRESS_MS),
+    };
 });
 
+hmEl.addEventListener('pointermove', e => {
+    if (e.pointerType === 'mouse' || !_hmTouch) return;
+    if (_hmTouchDrag) {
+        const c = hmCellAtPoint(e.clientX, e.clientY);   // tooltip follows the finger
+        if (c) { hmShowTip(c, c.dataset.case); hmTapCase = c.dataset.case; }
+    } else if (Math.hypot(e.clientX - _hmTouch.startX, e.clientY - _hmTouch.startY) > HM_PAN_THRESHOLD) {
+        clearTimeout(_hmTouch.timer);          // moved before long-press → it's a pan
+        _hmTouch.panned = true;
+    }
+});
+
+// Block the page scroll only while a long-press drag is active (so plain pans work).
+hmEl.addEventListener('touchmove', e => { if (_hmTouchDrag) e.preventDefault(); }, { passive: false });
+
 hmEl.addEventListener('pointerup', e => {
-    const down = _hmDown; _hmDown = null;
+    if (e.pointerType === 'mouse') {
+        const cell = e.target.closest('.hm-cell');
+        if (cell) hmNavigate(cell.dataset.case);
+        return;
+    }
+    const t = _hmTouch; _hmTouch = null;
+    if (!t) return;
+    clearTimeout(t.timer);
+    if (_hmTouchDrag) {                          // long-press drag → navigate under release
+        _hmTouchDrag = false;
+        const c = hmCellAtPoint(e.clientX, e.clientY);
+        hmHideTip(); hmTapCase = null;
+        if (c) hmNavigate(c.dataset.case);
+        return;
+    }
+    if (t.panned) return;                        // it was a pan, not a tap
     const cell = e.target.closest('.hm-cell');
-    if (!down || !cell || cell !== down.cell) return;
-    if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 8) return; // pan, not a tap
-    const cn = cell.dataset.case;
-    if (down.type === 'mouse') { hmNavigate(cn); return; }
-    // touch: first tap shows the tooltip, a second tap on the same cell navigates
+    if (!cell) return;
+    const cn = cell.dataset.case;                // tap: 1st shows tooltip, 2nd navigates
     if (hmTapCase === cn) { hmHideTip(); hmTapCase = null; hmNavigate(cn); }
     else { hmShowTip(cell, cn); hmTapCase = cn; }
 });
 
+hmEl.addEventListener('pointercancel', () => {
+    if (_hmTouch) clearTimeout(_hmTouch.timer);
+    _hmTouch = null; _hmTouchDrag = false;
+});
+
+// A long-press fires the browser context menu, which would hijack the drag-and-go
+// gesture. Suppress it only while the tooltip is active (drag mode or a shown tap
+// tooltip) — normal right-clicks elsewhere are untouched.
+hmEl.addEventListener('contextmenu', e => {
+    if (_hmTouchDrag || hmTapCase) e.preventDefault();
+});
+
+// Mouse hover shows the tooltip and keeps it updated, even while dragging.
 hmEl.addEventListener('pointerover', e => {
     if (e.pointerType !== 'mouse') return;
     const cell = e.target.closest('.hm-cell');

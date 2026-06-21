@@ -1856,6 +1856,9 @@ button {
     aspect-ratio: 1;
     min-width: 0;   /* don't let an aspect-ratio cell impose a min track width */
     cursor: pointer;
+    /* Very thin outline so individual cells read as a grid, consistent across the
+       coloured and gray (empty) cells alike. */
+    border: 1px solid rgba(0, 0, 0, 0.32);
 }
 /* Cells in a wider (multi-char) family column: keep the square normal cells
    driving the row height, and just stretch to fill it — wider, same height, so no

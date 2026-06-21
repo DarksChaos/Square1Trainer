@@ -1296,7 +1296,9 @@ function switchMode() {
 
 function applyMode() {
     const isPBL = trainerMode === 'pbl';
-    document.getElementById('mode-title').textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
+    const modeTitleEl = document.getElementById('mode-title');
+    modeTitleEl.textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
+    modeTitleEl.setAttribute('data-tip', isPBL ? 'Switch to OBL Trainer' : 'Switch to PBL Trainer');
 
     // Show/hide settings rows that apply to only one trainer.
     document.getElementById('scramble-length-row').style.display =
