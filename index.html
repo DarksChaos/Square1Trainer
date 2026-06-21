@@ -95,7 +95,7 @@
         <div class="popup" id="cases-popup">
             <div class="popup-inner cases-popup-inner">
                 <div class="list-bar">
-                    <div class="list-name">Select cases</div>
+                    <div class="list-name" id="selcount">Selected: -</div>
                     <div class="cross">&#10005;</div>
                 </div>
                 <div class="cases-body" id="sidebar">
@@ -109,7 +109,6 @@
                     </div>
                     <input type="text" class="filter-input" id="pbl-filter" maxlength="25" autocomplete="new-pbl-filter"
                         placeholder='Filter cases (Ctrl+F)' />
-                    <p class="selection-text" id="selcount">Selected: -</p>
                     <div class="selection-grid">
                         <button class="selection-btn" id="sela">Select ALL</button>
                         <button class="selection-btn" id="desela">Deselect ALL</button>

@@ -418,9 +418,9 @@ button {
 .scram-bar,
 .list-bar {
     flex: 0 1 auto;
-    padding: 16px 20px;
+    padding: 11px 20px;
     display: flex;
-    font-size: 22px;
+    font-size: 18px;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #2e2e2e;
@@ -1324,19 +1324,29 @@ button {
     padding: 18px 24px 24px;
     box-sizing: border-box;
 }
-.cases-body .barflip-override-row { padding: 0; }
+/* Global barflip override: label on the left, toggle on the right, on one line
+   when there's room; wraps to two lines (label above) when narrow. */
+.cases-body .barflip-override-row {
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;   /* keeps both lines centered when it wraps */
+    flex-wrap: wrap;
+    gap: 6px 14px;
+}
+.cases-body .barflip-override-label { text-align: center; flex-shrink: 0; }
+.cases-body .barflip-toggle { flex: 1 1 220px; }
 .cases-body .filter-input {
     border-radius: 10px;
     padding: 11px 12px;
     border: 1px solid #555;
 }
-.cases-body .selection-text {
-    margin: 0;
-    width: auto;
-    background: transparent;
-    font-size: 1.05rem;
+/* All four selection buttons stay on one row; they shrink to fit. */
+.cases-body .selection-grid {
+    padding: 0;
+    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
 }
-.cases-body .selection-grid { padding: 0; gap: 10px; }
 .cases-body .selection-btn {
     min-height: 44px;
     border-radius: 10px;
