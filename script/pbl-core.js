@@ -1239,11 +1239,12 @@ function tokenizeSuffixExpr(expr) {
             const end = expr.indexOf(">", i);
             if (end === -1) {
                 const partial = expr.slice(i + 1).trim();
-                if (/[<>&*!()]/.test(partial)) throw new Error("Unclosed <");
                 // push any leading ! as separate not-operators, then the tag
                 let j = 0;
                 while (partial[j] === "!") { tokens.push({ type: "op", value: "!" }); j++; }
-                tokens.push({ type: "tag", value: partial.slice(j) });
+                const value = partial.slice(j);
+                if (/[<>&*!()]/.test(value)) throw new Error("Unclosed <");
+                tokens.push({ type: "tag", value, incomplete: true });
                 break;
             }
             const inner = expr.slice(i + 1, end);
@@ -1319,6 +1320,13 @@ function parseSuffixExpr(tokens) {
         }
         if (tok.type === "tag") {
             pos++;
+            if (tok.incomplete) {
+                const candidates = Object.entries(SUFFIX_DEFS)
+                    .filter(([name]) => name.startsWith(tok.value))
+                    .map(([, def]) => def);
+                if (!candidates.length) throw new Error(`Unknown suffix prefix: <${tok.value}`);
+                return (pbl, ctx) => candidates.some(def => def.evaluate(pbl, ctx));
+            }
             const def = SUFFIX_DEFS[tok.value];
             if (!def) throw new Error(`Unknown suffix: <${tok.value}>`);
             return (pbl, ctx) => def.evaluate(pbl, ctx);
