@@ -1,5 +1,5 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
-import { tagCaseBases } from './alg-reference.js';
+import { tagCaseModes } from './alg-reference.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
 import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
@@ -485,8 +485,10 @@ export function pblDisplayPrevScram() {
 let pblGridBuildScheduled = false;
 
 export function pblEnsureGrid() {
-    if (caseListEl.dataset.trainerGrid === 'pbl' && caseListEl.childElementCount === pblPossible.length)
+    if (caseListEl.dataset.trainerGrid === 'pbl' && caseListEl.childElementCount === pblPossible.length) {
+        pblRecolorAll(); // grid already built — re-sync cell colors with current selection
         return;
+    }
     if (pblGridBuildScheduled) return;
     pblGridBuildScheduled = true;
 
@@ -698,21 +700,23 @@ export function pblSelectList(listName, setSelection) {
     pblSaveUserLists();
 }
 
-// Show (and optionally select) every case belonging to a tag's clusters. Cases
-// are selected as both barflips, or as the global override barflip if one is set.
+// Show (and optionally select) every case belonging to a tag's clusters. Each
+// case is selected as the barflip mode implied by its tagged solution groups'
+// slicecounts (see tagCaseModes), unless a global barflip override forces a mode.
 export function pblSelectTag(tagId, setSelection) {
-    const bases = tagCaseBases(tagId);
+    const modes = tagCaseModes(tagId);
 
     pblPossible.forEach(pbl => pblHide(pblName(pbl)));
-    for (const base of bases) pblShow(base);
+    for (const { base } of modes) pblShow(base);
 
     if (setSelection) {
         const ovr = pblEffectiveOverride(); // null | '+' | '-'
         pblSnapSelection();
         pblDeselectAll();
-        for (const base of bases) {
-            if (ovr === '+')      pblSelect(base + '+');
-            else if (ovr === '-') pblSelect(base + '-');
+        for (const { base, mode } of modes) {
+            const m = ovr ?? mode; // global override wins; otherwise slicecount-derived mode
+            if (m === '+')      pblSelect(base + '+');
+            else if (m === '-') pblSelect(base + '-');
             else { pblSelect(base + '+'); pblSelect(base + '-'); }
         }
         if (pblEachCase > 0) {

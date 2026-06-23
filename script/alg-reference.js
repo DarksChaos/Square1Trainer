@@ -135,6 +135,38 @@ export function tagCaseBases(tagId) {
     return out;
 }
 
+// PBL only: the barflip mode each case should be selected as when a tag is
+// applied. A tagged matt solution group implies a mode from its slicecount —
+// even → '-', odd → '+'. Within a cluster these combine: mixed parities, an
+// unknown slicecount, or any tagged sheet view (jlminx/derpy, addressed by "*")
+// force 'both'. Every case in a touched cluster shares that cluster's mode.
+// Returns [{ base, mode }] with mode ∈ '+' | '-' | 'both'.
+export function tagCaseModes(tagId) {
+    const refs = loadTagAssignments()[tagId] || [];
+    const acc  = new Map(); // title -> { even, odd, both }
+    for (const ref of refs) {
+        const [title, source, unitId] = ref.split('|');
+        if (!_algClusters()[title]) continue; // stale ref (cluster gone)
+        let a = acc.get(title);
+        if (!a) { a = { even: false, odd: false, both: false }; acc.set(title, a); }
+        if (source !== 'matt') { a.both = true; continue; } // sheet view → both
+        const g = mattGroupById(title, unitId);
+        const n = g ? Number(g['solution-slicecount']) : NaN;
+        if (!Number.isFinite(n)) { a.both = true; continue; }
+        if (n % 2 === 0) a.even = true; else a.odd = true;
+    }
+
+    const baseMode = new Map(); // base -> mode (merge to 'both' on conflict)
+    for (const [title, a] of acc) {
+        const mode = (a.both || (a.even && a.odd)) ? 'both' : a.even ? '-' : a.odd ? '+' : 'both';
+        for (const c of (effectiveCluster(title)?.['case-list'] || [])) {
+            const prev = baseMode.get(c);
+            baseMode.set(c, prev && prev !== mode ? 'both' : mode);
+        }
+    }
+    return [...baseMode].map(([base, mode]) => ({ base, mode }));
+}
+
 // The matt solution group addressed by `unitId` (sg<n>/new<n>). effectiveMattGroups
 // and mattUnitOrder share the same order, so their indices line up.
 function mattGroupById(title, unitId) {
