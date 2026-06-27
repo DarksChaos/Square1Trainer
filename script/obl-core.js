@@ -1,7 +1,7 @@
 import { OBL_DEFAULT_LISTS_RAW, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { tagCaseBases } from './alg-reference.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, updateRemainingCount, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
 
 // ─── OBL STATE ────────────────────────────────────────────────────────────────
@@ -20,7 +20,10 @@ export let oblScrambleOffset    = 0;
 export let oblPreviouslySelected = null; // null = nothing to undo
 export let oblRedoSelected       = null; // null = nothing to redo
 
-export function oblSetScrambleOffset(value) { oblScrambleOffset = value; }
+export function oblSetScrambleOffset(value) {
+    const maxOffset = Math.max(oblScrambleList.length - 1, 0);
+    oblScrambleOffset = Math.max(0, Math.min(value, maxOffset));
+}
 export function oblSetHistory(previous, redo) {
     oblPreviouslySelected = previous;
     oblRedoSelected = redo;
@@ -86,7 +89,9 @@ export function oblGenerateScramble(regen = false) {
         oblHasActiveScramble = false;
         oblCaseSpliced       = false;
         oblScrambleList      = [];
+        oblScrambleOffset    = 0;
         updateRemainingCount();
+        updateScrambleNavButtons();
         return;
     }
     if (oblRemainingCases[oblUsingSpe].length === 0) {
@@ -120,24 +125,37 @@ export function oblGenerateScramble(regen = false) {
     if (regen) {
         oblScrambleList[oblScrambleList.length - 1] = final;
     } else {
-        if (oblScrambleList.length) {
-            previousScrambleEl.textContent =
-                'Previous scramble: ' + oblScrambleList.at(-1)[usingKarn] +
-                ' (' + oblScrambleList.at(-1)[2] + ')';
-        }
         oblScrambleList.push(final);
     }
+    oblScrambleOffset = 0;
     oblHasActiveScramble = true;
     if (!timerEl.textContent || timerEl.textContent === '--:--')
         timerEl.textContent = '0.00';
     oblDisplayCurrentScramble();
+    oblDisplayPreviousScramble();
 }
 
 export function oblDisplayCurrentScramble() {
     if (!oblHasActiveScramble || !oblScrambleList.length) return;
+    oblSetScrambleOffset(oblScrambleOffset);
     const entry = oblScrambleList.at(-1 - oblScrambleOffset);
     if (entry) currentScrambleEl.textContent =
         entry[usingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
+    updateScrambleNavButtons();
+}
+
+export function oblDisplayPreviousScramble() {
+    if (!oblHasActiveScramble || !oblScrambleList.length) {
+        previousScrambleEl.textContent = 'Last scramble will show up here';
+        updateScrambleNavButtons();
+        return;
+    }
+    oblSetScrambleOffset(oblScrambleOffset);
+    const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+    previousScrambleEl.textContent = prev
+        ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
+        : 'Last scramble will show up here';
+    updateScrambleNavButtons();
 }
 
 // ─── OBL FILTER ───────────────────────────────────────────────────────────────
@@ -430,15 +448,13 @@ export function oblRestoreGrid() {
 
     if (oblHasActiveScramble && oblScrambleList.length) {
         oblDisplayCurrentScramble();
-        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
-        previousScrambleEl.textContent = prev
-            ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
-            : 'Last scramble will show up here';
+        oblDisplayPreviousScramble();
         if (timerEl.textContent === '--:--') timerEl.textContent = '0.00';
     } else {
         currentScrambleEl.textContent  = 'Scramble will show up here';
         previousScrambleEl.textContent = 'Last scramble will show up here';
         timerEl.textContent            = '--:--';
+        updateScrambleNavButtons();
     }
 }
 

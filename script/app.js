@@ -1,6 +1,6 @@
 import { pblDefaultLists } from '../data/pbl-data.js';
 import { algEditActive, algEditRedo, algEditUndo, oblFindCluster, pblFindCluster } from './alg-reference.js';
-import { oblAddDefaultLists, oblApplyFilter, oblCaseSpliced, oblDeleteList, oblDeselect, oblDeselectAll, oblDeselectThese, oblDisplayCurrentScramble, oblGenerateScramble, oblHasActiveScramble, oblHelpSections, oblInitDefaultLists, oblLoadSelected, oblLoadSettings, oblLoadUserLists, oblNewList, oblOnEachCase, oblOnMemo, oblOnSpe, oblOverwriteList, oblPreviouslySelected, oblRedoSelected, oblRemainingCases, oblResetSelection, oblRestoreGrid, oblSaveSelected, oblSaveSettings, oblScrambleList, oblScrambleOffset, oblSelect, oblSelectAll, oblSelectList, oblSelectTag, oblSelectedCases, oblSetHistory, oblSetScrambleOffset, oblStorage, oblUsingSpe } from './obl-core.js';
+import { oblAddDefaultLists, oblApplyFilter, oblCaseSpliced, oblDeleteList, oblDeselect, oblDeselectAll, oblDeselectThese, oblDisplayCurrentScramble, oblDisplayPreviousScramble, oblGenerateScramble, oblHasActiveScramble, oblHelpSections, oblInitDefaultLists, oblLoadSelected, oblLoadSettings, oblLoadUserLists, oblNewList, oblOnEachCase, oblOnMemo, oblOnSpe, oblOverwriteList, oblPreviouslySelected, oblRedoSelected, oblRemainingCases, oblResetSelection, oblRestoreGrid, oblSaveSelected, oblSaveSettings, oblScrambleList, oblScrambleOffset, oblSelect, oblSelectAll, oblSelectList, oblSelectTag, oblSelectedCases, oblSetHistory, oblSetScrambleOffset, oblStorage, oblUsingSpe } from './obl-core.js';
 import { applyFilter, pblAddDefaultLists, pblAddUserLists, pblApplyBarflipUI, pblCaseSpliced, pblDeselect, pblDeselectAll, pblDeselectThese, pblDisplayPrevScram, pblEnsureGrid, pblGenerateScramble, pblHasActive, pblHelpSections, pblHide, pblLoadStorage, pblName, pblOffset, pblOnEachCase, pblOnGlobalBarflip, pblOnUseBarflip, pblOnWeights, pblPending, pblPossible, pblPreviousCase, pblPreviouslySelected, pblRedoSelected, pblRemaining, pblRequestScramble, pblResetSelection, pblRestoreGrid, pblRestoreSettings, pblSaveSelected, pblSaveSettings, pblScrambleList, pblScrambleMode, pblSelect, pblSelectAll, pblSelectList, pblSelectTag, pblSelectThese, pblSelected, pblSetDomClass, pblSetHistory, pblSetOffset, pblShow, pblStorage, pblUseBarflip, pblUserLists, pblWorkerBusy } from './pbl-core.js';
 import { isSearchOpen, openAlgReference, saveSearchEdit, toggleSearch } from './search.js';
 import { deleteTag, exportTagsRaw, getTags, highlightedTagId, importTagsRaw, renderTagMenu } from './tags.js';
@@ -108,6 +108,13 @@ const prevScrambleButton = document.getElementById("prev");
 const nextScrambleButton = document.getElementById("next");
 export const timerEl    = document.getElementById("timer");
 const timerBoxEl = document.getElementById("timerbox");
+
+export function updateScrambleNavButtons() {
+    const prevEntry = trainerMode === 'obl'
+        ? oblScrambleList.at(-2 - oblScrambleOffset)
+        : pblScrambleList.at(-2 - pblOffset);
+    prevScrambleButton.disabled = !prevEntry;
+}
 
 // ─── SHARED HELPERS ───────────────────────────────────────────────────────────
 
@@ -440,7 +447,7 @@ function timerBeginTouch(spaceEquivalent) {
     if (isRunning) {
         stopTimer();
         if (trainerMode === 'obl') {
-            oblSetScrambleOffset(oblScrambleOffset - 1);
+            oblSetScrambleOffset(0);
             oblGenerateScramble();
         } else {
             pblSetOffset(pblOffset - 1);
@@ -607,6 +614,7 @@ function onCheckKarn() {
     usingKarn ^= 1;
     if (trainerMode === 'obl') {
         oblDisplayCurrentScramble();
+        oblDisplayPreviousScramble();
     } else if (pblHasActive) {
         currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
         pblDisplayPrevScram();
@@ -621,16 +629,13 @@ karnEl.addEventListener("change", () => onCheckKarn());
 function prevScram() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
-        if (!oblScrambleList.length) return;
+        if (!oblScrambleList.at(-2 - oblScrambleOffset)) return;
         oblSetScrambleOffset(Math.min(oblScrambleOffset + 1, oblScrambleList.length - 1));
         oblDisplayCurrentScramble();
-        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
-        previousScrambleEl.textContent = prev
-            ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
-            : 'Last scramble will show up here';
+        oblDisplayPreviousScramble();
         return;
     }
-    if (!pblScrambleList.length) return;
+    if (!pblScrambleList.at(-2 - pblOffset)) return;
     pblSetOffset(Math.min(pblOffset + 1, pblScrambleList.length - 1));
     currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
     pblDisplayPrevScram();
@@ -640,16 +645,13 @@ function nextScram() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
         if (!oblScrambleList.length) return;
+        const wasAtLatest = oblScrambleOffset === 0;
         oblSetScrambleOffset(oblScrambleOffset - 1);
-        if (oblScrambleOffset < 0) {
-            oblSetScrambleOffset(0);
+        if (wasAtLatest) {
             oblGenerateScramble();
         } else {
             oblDisplayCurrentScramble();
-            const prev = oblScrambleList.at(-2 - oblScrambleOffset);
-            previousScrambleEl.textContent = prev
-                ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
-                : 'Last scramble will show up here';
+            oblDisplayPreviousScramble();
         }
         return;
     }
@@ -1317,6 +1319,7 @@ export function applyMode() {
         updateRemainingCount();
     }
     renderTagMenu(); // tag case-counts are trainer-specific
+    updateScrambleNavButtons();
 }
 
 document.getElementById('mode-title').addEventListener('click', switchMode);

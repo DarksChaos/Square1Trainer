@@ -1,7 +1,7 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { tagCaseModes } from './alg-reference.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
 
 // ─── PBL STATE ────────────────────────────────────────────────────────────────
@@ -360,6 +360,7 @@ export function pblGenerateScramble(regen = false) {
         pblScrambleList = [];
         pblPending      = null;
         updateRemainingCount();
+        updateScrambleNavButtons();
         return;
     }
 
@@ -418,6 +419,7 @@ export function pblGenerateScramble(regen = false) {
         pblScrambleList.push(final);
         if (!pblHasActive) timerEl.textContent = "0.00";
         pblHasActive = true;
+        updateScrambleNavButtons();
 
         // Kick off pre-generation of the next scramble.
         if (pblRemaining.length > 0) {
@@ -454,6 +456,7 @@ export function pblGenerateScramble(regen = false) {
             if (!pblHasActive) timerEl.textContent = "0.00";
             pblHasActive = true;
             pblPending   = null;
+            updateScrambleNavButtons();
 
             // Kick off pre-generation of the next scramble.
             if (pblRemaining.length > 0) {
@@ -478,6 +481,7 @@ export function pblDisplayPrevScram() {
     previousScrambleEl.textContent = prev
         ? "Previous scramble: " + prev[usingKarn] + " (" + prev[2] + ")"
         : "Last scramble will show up here";
+    updateScrambleNavButtons();
 }
 
 // ─── PBL GRID ─────────────────────────────────────────────────────────────────
@@ -560,6 +564,7 @@ export function pblRestoreGrid(buildGrid = false) {
         currentScrambleEl.textContent  = "Scramble will show up here";
         previousScrambleEl.textContent = "Last scramble will show up here";
         timerEl.textContent            = "--:--";
+        updateScrambleNavButtons();
     }
 
     updateSelCount();

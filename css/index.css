@@ -338,6 +338,16 @@ button {
     border-color: var(--border-col);
 }
 
+.bar-btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+}
+
+.bar-btn:disabled:hover {
+    background-color: var(--field-bg);
+    border-color: var(--divider-soft);
+}
+
 .bar-scramble {
     text-align: center;
     flex: 1;
