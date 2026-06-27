@@ -1,8 +1,8 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
-import { tagCaseModes } from './alg-reference.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
 import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
+import { tagCaseModes } from './tag-assignments.js';
 
 export { pblDefaultLists };
 
@@ -490,8 +490,12 @@ export function pblDisplayPrevScram() {
 
 let pblGridBuildScheduled = false;
 
+function pblGridBuilt() {
+    return caseListEl.dataset.trainerGrid === 'pbl' && caseListEl.childElementCount === pblPossible.length;
+}
+
 export function pblEnsureGrid() {
-    if (caseListEl.dataset.trainerGrid === 'pbl' && caseListEl.childElementCount === pblPossible.length) {
+    if (pblGridBuilt()) {
         pblRecolorAll(); // grid already built — re-sync cell colors with current selection
         return;
     }
@@ -571,8 +575,10 @@ export function pblRestoreGrid(buildGrid = false) {
 
     updateSelCount();
     // showMode was reset to 'all' by applyMode — restore correct view.
-    if (pblSelected.length > 0) showSelected();
-    else showAll();
+    if (pblGridBuilt()) {
+        if (pblSelected.length > 0) showSelected();
+        else showAll();
+    }
     updateSelectBtn();
     updateDeselectBtn();
     pblSyncSettingsDisabled();
@@ -774,10 +780,10 @@ export async function pblInit() {
     // Load settings, selection, lists from storage.
     pblLoadStorage();
 
-    // Fetch default lists JSON.
+    // Prepare default lists in memory. The hidden list-menu DOM is rendered only
+    // when the lists modal opens.
     for (const k of Object.keys(pblDefaultLists))
         pblDefaultLists[k] = pblMigrateLegacy(pblDefaultLists[k]);
-    pblAddDefaultLists();
 }
 
 export function pblLoadStorage() {
@@ -840,8 +846,10 @@ export function pblLoadStorage() {
 
     updateSelCount();
     pblRecolorAll(); // re-sync each cell's selected styling (e.g. after an upload)
-    if (pblSelected.length > 0) showSelected();
-    else showAll();
+    if (pblGridBuilt()) {
+        if (pblSelected.length > 0) showSelected();
+        else showAll();
+    }
 
     if (storedUserLists !== null) {
         pblUserLists = JSON.parse(storedUserLists);
@@ -858,7 +866,6 @@ export function pblLoadStorage() {
             if (migrated !== pblUserLists[list]) { pblUserLists[list] = migrated; needsSave = true; }
         }
         if (needsSave) pblSaveUserLists();
-        pblAddUserLists();
     }
 }
 

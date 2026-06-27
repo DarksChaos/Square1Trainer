@@ -1,5 +1,5 @@
-import { purgeTagFromAssignments, tagCaseBases } from './alg-reference.js';
 import { addListItemEvent, dismissTopOverlay, escapeHtml, highlightedList, pushOverlay } from './app.js';
+import { purgeTagFromAssignments, tagCaseBases } from './tag-assignments.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  TAGS

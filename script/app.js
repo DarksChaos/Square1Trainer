@@ -334,10 +334,24 @@ function pushModal(el, onOpen) {
     pushOverlay({ el, isPopup: true, close: () => el.classList.remove('open', 'behind') });
 }
 
-function openListPopup()     { pushModal(listPopupEl, async () => (await ensureTags()).renderTagMenu()); }
+function openListPopup()     {
+    pushModal(listPopupEl, async () => {
+        if (trainerMode === 'pbl') {
+            pbl.pblAddDefaultLists();
+            pbl.pblAddUserLists();
+        } else {
+            obl.oblInitDefaultLists();
+            obl.oblAddDefaultLists();
+            obl.oblLoadUserLists();
+            obl.oblAddUserLists();
+        }
+        (await ensureTags()).renderTagMenu();
+    });
+}
 function openCasesPopup()    {
     pushModal(casesPopupEl, () => {
         if (trainerMode === 'pbl') pbl.pblEnsureGrid();
+        else obl.oblEnsureGrid();
     });
 }
 
@@ -613,6 +627,18 @@ export function showSelected() {
         });
     }
     showMode = 'selected';
+    updateSelCount();
+    updateToggle();
+}
+
+function restoreCaseDisplayState(hasSelection) {
+    const gridBelongsToMode = caseListEl.dataset.trainerGrid === trainerMode && caseListEl.childElementCount > 0;
+    if (gridBelongsToMode) {
+        if (hasSelection) showSelected();
+        else showAll();
+        return;
+    }
+    showMode = hasSelection ? 'selected' : 'all';
     updateSelCount();
     updateToggle();
 }
@@ -1179,14 +1205,16 @@ fileEl.addEventListener("change", async (e) => {
             obl.oblLoadUserLists();
             obl.oblLoadSelected();
             if (trainerMode === 'obl') {
-                obl.oblRestoreGrid();
+                obl.oblRestoreGrid(casesPopupEl.classList.contains('open'));
             } else {
                 // obl.oblLoadSettings touched shared checkboxes and obl.oblLoadSelected may have
                 // written an OBL scramble to the display — restore PBL state on top.
-                // obl.oblLoadUserLists also re-rendered OBL lists into the shared list DOM,
-                // so re-render PBL lists last to keep the lists modal correct.
-                pbl.pblAddDefaultLists();
-                pbl.pblAddUserLists();
+                // If the lists modal is open, re-render PBL lists last to keep
+                // the shared list DOM correct.
+                if (listPopupEl.classList.contains('open')) {
+                    pbl.pblAddDefaultLists();
+                    pbl.pblAddUserLists();
+                }
                 pbl.pblRestoreSettings();
                 if (pbl.pblHasActive && pbl.pblScrambleList.length)
                     currentScrambleEl.textContent = pbl.pblScrambleList.at(-1 - pbl.pblOffset)[usingKarn];
@@ -1341,13 +1369,11 @@ export function applyMode() {
     if (isPBL) {
         if (obl) obl.oblSaveSettings();
         pbl.pblRestoreSettings();
-        pbl.pblAddDefaultLists();
-        pbl.pblAddUserLists();
         pbl.pblApplyBarflipUI();
         pbl.pblRestoreGrid();
         // Generate a scramble if none exists (e.g. first switch from OBL on initial load).
         if (!pbl.pblHasActive && pbl.pblSelected.length > 0) pbl.pblGenerateScramble();
-        if (pbl.pblSelected.length > 0) showSelected(); else showAll();
+        restoreCaseDisplayState(pbl.pblSelected.length > 0);
         updateRemainingCount();
     } else {
         if (pbl) pbl.pblSaveSettings();
@@ -1355,13 +1381,12 @@ export function applyMode() {
         document.getElementById('barflip-override-row')?.classList.add('hidden');
         obl.oblLoadSettings();
         obl.oblInitDefaultLists();
-        obl.oblAddDefaultLists();
         obl.oblLoadUserLists();
         obl.oblLoadSelected();
         obl.oblRestoreGrid();
         // Generate a scramble if none exists (mirrors PBL symmetry).
         if (!obl.oblHasActiveScramble && obl.oblSelectedCases[obl.oblUsingSpe].length > 0) obl.oblGenerateScramble();
-        if (obl.oblSelectedCases[obl.oblUsingSpe].length > 0) showSelected(); else showAll();
+        restoreCaseDisplayState(obl.oblSelectedCases[obl.oblUsingSpe].length > 0);
         updateRemainingCount();
     }
     if (tags) tags.renderTagMenu(); // tag case-counts are trainer-specific

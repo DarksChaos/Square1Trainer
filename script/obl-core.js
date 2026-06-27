@@ -1,8 +1,8 @@
 import { OBL_DEFAULT_LISTS_RAW, OBLtranslation, possibleOBL } from '../data/obl-data.js';
-import { tagCaseBases } from './alg-reference.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
+import { tagCaseBases } from './tag-assignments.js';
 
 // ─── OBL STATE ────────────────────────────────────────────────────────────────
 
@@ -187,7 +187,6 @@ export function oblLoadUserLists() {
     } else {
         oblUserLists = {}; // reset so DOM is cleared even when no data exists
     }
-    oblAddUserLists(); // always re-render (overwrites any PBL lists in the DOM)
 }
 
 export function oblSaveUserLists() {
@@ -418,32 +417,64 @@ export function oblDeselectThese() {
 
 // ─── OBL GRID ─────────────────────────────────────────────────────────────────
 
-export function oblRestoreGrid() {
-    caseListEl.dataset.trainerGrid = 'obl';
-    caseListEl.style.gridTemplateColumns = 'repeat(auto-fit, minmax(130px, 1fr))';
+let oblGridBuildScheduled = false;
 
-    caseListEl.innerHTML = oblUsingSpe
-        ? possibleOBL.flatMap(obl =>
-            getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)
-          ).join('')
-        : possibleOBL.map(obl =>
-            `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`
-          ).join('');
+function oblExpectedGridCount() {
+    return oblUsingSpe
+        ? possibleOBL.reduce((sum, obl) => sum + getSpe(OBLname(obl)).length, 0)
+        : possibleOBL.length;
+}
 
-    document.querySelectorAll('.case').forEach(caseEl => {
-        const id = caseEl.id;
-        if (oblSelectedCases[oblUsingSpe].includes(id))
-            caseEl.classList.add('checked', 'checked-both');
-        caseEl.addEventListener('click', () => {
-            if (usingTimer()) return;
+export function oblEnsureGrid() {
+    if (caseListEl.dataset.trainerGrid === 'obl' && caseListEl.childElementCount === oblExpectedGridCount()) {
+        oblRestoreGrid(false); // grid already exists — re-sync classes/text
+        return;
+    }
+    if (oblGridBuildScheduled) return;
+    oblGridBuildScheduled = true;
 
-            if (caseEl.classList.contains('checked')) oblDeselect(id);
-            else oblSelect(id);
-            oblSaveSelected();
-        });
+    // Let the modal paint before doing the DOM build.
+    requestAnimationFrame(() => {
+        oblGridBuildScheduled = false;
+        if (trainerMode === 'obl') oblRestoreGrid(true);
     });
+}
 
-    oblApplyFilter('');
+export function oblRestoreGrid(buildGrid = false) {
+    if (buildGrid) {
+        caseListEl.dataset.trainerGrid = 'obl';
+        caseListEl.style.gridTemplateColumns = 'repeat(auto-fit, minmax(130px, 1fr))';
+
+        caseListEl.innerHTML = oblUsingSpe
+            ? possibleOBL.flatMap(obl =>
+                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)
+              ).join('')
+            : possibleOBL.map(obl =>
+                `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`
+              ).join('');
+
+        document.querySelectorAll('.case').forEach(caseEl => {
+            const id = caseEl.id;
+            if (oblSelectedCases[oblUsingSpe].includes(id))
+                caseEl.classList.add('checked', 'checked-both');
+            caseEl.addEventListener('click', () => {
+                if (usingTimer()) return;
+
+                if (caseEl.classList.contains('checked')) oblDeselect(id);
+                else oblSelect(id);
+                oblSaveSelected();
+            });
+        });
+
+        oblApplyFilter('');
+    } else if (caseListEl.dataset.trainerGrid === 'obl' && caseListEl.childElementCount) {
+        for (const caseEl of caseListEl.children) {
+            const selected = oblSelectedCases[oblUsingSpe].includes(caseEl.id);
+            caseEl.classList.toggle('checked', selected);
+            caseEl.classList.toggle('checked-both', selected);
+        }
+    }
+
     updateSelCount();
 
     if (oblHasActiveScramble && oblScrambleList.length) {
@@ -455,6 +486,19 @@ export function oblRestoreGrid() {
         previousScrambleEl.textContent = 'Last scramble will show up here';
         timerEl.textContent            = '--:--';
         updateScrambleNavButtons();
+    }
+
+    if (caseListEl.dataset.trainerGrid === 'obl' && caseListEl.childElementCount) {
+        if (showMode === 'selected') {
+            showSelected();
+        } else if (showMode === 'searched') {
+            oblApplyFilter(filterInputEl.value);
+            updateToggle();
+        } else if (showMode === 'list' && highlightedList != null) {
+            oblSelectList(highlightedList, false);
+        } else {
+            showAll();
+        }
     }
 }
 
@@ -515,9 +559,8 @@ export function oblOnSpe() {
         oblApplyFilter(filterInputEl.value);
         updateToggle();
     }
-    // else: showMode === 'all' — oblRestoreGrid already showed everything via oblApplyFilter('')
-    oblAddDefaultLists(); // refresh counts for new spe mode
-    oblAddUserLists();
+    // else: showMode === 'all' — if the grid exists, oblRestoreGrid already
+    // re-synced it. Hidden list menus are rendered lazily when opened.
     oblSaveSettings();
 }
 
