@@ -1,5 +1,5 @@
 import { loadAlgorithmData } from '../data/alg-data.js';
-import { startApp } from './pbl-core.js';
+import { startApp } from './app.js';
 
 await startApp();
 

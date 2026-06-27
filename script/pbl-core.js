@@ -1,8 +1,10 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { tagCaseModes } from './alg-reference.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, applyMode, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
+
+export { pblDefaultLists };
 
 // ─── PBL STATE ────────────────────────────────────────────────────────────────
 
@@ -742,7 +744,12 @@ export function pblSelectTag(tagId, setSelection) {
 
 // ─── PBL INIT ─────────────────────────────────────────────────────────────────
 
-async function pblInit() {
+let pblInitialized = false;
+
+export async function pblInit() {
+    if (pblInitialized) return;
+    pblInitialized = true;
+
     // Build the full cross-product list (even×even + odd×odd).
     for (const t of SquanLib.evenPLL) for (const b of SquanLib.evenPLL) pblPossible.push([t, b]);
     for (const t of SquanLib.oddPLL)  for (const b of SquanLib.oddPLL)  pblPossible.push([t, b]);
@@ -1117,24 +1124,6 @@ export const pblHelpSections = [
 ];
 
 // ─── STARTUP ──────────────────────────────────────────────────────────────────
-// Load order: app.js → pbl-core.js (this file). app.js must be loaded
-// first so DOM refs, shared state, and cluster helpers are available.
-//
-// startApp() is invoked by the SquanLib bootstrap module in index.html once
-// `squan` is available on the global object — initialization (scramble
-// generation, etc.) depends on it, and module scripts run after these classic
-// scripts have finished parsing.
-
-export async function startApp() {
-    await pblInit();
-    applyMode();            // applies the last-used trainer mode (or 'obl' default)
-    pblApplyBarflipUI();    // must run after pblShowBarflipUI + pblBarflipOverride are loaded
-    updateSelectBtn();
-    updateDeselectBtn();
-    updateToggle();
-}
-
-
 // ============================================================================
 // PBL FILTER & SEARCH
 // Depends on: pblPossible, pblName(), CP_Adj_PLL, CP_Opp_PLL, CP_Solved_PLL

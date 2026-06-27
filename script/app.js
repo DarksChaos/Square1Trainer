@@ -1,9 +1,42 @@
-import { pblDefaultLists } from '../data/pbl-data.js';
-import { algEditActive, algEditRedo, algEditUndo, oblFindCluster, pblFindCluster } from './alg-reference.js';
-import { oblAddDefaultLists, oblApplyFilter, oblCaseSpliced, oblDeleteList, oblDeselect, oblDeselectAll, oblDeselectThese, oblDisplayCurrentScramble, oblDisplayPreviousScramble, oblGenerateScramble, oblHasActiveScramble, oblHelpSections, oblInitDefaultLists, oblLoadSelected, oblLoadSettings, oblLoadUserLists, oblNewList, oblOnEachCase, oblOnMemo, oblOnSpe, oblOverwriteList, oblPreviouslySelected, oblRedoSelected, oblRemainingCases, oblResetSelection, oblRestoreGrid, oblSaveSelected, oblSaveSettings, oblScrambleList, oblScrambleOffset, oblSelect, oblSelectAll, oblSelectList, oblSelectTag, oblSelectedCases, oblSetHistory, oblSetScrambleOffset, oblStorage, oblUsingSpe } from './obl-core.js';
-import { applyFilter, pblAddDefaultLists, pblAddUserLists, pblApplyBarflipUI, pblCaseSpliced, pblDeselect, pblDeselectAll, pblDeselectThese, pblDisplayPrevScram, pblEnsureGrid, pblGenerateScramble, pblHasActive, pblHelpSections, pblHide, pblLoadStorage, pblName, pblOffset, pblOnEachCase, pblOnGlobalBarflip, pblOnUseBarflip, pblOnWeights, pblPending, pblPossible, pblPreviousCase, pblPreviouslySelected, pblRedoSelected, pblRemaining, pblRequestScramble, pblResetSelection, pblRestoreGrid, pblRestoreSettings, pblSaveSelected, pblSaveSettings, pblScrambleList, pblScrambleMode, pblSelect, pblSelectAll, pblSelectList, pblSelectTag, pblSelectThese, pblSelected, pblSetDomClass, pblSetHistory, pblSetOffset, pblShow, pblStorage, pblUseBarflip, pblUserLists, pblWorkerBusy } from './pbl-core.js';
-import { isSearchOpen, openAlgReference, saveSearchEdit, toggleSearch } from './search.js';
-import { deleteTag, exportTagsRaw, getTags, highlightedTagId, importTagsRaw, renderTagMenu } from './tags.js';
+let obl = null;
+let pbl = null;
+let search = null;
+let algReference = null;
+let tags = null;
+
+async function ensureOblCore() {
+    if (!obl) obl = await import('./obl-core.js');
+    return obl;
+}
+
+async function ensurePblCore() {
+    if (!pbl) pbl = await import('./pbl-core.js');
+    return pbl;
+}
+
+async function ensureActiveTrainerCore() {
+    return trainerMode === 'obl' ? ensureOblCore() : ensurePblCore();
+}
+
+async function ensureSearchModules() {
+    if (!search) search = await import('./search.js');
+    return search;
+}
+
+async function ensureAlgReference() {
+    if (!algReference) algReference = await import('./alg-reference.js');
+    return algReference;
+}
+
+async function ensureTags() {
+    if (!tags) tags = await import('./tags.js');
+    return tags;
+}
+
+function searchIsOpen() {
+    return search?.isSearchOpen ?? false;
+}
+
 
 // ─── MATH UTILITIES ──────────────────────────────────────────────────────────
 
@@ -111,8 +144,8 @@ const timerBoxEl = document.getElementById("timerbox");
 
 export function updateScrambleNavButtons() {
     const prevEntry = trainerMode === 'obl'
-        ? oblScrambleList.at(-2 - oblScrambleOffset)
-        : pblScrambleList.at(-2 - pblOffset);
+        ? obl?.oblScrambleList.at(-2 - obl.oblScrambleOffset)
+        : pbl?.pblScrambleList.at(-2 - pbl.pblOffset);
     prevScrambleButton.disabled = !prevEntry;
 }
 
@@ -132,8 +165,8 @@ function recentlyStopped() {
 }
 
 function canInteractTimer() {
-    const active = trainerMode === 'obl' ? oblHasActiveScramble : pblHasActive;
-    return active && document.activeElement !== filterInputEl && !isPopupOpen && !isSearchOpen;
+    const active = trainerMode === 'obl' ? (obl?.oblHasActiveScramble ?? false) : (pbl?.pblHasActive ?? false);
+    return active && document.activeElement !== filterInputEl && !isPopupOpen && !searchIsOpen();
 }
 
 export function validName(n) {
@@ -293,15 +326,18 @@ function closeTopModal() { dismissTopOverlay(); }
 function pushModal(el, onOpen) {
     if (usingTimer()) return;
     if (overlayStack.some(o => o.el === el)) return;
-    onOpen?.();
+    Promise.resolve(onOpen?.()).catch(error => {
+        console.error(error);
+        showError('Could not open this panel.');
+    });
     el.classList.add('open');
     pushOverlay({ el, isPopup: true, close: () => el.classList.remove('open', 'behind') });
 }
 
-function openListPopup()     { pushModal(listPopupEl, renderTagMenu); }
+function openListPopup()     { pushModal(listPopupEl, async () => (await ensureTags()).renderTagMenu()); }
 function openCasesPopup()    {
     pushModal(casesPopupEl, () => {
-        if (trainerMode === 'pbl') pblEnsureGrid();
+        if (trainerMode === 'pbl') pbl.pblEnsureGrid();
     });
 }
 
@@ -379,7 +415,7 @@ function renderHelp(sections) {
 }
 
 function openHelpPopup() {
-    pushModal(helpPopupEl, () => renderHelp(trainerMode === 'pbl' ? pblHelpSections : oblHelpSections));
+    pushModal(helpPopupEl, () => renderHelp(trainerMode === 'pbl' ? pbl.pblHelpSections : obl.oblHelpSections));
 }
 function openSettingsPopup() { pushModal(settingsPopupEl); }
 
@@ -417,8 +453,8 @@ function startTimer() {
     setColor();
 
     // Pre-generate next PBL scramble while timer is running.
-    if (trainerMode === 'pbl' && pblRemaining.length > 0 && !pblWorkerBusy && !pblPending) {
-        pblRequestScramble(pblRemaining[randInt(0, pblRemaining.length - 1)]);
+    if (trainerMode === 'pbl' && pbl.pblRemaining.length > 0 && !pbl.pblWorkerBusy && !pbl.pblPending) {
+        pbl.pblRequestScramble(pbl.pblRemaining[randInt(0, pbl.pblRemaining.length - 1)]);
     }
 }
 
@@ -447,11 +483,11 @@ function timerBeginTouch(spaceEquivalent) {
     if (isRunning) {
         stopTimer();
         if (trainerMode === 'obl') {
-            oblSetScrambleOffset(0);
-            oblGenerateScramble();
+            obl.oblSetScrambleOffset(0);
+            obl.oblGenerateScramble();
         } else {
-            pblSetOffset(pblOffset - 1);
-            pblGenerateScramble();
+            pbl.pblSetOffset(pbl.pblOffset - 1);
+            pbl.pblGenerateScramble();
         }
         if (!spaceEquivalent) otherKeyPressed += 1;
     } else if (spaceEquivalent && otherKeyPressed <= 0) {
@@ -488,9 +524,9 @@ function timerEndTouch(spaceEquivalent) {
 export function updateSelCount() {
     let count;
     if (trainerMode === 'obl') {
-        count = oblSelectedCases[oblUsingSpe].length;
+        count = obl.oblSelectedCases[obl.oblUsingSpe].length;
     } else {
-        count = new Set(pblSelected.map(s => s.slice(0, -1))).size;
+        count = new Set(pbl.pblSelected.map(s => s.slice(0, -1))).size;
     }
     selCountEl.textContent = 'Selected: ' + count;
 }
@@ -503,10 +539,10 @@ export function updateRemainingCount() {
         wrapperEl.style.display = 'none';
         return;
     }
-    const spliced = trainerMode === 'obl' ? oblCaseSpliced : pblCaseSpliced;
+    const spliced = trainerMode === 'obl' ? obl.oblCaseSpliced : pbl.pblCaseSpliced;
     const queued  = trainerMode === 'obl'
-        ? oblRemainingCases[oblUsingSpe].length
-        : pblRemaining.length;
+        ? obl.oblRemainingCases[obl.oblUsingSpe].length
+        : pbl.pblRemaining.length;
     // spliced is set synchronously before the splice in each generate function,
     // so queued + 1 is always correct: the current case + everything still in the array.
     document.getElementById('remaining-count').textContent = queued + (spliced ? 1 : 0);
@@ -517,8 +553,8 @@ export function updateRemainingCount() {
 export function updateToggle() {
     if (showMode === 'list' && highlightedList == null) showMode = 'selected';
     let state;
-    const tagId = highlightedTagId();
-    if      (showMode === 'list' && tagId != null) state = `tag: ${getTags().find(t => t.id === tagId)?.name ?? tagId}`;
+    const tagId = tags?.highlightedTagId() ?? null;
+    if      (showMode === 'list' && tagId != null) state = `tag: ${tags.getTags().find(t => t.id === tagId)?.name ?? tagId}`;
     else if (showMode === 'list')     state = `list: ${highlightedList}`;
     else if (showMode === 'searched') state = 'searched';
     else if (showMode === 'selected') state = 'selected';
@@ -555,7 +591,7 @@ export function showAll() {
     if (trainerMode === 'obl') {
         document.querySelectorAll('.case').forEach(el => el.classList.remove('hidden'));
     } else {
-        pblPossible.forEach(pbl => pblShow(pblName(pbl)));
+        pbl.pblPossible.forEach(casePair => pbl.pblShow(pbl.pblName(casePair)));
     }
     showMode = 'all';
     updateSelCount();
@@ -566,14 +602,14 @@ export function showSelected() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
         document.querySelectorAll('.case').forEach(el => {
-            if (oblSelectedCases[oblUsingSpe].includes(el.id)) el.classList.remove('hidden');
+            if (obl.oblSelectedCases[obl.oblUsingSpe].includes(el.id)) el.classList.remove('hidden');
             else el.classList.add('hidden');
         });
     } else {
-        pblPossible.forEach(pbl => {
-            const n = pblName(pbl);
-            if (pblSelected.some(s => s.slice(0, -1) === n)) pblShow(n);
-            else pblHide(n);
+        pbl.pblPossible.forEach(casePair => {
+            const n = pbl.pblName(casePair);
+            if (pbl.pblSelected.some(s => s.slice(0, -1) === n)) pbl.pblShow(n);
+            else pbl.pblHide(n);
         });
     }
     showMode = 'selected';
@@ -613,13 +649,13 @@ export function addListItemEvent(item) {
 function onCheckKarn() {
     usingKarn ^= 1;
     if (trainerMode === 'obl') {
-        oblDisplayCurrentScramble();
-        oblDisplayPreviousScramble();
-    } else if (pblHasActive) {
-        currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
-        pblDisplayPrevScram();
+        obl.oblDisplayCurrentScramble();
+        obl.oblDisplayPreviousScramble();
+    } else if (pbl.pblHasActive) {
+        currentScrambleEl.textContent = pbl.pblScrambleList.at(-1 - pbl.pblOffset)[usingKarn];
+        pbl.pblDisplayPrevScram();
     }
-    if (trainerMode === 'obl') oblSaveSettings(); else pblSaveSettings();
+    if (trainerMode === 'obl') obl.oblSaveSettings(); else pbl.pblSaveSettings();
 }
 
 karnEl.addEventListener("change", () => onCheckKarn());
@@ -629,64 +665,64 @@ karnEl.addEventListener("change", () => onCheckKarn());
 function prevScram() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
-        if (!oblScrambleList.at(-2 - oblScrambleOffset)) return;
-        oblSetScrambleOffset(Math.min(oblScrambleOffset + 1, oblScrambleList.length - 1));
-        oblDisplayCurrentScramble();
-        oblDisplayPreviousScramble();
+        if (!obl.oblScrambleList.at(-2 - obl.oblScrambleOffset)) return;
+        obl.oblSetScrambleOffset(Math.min(obl.oblScrambleOffset + 1, obl.oblScrambleList.length - 1));
+        obl.oblDisplayCurrentScramble();
+        obl.oblDisplayPreviousScramble();
         return;
     }
-    if (!pblScrambleList.at(-2 - pblOffset)) return;
-    pblSetOffset(Math.min(pblOffset + 1, pblScrambleList.length - 1));
-    currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
-    pblDisplayPrevScram();
+    if (!pbl.pblScrambleList.at(-2 - pbl.pblOffset)) return;
+    pbl.pblSetOffset(Math.min(pbl.pblOffset + 1, pbl.pblScrambleList.length - 1));
+    currentScrambleEl.textContent = pbl.pblScrambleList.at(-1 - pbl.pblOffset)[usingKarn];
+    pbl.pblDisplayPrevScram();
 }
 
 function nextScram() {
     if (usingTimer()) return;
     if (trainerMode === 'obl') {
-        if (!oblScrambleList.length) return;
-        const wasAtLatest = oblScrambleOffset === 0;
-        oblSetScrambleOffset(oblScrambleOffset - 1);
+        if (!obl.oblScrambleList.length) return;
+        const wasAtLatest = obl.oblScrambleOffset === 0;
+        obl.oblSetScrambleOffset(obl.oblScrambleOffset - 1);
         if (wasAtLatest) {
-            oblGenerateScramble();
+            obl.oblGenerateScramble();
         } else {
-            oblDisplayCurrentScramble();
-            oblDisplayPreviousScramble();
+            obl.oblDisplayCurrentScramble();
+            obl.oblDisplayPreviousScramble();
         }
         return;
     }
-    if (!pblScrambleList.length) return;
-    pblSetOffset(pblOffset - 1);
-    if (pblOffset < 0) {
-        pblSetOffset(0);
-        pblGenerateScramble();
+    if (!pbl.pblScrambleList.length) return;
+    pbl.pblSetOffset(pbl.pblOffset - 1);
+    if (pbl.pblOffset < 0) {
+        pbl.pblSetOffset(0);
+        pbl.pblGenerateScramble();
     } else {
-        currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
-        pblDisplayPrevScram();
+        currentScrambleEl.textContent = pbl.pblScrambleList.at(-1 - pbl.pblOffset)[usingKarn];
+        pbl.pblDisplayPrevScram();
     }
 }
 
 function removeLast() {
     if (trainerMode === 'obl') {
-        if (oblScrambleList.length < 2) return;
-        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
+        if (obl.oblScrambleList.length < 2) return;
+        const prev = obl.oblScrambleList.at(-2 - obl.oblScrambleOffset);
         if (!prev) return;
         oblSnapSelection();
-        oblDeselect(prev[2]);
-        oblSaveSelected();
+        obl.oblDeselect(prev[2]);
+        obl.oblSaveSelected();
         showSuccess("Last case removed.", 500);
         return;
     }
-    if (pblScrambleList.at(-2 - pblOffset) !== undefined) {
+    if (pbl.pblScrambleList.at(-2 - pbl.pblOffset) !== undefined) {
         pblSnapSelection();
-        if (!pblUseBarflip) {
-            const base = pblPreviousCase.slice(0, -1); // strip +/- suffix
-            pblDeselect(base + '+');
-            pblDeselect(base + '-');
+        if (!pbl.pblUseBarflip) {
+            const base = pbl.pblPreviousCase.slice(0, -1); // strip +/- suffix
+            pbl.pblDeselect(base + '+');
+            pbl.pblDeselect(base + '-');
         } else {
-            pblDeselect(pblPreviousCase);
+            pbl.pblDeselect(pbl.pblPreviousCase);
         }
-        pblSaveSelected();
+        pbl.pblSaveSelected();
         showSuccess("Last case removed.", 500);
     }
 }
@@ -701,57 +737,59 @@ removeLastEl.addEventListener("click", removeLast);
 // Ctrl+Z: saves current→redo, restores undo (guards with null check).
 // Ctrl+Y: saves current→undo, restores redo (guards with null check).
 
-// Called by pbl-core action functions before they mutate pblSelected.
+// Called by pbl-core action functions before they mutate pbl.pblSelected.
 export function pblSnapSelection() {
-    pblSetHistory([...pblSelected], null); // new action clears redo
+    pbl.pblSetHistory([...pbl.pblSelected], null); // new action clears redo
 }
 
-// Restore pblSelected to a snapshot, re-render DOM, and save.
+// Restore pbl.pblSelected to a snapshot, re-render DOM, and save.
 function pblRestoreSelection(snap) {
-    pblResetSelection();
-    document.querySelectorAll('.case').forEach(el => pblSetDomClass(el, 'none'));
-    for (const s of snap) pblSelect(s);
-    pblSaveSelected();
+    pbl.pblResetSelection();
+    document.querySelectorAll('.case').forEach(el => pbl.pblSetDomClass(el, 'none'));
+    for (const s of snap) pbl.pblSelect(s);
+    pbl.pblSaveSelected();
     updateSelCount();
 }
 
-// Called by obl-core action functions before they mutate oblSelectedCases.
+// Called by obl-core action functions before they mutate obl.oblSelectedCases.
 function oblSnapSelection() {
-    oblSetHistory([...oblSelectedCases[oblUsingSpe]], null); // new action clears redo
+    obl.oblSetHistory([...obl.oblSelectedCases[obl.oblUsingSpe]], null); // new action clears redo
 }
 
-// Restore oblSelectedCases to a snapshot, re-render DOM, and save.
+// Restore obl.oblSelectedCases to a snapshot, re-render DOM, and save.
 function oblRestoreSelection(snap) {
-    oblResetSelection();
+    obl.oblResetSelection();
     document.querySelectorAll('.case').forEach(el => el.classList.remove('checked', 'checked-both'));
-    for (const id of snap) oblSelect(id);
-    oblSaveSelected();
+    for (const id of snap) obl.oblSelect(id);
+    obl.oblSaveSelected();
     updateSelCount();
 }
 
 // Open alg reference (in the search bar) on scramble click — PBL and OBL.
-currentScrambleEl.addEventListener("click", () => {
+currentScrambleEl.addEventListener("click", async () => {
     if (usingTimer()) return;
+    const [searchMod, algMod] = await Promise.all([ensureSearchModules(), ensureAlgReference()]);
     if (trainerMode === 'pbl') {
-        if (!pblHasActive || !pblScrambleList.length) return;
-        const raw = pblScrambleList.at(-1 - pblOffset)?.[2];
-        if (raw) openAlgReference(pblFindCluster(raw));
-    } else if (oblHasActiveScramble && oblScrambleList.length) {
-        const entry = oblScrambleList.at(-1 - oblScrambleOffset);
-        if (entry) openAlgReference(oblFindCluster(entry[2]));
+        if (!pbl.pblHasActive || !pbl.pblScrambleList.length) return;
+        const raw = pbl.pblScrambleList.at(-1 - pbl.pblOffset)?.[2];
+        if (raw) searchMod.openAlgReference(algMod.pblFindCluster(raw));
+    } else if (obl.oblHasActiveScramble && obl.oblScrambleList.length) {
+        const entry = obl.oblScrambleList.at(-1 - obl.oblScrambleOffset);
+        if (entry) searchMod.openAlgReference(algMod.oblFindCluster(entry[2]));
     }
 });
 
 // Open alg reference (in the search bar) on previous scramble click — PBL and OBL.
 previousScrambleEl.style.cursor = "pointer";
-previousScrambleEl.addEventListener("click", () => {
+previousScrambleEl.addEventListener("click", async () => {
     if (usingTimer()) return;
+    const [searchMod, algMod] = await Promise.all([ensureSearchModules(), ensureAlgReference()]);
     if (trainerMode === 'pbl') {
-        if (!pblPreviousCase) return;
-        openAlgReference(pblFindCluster(pblPreviousCase));
+        if (!pbl.pblPreviousCase) return;
+        searchMod.openAlgReference(algMod.pblFindCluster(pbl.pblPreviousCase));
     } else {
-        const prev = oblScrambleList.at(-2 - oblScrambleOffset);
-        if (prev) openAlgReference(oblFindCluster(prev[2]));
+        const prev = obl.oblScrambleList.at(-2 - obl.oblScrambleOffset);
+        if (prev) searchMod.openAlgReference(algMod.oblFindCluster(prev[2]));
     }
 });
 
@@ -760,7 +798,7 @@ previousScrambleEl.addEventListener("click", () => {
 filterInputEl.addEventListener("input", () => {
     if (trainerMode === 'obl') {
         filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z1-4/\- ]+/g, "");
-        oblApplyFilter(filterInputEl.value);
+        obl.oblApplyFilter(filterInputEl.value);
         const hasFilter = filterInputEl.value.trim() !== '';
         if (hasFilter) {
             if (showMode !== 'searched') {
@@ -770,7 +808,7 @@ filterInputEl.addEventListener("input", () => {
         } else if (showMode === 'searched') {
             showMode = preSearchMode;
             if (showMode === 'selected') showSelected();
-            else if (showMode === 'list' && highlightedList != null) oblSelectList(highlightedList, false);
+            else if (showMode === 'list' && highlightedList != null) obl.oblSelectList(highlightedList, false);
             else showAll();
         }
         updateToggle();
@@ -778,7 +816,7 @@ filterInputEl.addEventListener("input", () => {
     }
     filterInputEl.value = filterInputEl.value.replace(/[^a-zA-Z0-9/\-<>!|&() ]+/g, "");
     setHighlighted(null);
-    applyFilter(filterInputEl.value); // in pbl-core.js
+    pbl.applyFilter(filterInputEl.value); // in pbl-core.js
     updateSelectBtn();
     updateDeselectBtn();
 
@@ -801,22 +839,22 @@ filterInputEl.addEventListener("input", () => {
 });
 
 selectAllEl.addEventListener("click", () => {
-    if (trainerMode === 'obl') { oblSelectAll(); return; } // already operates on visible cases
-    if (isShowingSubset()) pblSelectThese(false);
-    else pblSelectAll(false);
+    if (trainerMode === 'obl') { obl.oblSelectAll(); return; } // already operates on visible cases
+    if (isShowingSubset()) pbl.pblSelectThese(false);
+    else pbl.pblSelectAll(false);
 });
 
 selectAllEl.addEventListener("contextmenu", (e) => {
     e.preventDefault();
-    if (trainerMode === 'obl') { oblDeselectAll(); return; }
-    if (isShowingSubset()) pblSelectThese(true);
-    else pblSelectAll(true);
+    if (trainerMode === 'obl') { obl.oblDeselectAll(); return; }
+    if (isShowingSubset()) pbl.pblSelectThese(true);
+    else pbl.pblSelectAll(true);
 });
 
 deselectAllEl.addEventListener("click", () => {
-    if (trainerMode === 'obl') { isShowingSubset() ? oblDeselectThese() : oblDeselectAll(); return; }
-    if (isShowingSubset()) pblDeselectThese();
-    else pblDeselectAll();
+    if (trainerMode === 'obl') { isShowingSubset() ? obl.oblDeselectThese() : obl.oblDeselectAll(); return; }
+    if (isShowingSubset()) pbl.pblDeselectThese();
+    else pbl.pblDeselectAll();
 });
 
 showToggleEl.addEventListener("click", () => {
@@ -827,8 +865,8 @@ showToggleEl.addEventListener("click", () => {
         else {
             showAll();
             // Re-apply the live filter for whichever trainer is active.
-            if (trainerMode === 'obl') oblApplyFilter(filterInputEl.value);
-            else applyFilter(filterInputEl.value);
+            if (trainerMode === 'obl') obl.oblApplyFilter(filterInputEl.value);
+            else pbl.applyFilter(filterInputEl.value);
             showMode = 'searched';
             updateToggle();
         }
@@ -844,10 +882,10 @@ openListsEl.addEventListener("click",    () => { if (usingTimer()) return; openL
 // ─── RAIL / MOBILE BAR ───────────────────────────────────────────────────────
 // Static HTML owns the rail markup so it is complete before JavaScript loads.
 
-function runRailAction(action) {
+async function runRailAction(action) {
     switch (action) {
         case 'cases':    if (!usingTimer()) openCasesPopup();    break;
-        case 'search':   toggleSearch();                         break;
+        case 'search':   (await ensureSearchModules()).toggleSearch(); break;
         case 'help':     if (!usingTimer()) openHelpPopup();     break;
         case 'settings': if (!usingTimer()) openSettingsPopup(); break;
         case 'upload':   doUploadData();                         break;
@@ -891,7 +929,7 @@ window.addEventListener("keydown", (e) => {
     // Ctrl/Cmd+Space toggles the spotlight search from anywhere.
     if ((isMac() ? e.metaKey : e.ctrlKey) && e.code === "Space") {
         e.preventDefault();
-        toggleSearch();
+        ensureSearchModules().then(m => m.toggleSearch());
         return;
     }
 
@@ -903,18 +941,18 @@ window.addEventListener("keydown", (e) => {
     }
 
     // Undo/redo for the alg editor (only while editing; doesn't touch selection undo).
-    if (algEditActive()) {
+    if (algReference?.algEditActive()) {
         const ctrl = isMac() ? e.metaKey : e.ctrlKey;
         if (ctrl && !e.altKey) {
             const k = e.key.toLowerCase();
-            if (k === "s") { e.preventDefault(); saveSearchEdit(); return; }
-            if (k === "z" && !e.shiftKey) { e.preventDefault(); algEditUndo(); return; }
-            if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); algEditRedo(); return; }
+            if (k === "s") { e.preventDefault(); search?.saveSearchEdit(); return; }
+            if (k === "z" && !e.shiftKey) { e.preventDefault(); algReference.algEditUndo(); return; }
+            if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); algReference.algEditRedo(); return; }
         }
     }
 
     // While the search bar is open, let its own input handler own the keyboard.
-    if (isSearchOpen) return;
+    if (searchIsOpen()) return;
 
     if (canInteractTimer()) {
         const isSpace    = e.code === "Space";
@@ -937,19 +975,19 @@ window.addEventListener("keydown", (e) => {
         if (e.shiftKey) {
             switch (e.key.toLowerCase()) {
                 case "a": e.preventDefault(); if (!canShortcut) return;
-                    if (trainerMode === 'pbl') pblDeselectAll(); else oblDeselectAll();
+                    if (trainerMode === 'pbl') pbl.pblDeselectAll(); else obl.oblDeselectAll();
                     return;
                 case "s": e.preventDefault(); if (!canShortcut) return;
-                    if (trainerMode === 'pbl') pblDeselectThese();
+                    if (trainerMode === 'pbl') pbl.pblDeselectThese();
                     return;
             }
         } else {
             switch (e.key.toLowerCase()) {
                 case "a": if (!inInput) { e.preventDefault(); if (!canShortcut) return;
-                    if (trainerMode === 'pbl') pblSelectAll(); else oblSelectAll();
+                    if (trainerMode === 'pbl') pbl.pblSelectAll(); else obl.oblSelectAll();
                 } return;
                 case "s": e.preventDefault(); if (!canShortcut) return;
-                    if (trainerMode === 'pbl') pblSelectThese();
+                    if (trainerMode === 'pbl') pbl.pblSelectThese();
                     return;
                 case "f": e.preventDefault(); if (!canShortcut) return;
                     if (!casesPopupEl.classList.contains('open')) openCasesPopup();
@@ -957,14 +995,14 @@ window.addEventListener("keydown", (e) => {
 
                 case "z": e.preventDefault(); if (!canShortcut) return; {
                     if (trainerMode === 'pbl') {
-                        if (pblPreviouslySelected === null) return;
-                        const undoSnap        = pblPreviouslySelected;
-                        pblSetHistory(null, [...pblSelected]);
+                        if (pbl.pblPreviouslySelected === null) return;
+                        const undoSnap        = pbl.pblPreviouslySelected;
+                        pbl.pblSetHistory(null, [...pbl.pblSelected]);
                         pblRestoreSelection(undoSnap);
                     } else {
-                        if (oblPreviouslySelected === null) return;
-                        const undoSnap        = oblPreviouslySelected;
-                        oblSetHistory(null, [...oblSelectedCases[oblUsingSpe]]);
+                        if (obl.oblPreviouslySelected === null) return;
+                        const undoSnap        = obl.oblPreviouslySelected;
+                        obl.oblSetHistory(null, [...obl.oblSelectedCases[obl.oblUsingSpe]]);
                         oblRestoreSelection(undoSnap);
                     }
                     showInfo("Undo", 500);
@@ -973,14 +1011,14 @@ window.addEventListener("keydown", (e) => {
 
                 case "y": e.preventDefault(); if (!canShortcut) return; {
                     if (trainerMode === 'pbl') {
-                        if (pblRedoSelected === null) return;
-                        const redoSnap        = pblRedoSelected;
-                        pblSetHistory([...pblSelected], null);
+                        if (pbl.pblRedoSelected === null) return;
+                        const redoSnap        = pbl.pblRedoSelected;
+                        pbl.pblSetHistory([...pbl.pblSelected], null);
                         pblRestoreSelection(redoSnap);
                     } else {
-                        if (oblRedoSelected === null) return;
-                        const redoSnap        = oblRedoSelected;
-                        oblSetHistory([...oblSelectedCases[oblUsingSpe]], null);
+                        if (obl.oblRedoSelected === null) return;
+                        const redoSnap        = obl.oblRedoSelected;
+                        obl.oblSetHistory([...obl.oblSelectedCases[obl.oblUsingSpe]], null);
                         oblRestoreSelection(redoSnap);
                     }
                     showInfo("Redo", 500);
@@ -1005,38 +1043,38 @@ window.addEventListener("keydown", (e) => {
                 if (!canShortcut) return;
                 if (trainerMode === 'pbl' && eachCaseEl.disabled) return;
                 eachCaseEl.checked = !eachCaseEl.checked;
-                if (trainerMode === 'pbl') pblOnEachCase(); else oblOnEachCase();
+                if (trainerMode === 'pbl') pbl.pblOnEachCase(); else obl.oblOnEachCase();
                 return;
             case "r":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
                 if (weightEl.disabled) return;
-                weightEl.checked = !weightEl.checked; pblOnWeights();
+                weightEl.checked = !weightEl.checked; pbl.pblOnWeights();
                 return;
             case "g":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
-                if (!pblUseBarflip) return;
-                globalBarflipEl.checked = !globalBarflipEl.checked; pblOnGlobalBarflip();
+                if (!pbl.pblUseBarflip) return;
+                globalBarflipEl.checked = !globalBarflipEl.checked; pbl.pblOnGlobalBarflip();
                 return;
             case "b":
                 if (!canShortcut) return;
                 if (trainerMode !== 'pbl') return;
                 if (useBarflipEl.disabled) return;
-                useBarflipEl.checked = !useBarflipEl.checked; pblOnUseBarflip();
+                useBarflipEl.checked = !useBarflipEl.checked; pbl.pblOnUseBarflip();
                 return;
             case "s": {
                 if (!canShortcut) return;
                 if (trainerMode !== 'obl') return;
                 const specificEl = document.getElementById('specific');
-                specificEl.checked = !specificEl.checked; oblOnSpe();
+                specificEl.checked = !specificEl.checked; obl.oblOnSpe();
                 return;
             }
             case "p": {
                 if (!canShortcut) return;
                 if (trainerMode !== 'obl') return;
                 const oblpEl = document.getElementById('oblp');
-                oblpEl.checked = !oblpEl.checked; oblOnMemo();
+                oblpEl.checked = !oblpEl.checked; obl.oblOnMemo();
                 return;
             }
         }
@@ -1067,20 +1105,21 @@ timerBoxEl.addEventListener("touchend", () => {
 // ─── DOWNLOAD / UPLOAD (shared) ───────────────────────────────────────────────
 // Both trainers' data are saved/loaded together in one JSON file.
 
-function doDownloadData() {
+async function doDownloadData() {
     if (usingTimer()) return;
+    await Promise.all([ensurePblCore(), ensureOblCore(), ensureTags()]);
     const data = JSON.stringify({
-        settingsPBL:  pblStorage.getItem('settings'),
-        selectedPBL:  pblStorage.getItem('selected'),
-        userListsPBL: pblStorage.getItem('userLists'),
-        settingsOBL:  oblStorage.getItem('settings'),
-        selectedOBL:  oblStorage.getItem('selected'),
-        userListsOBL: oblStorage.getItem('userLists'),
-        tags:         exportTagsRaw(),
-        algOverridesPBL:   pblStorage.getItem('algOverrides'),
-        algOverridesOBL:   oblStorage.getItem('algOverrides'),
-        tagAssignmentsPBL: pblStorage.getItem('tagAssignments'),
-        tagAssignmentsOBL: oblStorage.getItem('tagAssignments'),
+        settingsPBL:  pbl.pblStorage.getItem('settings'),
+        selectedPBL:  pbl.pblStorage.getItem('selected'),
+        userListsPBL: pbl.pblStorage.getItem('userLists'),
+        settingsOBL:  obl.oblStorage.getItem('settings'),
+        selectedOBL:  obl.oblStorage.getItem('selected'),
+        userListsOBL: obl.oblStorage.getItem('userLists'),
+        tags:         tags.exportTagsRaw(),
+        algOverridesPBL:   pbl.pblStorage.getItem('algOverrides'),
+        algOverridesOBL:   obl.oblStorage.getItem('algOverrides'),
+        tagAssignmentsPBL: pbl.pblStorage.getItem('tagAssignments'),
+        tagAssignmentsOBL: obl.oblStorage.getItem('tagAssignments'),
     });
     const url = URL.createObjectURL(new Blob([data], { type: "text/plain" }));
     const a   = Object.assign(document.createElement("a"), { href: url, download: "TrainerData.json" });
@@ -1094,62 +1133,63 @@ function doUploadData() {
     fileEl.click();
 }
 
-fileEl.addEventListener("change", (e) => {
+fileEl.addEventListener("change", async (e) => {
+    await Promise.all([ensurePblCore(), ensureOblCore(), ensureTags()]);
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
         try {
             e.target.value = '';
             const jsonData = JSON.parse(reader.result);
             // ── PBL ──
             let outdated = false;
             if ("selectedPBL" in jsonData) {
-                pblDeselectAll();
+                pbl.pblDeselectAll();
                 const sel = jsonData["selectedPBL"];
-                pblStorage.setItem("selected", sel);
+                pbl.pblStorage.setItem("selected", sel);
                 const allLists = [sel, ...Object.values(JSON.parse(jsonData["userListsPBL"] ?? '{}'))];
                 if (allLists.some(lst => Array.isArray(lst) && lst.length && !lst[0].endsWith('+') && (!lst[0].endsWith('-') || lst[0].endsWith('/-'))))
                     outdated = true;
             }
-            if ("userListsPBL" in jsonData)   pblStorage.setItem("userLists", jsonData["userListsPBL"]);
-            else if ("userLists" in jsonData) { pblStorage.setItem("userLists", jsonData["userLists"]); outdated = true; }
-            if ("settingsPBL" in jsonData)    pblStorage.setItem("settings", jsonData["settingsPBL"]);
-            else if ("settings" in jsonData)  { pblStorage.setItem("settings", jsonData["settings"]); outdated = true; }
+            if ("userListsPBL" in jsonData)   pbl.pblStorage.setItem("userLists", jsonData["userListsPBL"]);
+            else if ("userLists" in jsonData) { pbl.pblStorage.setItem("userLists", jsonData["userLists"]); outdated = true; }
+            if ("settingsPBL" in jsonData)    pbl.pblStorage.setItem("settings", jsonData["settingsPBL"]);
+            else if ("settings" in jsonData)  { pbl.pblStorage.setItem("settings", jsonData["settings"]); outdated = true; }
             // ── OBL ──
-            if ("selectedOBL" in jsonData)  oblStorage.setItem("selected",  jsonData["selectedOBL"]);
-            if ("userListsOBL" in jsonData) oblStorage.setItem("userLists", jsonData["userListsOBL"]);
-            if ("settingsOBL" in jsonData)  oblStorage.setItem("settings",  jsonData["settingsOBL"]);
+            if ("selectedOBL" in jsonData)  obl.oblStorage.setItem("selected",  jsonData["selectedOBL"]);
+            if ("userListsOBL" in jsonData) obl.oblStorage.setItem("userLists", jsonData["userListsOBL"]);
+            if ("settingsOBL" in jsonData)  obl.oblStorage.setItem("settings",  jsonData["settingsOBL"]);
             // ── Tags ──
-            if ("tags" in jsonData) importTagsRaw(jsonData["tags"]);
+            if ("tags" in jsonData) tags.importTagsRaw(jsonData["tags"]);
             // ── Alg-reference overrides + tag assignments (per trainer) ──
             for (const [field, store, key] of [
-                ["algOverridesPBL",   pblStorage, "algOverrides"],
-                ["algOverridesOBL",   oblStorage, "algOverrides"],
-                ["tagAssignmentsPBL", pblStorage, "tagAssignments"],
-                ["tagAssignmentsOBL", oblStorage, "tagAssignments"],
+                ["algOverridesPBL",   pbl.pblStorage, "algOverrides"],
+                ["algOverridesOBL",   obl.oblStorage, "algOverrides"],
+                ["tagAssignmentsPBL", pbl.pblStorage, "tagAssignments"],
+                ["tagAssignmentsOBL", obl.oblStorage, "tagAssignments"],
             ]) {
                 if (field in jsonData && jsonData[field] != null) store.setItem(key, jsonData[field]);
             }
             if (outdated) showInfo("File formatting is outdated, re-export recommended.");
-            pblLoadStorage();
+            pbl.pblLoadStorage();
             // Always reload OBL in-memory state regardless of current trainer mode,
             // so uploading either JSON works from either trainer without switching first.
-            oblLoadSettings();
-            oblLoadUserLists();
-            oblLoadSelected();
+            obl.oblLoadSettings();
+            obl.oblLoadUserLists();
+            obl.oblLoadSelected();
             if (trainerMode === 'obl') {
-                oblRestoreGrid();
+                obl.oblRestoreGrid();
             } else {
-                // oblLoadSettings touched shared checkboxes and oblLoadSelected may have
+                // obl.oblLoadSettings touched shared checkboxes and obl.oblLoadSelected may have
                 // written an OBL scramble to the display — restore PBL state on top.
-                // oblLoadUserLists also re-rendered OBL lists into the shared list DOM,
+                // obl.oblLoadUserLists also re-rendered OBL lists into the shared list DOM,
                 // so re-render PBL lists last to keep the lists modal correct.
-                pblAddDefaultLists();
-                pblAddUserLists();
-                pblRestoreSettings();
-                if (pblHasActive && pblScrambleList.length)
-                    currentScrambleEl.textContent = pblScrambleList.at(-1 - pblOffset)[usingKarn];
+                pbl.pblAddDefaultLists();
+                pbl.pblAddUserLists();
+                pbl.pblRestoreSettings();
+                if (pbl.pblHasActive && pbl.pblScrambleList.length)
+                    currentScrambleEl.textContent = pbl.pblScrambleList.at(-1 - pbl.pblOffset)[usingKarn];
             }
             closePopup();
             showSuccess("Imported.", 1000);
@@ -1161,74 +1201,77 @@ fileEl.addEventListener("change", (e) => {
 // ─── LIST POPUP BUTTON LISTENERS (shared, trainer-aware) ─────────────────────
 
 newListEl.addEventListener("click", async () => {
-    if (trainerMode === 'obl') { oblNewList(); return; }
+    if (trainerMode === 'obl') { obl.oblNewList(); return; }
     if (usingTimer()) return;
-    if (pblSelected.length === 0) { showError("Please select PBLs to create a list!"); return; }
+    if (pbl.pblSelected.length === 0) { showError("Please select PBLs to create a list!"); return; }
     let name = await appPrompt("Name of your list:", { title: "New list", placeholder: "List name" });
     if (!name) return;
     name = name.trim();
     if (!name || !validName(name)) { showError("Please enter a valid name (only letters, numbers, slashes, and spaces)"); return; }
-    if (Object.keys(pblDefaultLists).includes(name)) { showError("A default list already has this name!"); return; }
-    if (Object.keys(pblUserLists).includes(name))    { showError("You already gave this name to a list."); return; }
+    if (Object.keys(pbl.pblDefaultLists).includes(name)) { showError("A default list already has this name!"); return; }
+    if (Object.keys(pbl.pblUserLists).includes(name))    { showError("You already gave this name to a list."); return; }
     if (document.getElementById(name))               { showError("You can't give this name to a list (id taken)."); return; }
-    pblUserLists[name] = [...pblSelected];
-    pblAddUserLists();
+    pbl.pblUserLists[name] = [...pbl.pblSelected];
+    pbl.pblAddUserLists();
     setHighlighted(name);
     showSuccess("Successfully created the list.");
 });
 
 overwriteListEl.addEventListener("click", async () => {
-    if (highlightedTagId() != null) { showError("Tags can't be overwritten here — edit them in the Tags menu."); return; }
-    if (trainerMode === 'obl') { oblOverwriteList(); return; }
+    const tagMod = await ensureTags();
+    if (tagMod.highlightedTagId() != null) { showError("Tags can't be overwritten here — edit them in the Tags menu."); return; }
+    if (trainerMode === 'obl') { obl.oblOverwriteList(); return; }
     if (usingTimer()) return;
     if (highlightedList == null) return;
-    if (Object.keys(pblDefaultLists).includes(highlightedList)) { showError("You cannot overwrite a default list."); return; }
-    if (pblSelected.length === 0) { showError("Please select PBLs to overwrite the list!"); return; }
+    if (Object.keys(pbl.pblDefaultLists).includes(highlightedList)) { showError("You cannot overwrite a default list."); return; }
+    if (pbl.pblSelected.length === 0) { showError("Please select PBLs to overwrite the list!"); return; }
     if (await appConfirm(`Overwrite list “${highlightedList}” with the current selection?`, { title: "Overwrite list", okText: "Overwrite", danger: true })) {
-        pblUserLists[highlightedList] = [...pblSelected];
-        pblAddUserLists();
-        pblSelectList(highlightedList, false);
+        pbl.pblUserLists[highlightedList] = [...pbl.pblSelected];
+        pbl.pblAddUserLists();
+        pbl.pblSelectList(highlightedList, false);
         highlightedList = null;
         closePopup();
         showSuccess("Successfully overwrote the list.");
     }
 });
 
-selectListEl.addEventListener("click", () => {
-    const tagId = highlightedTagId();
+selectListEl.addEventListener("click", async () => {
+    const tagMod = await ensureTags();
+    const tagId = tagMod.highlightedTagId();
     if (tagId != null) {
-        if (trainerMode === 'obl') oblSelectTag(tagId, false); else pblSelectTag(tagId, false);
+        if (trainerMode === 'obl') obl.oblSelectTag(tagId, false); else pbl.pblSelectTag(tagId, false);
         closePopup();
         showSuccess("Viewing the tag.", 1000);
         return;
     }
     if (highlightedList == null) { showError("Please click on a list."); return; }
-    if (trainerMode === 'obl') { oblSelectList(highlightedList, false); }
-    else                       { pblSelectList(highlightedList, false); }
+    if (trainerMode === 'obl') { obl.oblSelectList(highlightedList, false); }
+    else                       { pbl.pblSelectList(highlightedList, false); }
     closePopup();
     showSuccess("Selected the list.", 1000);
 });
 
 deleteListEl.addEventListener("click", async () => {
-    const tagId = highlightedTagId();
+    const tagMod = await ensureTags();
+    const tagId = tagMod.highlightedTagId();
     if (tagId != null) {
-        const t = getTags().find(x => x.id === tagId);
+        const t = tagMod.getTags().find(x => x.id === tagId);
         if (t && await appConfirm(`Delete tag “${t.name}”? This removes it everywhere.`, { title: "Delete tag", okText: "Delete", danger: true })) {
-            deleteTag(tagId);
+            tagMod.deleteTag(tagId);
             highlightedList = null;
-            renderTagMenu();
+            tagMod.renderTagMenu();
             showSuccess("Deleted the tag.");
         }
         return;
     }
-    if (trainerMode === 'obl') { oblDeleteList(); return; }
+    if (trainerMode === 'obl') { obl.oblDeleteList(); return; }
     if (highlightedList == null) return;
-    if (Object.keys(pblDefaultLists).includes(highlightedList)) { showError("You cannot delete a default list."); return; }
-    if (Object.keys(pblUserLists).includes(highlightedList)) {
+    if (Object.keys(pbl.pblDefaultLists).includes(highlightedList)) { showError("You cannot delete a default list."); return; }
+    if (Object.keys(pbl.pblUserLists).includes(highlightedList)) {
         if (await appConfirm(`Delete list “${highlightedList}”?`, { title: "Delete list", okText: "Delete", danger: true })) {
-            delete pblUserLists[highlightedList];
+            delete pbl.pblUserLists[highlightedList];
             highlightedList = null;
-            pblAddUserLists();
+            pbl.pblAddUserLists();
             showSuccess("Successfully deleted the list.");
         }
         return;
@@ -1236,17 +1279,18 @@ deleteListEl.addEventListener("click", async () => {
     showError("Error: list not found.");
 });
 
-trainListEl.addEventListener("click", () => {
-    const tagId = highlightedTagId();
+trainListEl.addEventListener("click", async () => {
+    const tagMod = await ensureTags();
+    const tagId = tagMod.highlightedTagId();
     if (tagId != null) {
-        if (trainerMode === 'obl') oblSelectTag(tagId, true); else pblSelectTag(tagId, true);
+        if (trainerMode === 'obl') obl.oblSelectTag(tagId, true); else pbl.pblSelectTag(tagId, true);
         closePopup();
         showSuccess("Training the tag.", 1000);
         return;
     }
     if (highlightedList == null) { showError("Please click on a list."); return; }
-    if (trainerMode === 'obl') { oblSelectList(highlightedList, true); }
-    else                       { pblSelectList(highlightedList, true); }
+    if (trainerMode === 'obl') { obl.oblSelectList(highlightedList, true); }
+    else                       { pbl.pblSelectList(highlightedList, true); }
     closePopup();
     showSuccess("Training the list.", 1000);
 });
@@ -1256,9 +1300,11 @@ trainListEl.addEventListener("click", () => {
 const MODE_KEY  = 'trainerMode';
 export let trainerMode = localStorage.getItem(MODE_KEY) || 'pbl'; // 'pbl' | 'obl'
 
-function switchMode() {
+async function switchMode() {
     trainerMode = trainerMode === 'pbl' ? 'obl' : 'pbl';
     localStorage.setItem(MODE_KEY, trainerMode);
+    await ensureActiveTrainerCore();
+    if (trainerMode === 'pbl') await pbl.pblInit();
     applyMode();
 }
 
@@ -1272,11 +1318,11 @@ export function applyMode() {
     document.getElementById('scramble-length-row').style.display =
         isPBL ? '' : 'none';
     document.getElementById('bottom56-row').style.display =
-        (isPBL && pblScrambleMode === 'short') ? 'flex' : 'none';
+        (isPBL && pbl.pblScrambleMode === 'short') ? 'flex' : 'none';
     document.getElementById('usebarflip').closest('.settings-row').style.display =
         isPBL ? '' : 'none';
     document.getElementById('globalbarfliprow').style.display =
-        (isPBL && pblUseBarflip) ? '' : 'none';
+        (isPBL && pbl.pblUseBarflip) ? '' : 'none';
     document.getElementById('weight').closest('.settings-row').style.display =
         isPBL ? '' : 'none';
     document.getElementById('specific-row').style.display =
@@ -1293,33 +1339,54 @@ export function applyMode() {
     updateDeselectBtn();
 
     if (isPBL) {
-        oblSaveSettings();
-        pblRestoreSettings();
-        pblAddDefaultLists();
-        pblAddUserLists();
-        pblApplyBarflipUI();
-        pblRestoreGrid();
+        if (obl) obl.oblSaveSettings();
+        pbl.pblRestoreSettings();
+        pbl.pblAddDefaultLists();
+        pbl.pblAddUserLists();
+        pbl.pblApplyBarflipUI();
+        pbl.pblRestoreGrid();
         // Generate a scramble if none exists (e.g. first switch from OBL on initial load).
-        if (!pblHasActive && pblSelected.length > 0) pblGenerateScramble();
-        if (pblSelected.length > 0) showSelected(); else showAll();
+        if (!pbl.pblHasActive && pbl.pblSelected.length > 0) pbl.pblGenerateScramble();
+        if (pbl.pblSelected.length > 0) showSelected(); else showAll();
         updateRemainingCount();
     } else {
-        pblSaveSettings();
+        if (pbl) pbl.pblSaveSettings();
         eachCaseEl.disabled = false; // clear any PBL W↔E lock on the shared sidebar checkbox
         document.getElementById('barflip-override-row')?.classList.add('hidden');
-        oblLoadSettings();
-        oblInitDefaultLists();
-        oblAddDefaultLists();
-        oblLoadUserLists();
-        oblLoadSelected();
-        oblRestoreGrid();
+        obl.oblLoadSettings();
+        obl.oblInitDefaultLists();
+        obl.oblAddDefaultLists();
+        obl.oblLoadUserLists();
+        obl.oblLoadSelected();
+        obl.oblRestoreGrid();
         // Generate a scramble if none exists (mirrors PBL symmetry).
-        if (!oblHasActiveScramble && oblSelectedCases[oblUsingSpe].length > 0) oblGenerateScramble();
-        if (oblSelectedCases[oblUsingSpe].length > 0) showSelected(); else showAll();
+        if (!obl.oblHasActiveScramble && obl.oblSelectedCases[obl.oblUsingSpe].length > 0) obl.oblGenerateScramble();
+        if (obl.oblSelectedCases[obl.oblUsingSpe].length > 0) showSelected(); else showAll();
         updateRemainingCount();
     }
-    renderTagMenu(); // tag case-counts are trainer-specific
+    if (tags) tags.renderTagMenu(); // tag case-counts are trainer-specific
     updateScrambleNavButtons();
+}
+
+function warmInactiveTrainerCore() {
+    const warm = () => {
+        if (trainerMode === 'pbl') ensureOblCore().catch(console.error);
+        else ensurePblCore().catch(console.error);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 1500 });
+        else setTimeout(warm, 250);
+    }));
+}
+
+export async function startApp() {
+    await ensureActiveTrainerCore();
+    if (trainerMode === 'pbl') await pbl.pblInit();
+    applyMode();
+    updateSelectBtn();
+    updateDeselectBtn();
+    updateToggle();
+    warmInactiveTrainerCore();
 }
 
 document.getElementById('mode-title').addEventListener('click', switchMode);
