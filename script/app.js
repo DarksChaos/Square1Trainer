@@ -1357,6 +1357,8 @@ export function applyMode() {
         isPBL ? 'none' : '';
     document.getElementById('oblp-row').style.display =
         isPBL ? 'none' : '';
+    document.getElementById('obl-naming-row').style.display =
+        isPBL ? 'none' : '';
 
     // Reset shared display state so neither trainer bleeds into the other.
     showMode        = 'all';

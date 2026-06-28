@@ -1,4 +1,4 @@
-import { OBL_DEFAULT_LISTS_RAW, OBLtranslation, possibleOBL } from '../data/obl-data.js';
+import { OBL_DEFAULT_LISTS_RAW, OBL_MATT_LABELS, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG } from './help-icons.js';
 import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
@@ -11,6 +11,7 @@ export let oblRemainingCases    = [[], []];
 export let oblUserLists         = {};
 export let oblDefaultLists      = {};
 export let oblUsingSpe          = 0;
+export let oblNamingMode        = 'traditional';
 let oblUsingMemo         = false;
 export let oblScrambleList      = [];
 let oblCurrentCase       = '';
@@ -153,7 +154,7 @@ export function oblDisplayPreviousScramble() {
     oblSetScrambleOffset(oblScrambleOffset);
     const prev = oblScrambleList.at(-2 - oblScrambleOffset);
     previousScrambleEl.textContent = prev
-        ? 'Previous scramble: ' + prev[usingKarn] + ' (' + prev[2] + ')'
+        ? 'Previous scramble: ' + prev[usingKarn] + ' (' + oblDisplayName(prev[2]) + ')'
         : 'Last scramble will show up here';
     updateScrambleNavButtons();
 }
@@ -447,10 +448,10 @@ export function oblRestoreGrid(buildGrid = false) {
 
         caseListEl.innerHTML = oblUsingSpe
             ? possibleOBL.flatMap(obl =>
-                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${s}</div>`)
+                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${oblDisplayName(s)}</div>`)
               ).join('')
             : possibleOBL.map(obl =>
-                `<div class="case" id="${OBLname(obl)}">${OBLname(obl)}</div>`
+                `<div class="case" id="${OBLname(obl)}">${oblDisplayName(OBLname(obl))}</div>`
               ).join('');
 
         document.querySelectorAll('.case').forEach(caseEl => {
@@ -472,6 +473,7 @@ export function oblRestoreGrid(buildGrid = false) {
             const selected = oblSelectedCases[oblUsingSpe].includes(caseEl.id);
             caseEl.classList.toggle('checked', selected);
             caseEl.classList.toggle('checked-both', selected);
+            caseEl.textContent = oblDisplayName(caseEl.id);
         }
     }
 
@@ -504,12 +506,14 @@ export function oblRestoreGrid(buildGrid = false) {
 
 // ─── OBL SETTINGS ─────────────────────────────────────────────────────────────
 
-// OBL settings stored as a 3-char string: eachCase + usingSpe + usingMemo
+// OBL settings stored as a compact string:
+// eachCase + usingSpe + usingMemo + namingMode(traditional/matt)
 // (same compact style as PBL's settings string)
 export function oblSaveSettings() {
     const store = (eachCaseEl.checked ? '1' : '0') +
                   (oblUsingSpe        ? '1' : '0') +
-                  (oblUsingMemo       ? '1' : '0');
+                  (oblUsingMemo       ? '1' : '0') +
+                  (oblUsesMattNaming() ? '1' : '0');
     oblStorage.setItem('settings', store);
 }
 
@@ -520,17 +524,22 @@ export function oblLoadSettings() {
     eachCaseEl.checked = false;
     oblUsingSpe  = 0;
     oblUsingMemo = false;
+    oblNamingMode = 'traditional';
 
     if (stored !== null) {
         eachCaseEl.checked = stored[0] === '1';
         oblUsingSpe        = stored[1] === '1' ? 1 : 0;
         oblUsingMemo       = stored[2] === '1';
+        oblNamingMode      = stored[3] === '1' ? 'matt' : 'traditional';
     }
 
     const specificEl = document.getElementById('specific');
     if (specificEl) specificEl.checked = oblUsingSpe === 1;
     const oblpEl = document.getElementById('oblp');
     if (oblpEl) oblpEl.checked = oblUsingMemo;
+    document.querySelectorAll('input[name="obl-naming"]').forEach(el => {
+        el.checked = el.value === oblNamingMode;
+    });
 }
 
 export function oblOnEachCase() {
@@ -571,9 +580,22 @@ export function oblOnMemo() {
     oblSaveSettings();
 }
 
+export function oblOnNaming() {
+    const selected = document.querySelector('input[name="obl-naming"]:checked');
+    oblNamingMode = selected?.value === 'matt' ? 'matt' : 'traditional';
+    oblRestoreGrid(false);
+    oblDisplayCurrentScramble();
+    oblDisplayPreviousScramble();
+    window.dispatchEvent(new Event('obl-naming-change'));
+    oblSaveSettings();
+}
+
 // Wire OBL-specific settings checkboxes.
 document.getElementById('specific').addEventListener('change', () => oblOnSpe());
 document.getElementById('oblp').addEventListener('change',    () => oblOnMemo());
+document.querySelectorAll('input[name="obl-naming"]').forEach(el => {
+    el.addEventListener('change', () => oblOnNaming());
+});
 
 // ─── OBL HELP CONTENT ─────────────────────────────────────────────────────────
 // Add extra sections here as {id, title, svg, html} objects.
@@ -700,6 +722,89 @@ export function OBLname(obl) {
     return obl[0] ? `${obl[0]} ${obl[1]}/${obl[2]}` : `${obl[1]}/${obl[2]}`;
 }
 
+const OBL_MATT_TO_TRADITIONAL = Object.fromEntries(
+    Object.entries(OBL_MATT_LABELS).map(([traditional, matt]) => [matt, traditional])
+);
+
+const OBL_MATT_BASE_NAMES = {
+    O: 'solved',
+    D: '1c',
+    J: 'cadj',
+    V: 'copp',
+    M: '3c',
+    Q: '4e',
+    W: '3e',
+    F: 'line',
+    L: 'L',
+    E: '1e',
+    P: 'pair',
+    A: 'arrow',
+    G: 'gem',
+    H: 'knight',
+    X: 'axe',
+    S: 'squid',
+    TH: 'thumb',
+    U: 'bunny',
+    SH: 'shell',
+    B: 'bird',
+    Z: 'hazard',
+    Y: 'yoshi',
+    K: 'kite',
+    C: 'cut',
+    T: 'T',
+    N: 'N',
+    I: 'tie',
+};
+
+let _mattPartToTraditional = null;
+
+function mattPartToTraditional(part) {
+    if (!_mattPartToTraditional) {
+        _mattPartToTraditional = {};
+        for (const [traditional, matt] of Object.entries(SquanLib.NAMING))
+            _mattPartToTraditional[matt] = traditional;
+    }
+    return _mattPartToTraditional[part] || OBL_MATT_BASE_NAMES[part] || part;
+}
+
+function mattPairToTraditional(pair) {
+    return pair.split('/').map(part => mattPartToTraditional(part.trim())).join('/');
+}
+
+function mattCaseToTraditional(name) {
+    if (OBL_MATT_TO_TRADITIONAL[name]) return OBL_MATT_TO_TRADITIONAL[name];
+    return name.split(',').map(part => {
+        const trimmed = part.trim();
+        const m = /^(same|different)\s+(.+)$/.exec(trimmed);
+        if (m) {
+            const quality = m[1] === 'same' ? 'good' : 'bad';
+            return `${quality} ${mattPairToTraditional(m[2])}`;
+        }
+        return mattPairToTraditional(trimmed);
+    }).join(', ');
+}
+
+function traditionalCaseToMatt(name) {
+    if (OBL_MATT_LABELS[name]) return OBL_MATT_LABELS[name];
+    return name.split('/').map(part => SquanLib.NAMING[part.trim()] || part.trim()).join('/');
+}
+
+export function oblUsesMattNaming() {
+    return oblNamingMode === 'matt';
+}
+
+export function oblDisplayName(name) {
+    return oblUsesMattNaming() ? traditionalCaseToMatt(name) : name;
+}
+
+export function oblDisplayAlgCaseName(name) {
+    return oblUsesMattNaming() ? name : mattCaseToTraditional(name);
+}
+
+export function oblDisplayClusterTitle(title) {
+    return oblUsesMattNaming() ? title : mattCaseToTraditional(title);
+}
+
 function getNonSpe(spec) {
     // spec: "black tie/left N"
     // return: "tie/N"
@@ -761,9 +866,22 @@ function checkFirstWord(word, g, filter, u, d) {
     }
 }
 
+function passesMattOBLFilter(obl, raw) {
+    const query = raw.trim().toLowerCase();
+    if (!query) return true;
+    const label = oblDisplayName(obl).toLowerCase();
+    const haystack = label.replace(/[,/]/g, ' ').replace(/\s+/g, ' ').trim();
+    const haystackTokens = haystack.split(' ').filter(Boolean);
+    const queryTokens = query.replace(/[,/]/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+    return queryTokens.every(token =>
+        label.includes(token) || haystackTokens.some(part => part.startsWith(token))
+    );
+}
+
 function passesOBLFilter(obl, filter) {
     // obl is the name of a .case element
     if (filter === "") return true;
+    if (oblUsesMattNaming()) return passesMattOBLFilter(obl, filter);
     filter = filter.replace("/", " ").toLowerCase().split(" ");
     if (oblUsingSpe) {
         // filter left/right

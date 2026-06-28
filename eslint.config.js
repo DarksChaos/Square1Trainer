@@ -31,6 +31,7 @@ export default [
         Blob: 'readonly',
         FileReader: 'readonly',
         requestIdleCallback: 'readonly',
+        Event: 'readonly',
       },
     },
     rules: {

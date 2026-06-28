@@ -3,7 +3,7 @@ import { OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { pblDefaultLists } from '../data/pbl-data.js';
 import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseBases, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
 import { abandonTransition, appConfirm, closeOverlayForTransition, dismissTopOverlay, escapeHtml, pushOverlay, randInt, showError, showInfo, showSuccess, trainerMode, usingTimer } from './app.js';
-import { OBLname, getNonSpeList, getSpe, getSpeList, oblAddUserLists, oblDefaultLists, oblSaveUserLists, oblUserLists, oblUsingSpe } from './obl-core.js';
+import { OBLname, getNonSpeList, getSpe, getSpeList, oblAddUserLists, oblDefaultLists, oblDisplayClusterTitle, oblDisplayName, oblNamingMode, oblSaveUserLists, oblUserLists, oblUsingSpe } from './obl-core.js';
 import { pblAddUserLists, pblGetOptimal, pblPossible, pblSaveUserLists, pblUseBarflip, pblUserLists } from './pbl-core.js';
 import { SquanLib, squan } from './squan.js';
 import { getTags, openTagModal, renderTagMenu } from './tags.js';
@@ -431,7 +431,7 @@ let searchClusterReturn = { kind: 'trainer' };
 
 // Search index: per cluster, a title plus every "alias" the user might type to
 // reach it — case names, and (for OBL) legacy verbose names. Built once per mode.
-const _searchIndexCache = { pbl: null, obl: null };
+const _searchIndexCache = { pbl: null, obl: null, oblNamingMode: null };
 
 function buildSearchIndex(mode) {
     const out = [];
@@ -445,44 +445,48 @@ function buildSearchIndex(mode) {
                 if (c.endsWith('/-'))      aliases.add(c.slice(0, -2) + ':');
                 else if (c.startsWith('-/')) aliases.add(':' + c.slice(2));
             });
-            out.push({ title, aliases: [...aliases] });
+            out.push({ title, displayTitle: title, aliases: [...aliases] });
         }
         return out;
     }
 
-    // OBL: case-list entries are short codes (e.g. "Uw/THw"). Add the short codes,
-    // their reverse-mapped legacy names ("right bunny/left thumb"), and the legacy
-    // verbose names from OBLtranslation (both non-specific and specific).
+    // OBL: keep navigation titles internal, but expose only the selected naming
+    // dialect in the search labels/aliases.
     const rev = {}; // short code → legacy name
     for (const [legacy, short] of Object.entries(SquanLib.NAMING)) rev[short] = legacy;
 
     const byTitle = {};
     for (const [title, data] of Object.entries(oblClusters)) {
-        const set = new Set([title]);
+        const set = new Set([oblDisplayClusterTitle(title)]);
         (data['case-list'] || []).forEach(code => {
-            set.add(code);
+            set.add(oblDisplayClusterTitle(code));
             const [a, b] = code.split('/');
-            if (rev[a] && rev[b]) set.add(rev[a] + '/' + rev[b]);
+            if (rev[a] && rev[b]) set.add(oblDisplayName(rev[a] + '/' + rev[b]));
         });
-        byTitle[title] = set;
+        byTitle[title] = { displayTitle: oblDisplayClusterTitle(title), aliases: set };
     }
 
     for (const nonSpe of Object.keys(OBLtranslation)) {
         const title = oblFindCluster(nonSpe);
         if (!title || !byTitle[title]) continue;
-        byTitle[title].add(nonSpe);
+        byTitle[title].aliases.add(oblDisplayName(nonSpe));
         for (const spe of OBLtranslation[nonSpe]) {
             const [a, b] = spe.split('/');
-            byTitle[title].add(spe);
-            byTitle[title].add(b + '/' + a); // mirrored specific name
+            byTitle[title].aliases.add(oblDisplayName(spe));
+            byTitle[title].aliases.add(oblDisplayName(b + '/' + a)); // mirrored specific name
         }
     }
 
-    for (const [title, set] of Object.entries(byTitle)) out.push({ title, aliases: [...set] });
+    for (const [title, entry] of Object.entries(byTitle))
+        out.push({ title, displayTitle: entry.displayTitle, aliases: [...entry.aliases] });
     return out;
 }
 
 function getSearchIndex() {
+    if (trainerMode === 'obl' && _searchIndexCache.oblNamingMode !== oblNamingMode) {
+        _searchIndexCache.obl = null;
+        _searchIndexCache.oblNamingMode = oblNamingMode;
+    }
     if (!_searchIndexCache[trainerMode]) _searchIndexCache[trainerMode] = buildSearchIndex(trainerMode);
     return _searchIndexCache[trainerMode];
 }
@@ -550,11 +554,12 @@ function renderSearchResults() {
     const titleHits = [];
     const aliasHits = [];
     for (const entry of getSearchIndex()) {
-        if (entry.title.toLowerCase().includes(q)) {
-            titleHits.push({ kind: 'cluster', title: entry.title, via: null });
+        const label = entry.displayTitle || entry.title;
+        if (label.toLowerCase().includes(q)) {
+            titleHits.push({ kind: 'cluster', title: entry.title, displayTitle: label, via: null });
         } else {
-            const via = entry.aliases.find(a => a !== entry.title && a.toLowerCase().includes(q));
-            if (via) aliasHits.push({ kind: 'cluster', title: entry.title, via });
+            const via = entry.aliases.find(a => a !== label && a.toLowerCase().includes(q));
+            if (via) aliasHits.push({ kind: 'cluster', title: entry.title, displayTitle: label, via });
         }
     }
 
@@ -592,7 +597,8 @@ function renderSearchResults() {
             return `<div class="${cls}" data-ix="${i}">${highlightMatch(m.name, query)}` +
                 `<span class="search-result-meta">list · ${m.count} case${m.count === 1 ? '' : 's'}</span></div>`;
         }
-        const titleHtml = m.via ? escapeHtml(m.title) : highlightMatch(m.title, query);
+        const displayTitle = m.displayTitle || m.title;
+        const titleHtml = m.via ? escapeHtml(displayTitle) : highlightMatch(displayTitle, query);
         const viaHtml   = m.via ? `<span class="search-result-via">${highlightMatch(m.via, query)}</span>` : '';
         return `<div class="${cls}" data-ix="${i}">${titleHtml}${viaHtml}</div>`;
     }).join('');
@@ -700,7 +706,7 @@ function showClusterInSearch(title, returnTo = null) {
     searchClusterTitle = title;
     searchEditMode = false;
     searchInClusterView = true;
-    searchInputEl.value = title;
+    searchInputEl.value = trainerMode === 'obl' ? oblDisplayClusterTitle(title) : title;
     searchExtensionEl.style.display = "flex";
     searchResultsEl.style.display = "none";
     searchTagViewEl.style.display = "none";
@@ -838,7 +844,8 @@ function applySearchClusterWidth(title) {
     for (const src of sources) {
         const m = meta[src] ?? { label: src, linkText: src, url: '', formatter: sheetFmt };
         // #cluster-source-content so the ">span { display:block }" rules apply.
-        content.innerHTML = `<span class="cluster-title">${escapeHtml(title)}</span><div id="cluster-source-content">${m.formatter(cluster, src, m)}</div>`;
+        const displayTitle = trainerMode === 'obl' ? oblDisplayClusterTitle(title) : title;
+        content.innerHTML = `<span class="cluster-title">${escapeHtml(displayTitle)}</span><div id="cluster-source-content">${m.formatter(cluster, src, m)}</div>`;
         const cLeft = content.getBoundingClientRect().left;
         content.querySelectorAll('.matt-algs, .pure-algs').forEach(el => {
             maxRight = Math.max(maxRight, el.getBoundingClientRect().right - cLeft);
@@ -891,6 +898,22 @@ export function toggleSearch() {
     if (isSearchOpen) dismissTopOverlay();
     else openSearch();
 }
+
+window.addEventListener('obl-naming-change', () => {
+    _searchIndexCache.obl = null;
+    _searchIndexCache.oblNamingMode = oblNamingMode;
+    if (!isSearchOpen || trainerMode !== 'obl') return;
+    if (searchClusterEl.style.display !== 'none' && searchClusterTitle) {
+        searchInputEl.value = oblDisplayClusterTitle(searchClusterTitle);
+        renderSearchClusterBody();
+    } else if (searchTagViewEl.style.display !== 'none') {
+        renderTagView();
+    } else if (searchListViewEl.style.display !== 'none') {
+        renderListView();
+    } else {
+        renderSearchResults();
+    }
+});
 
 // ─── Search help modal ────────────────────────────────────────────────────────
 // Per-trainer help content shown by the "?" button in the search bar.
@@ -1097,7 +1120,7 @@ function renderTagView() {
     const body = clusters.length
         ? clusters.map(c =>
             `<div class="stv-cluster">` +
-                `<button class="stv-cluster-title" data-title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</button>` +
+                `<button class="stv-cluster-title" data-title="${escapeHtml(c.title)}">${escapeHtml(trainerMode === 'obl' ? oblDisplayClusterTitle(c.title) : c.title)}</button>` +
                 c.entries.map(e =>
                     `<button class="stv-entry" data-title="${escapeHtml(c.title)}">` +
                         `<span class="stv-overview">${escapeHtml(e.overview)}</span>` +
@@ -1234,7 +1257,7 @@ function _slvGridHtml() {
             : possibleOBL.map(o => OBLname(o));
         return ids.map(id => {
             const inList = _slvList[oblUsingSpe].includes(id);
-            return `<div class="case ${inList ? 'checked-both' : ''}" data-id="${escapeHtml(id)}">${escapeHtml(id)}</div>`;
+            return `<div class="case ${inList ? 'checked-both' : ''}" data-id="${escapeHtml(id)}">${escapeHtml(oblDisplayName(id))}</div>`;
         }).join('');
     }
     return pblPossible.map(([t, b]) => {

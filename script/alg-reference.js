@@ -1,6 +1,7 @@
 import { oblClusters, pblClusters } from '../data/alg-data.js';
+import { OBL_MATT_LABELS } from '../data/obl-data.js';
 import { escapeHtml, trainerMode, usingKarn } from './app.js';
-import { getSpe } from './obl-core.js';
+import { getSpe, oblDisplayAlgCaseName, oblDisplayClusterTitle } from './obl-core.js';
 import { searchClusterContentEl, searchEditMode, syncSearchClusterToolbar } from './search.js';
 import { SquanLib, squan } from './squan.js';
 import { _algClusters, UNIT_TAG_SVG, defaultGroupId, effectiveCluster, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, tagsForUnit, unitRef } from './tag-assignments.js';
@@ -900,14 +901,31 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
 // ── OBL case → cluster lookup ─────────────────────────────────────────────
 
 export function oblFindCluster(caseName) {
+    if (oblClusters[caseName]) return caseName;
+    const mappedTitle = OBL_MATT_LABELS[caseName];
+    if (mappedTitle && oblClusters[mappedTitle]) return mappedTitle;
     try {
         caseName = getSpe(caseName)[0];
     } catch (e) {}
     // specific name
     let [u, d] = caseName.split("/");
-    caseName = [SquanLib.NAMING[u], SquanLib.NAMING[d]].join("/");
+    caseName = [SquanLib.NAMING[u] || u, SquanLib.NAMING[d] || d].join("/");
+    const normalizedCaseName = caseName
+        .replace(/\bT[ud]\b/g, 'T')
+        .replace(/\bI[ud]\b/g, 'I');
+    const reversedNormalizedCaseName = normalizedCaseName.split('/').reverse().join('/');
+    const candidates = new Set([caseName, normalizedCaseName, reversedNormalizedCaseName]);
+    const [ma, mb] = caseName.split('/');
+    const [na, nb] = normalizedCaseName.split('/');
+    const generalized = (ma !== na || mb !== nb) && na && nb;
+    const sameFamilySuffix = ma?.at(-1) === mb?.at(-1);
+    if (generalized) {
+        const relation = sameFamilySuffix ? 'same' : 'different';
+        candidates.add(`${relation} ${normalizedCaseName}`);
+        candidates.add(`${relation} ${reversedNormalizedCaseName}`);
+    }
     for (const [title, data] of Object.entries(oblClusters)) {
-        if (data["case-list"].includes(caseName)) return title;
+        if (data["case-list"].some(c => candidates.has(c))) return title;
     }
     return null;
 }
@@ -945,15 +963,16 @@ function oblFormatMatt(cluster, key, meta, title) {
 
     for (const c of matt?.cases || []) {
         if (!oblHasAlgData(c.algs)) continue;
+        const displayCase = oblDisplayAlgCaseName(c["case-name"]);
         for (let i = 0; i < c.algs.length; i++) {
             const alg = c.algs[i];
             if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
             const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
             const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
-            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            const indent   = i > 0 ? pblTextWidth(displayCase + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
-                `${i === 0 ? c["case-name"] + " " : ""}${angle}` +
+                `${i === 0 ? displayCase + " " : ""}${angle}` +
                 `<span style="font-family:monospace">${notation}</span></span>`
             );
         }
@@ -978,14 +997,15 @@ export function oblFormatSheet(cluster, key, meta, title) {
         return lines.join("");
     }
     for (const c of filled) {
+        const displayCase = oblDisplayAlgCaseName(c["case-name"]);
         for (let i = 0; i < c.algs.length; i++) {
             const algStr = c.algs[i];
             if (!algStr?.trim()) continue;
             const notation = usingKarn ? algStr : squan.unkarnify(algStr);
-            const indent   = i > 0 ? pblTextWidth(c["case-name"] + " ", "11pt Arial") : 0;
+            const indent   = i > 0 ? pblTextWidth(displayCase + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
-                `${i === 0 ? c["case-name"] + " " : ""}` +
+                `${i === 0 ? displayCase + " " : ""}` +
                 `<span style="font-family:monospace">${notation}</span></span>`
             );
         }
@@ -1023,8 +1043,9 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
           }</div>`
         : '';
 
+    const displayTitle = oblDisplayClusterTitle(title);
     content.innerHTML =
-        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<span class="cluster-title">${displayTitle}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
         `<div id="cluster-source-content"></div>`;
 
     function showSource(src) {
