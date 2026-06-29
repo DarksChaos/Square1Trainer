@@ -185,6 +185,23 @@ export function tagCaseBases(tagId) {
     return out;
 }
 
+// PBL "count + and - as 2 cases" setting, mirrored here by pbl-core so tag
+// counts (computed in this low-level store) can honor it without a circular
+// import back into pbl-core.
+let _pblCountBarflip = false;
+export function setPblCountBarflip(on) { _pblCountBarflip = !!on; }
+
+// Number of cases a tag represents. With the PBL count-barflip setting on, a
+// case selected as 'both' (mixed-parity matt groups, or a sheet view) counts as
+// two; '+'-only or '-'-only cases count as one. Otherwise (and always in OBL)
+// each base case counts once.
+export function tagCaseCount(tagId) {
+    if (trainerMode === 'pbl' && _pblCountBarflip) {
+        return tagCaseModes(tagId).reduce((n, { mode }) => n + (mode === 'both' ? 2 : 1), 0);
+    }
+    return tagCaseBases(tagId).length;
+}
+
 // PBL only: the barflip mode each case should be selected as when a tag is
 // applied. A tagged matt solution group implies a mode from its slicecount —
 // even → '-', odd → '+'. Within a cluster these combine: mixed parities, an

@@ -1,5 +1,5 @@
 import { addListItemEvent, dismissTopOverlay, escapeHtml, highlightedList, pushOverlay } from './app.js';
-import { purgeTagFromAssignments, tagCaseBases } from './tag-assignments.js';
+import { purgeTagFromAssignments, tagCaseCount } from './tag-assignments.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  TAGS
@@ -156,7 +156,7 @@ export function renderTagMenu() {
         ? tags.map(t =>
             `<div id="tagsel-${escapeHtml(t.id)}" class="list-item tag-list-item" data-tagid="${escapeHtml(t.id)}">` +
             `<span class="tag-swatch-dot" style="--tag-color:${escapeHtml(t.color)}"></span>` +
-            `${escapeHtml(t.name)} (${tagCaseBases(t.id).length})</div>`
+            `${escapeHtml(t.name)} (${tagCaseCount(t.id)})</div>`
           ).join('')
         : '<div class="sublist-empty">No tags yet.</div>';
     el.querySelectorAll('.list-item').forEach(addListItemEvent);

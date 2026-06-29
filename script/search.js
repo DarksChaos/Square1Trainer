@@ -1,10 +1,10 @@
 import { oblClusters, pblClusters } from '../data/alg-data.js';
 import { OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { pblDefaultLists } from '../data/pbl-data.js';
-import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseBases, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
+import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseCount, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
 import { abandonTransition, appConfirm, closeOverlayForTransition, dismissTopOverlay, escapeHtml, pushOverlay, randInt, showError, showInfo, showSuccess, trainerMode, usingTimer } from './app.js';
 import { OBLname, getNonSpeList, getSpe, getSpeList, oblAddUserLists, oblDefaultLists, oblDisplayClusterTitle, oblDisplayName, oblNamingMode, oblSaveUserLists, oblUserLists, oblUsingSpe } from './obl-core.js';
-import { pblAddUserLists, pblGetOptimal, pblPossible, pblSaveUserLists, pblUseBarflip, pblUserLists } from './pbl-core.js';
+import { pblAddUserLists, pblCaseCount, pblGetOptimal, pblPossible, pblSaveUserLists, pblUseBarflip, pblUserLists } from './pbl-core.js';
 import { SquanLib, squan } from './squan.js';
 import { getTags, openTagModal, renderTagMenu } from './tags.js';
 
@@ -566,7 +566,7 @@ function renderSearchResults() {
     // Tags and lists are searchable by name, shown with their own result style.
     const tagHits = getTags()
         .filter(t => t.name.toLowerCase().includes(q))
-        .map(t => ({ kind: 'tag', tagId: t.id, name: t.name, color: t.color, count: tagCaseBases(t.id).length }));
+        .map(t => ({ kind: 'tag', tagId: t.id, name: t.name, color: t.color, count: tagCaseCount(t.id) }));
     const listHits = searchableListNames()
         .filter(name => name.toLowerCase().includes(q))
         .map(name => ({ kind: 'list', name, count: listCaseCount(name) }));
@@ -686,7 +686,7 @@ function listCaseCount(name) {
         return l ? l[oblUsingSpe].length : 0;
     }
     const l = pblDefaultLists[name] || pblUserLists[name];
-    return l ? new Set(l.map(s => s.slice(0, -1))).size : 0;
+    return l ? pblCaseCount(l) : 0;
 }
 
 // Shows a cluster's alg reference inside the search extension and sets the search

@@ -132,6 +132,7 @@ export const weightEl         = document.getElementById("weight");
 export const globalBarflipEl  = document.getElementById("globalbarflip");
 export const globalBarflipRow = document.getElementById("globalbarfliprow");
 export const useBarflipEl     = document.getElementById("usebarflip");
+export const countBarflipEl   = document.getElementById("countbarflip");
 export const bottom56El       = document.getElementById("allow-bottom56");
 export const bottom56Row      = document.getElementById('bottom56-row');
 const hideHintButtonEl = document.getElementById('hide-hint-btn');
@@ -671,7 +672,7 @@ export function updateSelCount() {
     if (trainerMode === 'obl') {
         count = obl.oblSelectedCases[obl.oblUsingSpe].length;
     } else {
-        count = new Set(pbl.pblSelected.map(s => s.slice(0, -1))).size;
+        count = pbl.pblCaseCount(pbl.pblSelected);
     }
     selCountEl.textContent = 'Selected: ' + count;
 }
@@ -1281,6 +1282,12 @@ window.addEventListener("keydown", (e) => {
                 if (useBarflipEl.disabled) return;
                 useBarflipEl.checked = !useBarflipEl.checked; pbl.pblOnUseBarflip();
                 return;
+            case "c":
+                if (!canShortcut) return;
+                if (trainerMode !== 'pbl') return;
+                if (!pbl.pblUseBarflip) return;
+                countBarflipEl.checked = !countBarflipEl.checked; pbl.pblOnCountBarflip();
+                return;
             case "s": {
                 if (!canShortcut) return;
                 if (trainerMode !== 'obl') return;
@@ -1552,6 +1559,8 @@ export function applyMode() {
         (isPBL && pbl?.pblScrambleMode === 'short') ? 'flex' : 'none';
     document.getElementById('usebarflip').closest('.settings-row').style.display = isPBL ? '' : 'none';
     document.getElementById('globalbarfliprow').style.display =
+        (isPBL && pbl?.pblUseBarflip) ? '' : 'none';
+    document.getElementById('countbarflip-row').style.display =
         (isPBL && pbl?.pblUseBarflip) ? '' : 'none';
     document.getElementById('weight').closest('.settings-row').style.display = isPBL ? '' : 'none';
     document.getElementById('pbl-ref-row').style.display = isPBL ? '' : 'none';

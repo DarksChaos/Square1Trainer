@@ -1,8 +1,8 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, countBarflipEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
-import { tagCaseModes } from './tag-assignments.js';
+import { setPblCountBarflip, tagCaseModes } from './tag-assignments.js';
 
 export { pblDefaultLists };
 
@@ -51,6 +51,19 @@ export let pblUserLists    = {};
 let pblSelectBtnState    = 'none'; // 'none'|'both'|'plus'|'minus'
 let pblBarflipOverride   = null;   // null | '+' | '-'
 let pblShowBarflipUI     = false;
+export let pblCountBarflip = false; // "count + and - as 2 cases" — only takes effect while B is on
+
+// True when a case's two barflips should be counted/trained as separate cases:
+// the C setting only applies while "distinguish barflip" (B) is on.
+export function pblCountsSeparately() { return pblUseBarflip && pblCountBarflip; }
+
+// Counts case entries (each ending in +/-) as cases, honoring the C setting:
+// when on, + and - count separately; otherwise they collapse to their base.
+export function pblCaseCount(entries) {
+    return pblCountsSeparately()
+        ? entries.length
+        : new Set(entries.map(s => s.slice(0, -1))).size;
+}
 
 // ─── BARFLIP HELPERS ─────────────────────────────────────────────────────────
 
@@ -168,7 +181,7 @@ export const pblStorage = {
     removeItem: k      => localStorage.removeItem(k + 'PBL'),
 };
 
-const pblSettingList = [eachCaseEl, karnEl, weightEl, globalBarflipEl, useBarflipEl];
+const pblSettingList = [eachCaseEl, karnEl, weightEl, globalBarflipEl, useBarflipEl, countBarflipEl];
 
 function pblMigrateLegacyStorage() {
     const keys = ['settings', 'selected', 'userLists'];
@@ -223,7 +236,10 @@ export function pblRestoreSettings({ restoreShared = true } = {}) {
     pblWeight        = weightEl.checked;
     pblUseBarflip    = useBarflipEl.checked;
     pblShowBarflipUI = globalBarflipEl.checked;
+    pblCountBarflip  = countBarflipEl.checked;
+    setPblCountBarflip(pblCountsSeparately());
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
+    document.getElementById('countbarflip-row').style.display = pblUseBarflip ? '' : 'none';
 
     const storedScrMode = pblStorage.getItem("scrambleMode");
     if (storedScrMode) {
@@ -250,17 +266,26 @@ export function pblSelect(s) {
     const el   = document.getElementById(base);
     if (!pblSelected.includes(s)) pblSelected.push(s);
     if (pblEachCase > 0) {
-        // Recalculate this base's slots with random suffix so both + and -
-        // are distributed evenly instead of stacking separately.
-        pblRemaining = pblRemaining.filter(r => r.slice(0, -1) !== base);
-        const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
         const count = pblEachCase * (pblWeight ? squan.getPBLWeight(base) : 1);
-        // If a case was already spliced this cycle and it belongs to this base,
-        // that slot is already "in use" on screen — don't add it back.
-        const alreadyConsumed = pblCaseSpliced && pblCurrentCase.slice(0, -1) === base ? 1 : 0;
-        pblRemaining = pblRemaining.concat(
-            Array.from({ length: Math.max(0, count - alreadyConsumed) }, () => base + suffixes[randInt(0, suffixes.length - 1)])
-        );
+        if (pblCountsSeparately()) {
+            // This barflip is its own case: (re)build only its slots.
+            pblRemaining = pblRemaining.filter(r => r !== s);
+            const alreadyConsumed = pblCaseSpliced && pblCurrentCase === s ? 1 : 0;
+            pblRemaining = pblRemaining.concat(
+                Array.from({ length: Math.max(0, count - alreadyConsumed) }, () => s)
+            );
+        } else {
+            // Recalculate this base's slots with random suffix so both + and -
+            // are distributed evenly instead of stacking separately.
+            pblRemaining = pblRemaining.filter(r => r.slice(0, -1) !== base);
+            const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
+            // If a case was already spliced this cycle and it belongs to this base,
+            // that slot is already "in use" on screen — don't add it back.
+            const alreadyConsumed = pblCaseSpliced && pblCurrentCase.slice(0, -1) === base ? 1 : 0;
+            pblRemaining = pblRemaining.concat(
+                Array.from({ length: Math.max(0, count - alreadyConsumed) }, () => base + suffixes[randInt(0, suffixes.length - 1)])
+            );
+        }
     }
     if (el) {
         const override = pblEffectiveOverride();
@@ -303,6 +328,16 @@ export function pblGetOptimal(pbl) {
 
 function pblRefillRemaining() {
     pblEachCase = pblEachCase === 0 ? randInt(MIN_EACHCASE, MAX_EACHCASE) : pblEachCase;
+    if (pblCountsSeparately()) {
+        // Each selected barflip is its own case: give every entry its own
+        // weight×eachCase slots. A 'both' case thus gets twice the slots of a
+        // single-barflip case (×2 vs ×1 under realistic weights).
+        pblRemaining = pblSelected.flatMap(s => {
+            const count = pblEachCase * (pblWeight ? squan.getPBLWeight(s.slice(0, -1)) : 1);
+            return Array.from({ length: count }, () => s);
+        });
+        return;
+    }
     // De-duplicate by base so a case's weight is independent of how many barflip
     // states are selected. Each base case gets weight×eachCase slots; the suffix
     // is chosen randomly from whichever barflips are selected for it.
@@ -663,7 +698,7 @@ export function pblDeselectThese() {
 export function pblAddUserLists() {
     let html = "";
     for (const k of Object.keys(pblUserLists)) {
-        const count = new Set(pblUserLists[k].map(s => s.slice(0, -1))).size;
+        const count = pblCaseCount(pblUserLists[k]);
         html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
     }
     if (!html) html = '<div class="list-empty">No list to show. Create a new one!</div>';
@@ -675,7 +710,7 @@ export function pblAddUserLists() {
 export function pblAddDefaultLists() {
     let html = "";
     for (const k of Object.keys(pblDefaultLists)) {
-        const count = new Set(pblDefaultLists[k].map(s => s.slice(0, -1))).size;
+        const count = pblCaseCount(pblDefaultLists[k]);
         html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
     }
     defaultListsEl.innerHTML = html;
@@ -891,31 +926,46 @@ export function pblLoadStorage() {
 
 // ─── PBL SETTINGS HANDLERS ────────────────────────────────────────────────────
 
+// After a pool rebuild, the active case is already on screen — drop one of its
+// freshly-added slots so the remaining counter doesn't double-count it. Matches
+// the exact barflip when counting separately, else any slot of its base.
+function pblConsumeActiveSlot() {
+    if (!(pblCaseSpliced && pblCurrentCase)) return;
+    const matches = pblCountsSeparately()
+        ? (r => r === pblCurrentCase)
+        : (r => r.slice(0, -1) === pblCurrentCase.slice(0, -1));
+    const idx = pblRemaining.findIndex(matches);
+    if (idx !== -1) pblRemaining.splice(idx, 1);
+}
+
 export function pblOnEachCase() {
     pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     pblRefillRemaining();
-    // The active case is already being displayed — remove one of its freshly-added
-    // slots so the counter doesn't double-count it.
-    if (pblCaseSpliced && pblCurrentCase) {
-        const base = pblCurrentCase.slice(0, -1);
-        const idx  = pblRemaining.findIndex(r => r.slice(0, -1) === base);
-        if (idx !== -1) pblRemaining.splice(idx, 1);
-    }
+    pblConsumeActiveSlot();
     updateRemainingCount();
     pblSaveSettings();
     pblSyncSettingsDisabled();
 }
 
+// Rebuilds the each-case pool and selection counts when "count + and - as 2
+// cases" is toggled, so + and - split or merge immediately. No effect unless B
+// is on (the setting is gated on it).
+export function pblOnCountBarflip() {
+    pblCountBarflip = countBarflipEl.checked;
+    setPblCountBarflip(pblCountsSeparately());
+    if (trainerMode === 'pbl') {
+        pblRefillRemaining();
+        pblConsumeActiveSlot();
+    }
+    updateSelCount();
+    updateRemainingCount();
+    pblSaveSettings();
+}
+
 export function pblOnWeights() {
     pblWeight = weightEl.checked;
     pblRefillRemaining();
-    // The active case is already being displayed — remove one of its freshly-added
-    // slots so the counter doesn't double-count it.
-    if (pblCaseSpliced && pblCurrentCase) {
-        const base = pblCurrentCase.slice(0, -1);
-        const idx  = pblRemaining.findIndex(r => r.slice(0, -1) === base);
-        if (idx !== -1) pblRemaining.splice(idx, 1);
-    }
+    pblConsumeActiveSlot();
     pblSaveSettings();
     pblSyncSettingsDisabled();
 }
@@ -978,13 +1028,19 @@ export function pblOnUseBarflip() {
     // before/after comparison is accurate.
     const prevEffective = pblEffectiveOverride();
     pblUseBarflip = useBarflipEl.checked;
-    // G's checkbox state and pblShowBarflipUI are intentionally left alone —
-    // pblEffectiveOverride() already gates on pblUseBarflip, so the override
-    // has no effect on scramble generation or recoloring while B is off.
+    // G's and C's checkbox states are intentionally left alone — their effect is
+    // gated on pblUseBarflip (pblEffectiveOverride / pblCountsSeparately), so they
+    // do nothing while B is off. We only show/hide their rows and re-sync C's
+    // mirror + pool, since C's effective value flips with B.
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
+    document.getElementById('countbarflip-row').style.display = pblUseBarflip ? '' : 'none';
     pblApplyBarflipUI();
+    setPblCountBarflip(pblCountsSeparately());
     if (trainerMode !== 'pbl') { pblSaveSettings(); return; }
     pblRecolorAll();
+    // If C is checked, its effective value just flipped with B — rebuild the pool
+    // and counts so + and - merge/split accordingly.
+    if (pblCountBarflip) { pblRefillRemaining(); pblConsumeActiveSlot(); updateSelCount(); updateRemainingCount(); }
     const newEffective = pblEffectiveOverride();
     if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }
     pblSaveSettings();
@@ -1004,6 +1060,7 @@ export function pblOnGlobalBarflip() {
 
 globalBarflipEl.addEventListener("change", () => pblOnGlobalBarflip());
 useBarflipEl.addEventListener("change",    () => pblOnUseBarflip());
+countBarflipEl.addEventListener("change",  () => pblOnCountBarflip());
 
 if (pblFlippedBtn) {
     pblFlippedBtn.addEventListener('click', () => {
@@ -1042,6 +1099,7 @@ export const pblHelpSections = [
             { keys: ['R'],              desc: 'Toggle realistic weights' },
             { keys: ['B'],              desc: 'Distinguish between + and − barflip' },
             { keys: ['G'],              desc: 'Global barflip override' },
+            { keys: ['C'],              desc: 'Count + and − as 2 cases' },
             { keys: ['H'],              desc: 'Hide hint button' },
             null,
             { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },

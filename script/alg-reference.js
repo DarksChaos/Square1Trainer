@@ -7,7 +7,7 @@ import { SquanLib, squan } from './squan.js';
 import { _algClusters, UNIT_TAG_SVG, defaultGroupId, effectiveCluster, getClusterComment, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, setClusterComment, tagsForUnit, unitRef } from './tag-assignments.js';
 import { getTags } from './tags.js';
 
-export { UNIT_TAG_SVG, effectiveCluster, effectiveMattGroups, getClusterComment, loadTagAssignments, mattUnitOrder, saveTagAssignments, setClusterComment, tagCaseBases, tagCaseModes, tagUnitState, taggedClusterTitles, toggleUnitTag, unitRef } from './tag-assignments.js';
+export { UNIT_TAG_SVG, effectiveCluster, effectiveMattGroups, getClusterComment, loadTagAssignments, mattUnitOrder, saveTagAssignments, setClusterComment, tagCaseBases, tagCaseCount, tagCaseModes, tagUnitState, taggedClusterTitles, toggleUnitTag, unitRef } from './tag-assignments.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  ALG REFERENCE
