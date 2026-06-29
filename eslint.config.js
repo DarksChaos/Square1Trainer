@@ -32,6 +32,7 @@ export default [
         FileReader: 'readonly',
         requestIdleCallback: 'readonly',
         Event: 'readonly',
+        CustomEvent: 'readonly',
       },
     },
     rules: {

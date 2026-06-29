@@ -845,7 +845,7 @@ function applySearchClusterWidth(title) {
         const m = meta[src] ?? { label: src, linkText: src, url: '', formatter: sheetFmt };
         // #cluster-source-content so the ">span { display:block }" rules apply.
         const displayTitle = trainerMode === 'obl' ? oblDisplayClusterTitle(title) : title;
-        content.innerHTML = `<span class="cluster-title">${escapeHtml(displayTitle)}</span><div id="cluster-source-content">${m.formatter(cluster, src, m)}</div>`;
+        content.innerHTML = `<span class="cluster-title">${escapeHtml(displayTitle)}</span><div id="cluster-source-content">${m.formatter(cluster, src, m, title)}</div>`;
         const cLeft = content.getBoundingClientRect().left;
         content.querySelectorAll('.matt-algs, .pure-algs').forEach(el => {
             maxRight = Math.max(maxRight, el.getBoundingClientRect().right - cLeft);

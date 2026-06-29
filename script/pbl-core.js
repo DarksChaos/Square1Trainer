@@ -209,19 +209,32 @@ export function pblSaveSettings() {
     pblStorage.setItem("allowBottom56", pblAllowBottom56 ? "1" : "0");
 }
 
-// Restore PBL checkbox states from storage when switching back from OBL.
-export function pblRestoreSettings() {
+// Restore PBL checkbox states from storage. When the settings panel is opened
+// from OBL, restore only PBL-owned controls so shared controls (E/K) remain OBL's.
+export function pblRestoreSettings({ restoreShared = true } = {}) {
     const stored = pblStorage.getItem('settings');
     if (stored !== null) {
-        for (let i = 0; i < pblSettingList.length; i++)
+        const start = restoreShared ? 0 : 2; // skip each-case + karn when inactive
+        for (let i = start; i < pblSettingList.length; i++)
             pblSettingList[i].checked = stored[i] === '1';
     }
     // Sync derived state that depends on checkbox values.
-    setUsingKarn(karnEl.checked ? 1 : 0);
+    if (restoreShared) setUsingKarn(karnEl.checked ? 1 : 0);
     pblWeight        = weightEl.checked;
     pblUseBarflip    = useBarflipEl.checked;
     pblShowBarflipUI = globalBarflipEl.checked;
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
+
+    const storedScrMode = pblStorage.getItem("scrambleMode");
+    if (storedScrMode) {
+        pblScrambleMode = storedScrMode;
+        const radio = document.querySelector(`input[name="scramlen"][value="${pblScrambleMode}"]`);
+        if (radio) radio.checked = true;
+    }
+    const storedBot56 = pblStorage.getItem("allowBottom56");
+    if (storedBot56 !== null) pblAllowBottom56 = storedBot56 === "1";
+    bottom56El.checked = pblAllowBottom56;
+    bottom56Row.style.display = pblScrambleMode === 'short' ? 'flex' : 'none';
 }
 
 // ─── PBL CASE GRID HELPERS ────────────────────────────────────────────────────
@@ -909,7 +922,7 @@ document.querySelectorAll('input[name="scramlen"]').forEach(radio => {
         pblCancelIfConflicting(newMode, pblAllowBottom56);
         pblScrambleMode = newMode;
         bottom56Row.style.display = pblScrambleMode === 'short' ? 'flex' : 'none';
-        pblGenerateScramble(true);
+        if (trainerMode === 'pbl') pblGenerateScramble(true);
         pblSaveSettings();
     });
 });
@@ -918,7 +931,7 @@ bottom56El.addEventListener("change", function() {
     const newBottom56 = this.checked;
     pblCancelIfConflicting(pblScrambleMode, newBottom56);
     pblAllowBottom56 = newBottom56;
-    if (pblScrambleMode === 'short') pblGenerateScramble(true);
+    if (trainerMode === 'pbl' && pblScrambleMode === 'short') pblGenerateScramble(true);
     pblSaveSettings();
 });
 
@@ -939,8 +952,9 @@ function pblSetBarflipOverride(value) {
     const prev        = pblBarflipOverride;
     pblBarflipOverride = value;
     pblApplyBarflipUI();
-    pblRecolorAll();
     pblSaveBarflipOverride();
+    if (trainerMode !== 'pbl') return;
+    pblRecolorAll();
     if (pblHasActive && prev && pblBarflipOverride && prev !== pblBarflipOverride) {
         pblPending = null;
         pblGenerateScramble(true);
@@ -963,6 +977,7 @@ export function pblOnUseBarflip() {
     // has no effect on scramble generation or recoloring while B is off.
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
     pblApplyBarflipUI();
+    if (trainerMode !== 'pbl') { pblSaveSettings(); return; }
     pblRecolorAll();
     const newEffective = pblEffectiveOverride();
     if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }
@@ -974,6 +989,7 @@ export function pblOnGlobalBarflip() {
     const prevEffective = pblEffectiveOverride();
     pblShowBarflipUI = globalBarflipEl.checked;
     pblApplyBarflipUI();
+    if (trainerMode !== 'pbl') { pblSaveSettings(); return; }
     pblRecolorAll();
     const newEffective = pblEffectiveOverride();
     if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }

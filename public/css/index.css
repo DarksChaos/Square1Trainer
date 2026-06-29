@@ -63,6 +63,27 @@ html {
 
 * {
     touch-action: pan-y !important;
+    scrollbar-color: var(--divider-soft) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--divider-soft);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--divider-strong);
 }
 
 /* Navbar */
@@ -320,6 +341,16 @@ button {
     align-items: center;
     padding-bottom: 20px;
     border-bottom: 2px solid var(--divider-col);
+    position: relative;
+}
+
+.scramble-controls {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .bar-btn {
@@ -348,6 +379,11 @@ button {
     border-color: var(--divider-soft);
 }
 
+.scramble-row {
+    width: min(100%, 1100px);
+    display: block;
+}
+
 .bar-scramble {
     text-align: center;
     flex: 1;
@@ -362,9 +398,101 @@ button {
     color: var(--divider-strong);
 }
 
+.hint-btn {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: var(--text-main);
+    background: var(--field-bg);
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.hint-btn.hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.hint-btn:hover {
+    background: var(--button-col);
+    border-color: var(--border-col);
+}
+
 .bottom-bar .bar-scramble {
     font-size: 1.3rem;
 
+}
+
+.hint-popup-inner {
+    width: min(520px, 92vw);
+    height: auto !important;
+    min-height: 0;
+    max-height: 70vh;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.hint-edit-btn {
+    margin-left: auto;
+    margin-right: 8px;
+}
+
+.hint-body {
+    padding: 18px 24px 22px;
+    white-space: pre-wrap;
+    line-height: 1.55;
+    color: var(--text-main);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider-soft) transparent;
+}
+
+.cluster-comment {
+    display: block;
+    padding: 8px 0 12px;
+    color: var(--text-main);
+    white-space: pre-wrap;
+}
+
+.cluster-comment-label {
+    font-weight: 800;
+}
+
+.cluster-comment-text {
+    opacity: 0.92;
+}
+
+.cluster-comment.editable {
+    cursor: text;
+    border-radius: 8px;
+}
+
+.cluster-comment.editable:hover {
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.ae-comment-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 800;
+    color: var(--text-soft);
+    margin: 4px 0 10px;
+}
+
+.ae-comment-input {
+    min-height: 42px;
+    max-height: 35vh;
+    resize: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+    line-height: 1.45;
+    font-family: inherit;
+    font-weight: normal;
 }
 
 .timer-box {
@@ -607,6 +735,15 @@ button {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.settings-body::-webkit-scrollbar {
+    display: none;
 }
 
 .settings-row {
@@ -661,6 +798,23 @@ button {
 
 .settings-action-btn:hover {
     background-color: var(--button-col);
+    border-color: var(--border-col);
+}
+
+.settings-cycle-btn {
+    margin-left: auto;
+    min-width: 150px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--divider-strong);
+    background: var(--field-bg);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.settings-cycle-btn:hover {
+    background: var(--button-col);
     border-color: var(--border-col);
 }
 
@@ -1023,6 +1177,44 @@ button {
 
     .selection-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .scramble-row {
+        width: 100%;
+    }
+
+    .bar-scramble {
+        width: 100%;
+    }
+
+    .scramble-controls {
+        width: 100%;
+        gap: 6px;
+    }
+
+    .scramble-controls .bar-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        padding-inline: 0.45rem;
+    }
+
+    .hint-btn {
+        position: static;
+        flex: 0 0 42px;
+        order: 4;
+    }
+
+    .hint-btn.hidden {
+        display: none;
+    }
+
+    .hint-popup-inner {
+        width: min(92vw, 520px) !important;
+        max-width: 92vw !important;
+        height: auto !important;
+        max-height: 70vh !important;
+        border-radius: 16px !important;
+        border: 1px solid var(--divider-col) !important;
     }
 }
 
@@ -2559,6 +2751,8 @@ button {
 
 .app-dialog-input {
     width: 100%;
+    display: block;
+    box-sizing: border-box;
     margin-top: 14px;
     padding: 9px 12px;
     border: 1px solid var(--divider-soft);
@@ -2566,6 +2760,14 @@ button {
     background: var(--field-focus-bg);
     color: var(--text-strong);
     font-size: 1rem;
+}
+.app-dialog-textarea {
+    min-height: 44px;
+    max-height: 45vh;
+    resize: none;
+    overflow-y: auto;
+    line-height: 1.45;
+    font-family: inherit;
 }
 .app-dialog-input:focus { outline: none; border-color: var(--border-col); box-shadow: 0 0 0 2px var(--button-col); }
 

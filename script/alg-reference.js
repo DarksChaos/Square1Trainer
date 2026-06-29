@@ -1,13 +1,13 @@
 import { oblClusters, pblClusters } from '../data/alg-data.js';
 import { OBL_MATT_LABELS } from '../data/obl-data.js';
-import { escapeHtml, trainerMode, usingKarn } from './app.js';
+import { appTextareaPrompt, defaultReferenceFor, escapeHtml, trainerMode, usingKarn } from './app.js';
 import { getSpe, oblDisplayAlgCaseName, oblDisplayClusterTitle } from './obl-core.js';
 import { searchClusterContentEl, searchEditMode, syncSearchClusterToolbar } from './search.js';
 import { SquanLib, squan } from './squan.js';
-import { _algClusters, UNIT_TAG_SVG, defaultGroupId, effectiveCluster, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, tagsForUnit, unitRef } from './tag-assignments.js';
+import { _algClusters, UNIT_TAG_SVG, defaultGroupId, effectiveCluster, getClusterComment, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, setClusterComment, tagsForUnit, unitRef } from './tag-assignments.js';
 import { getTags } from './tags.js';
 
-export { UNIT_TAG_SVG, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, saveTagAssignments, tagCaseBases, tagCaseModes, tagUnitState, taggedClusterTitles, toggleUnitTag, unitRef } from './tag-assignments.js';
+export { UNIT_TAG_SVG, effectiveCluster, effectiveMattGroups, getClusterComment, loadTagAssignments, mattUnitOrder, saveTagAssignments, setClusterComment, tagCaseBases, tagCaseModes, tagUnitState, taggedClusterTitles, toggleUnitTag, unitRef } from './tag-assignments.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  ALG REFERENCE
@@ -75,6 +75,33 @@ export function unitTagsInner(ref) {
 // Full tag control for a unit (emitted by the read formatters).
 function unitTagsHtml(ref) {
     return `<span class="unit-tags" data-ref="${escapeHtml(ref)}">${unitTagsInner(ref)}</span>`;
+}
+
+export function displayClusterTitle(title) {
+    return trainerMode === 'obl' ? oblDisplayClusterTitle(title) : title;
+}
+
+function clusterCommentHtml(title) {
+    const comment = getClusterComment(title);
+    return `<span class="cluster-comment editable" data-title="${escapeHtml(title)}" data-tip="Double-click to edit comment">` +
+        `<span class="cluster-comment-label">Comment:</span>` +
+        (comment ? ` <span class="cluster-comment-text">${escapeHtml(comment)}</span>` : '') +
+        `</span>`;
+}
+
+export async function editClusterComment(title) {
+    if (!title) return false;
+    const current = getClusterComment(title);
+    const next = await appTextareaPrompt('Comment shown in the alg reference and hint modal:', {
+        title: `Edit comment — ${displayClusterTitle(title)}`,
+        value: current,
+        placeholder: 'Write a hint/comment for this cluster…',
+        okText: 'Save',
+    });
+    if (next === null) return false;
+    setClusterComment(title, next);
+    window.dispatchEvent(new CustomEvent('cluster-comment-change', { detail: { title } }));
+    return true;
 }
 
 // ── Editing helpers ──────────────────────────────────────────────────────────
@@ -318,6 +345,7 @@ let aeDraft  = null;
 
 let aeUndo = [], aeRedo = [];
 let aeEnterSnapshot = null;      // cluster override JSON captured on entering edit mode
+let aeCommentEnterSnapshot = ''; // comment captured on entering edit mode
 let aeSnapshotBeforeEdit = null; // draft state captured at each render
 let aeTextUndoPushed = false;    // one undo entry per render→text-edit burst
 export function algEditActive() { return searchEditMode && aeDraft != null; }
@@ -344,6 +372,7 @@ export function algEditBegin(title) {
     aeUndo = []; aeRedo = [];
     // Snapshot the cluster's whole override (all sources) to detect real changes.
     aeEnterSnapshot = JSON.stringify(loadContentOverrides()[title] ?? null);
+    aeCommentEnterSnapshot = getClusterComment(title);
     _aeLoadDraft();
 }
 
@@ -372,7 +401,13 @@ export function algEditDirty() {
     if (!aeDraft || !aeTitle) return false;
     const current = loadContentOverrides()[aeTitle] ?? null;
     const saved   = JSON.parse(aeEnterSnapshot);
-    return !_deepEqual(current, saved);
+    return !_deepEqual(current, saved) || getClusterComment(aeTitle) !== aeCommentEnterSnapshot;
+}
+
+function autosizeAlgEditTextarea(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
 }
 
 export function algEditSave() {
@@ -380,6 +415,7 @@ export function algEditSave() {
     _aeCommit();
     const dirty = algEditDirty();
     aeEnterSnapshot = JSON.stringify(loadContentOverrides()[aeTitle] ?? null);
+    aeCommentEnterSnapshot = getClusterComment(aeTitle);
     _aeSyncDirtyState();
     return dirty;
 }
@@ -389,6 +425,7 @@ function _aeTearDown() {
     aeTitle = aeSource = null;
     aeUndo = []; aeRedo = [];
     aeEnterSnapshot = null;
+    aeCommentEnterSnapshot = '';
 }
 
 // Leave edit mode without saving changes made since the latest Save click.
@@ -399,6 +436,7 @@ export function algEditCancel() {
         if (saved == null) delete all[aeTitle];
         else               all[aeTitle] = saved;
         saveContentOverrides(all);
+        setClusterComment(aeTitle, aeCommentEnterSnapshot);
     }
     _aeTearDown();
 }
@@ -484,7 +522,10 @@ export function algEditRender(content, title) {
         radio.addEventListener('change', () => { if (radio.checked) _aeSwitchSource(radio.value); }));
 
     // Body
-    let html = `<div class="ae-title">${_aeEsc(title)}</div>`;
+    let html = `<div class="ae-title">${_aeEsc(displayClusterTitle(title))}</div>` +
+        `<label class="ae-comment-wrap">Comment:` +
+            `<textarea class="ae-f ae-comment-input" data-f="comment" placeholder="Cluster comment / hint">${_aeEsc(getClusterComment(title))}</textarea>` +
+        `</label>`;
     if (_aeGrouped()) {
         // PBL matt — distinction + solution-group cards + add-group.
         html += `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />`;
@@ -515,6 +556,7 @@ export function algEditRender(content, title) {
             <div class="ae-blocks">${_aeBlockHtml(0, aeDraft, isMatt)}</div></div>`;
     }
     content.innerHTML = html;
+    autosizeAlgEditTextarea(content.querySelector('.ae-comment-input'));
 
     // capture undo baseline for this render
     aeSnapshotBeforeEdit = _clone(aeDraft);
@@ -544,6 +586,7 @@ function _aeOnInput(e) {
     const field = f.dataset.f;
 
     if (field === 'distinction') { aeDraft.distinction = f.value; _aeAutosave(); return; }
+    if (field === 'comment')     { autosizeAlgEditTextarea(f); setClusterComment(aeTitle, f.value); _aeSyncDirtyState(); return; }
     if (field === 'overview')    { aeDraft.groups[+f.dataset.gi].overview = f.value; _aeAutosave(); return; }
     if (field === 'slices')      { aeDraft.groups[+f.dataset.gi].slices = f.value; _aeAutosave(); return; }
     if (field === 'angleExp' || field === 'algExp') {
@@ -704,6 +747,18 @@ function _aeOnPointerUp() {
     if (aeContentEl) {
         aeContentEl.addEventListener('input',       e => { if (algEditActive()) _aeOnInput(e); });
         aeContentEl.addEventListener('click',       e => { if (algEditActive()) _aeOnClick(e); });
+        aeContentEl.addEventListener('dblclick', async e => {
+            if (algEditActive()) return;
+            const comment = e.target.closest('.cluster-comment');
+            if (!comment) return;
+            if (await editClusterComment(comment.dataset.title)) {
+                const title = comment.dataset.title;
+                const cluster = effectiveCluster(title);
+                const sources = Object.keys(cluster).filter(k => !new Set(['case-list', 'optimal-slicecount']).has(k));
+                if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, defaultReferenceFor('pbl'), aeContentEl);
+                else                       oblRenderCluster(cluster, title, sources, defaultReferenceFor('obl'), aeContentEl);
+            }
+        });
         aeContentEl.addEventListener('pointerdown', e => { if (algEditActive()) _aeOnPointerDown(e); });
     }
 }
@@ -882,7 +937,7 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
         pblLastClusterSource = src;
         const el = content.querySelector('#cluster-source-content');
         const meta = PBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: pblFormatSheet };
-        el.innerHTML = meta.formatter(cluster, src, meta, title);
+        el.innerHTML = clusterCommentHtml(title) + meta.formatter(cluster, src, meta, title);
     }
 
     showSource(activeSource);
@@ -1052,7 +1107,7 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
         oblLastClusterSource = src;
         const el = content.querySelector('#cluster-source-content');
         const meta = OBL_SOURCE_META[src] ?? { label: src.charAt(0).toUpperCase() + src.slice(1), linkText: src, url: '', formatter: oblFormatSheet };
-        el.innerHTML = meta.formatter(cluster, src, meta, title);
+        el.innerHTML = clusterCommentHtml(title) + meta.formatter(cluster, src, meta, title);
     }
 
     showSource(activeSource);
@@ -1076,8 +1131,8 @@ export function renderClusterInto(content, title, onResize = () => {}) {
 
     const SKIP       = new Set(['case-list', 'optimal-slicecount']);
     const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const lastSource = trainerMode === 'pbl' ? pblLastClusterSource : oblLastClusterSource;
-    const active     = (lastSource && sources.includes(lastSource)) ? lastSource : sources[0] ?? 'matt';
+    const preferred  = defaultReferenceFor(trainerMode);
+    const active     = sources.includes(preferred) ? preferred : sources[0] ?? 'matt';
 
     content.scrollTop = 0;
     if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active, content, onResize);

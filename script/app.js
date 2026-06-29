@@ -114,6 +114,9 @@ export const globalBarflipRow = document.getElementById("globalbarfliprow");
 export const useBarflipEl     = document.getElementById("usebarflip");
 export const bottom56El       = document.getElementById("allow-bottom56");
 export const bottom56Row      = document.getElementById('bottom56-row');
+const hideHintButtonEl = document.getElementById('hide-hint-btn');
+const pblRefToggleEl   = document.getElementById('pbl-ref-toggle');
+const oblRefToggleEl   = document.getElementById('obl-ref-toggle');
 
 const removeLastEl    = document.getElementById("unselprev");
 const selectAllEl     = document.getElementById("sela");
@@ -131,12 +134,17 @@ const selectListEl    = document.getElementById("sellist");
 const trainListEl     = document.getElementById("trainlist");
 const listPopupEl     = document.getElementById("list-popup");
 const helpPopupEl     = document.getElementById("help-popup");
+const hintPopupEl     = document.getElementById("hint-popup");
 const settingsPopupEl = document.getElementById("settings-popup");
 const casesPopupEl    = document.getElementById("cases-popup");
 
 export const currentScrambleEl  = document.getElementById("cur-scram");
 currentScrambleEl.style.cursor = "pointer";
 export const previousScrambleEl = document.getElementById("prev-scram");
+const hintButtonEl     = document.getElementById("hint-btn");
+const hintTitleEl      = document.getElementById("hint-title");
+const hintBodyEl       = document.getElementById("hint-body");
+const hintEditEl       = document.getElementById("hint-edit");
 const prevScrambleButton = document.getElementById("prev");
 const nextScrambleButton = document.getElementById("next");
 export const timerEl    = document.getElementById("timer");
@@ -148,6 +156,65 @@ export function updateScrambleNavButtons() {
         : pbl?.pblScrambleList.at(-2 - pbl.pblOffset);
     prevScrambleButton.disabled = !prevEntry;
 }
+
+const APP_SETTINGS = {
+    hideHintButton: 'hideHintButton',
+    defaultPblReference: 'defaultPblReference',
+    defaultOblReference: 'defaultOblReference',
+};
+
+const PBL_REFERENCE_OPTIONS = [
+    ['matt', 'Matt'],
+    ['derpy', 'Derpy'],
+    ['jlminx', 'JLMinx'],
+];
+const OBL_REFERENCE_OPTIONS = [
+    ['matt', 'Matt'],
+    ['derpy', 'Derpy'],
+];
+
+export let hideHintButton = localStorage.getItem(APP_SETTINGS.hideHintButton) === '1';
+export let defaultPblReference = localStorage.getItem(APP_SETTINGS.defaultPblReference) || 'matt';
+export let defaultOblReference = localStorage.getItem(APP_SETTINGS.defaultOblReference) || 'matt';
+
+function normalizeReference(value, options) {
+    return options.some(([key]) => key === value) ? value : options[0][0];
+}
+
+defaultPblReference = normalizeReference(defaultPblReference, PBL_REFERENCE_OPTIONS);
+defaultOblReference = normalizeReference(defaultOblReference, OBL_REFERENCE_OPTIONS);
+
+export function defaultReferenceFor(mode = trainerMode) {
+    return mode === 'obl' ? defaultOblReference : defaultPblReference;
+}
+
+function optionLabel(value, options) {
+    return options.find(([key]) => key === value)?.[1] || value;
+}
+
+function cycleOption(value, options) {
+    const i = Math.max(0, options.findIndex(([key]) => key === value));
+    return options[(i + 1) % options.length][0];
+}
+
+function updateReferenceToggleText() {
+    if (pblRefToggleEl) pblRefToggleEl.textContent = optionLabel(defaultPblReference, PBL_REFERENCE_OPTIONS);
+    if (oblRefToggleEl) oblRefToggleEl.textContent = optionLabel(defaultOblReference, OBL_REFERENCE_OPTIONS);
+}
+
+function updateHintButtonVisibility() {
+    if (hideHintButtonEl) hideHintButtonEl.checked = hideHintButton;
+    if (hintButtonEl) hintButtonEl.classList.toggle('hidden', hideHintButton);
+}
+
+function saveAppSettings() {
+    localStorage.setItem(APP_SETTINGS.hideHintButton, hideHintButton ? '1' : '0');
+    localStorage.setItem(APP_SETTINGS.defaultPblReference, defaultPblReference);
+    localStorage.setItem(APP_SETTINGS.defaultOblReference, defaultOblReference);
+}
+
+updateReferenceToggleText();
+updateHintButtonVisibility();
 
 // ─── SHARED HELPERS ───────────────────────────────────────────────────────────
 
@@ -431,13 +498,57 @@ function renderHelp(sections) {
 function openHelpPopup() {
     pushModal(helpPopupEl, () => renderHelp(trainerMode === 'pbl' ? pbl.pblHelpSections : obl.oblHelpSections));
 }
-function openSettingsPopup() { pushModal(settingsPopupEl); }
+function openSettingsPopup() {
+    pushModal(settingsPopupEl, async () => {
+        const [pblMod, oblMod] = await Promise.all([ensurePblCore(), ensureOblCore()]);
+        if (trainerMode !== 'pbl') {
+            pblMod.pblRestoreSettings({ restoreShared: false });
+            pblMod.pblApplyBarflipUI();
+        }
+        if (trainerMode !== 'obl') oblMod.oblLoadSettings({ restoreShared: false });
+    });
+}
+
+async function currentClusterTitle() {
+    const algMod = await ensureAlgReference();
+    if (trainerMode === 'pbl') {
+        if (!pbl?.pblHasActive || !pbl.pblScrambleList.length) return null;
+        const raw = pbl.pblScrambleList.at(-1 - pbl.pblOffset)?.[2];
+        return raw ? algMod.pblFindCluster(raw) : null;
+    }
+    if (!obl?.oblHasActiveScramble || !obl.oblScrambleList.length) return null;
+    const entry = obl.oblScrambleList.at(-1 - obl.oblScrambleOffset);
+    return entry ? algMod.oblFindCluster(entry[2]) : null;
+}
+
+let currentHintClusterTitle = null;
+
+async function refreshHintModal() {
+    if (!currentHintClusterTitle) return;
+    const algMod = await ensureAlgReference();
+    hintTitleEl.textContent = algMod.displayClusterTitle(currentHintClusterTitle);
+    hintBodyEl.textContent = algMod.getClusterComment(currentHintClusterTitle);
+}
+
+async function openHintPopup() {
+    if (usingTimer()) return;
+    const title = await currentClusterTitle();
+    if (!title) { showInfo('No hint available yet.', 1400); return; }
+    const algMod = await ensureAlgReference();
+    if (!algMod.getClusterComment(title)) {
+        await algMod.editClusterComment(title);
+        if (!algMod.getClusterComment(title)) return;
+    }
+    currentHintClusterTitle = title;
+    await refreshHintModal();
+    pushModal(hintPopupEl);
+}
 
 // closePopup closes the ENTIRE overlay stack (used when an action finalizes, e.g.
 // picking a list). Going back through history keeps the browser entries in sync.
 export function closePopup() { dismissAllOverlays(); }
 
-[listPopupEl, helpPopupEl, settingsPopupEl, casesPopupEl].forEach(el => {
+[listPopupEl, helpPopupEl, hintPopupEl, settingsPopupEl, casesPopupEl].forEach(el => {
     el.addEventListener('click', (e) => { if (e.target === el) closeTopModal(); });
 });
 
@@ -904,6 +1015,31 @@ showToggleEl.addEventListener("click", () => {
 });
 
 openListsEl.addEventListener("click",    () => { if (usingTimer()) return; openListPopup(); });
+hintButtonEl.addEventListener("click",   () => openHintPopup());
+hintEditEl.addEventListener("click", async () => {
+    if (!currentHintClusterTitle) return;
+    const algMod = await ensureAlgReference();
+    await algMod.editClusterComment(currentHintClusterTitle);
+    await refreshHintModal();
+});
+
+hideHintButtonEl.addEventListener('change', () => {
+    hideHintButton = hideHintButtonEl.checked;
+    saveAppSettings();
+    updateHintButtonVisibility();
+});
+
+pblRefToggleEl.addEventListener('click', () => {
+    defaultPblReference = cycleOption(defaultPblReference, PBL_REFERENCE_OPTIONS);
+    saveAppSettings();
+    updateReferenceToggleText();
+});
+
+oblRefToggleEl.addEventListener('click', () => {
+    defaultOblReference = cycleOption(defaultOblReference, OBL_REFERENCE_OPTIONS);
+    saveAppSettings();
+    updateReferenceToggleText();
+});
 
 // ─── RAIL / MOBILE BAR ───────────────────────────────────────────────────────
 // Static HTML owns the rail markup so it is complete before JavaScript loads.
@@ -1146,6 +1282,11 @@ async function doDownloadData() {
         algOverridesOBL:   obl.oblStorage.getItem('algOverrides'),
         tagAssignmentsPBL: pbl.pblStorage.getItem('tagAssignments'),
         tagAssignmentsOBL: obl.oblStorage.getItem('tagAssignments'),
+        clusterCommentsPBL: pbl.pblStorage.getItem('clusterComments'),
+        clusterCommentsOBL: obl.oblStorage.getItem('clusterComments'),
+        hideHintButton:     hideHintButton ? '1' : '0',
+        defaultPblReference,
+        defaultOblReference,
     });
     const url = URL.createObjectURL(new Blob([data], { type: "text/plain" }));
     const a   = Object.assign(document.createElement("a"), { href: url, download: "TrainerData.json" });
@@ -1194,9 +1335,17 @@ fileEl.addEventListener("change", async (e) => {
                 ["algOverridesOBL",   obl.oblStorage, "algOverrides"],
                 ["tagAssignmentsPBL", pbl.pblStorage, "tagAssignments"],
                 ["tagAssignmentsOBL", obl.oblStorage, "tagAssignments"],
+                ["clusterCommentsPBL", pbl.pblStorage, "clusterComments"],
+                ["clusterCommentsOBL", obl.oblStorage, "clusterComments"],
             ]) {
                 if (field in jsonData && jsonData[field] != null) store.setItem(key, jsonData[field]);
             }
+            if ("hideHintButton" in jsonData) hideHintButton = jsonData["hideHintButton"] === '1';
+            if ("defaultPblReference" in jsonData) defaultPblReference = normalizeReference(jsonData["defaultPblReference"], PBL_REFERENCE_OPTIONS);
+            if ("defaultOblReference" in jsonData) defaultOblReference = normalizeReference(jsonData["defaultOblReference"], OBL_REFERENCE_OPTIONS);
+            saveAppSettings();
+            updateHintButtonVisibility();
+            updateReferenceToggleText();
             if (outdated) showInfo("File formatting is outdated, re-export recommended.");
             pbl.pblLoadStorage();
             // Always reload OBL in-memory state regardless of current trainer mode,
@@ -1342,23 +1491,20 @@ export function applyMode() {
     modeTitleEl.textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
     modeTitleEl.setAttribute('data-tip', isPBL ? 'Switch to OBL Trainer' : 'Switch to PBL Trainer');
 
-    // Show/hide settings rows that apply to only one trainer.
-    document.getElementById('scramble-length-row').style.display =
-        isPBL ? '' : 'none';
+    // Keep both trainer sections available in settings regardless of current
+    // mode. Some PBL-only subrows still depend on their own setting state.
+    document.getElementById('scramble-length-row').style.display = '';
     document.getElementById('bottom56-row').style.display =
-        (isPBL && pbl.pblScrambleMode === 'short') ? 'flex' : 'none';
-    document.getElementById('usebarflip').closest('.settings-row').style.display =
-        isPBL ? '' : 'none';
+        (pbl?.pblScrambleMode === 'short') ? 'flex' : 'none';
+    document.getElementById('usebarflip').closest('.settings-row').style.display = '';
     document.getElementById('globalbarfliprow').style.display =
-        (isPBL && pbl.pblUseBarflip) ? '' : 'none';
-    document.getElementById('weight').closest('.settings-row').style.display =
-        isPBL ? '' : 'none';
-    document.getElementById('specific-row').style.display =
-        isPBL ? 'none' : '';
-    document.getElementById('oblp-row').style.display =
-        isPBL ? 'none' : '';
-    document.getElementById('obl-naming-row').style.display =
-        isPBL ? 'none' : '';
+        (pbl?.pblUseBarflip) ? '' : 'none';
+    document.getElementById('weight').closest('.settings-row').style.display = '';
+    document.getElementById('specific-row').style.display = '';
+    document.getElementById('oblp-row').style.display = '';
+    document.getElementById('obl-naming-row').style.display = '';
+    document.getElementById('pbl-ref-row').style.display = '';
+    document.getElementById('obl-ref-row').style.display = '';
 
     // Reset shared display state so neither trainer bleeds into the other.
     showMode        = 'all';
@@ -1434,7 +1580,14 @@ document.getElementById('mode-title').addEventListener('click', switchMode);
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Low-level builder. `buttons` is [{ label, value, variant }]; `input`, when
-// given, adds a text field and Enter submits the primary button's value.
+// given, adds a text field/textarea and Enter submits the primary button's value
+// for single-line prompts.
+function autosizeDialogTextarea(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+}
+
 function appDialog({ title = '', message = '', buttons, input = null, cancelValue }) {
     return new Promise(resolve => {
         const overlay = document.createElement('div');
@@ -1442,10 +1595,13 @@ function appDialog({ title = '', message = '', buttons, input = null, cancelValu
 
         const box = document.createElement('div');
         box.className = 'app-dialog';
+        const inputTag = input?.multiline
+            ? `<textarea class="app-dialog-input app-dialog-textarea" spellcheck="true"></textarea>`
+            : `<input type="text" class="app-dialog-input" spellcheck="false" autocomplete="off" />`;
         box.innerHTML =
             (title ? `<div class="app-dialog-title"></div>` : '') +
             `<div class="app-dialog-msg"></div>` +
-            (input ? `<input type="text" class="app-dialog-input" spellcheck="false" autocomplete="off" />` : '') +
+            (input ? inputTag : '') +
             `<div class="app-dialog-buttons"></div>`;
         if (title) box.querySelector('.app-dialog-title').textContent = title;
         box.querySelector('.app-dialog-msg').textContent = message;
@@ -1454,6 +1610,10 @@ function appDialog({ title = '', message = '', buttons, input = null, cancelValu
         if (field) {
             if (input.placeholder) field.placeholder = input.placeholder;
             if (input.value)       field.value = input.value;
+            if (input.multiline) {
+                autosizeDialogTextarea(field);
+                field.addEventListener('input', () => autosizeDialogTextarea(field));
+            }
         }
 
         let done = false;
@@ -1478,7 +1638,7 @@ function appDialog({ title = '', message = '', buttons, input = null, cancelValu
 
         function onKey(e) {
             if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(cancelValue); }
-            else if (e.key === 'Enter') {
+            else if (e.key === 'Enter' && !input?.multiline) {
                 e.preventDefault(); e.stopPropagation();
                 const primary = buttons.find(b => b.primary);
                 finish(field ? (primary ? field.value : (primary?.value)) : (primary ?? buttons.at(-1)).value);
@@ -1490,6 +1650,7 @@ function appDialog({ title = '', message = '', buttons, input = null, cancelValu
 
         overlay.appendChild(box);
         document.body.appendChild(overlay);
+        if (field && input?.multiline) autosizeDialogTextarea(field);
         // Focus the input (prompt) or the primary button.
         if (field) { field.focus(); field.select(); }
         else (btnRow.querySelector('.primary') || btnRow.lastElementChild)?.focus();
@@ -1510,6 +1671,17 @@ export function appPrompt(message, { title = '', okText = 'OK', cancelText = 'Ca
     return appDialog({
         title, message, cancelValue: null,
         input: { value, placeholder },
+        buttons: [
+            { label: cancelText, value: null, variant: 'ghost' },
+            { label: okText, variant: 'primary', primary: true },
+        ],
+    });
+}
+
+export function appTextareaPrompt(message, { title = '', okText = 'OK', cancelText = 'Cancel', value = '', placeholder = '' } = {}) {
+    return appDialog({
+        title, message, cancelValue: null,
+        input: { value, placeholder, multiline: true },
         buttons: [
             { label: cancelText, value: null, variant: 'ghost' },
             { label: okText, variant: 'primary', primary: true },

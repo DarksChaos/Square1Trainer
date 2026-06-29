@@ -23,6 +23,27 @@ export function saveContentOverrides(overrides) {
     _algStore().setItem('algOverrides', JSON.stringify(overrides));
 }
 
+export function loadClusterComments() {
+    try { return JSON.parse(_algStore().getItem('clusterComments')) || {}; }
+    catch (e) { return {}; }
+}
+
+export function saveClusterComments(comments) {
+    _algStore().setItem('clusterComments', JSON.stringify(comments));
+}
+
+export function getClusterComment(title) {
+    return loadClusterComments()[title] || '';
+}
+
+export function setClusterComment(title, comment) {
+    const comments = loadClusterComments();
+    const text = String(comment ?? '').trim();
+    if (text) comments[title] = text;
+    else delete comments[title];
+    saveClusterComments(comments);
+}
+
 export function loadTagAssignments() {
     try { return JSON.parse(_algStore().getItem('tagAssignments')) || {}; }
     catch (e) { return {}; }

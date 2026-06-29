@@ -1,6 +1,6 @@
 import { OBL_DEFAULT_LISTS_RAW, OBL_MATT_LABELS, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { tagCaseBases } from './tag-assignments.js';
 
@@ -11,7 +11,7 @@ export let oblRemainingCases    = [[], []];
 export let oblUserLists         = {};
 export let oblDefaultLists      = {};
 export let oblUsingSpe          = 0;
-export let oblNamingMode        = 'traditional';
+export let oblNamingMode        = 'matt';
 let oblUsingMemo         = false;
 export let oblScrambleList      = [];
 let oblCurrentCase       = '';
@@ -121,7 +121,12 @@ export function oblGenerateScramble(regen = false) {
         : [randrange(-3, 7, 3), randrange(-5, 5, 3)];
 
     const raw   = start.join(',') + scramble[0].slice(1, -1) + end.join(',');
-    const final = [raw.replaceAll('/', ' / '), squan.karnify(raw.replaceAll('/', '/')), choice];
+    const final = [
+        raw.replaceAll('/', ' / '),
+        squan.karnify(raw.replaceAll('/', '/')),
+        choice,
+        scramble[2],
+    ];
 
     if (regen) {
         oblScrambleList[oblScrambleList.length - 1] = final;
@@ -140,8 +145,10 @@ export function oblDisplayCurrentScramble() {
     if (!oblHasActiveScramble || !oblScrambleList.length) return;
     oblSetScrambleOffset(oblScrambleOffset);
     const entry = oblScrambleList.at(-1 - oblScrambleOffset);
-    if (entry) currentScrambleEl.textContent =
-        entry[usingKarn] + (oblUsingMemo ? ` (${entry[3] ?? ''})` : '');
+    if (entry) {
+        const memo = entry[3];
+        currentScrambleEl.textContent = entry[usingKarn] + (oblUsingMemo && memo ? ` (${memo})` : '');
+    }
     updateScrambleNavButtons();
 }
 
@@ -507,39 +514,43 @@ export function oblRestoreGrid(buildGrid = false) {
 // ─── OBL SETTINGS ─────────────────────────────────────────────────────────────
 
 // OBL settings stored as a compact string:
-// eachCase + usingSpe + usingMemo + namingMode(traditional/matt)
+// eachCase + karn + usingSpe + usingMemo + namingMode(traditional/matt)
 // (same compact style as PBL's settings string)
 export function oblSaveSettings() {
     const store = (eachCaseEl.checked ? '1' : '0') +
+                  (karnEl.checked     ? '1' : '0') +
                   (oblUsingSpe        ? '1' : '0') +
                   (oblUsingMemo       ? '1' : '0') +
                   (oblUsesMattNaming() ? '1' : '0');
     oblStorage.setItem('settings', store);
 }
 
-export function oblLoadSettings() {
+export function oblLoadSettings({ restoreShared = true } = {}) {
     const stored = oblStorage.getItem('settings');
+    const hasKarnSlot = stored?.length >= 5;
 
     // Reset to defaults first.
-    eachCaseEl.checked = false;
+    if (restoreShared) eachCaseEl.checked = false;
+    if (restoreShared) karnEl.checked = false;
     oblUsingSpe  = 0;
     oblUsingMemo = false;
-    oblNamingMode = 'traditional';
+    oblNamingMode = 'matt';
 
     if (stored !== null) {
-        eachCaseEl.checked = stored[0] === '1';
-        oblUsingSpe        = stored[1] === '1' ? 1 : 0;
-        oblUsingMemo       = stored[2] === '1';
-        oblNamingMode      = stored[3] === '1' ? 'matt' : 'traditional';
+        if (restoreShared) eachCaseEl.checked = stored[0] === '1';
+        if (restoreShared && hasKarnSlot) karnEl.checked = stored[1] === '1';
+        oblUsingSpe        = stored[hasKarnSlot ? 2 : 1] === '1' ? 1 : 0;
+        oblUsingMemo       = stored[hasKarnSlot ? 3 : 2] === '1';
+        const namingIdx    = hasKarnSlot ? 4 : 3;
+        oblNamingMode      = stored.length > namingIdx ? (stored[namingIdx] === '1' ? 'matt' : 'traditional') : 'matt';
     }
+    if (restoreShared) setUsingKarn(karnEl.checked ? 1 : 0);
 
     const specificEl = document.getElementById('specific');
     if (specificEl) specificEl.checked = oblUsingSpe === 1;
     const oblpEl = document.getElementById('oblp');
     if (oblpEl) oblpEl.checked = oblUsingMemo;
-    document.querySelectorAll('input[name="obl-naming"]').forEach(el => {
-        el.checked = el.value === oblNamingMode;
-    });
+    updateOblNamingToggleText();
 }
 
 export function oblOnEachCase() {
@@ -581,8 +592,8 @@ export function oblOnMemo() {
 }
 
 export function oblOnNaming() {
-    const selected = document.querySelector('input[name="obl-naming"]:checked');
-    oblNamingMode = selected?.value === 'matt' ? 'matt' : 'traditional';
+    oblNamingMode = oblUsesMattNaming() ? 'traditional' : 'matt';
+    updateOblNamingToggleText();
     oblRestoreGrid(false);
     oblDisplayCurrentScramble();
     oblDisplayPreviousScramble();
@@ -593,9 +604,7 @@ export function oblOnNaming() {
 // Wire OBL-specific settings checkboxes.
 document.getElementById('specific').addEventListener('change', () => oblOnSpe());
 document.getElementById('oblp').addEventListener('change',    () => oblOnMemo());
-document.querySelectorAll('input[name="obl-naming"]').forEach(el => {
-    el.addEventListener('change', () => oblOnNaming());
-});
+document.getElementById('obl-naming-toggle').addEventListener('click', () => oblOnNaming());
 
 // ─── OBL HELP CONTENT ─────────────────────────────────────────────────────────
 // Add extra sections here as {id, title, svg, html} objects.
@@ -666,6 +675,24 @@ function randaMove() {
     return JSON.parse(JSON.stringify(SquanLib.a_MOVES))[randInt(0,SquanLib.KARNL-1)];
 }
 
+const OBL_TRACE_SPANS = [[0, 2], [2, 3], [3, 5], [5, 6], [6, 8], [8, 9], [9, 11], [11, 12]];
+
+function oblTraceDigits(layer) {
+    // Matt's tracing memo is the set of layer positions currently carrying the
+    // dark/black sticker. If the layer starts on an edge, rotate to a corner
+    // boundary first so positions 1–8 line up with the tracing diagram.
+    if (layer[0] !== layer[0].toUpperCase()) layer = squan.shift(layer, -1);
+    return OBL_TRACE_SPANS
+        .map(([start, end], i) => layer.slice(start, end).toUpperCase().includes('B') ? String(i + 1) : '')
+        .join('');
+}
+
+function oblTracingMemoFromState(state) {
+    const top = state.slice(0, SquanLib.LAYERL);
+    const bottom = state.slice(SquanLib.LAYERL);
+    return `${oblTraceDigits(top)} ${oblTraceDigits(bottom)}`;
+}
+
 function getOBLScramble(obl) {
     // obl: e.g. "left gem/knight"
     // return: e.g. ["A/-3,-3/0,3/0,-3/-1,-4/-3,0/3,0/0,-3/0,3/a", in karn]
@@ -706,11 +733,12 @@ function getOBLScramble(obl) {
                 (squan.isOBLCase(state.slice(0,SquanLib.LAYERL), d) &&
                 squan.isOBLCase(state.slice(SquanLib.LAYERL), u))) {
                 let currentA = topA ? "A" : "a";
+                const tracingMemo = oblTracingMemoFromState(state);
                 moves += currentA;
                 console.log("preoptim moves "+moves);
                 moves = squan.optimize(moves);
                 console.log("postoptim moves "+moves);
-                return [moves, squan.karnify(moves)];
+                return [moves, squan.karnify(moves), tracingMemo];
             }
         }
         moves = "";
@@ -791,6 +819,11 @@ function traditionalCaseToMatt(name) {
 
 export function oblUsesMattNaming() {
     return oblNamingMode === 'matt';
+}
+
+function updateOblNamingToggleText() {
+    const btn = document.getElementById('obl-naming-toggle');
+    if (btn) btn.textContent = oblUsesMattNaming() ? "Matt's naming" : 'Traditional';
 }
 
 export function oblDisplayName(name) {
