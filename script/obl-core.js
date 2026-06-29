@@ -112,18 +112,9 @@ export function oblGenerateScramble(regen = false) {
         : OBLtranslation[choice][randInt(0, OBLtranslation[choice].length - 1)];
     const scramble = getOBLScramble(specific);
 
-    const s     = scramble[0].at(0), e = scramble[0].at(-1);
-    const start = s === 'A'
-        ? [randrange(-5, 5, 3), randrange(-3, 7, 3)]
-        : [randrange(-3, 7, 3), randrange(-4, 6, 3)];
-    const end   = e === 'A'
-        ? [randrange(-4, 6, 3), randrange(-3, 7, 3)]
-        : [randrange(-3, 7, 3), randrange(-5, 5, 3)];
-
-    const raw   = start.join(',') + scramble[0].slice(1, -1) + end.join(',');
     const final = [
-        raw.replaceAll('/', ' / '),
-        squan.karnify(raw.replaceAll('/', '/')),
+        scramble[0].replaceAll('/', ' / '),
+        scramble[1],
         choice,
         scramble[2],
     ];
@@ -716,12 +707,23 @@ function getOBLScramble(obl) {
                 (squan.isOBLCase(state.slice(0,SquanLib.LAYERL), d) &&
                 squan.isOBLCase(state.slice(SquanLib.LAYERL), u))) {
                 let currentA = topA ? "A" : "a";
-                const tracingMemo = squan.stateToMatt(state);
                 moves += currentA;
                 console.log("preoptim moves "+moves);
                 moves = squan.optimize(moves);
                 console.log("postoptim moves "+moves);
-                return [moves, squan.karnify(moves), tracingMemo];
+                // add random preabf and postabf
+                const s     = moves.at(0), e = moves.at(-1);
+                const start = s === 'A'
+                    ? [randrange(-5, 5, 3), randrange(-3, 7, 3)]
+                    : [randrange(-3, 7, 3), randrange(-4, 6, 3)];
+                const end   = e === 'A'
+                    ? [randrange(-4, 6, 3), randrange(-3, 7, 3)]
+                    : [randrange(-3, 7, 3), randrange(-5, 5, 3)];
+
+                const raw   = start.join(',') + moves.slice(1, -1) + end.join(',');
+                state = move(state, end[0], end[1]);
+                const tracingMemo = squan.stateToMatt(state);
+                return [raw, squan.karnify(raw), tracingMemo];
             }
         }
         moves = "";
