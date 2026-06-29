@@ -458,48 +458,48 @@ button:active:not(:disabled) {
     scrollbar-color: var(--divider-soft) transparent;
 }
 
-.cluster-comment {
-    display: block;
-    padding: 8px 0 12px;
-    color: var(--text-main);
-    white-space: pre-wrap;
+/* Read-view auto-saving cluster comment box */
+.cluster-comment-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 6px 0 14px;
 }
 
 .cluster-comment-label {
     font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 
-.cluster-comment-text {
-    opacity: 0.92;
-}
-
-.cluster-comment.editable {
-    cursor: text;
-    border-radius: 8px;
-}
-
-.cluster-comment.editable:hover {
-    background: rgba(255, 255, 255, 0.045);
-}
-
-.ae-comment-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-weight: 800;
-    color: var(--text-soft);
-    margin: 4px 0 10px;
-}
-
-.ae-comment-input {
-    min-height: 42px;
+.cluster-comment-input {
+    width: 100%;
+    min-height: 38px;
     max-height: 35vh;
+    box-sizing: border-box;
     resize: none;
     overflow-y: auto;
-    box-sizing: border-box;
+    padding: 7px 9px;
+    background: var(--rail-bg);
+    border: 1px solid var(--divider-soft);
+    border-radius: 7px;
+    color: var(--text-main);
+    font-family: Arial, sans-serif;
+    font-size: 0.95rem;
     line-height: 1.45;
-    font-family: inherit;
-    font-weight: normal;
+}
+
+.cluster-comment-input:focus {
+    outline: none;
+    border-color: var(--border-col);
+    background: var(--field-focus-bg);
+}
+
+.cluster-comment-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
 }
 
 .timer-box {
