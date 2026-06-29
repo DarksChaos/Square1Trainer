@@ -1448,9 +1448,9 @@ newListEl.addEventListener("click", async () => {
 overwriteListEl.addEventListener("click", async () => {
     const tagMod = await ensureTags();
     if (tagMod.highlightedTagId() != null) { showError("Tags can't be overwritten here — edit them in the Tags menu."); return; }
+    if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { obl.oblOverwriteList(); return; }
     if (usingTimer()) return;
-    if (highlightedList == null) return;
     if (Object.keys(pbl.pblDefaultLists).includes(highlightedList)) { showError("You cannot overwrite a default list."); return; }
     if (pbl.pblSelected.length === 0) { showError("Please select PBLs to overwrite the list!"); return; }
     if (await appConfirm(`Overwrite list “${highlightedList}” with the current selection?`, { title: "Overwrite list", okText: "Overwrite", danger: true })) {
@@ -1490,8 +1490,8 @@ deleteListEl.addEventListener("click", async () => {
         }
         return;
     }
+    if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { obl.oblDeleteList(); return; }
-    if (highlightedList == null) return;
     if (Object.keys(pbl.pblDefaultLists).includes(highlightedList)) { showError("You cannot delete a default list."); return; }
     if (Object.keys(pbl.pblUserLists).includes(highlightedList)) {
         if (await appConfirm(`Delete list “${highlightedList}”?`, { title: "Delete list", okText: "Delete", danger: true })) {
