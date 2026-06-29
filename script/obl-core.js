@@ -229,7 +229,7 @@ export function oblAddUserLists() {
         const count = oblUserLists[k][oblUsingSpe].length;
         html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
     }
-    if (!html) html = '<div class="list-empty">No list to show. Create new...</div>';
+    if (!html) html = '<div class="list-empty">No list to show. Create a new one!<div>';
     userListsEl.innerHTML = html;
     document.querySelectorAll('#userlists>.list-item').forEach(addListItemEvent);
     oblSaveUserLists();

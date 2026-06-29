@@ -666,7 +666,7 @@ export function pblAddUserLists() {
         const count = new Set(pblUserLists[k].map(s => s.slice(0, -1))).size;
         html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
     }
-    if (!html) html = '<div class="list-empty">No list to show. Create new...</div>';
+    if (!html) html = '<div class="list-empty">No list to show. Create a new one!</div>';
     userListsEl.innerHTML = html;
     document.querySelectorAll("#userlists>.list-item").forEach(addListItemEvent);
     pblSaveUserLists();
