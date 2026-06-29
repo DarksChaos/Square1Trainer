@@ -675,24 +675,6 @@ function randaMove() {
     return JSON.parse(JSON.stringify(SquanLib.a_MOVES))[randInt(0,SquanLib.KARNL-1)];
 }
 
-const OBL_TRACE_SPANS = [[0, 2], [2, 3], [3, 5], [5, 6], [6, 8], [8, 9], [9, 11], [11, 12]];
-
-function oblTraceDigits(layer) {
-    // Matt's tracing memo is the set of layer positions currently carrying the
-    // dark/black sticker. If the layer starts on an edge, rotate to a corner
-    // boundary first so positions 1–8 line up with the tracing diagram.
-    if (layer[0] !== layer[0].toUpperCase()) layer = squan.shift(layer, -1);
-    return OBL_TRACE_SPANS
-        .map(([start, end], i) => layer.slice(start, end).toUpperCase().includes('B') ? String(i + 1) : '')
-        .join('');
-}
-
-function oblTracingMemoFromState(state) {
-    const top = state.slice(0, SquanLib.LAYERL);
-    const bottom = state.slice(SquanLib.LAYERL);
-    return `${oblTraceDigits(top)} ${oblTraceDigits(bottom)}`;
-}
-
 function getOBLScramble(obl) {
     // obl: e.g. "left gem/knight"
     // return: e.g. ["A/-3,-3/0,3/0,-3/-1,-4/-3,0/3,0/0,-3/0,3/a", in karn]
@@ -733,7 +715,7 @@ function getOBLScramble(obl) {
                 (squan.isOBLCase(state.slice(0,SquanLib.LAYERL), d) &&
                 squan.isOBLCase(state.slice(SquanLib.LAYERL), u))) {
                 let currentA = topA ? "A" : "a";
-                const tracingMemo = oblTracingMemoFromState(state);
+                const tracingMemo = squan.stateToMatt(state);
                 moves += currentA;
                 console.log("preoptim moves "+moves);
                 moves = squan.optimize(moves);

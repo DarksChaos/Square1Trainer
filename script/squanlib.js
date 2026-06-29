@@ -613,6 +613,27 @@ export default class SquanLib {
             return false;
         }
 
+    stateToMatt(s) {
+            let u = s.slice(0, SquanLib.LAYERL), d = s.slice(SquanLib.LAYERL);
+            u = (u[0] !== u[0].toLowerCase()) ? this.shift(u, 3) : this.shift(u, 2);
+            d = (d[0] !== d[0].toLowerCase()) ? this.shift(d, 3) : this.shift(d, 2);
+            let mem = '';
+            let p = 1;
+            for (let x = 0; x < SquanLib.LAYERL; x += 3) {
+                if (u[x] === 'B') mem += p;
+                if (u[x + 2] === 'b') mem += (p + 1);
+                p += 2;
+            }
+            mem = (mem === '') ? '- ' : mem + ' ';
+            p = 1;
+            for (let x = 0; x < SquanLib.LAYERL; x += 3) {
+                if (d[x] === 'B') mem += p;
+                if (d[x + 2] === 'b') mem += (p + 1);
+                p += 2;
+            }
+            return (mem[mem.length - 1] === ' ') ? mem + '-' : mem;
+        }
+
     getPBLWeight(pbl) {
             const [u, d] = pbl.replace(/(?<!\/)[+-]$/, '').split("/");
             return (SquanLib.PBLWeights[u] ?? 4) * (SquanLib.PBLWeights[d] ?? 4);
