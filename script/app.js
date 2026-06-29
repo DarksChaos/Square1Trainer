@@ -1540,20 +1540,20 @@ export function applyMode() {
     modeTitleEl.textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
     modeTitleEl.setAttribute('data-tip', isPBL ? 'Switch to OBL Trainer' : 'Switch to PBL Trainer');
 
-    // Keep both trainer sections available in settings regardless of current
-    // mode. Some PBL-only subrows still depend on their own setting state.
-    document.getElementById('scramble-length-row').style.display = '';
+    // Show only the settings rows relevant to the active trainer; PBL-only and
+    // OBL-only rows are hidden in the other mode.
+    document.getElementById('scramble-length-row').style.display = isPBL ? '' : 'none';
     document.getElementById('bottom56-row').style.display =
-        (pbl?.pblScrambleMode === 'short') ? 'flex' : 'none';
-    document.getElementById('usebarflip').closest('.settings-row').style.display = '';
+        (isPBL && pbl?.pblScrambleMode === 'short') ? 'flex' : 'none';
+    document.getElementById('usebarflip').closest('.settings-row').style.display = isPBL ? '' : 'none';
     document.getElementById('globalbarfliprow').style.display =
-        (pbl?.pblUseBarflip) ? '' : 'none';
-    document.getElementById('weight').closest('.settings-row').style.display = '';
-    document.getElementById('specific-row').style.display = '';
-    document.getElementById('oblp-row').style.display = '';
-    document.getElementById('obl-naming-row').style.display = '';
-    document.getElementById('pbl-ref-row').style.display = '';
-    document.getElementById('obl-ref-row').style.display = '';
+        (isPBL && pbl?.pblUseBarflip) ? '' : 'none';
+    document.getElementById('weight').closest('.settings-row').style.display = isPBL ? '' : 'none';
+    document.getElementById('pbl-ref-row').style.display = isPBL ? '' : 'none';
+    document.getElementById('specific-row').style.display = isPBL ? 'none' : '';
+    document.getElementById('oblp-row').style.display = isPBL ? 'none' : '';
+    document.getElementById('obl-naming-row').style.display = isPBL ? 'none' : '';
+    document.getElementById('obl-ref-row').style.display = isPBL ? 'none' : '';
 
     // Reset transient display state so neither trainer bleeds into the other,
     // then restore this trainer's last explicit all/selected selector mode.
