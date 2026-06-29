@@ -1042,6 +1042,7 @@ export const pblHelpSections = [
             { keys: ['R'],              desc: 'Toggle realistic weights' },
             { keys: ['B'],              desc: 'Distinguish + and − barflip' },
             { keys: ['G'],              desc: 'Global barflip override' },
+            { keys: ['H'],              desc: 'Hide hint button' },
             null,
             { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
             { keys: ['Ctrl', 'A'],      desc: 'Select all visible' },

@@ -621,6 +621,7 @@ export const oblHelpSections = [
             { keys: ['E'],              desc: 'Train each case once' },
             { keys: ['S'],              desc: 'Toggle specific case naming' },
             { keys: ['P'],              desc: 'Show Matt tracing memo' },
+            { keys: ['H'],              desc: 'Hide hint button' },
             null,
             { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
             { keys: ['Ctrl', 'A'],      desc: 'Select all visible' },

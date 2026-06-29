@@ -1252,6 +1252,11 @@ window.addEventListener("keydown", (e) => {
             case "arrowleft":  e.preventDefault(); if (!canShortcut) return; prevScram(); return;
             case "arrowright": e.preventDefault(); if (!canShortcut) return; nextScram(); return;
             case "k": if (!canShortcut) return; karnEl.checked = !karnEl.checked; onCheckKarn(); return;
+            case "h":
+                if (!canShortcut) return;
+                hideHintButtonEl.checked = !hideHintButtonEl.checked;
+                hideHintButtonEl.dispatchEvent(new Event('change'));
+                return;
             case "e":
                 if (!canShortcut) return;
                 if (trainerMode === 'pbl' && eachCaseEl.disabled) return;
