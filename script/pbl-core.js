@@ -54,8 +54,12 @@ let pblShowBarflipUI     = false;
 export let pblCountBarflip = false; // "count + and - as 2 cases" — only takes effect while B is on
 
 // True when a case's two barflips should be counted/trained as separate cases:
-// the C setting only applies while "distinguish barflip" (B) is on.
-export function pblCountsSeparately() { return pblUseBarflip && pblCountBarflip; }
+// the C setting only applies while "distinguish barflip" (B) is on, and not
+// while a global barflip override is active — the override forces every case to
+// a single barflip, collapsing + and - back into one case.
+export function pblCountsSeparately() {
+    return pblUseBarflip && pblCountBarflip && pblEffectiveOverride() === null;
+}
 
 // Counts case entries (each ending in +/-) as cases, honoring the C setting:
 // when on, + and - count separately; otherwise they collapse to their base.
@@ -883,6 +887,12 @@ export function pblLoadStorage() {
     if (storedBarflip !== null)
         pblBarflipOverride = storedBarflip === '+' ? '+' : storedBarflip === '-' ? '-' : null;
 
+    // Sync C's variable + row from the restored checkbox (after the override is
+    // loaded, so pblCountsSeparately is correct for the pool build below).
+    pblCountBarflip = countBarflipEl.checked;
+    document.getElementById('countbarflip-row').style.display = pblUseBarflip ? '' : 'none';
+    setPblCountBarflip(pblCountsSeparately());
+
     if (storedSelected !== null) {
         pblSelected = pblMigrateLegacy(JSON.parse(storedSelected));
         pblStorage.setItem("selected", JSON.stringify(pblSelected)); // persist migrated form
@@ -938,6 +948,22 @@ function pblConsumeActiveSlot() {
     if (idx !== -1) pblRemaining.splice(idx, 1);
 }
 
+// Re-sync the "count separately" mirror used by tag counts, and — when C could
+// have an effect (B + C on) — rebuild the each-case pool and refresh the visible
+// counts. Call whenever B, C, or the effective global override changes, since
+// each of those flips whether + and - count as one case or two.
+function pblResyncCountBarflip() {
+    setPblCountBarflip(pblCountsSeparately());
+    // C only ever affects counts while B is on; otherwise there's nothing to
+    // rebuild. When B is on, rebuild on every relevant change (C or override
+    // toggled either way) so + and - merge or split immediately.
+    if (trainerMode !== 'pbl' || !pblUseBarflip) return;
+    pblRefillRemaining();
+    pblConsumeActiveSlot();
+    updateSelCount();
+    updateRemainingCount();
+}
+
 export function pblOnEachCase() {
     pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
     pblRefillRemaining();
@@ -952,13 +978,7 @@ export function pblOnEachCase() {
 // is on (the setting is gated on it).
 export function pblOnCountBarflip() {
     pblCountBarflip = countBarflipEl.checked;
-    setPblCountBarflip(pblCountsSeparately());
-    if (trainerMode === 'pbl') {
-        pblRefillRemaining();
-        pblConsumeActiveSlot();
-    }
-    updateSelCount();
-    updateRemainingCount();
+    pblResyncCountBarflip();
     pblSaveSettings();
 }
 
@@ -1005,12 +1025,16 @@ export function pblApplyBarflipUI() {
 }
 
 function pblSetBarflipOverride(value) {
-    const prev        = pblBarflipOverride;
+    const prev          = pblBarflipOverride;
+    const prevEffective = pblEffectiveOverride();
     pblBarflipOverride = value;
     pblApplyBarflipUI();
     pblSaveBarflipOverride();
     if (trainerMode !== 'pbl') return;
     pblRecolorAll();
+    // Turning the override on or off (not switching + ↔ -) flips whether + and -
+    // collapse to one case — re-sync counts/pool when that changes.
+    if ((prevEffective === null) !== (pblEffectiveOverride() === null)) pblResyncCountBarflip();
     if (pblHasActive && prev && pblBarflipOverride && prev !== pblBarflipOverride) {
         pblPending = null;
         pblGenerateScramble(true);
@@ -1035,12 +1059,10 @@ export function pblOnUseBarflip() {
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
     document.getElementById('countbarflip-row').style.display = pblUseBarflip ? '' : 'none';
     pblApplyBarflipUI();
-    setPblCountBarflip(pblCountsSeparately());
+    // B just flipped, which flips C's effective value — re-sync counts/pool.
+    pblResyncCountBarflip();
     if (trainerMode !== 'pbl') { pblSaveSettings(); return; }
     pblRecolorAll();
-    // If C is checked, its effective value just flipped with B — rebuild the pool
-    // and counts so + and - merge/split accordingly.
-    if (pblCountBarflip) { pblRefillRemaining(); pblConsumeActiveSlot(); updateSelCount(); updateRemainingCount(); }
     const newEffective = pblEffectiveOverride();
     if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }
     pblSaveSettings();
@@ -1054,6 +1076,9 @@ export function pblOnGlobalBarflip() {
     if (trainerMode !== 'pbl') { pblSaveSettings(); return; }
     pblRecolorAll();
     const newEffective = pblEffectiveOverride();
+    // Toggling the override on/off (via showing/hiding G) flips whether + and -
+    // collapse to one case — re-sync counts/pool when the effective state changes.
+    if (prevEffective !== newEffective) pblResyncCountBarflip();
     if (pblHasActive && prevEffective !== newEffective) { pblPending = null; pblGenerateScramble(true); }
     pblSaveSettings();
 }
