@@ -1686,12 +1686,22 @@ function appDialog({ title = '', message = '', buttons, input = null, cancelValu
             btnRow.appendChild(el);
         });
 
+        function submitPrimary() {
+            const primary = buttons.find(b => b.primary);
+            finish(field ? (primary ? field.value : (primary?.value)) : (primary ?? buttons.at(-1)).value);
+        }
         function onKey(e) {
+            const ctrl = e.metaKey || e.ctrlKey;
             if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(cancelValue); }
-            else if (e.key === 'Enter' && !input?.multiline) {
+            // Plain Enter submits single-line prompts; multiline prompts submit on
+            // Ctrl/Cmd+Enter or Ctrl/Cmd+S so newlines can still be typed.
+            else if (e.key === 'Enter' && (!input?.multiline || ctrl)) {
                 e.preventDefault(); e.stopPropagation();
-                const primary = buttons.find(b => b.primary);
-                finish(field ? (primary ? field.value : (primary?.value)) : (primary ?? buttons.at(-1)).value);
+                submitPrimary();
+            }
+            else if (input?.multiline && ctrl && e.key.toLowerCase() === 's') {
+                e.preventDefault(); e.stopPropagation();
+                submitPrimary();
             }
         }
         document.addEventListener('keydown', onKey, true);
