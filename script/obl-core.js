@@ -530,9 +530,9 @@ export function oblLoadSettings({ restoreShared = true } = {}) {
     const stored = oblStorage.getItem('settings');
     const hasKarnSlot = stored?.length >= 5;
 
-    // Reset to defaults first.
+    // Reset to defaults first. Karnotation defaults on for a fresh OBL trainer.
     if (restoreShared) eachCaseEl.checked = false;
-    if (restoreShared) karnEl.checked = false;
+    if (restoreShared) karnEl.checked = (stored === null);
     oblUsingSpe  = 0;
     oblUsingMemo = false;
     oblNamingMode = 'matt';
