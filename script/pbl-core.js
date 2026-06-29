@@ -1040,7 +1040,7 @@ export const pblHelpSections = [
             { keys: ['K'],              desc: 'Toggle karnotation' },
             { keys: ['E'],              desc: 'Train each case once' },
             { keys: ['R'],              desc: 'Toggle realistic weights' },
-            { keys: ['B'],              desc: 'Distinguish + and − barflip' },
+            { keys: ['B'],              desc: 'Distinguish between + and − barflip' },
             { keys: ['G'],              desc: 'Global barflip override' },
             { keys: ['H'],              desc: 'Hide hint button' },
             null,
