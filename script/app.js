@@ -88,7 +88,27 @@ export let showMode      = 'all'; // 'all' | 'selected' | 'searched' | 'list'
 let preSearchMode = 'all';
 export let highlightedList = null;
 
-export function setShowMode(value) { showMode = value; }
+function selectorModeKey(mode = trainerMode) {
+    return mode === 'obl' ? 'caseSelectorModeOBL' : 'caseSelectorModePBL';
+}
+
+function normalizeSelectorMode(value) {
+    return value === 'selected' ? 'selected' : 'all';
+}
+
+function savedSelectorMode(mode = trainerMode) {
+    return normalizeSelectorMode(localStorage.getItem(selectorModeKey(mode)));
+}
+
+function rememberSelectorMode(value = showMode, mode = trainerMode) {
+    if (value === 'searched') return;
+    localStorage.setItem(selectorModeKey(mode), value === 'all' ? 'all' : 'selected');
+}
+
+export function setShowMode(value) {
+    showMode = value;
+    rememberSelectorMode(value);
+}
 export function setHighlightedList(value) { highlightedList = value; }
 
 // ─── DOM ELEMENT REFERENCES ───────────────────────────────────────────────────
@@ -719,6 +739,7 @@ export function showAll() {
         pbl.pblPossible.forEach(casePair => pbl.pblShow(pbl.pblName(casePair)));
     }
     showMode = 'all';
+    rememberSelectorMode('all');
     updateSelCount();
     updateToggle();
 }
@@ -738,18 +759,21 @@ export function showSelected() {
         });
     }
     showMode = 'selected';
+    rememberSelectorMode('selected');
     updateSelCount();
     updateToggle();
 }
 
 function restoreCaseDisplayState(hasSelection) {
+    const preferredMode = hasSelection ? savedSelectorMode() : 'all';
     const gridBelongsToMode = caseListEl.dataset.trainerGrid === trainerMode && caseListEl.childElementCount > 0;
     if (gridBelongsToMode) {
-        if (hasSelection) showSelected();
+        if (preferredMode === 'selected') showSelected();
         else showAll();
         return;
     }
-    showMode = hasSelection ? 'selected' : 'all';
+    showMode = preferredMode;
+    preSearchMode = preferredMode;
     updateSelCount();
     updateToggle();
 }
@@ -796,6 +820,11 @@ function onCheckKarn() {
 }
 
 karnEl.addEventListener("change", () => onCheckKarn());
+
+eachCaseEl.addEventListener("change", () => {
+    if (trainerMode === 'obl') obl.oblOnEachCase();
+    else pbl.pblOnEachCase();
+});
 
 // ─── SCRAMBLE NAVIGATION ─────────────────────────────────────────────────────
 
@@ -1417,15 +1446,13 @@ selectListEl.addEventListener("click", async () => {
     const tagId = tagMod.highlightedTagId();
     if (tagId != null) {
         if (trainerMode === 'obl') obl.oblSelectTag(tagId, false); else pbl.pblSelectTag(tagId, false);
-        closePopup();
-        showSuccess("Viewing the tag.", 1000);
+        closeTopModal();
         return;
     }
     if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { obl.oblSelectList(highlightedList, false); }
     else                       { pbl.pblSelectList(highlightedList, false); }
-    closePopup();
-    showSuccess("Selected the list.", 1000);
+    closeTopModal();
 });
 
 deleteListEl.addEventListener("click", async () => {
@@ -1506,9 +1533,10 @@ export function applyMode() {
     document.getElementById('pbl-ref-row').style.display = '';
     document.getElementById('obl-ref-row').style.display = '';
 
-    // Reset shared display state so neither trainer bleeds into the other.
-    showMode        = 'all';
-    preSearchMode   = 'all';
+    // Reset transient display state so neither trainer bleeds into the other,
+    // then restore this trainer's last explicit all/selected selector mode.
+    showMode        = savedSelectorMode();
+    preSearchMode   = showMode;
     highlightedList = null;
     filterInputEl.value = '';
     updateSelectBtn();

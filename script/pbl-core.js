@@ -1,6 +1,6 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { tagCaseModes } from './tag-assignments.js';
 
@@ -587,9 +587,9 @@ export function pblRestoreGrid(buildGrid = false) {
     }
 
     updateSelCount();
-    // showMode was reset to 'all' by applyMode — restore correct view.
+    // Respect the selector view the app restored for this trainer.
     if (pblGridBuilt()) {
-        if (pblSelected.length > 0) showSelected();
+        if (showMode === 'selected' && pblSelected.length > 0) showSelected();
         else showAll();
     }
     updateSelectBtn();
@@ -666,6 +666,7 @@ export function pblAddUserLists() {
         const count = new Set(pblUserLists[k].map(s => s.slice(0, -1))).size;
         html += `<div id="${k}" class="list-item">${k} (${count})</div>`;
     }
+    if (!html) html = '<div class="list-empty">No list to show. Create new...</div>';
     userListsEl.innerHTML = html;
     document.querySelectorAll("#userlists>.list-item").forEach(addListItemEvent);
     pblSaveUserLists();
@@ -809,14 +810,20 @@ export function pblLoadStorage() {
     const storedBarflip   = pblStorage.getItem("barflipOverride");
     const storedUserLists = pblStorage.getItem("userLists");
 
-    // Apply settings checkboxes.
-    for (const el of pblSettingList) if (el.checked) el.click();
+    // Apply settings checkboxes directly. Do not synthetic-click during load:
+    // the shared E/K controls have trainer-aware handlers, and firing them while
+    // restoring storage can overwrite the other trainer's settings.
+    for (const el of pblSettingList) el.checked = false;
     if (storedSettings !== null) {
         for (let i = 0; i < pblSettingList.length; i++)
-            if (storedSettings[i] === "1") pblSettingList[i].click();
+            pblSettingList[i].checked = storedSettings[i] === "1";
     } else {
-        karnEl.click(); // default: karn on
+        karnEl.checked = true; // default: karn on
     }
+    setUsingKarn(karnEl.checked ? 1 : 0);
+    pblWeight        = weightEl.checked;
+    pblUseBarflip    = useBarflipEl.checked;
+    pblShowBarflipUI = globalBarflipEl.checked;
 
     globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
     // Explicitly resolve any incompatible settings combinations that may have come
@@ -860,7 +867,7 @@ export function pblLoadStorage() {
     updateSelCount();
     pblRecolorAll(); // re-sync each cell's selected styling (e.g. after an upload)
     if (pblGridBuilt()) {
-        if (pblSelected.length > 0) showSelected();
+        if (showMode === 'selected' && pblSelected.length > 0) showSelected();
         else showAll();
     }
 
@@ -913,7 +920,6 @@ export function pblOnWeights() {
     pblSyncSettingsDisabled();
 }
 
-eachCaseEl.addEventListener("change", () => pblOnEachCase());
 weightEl.addEventListener("change",   () => pblOnWeights());
 
 document.querySelectorAll('input[name="scramlen"]').forEach(radio => {
