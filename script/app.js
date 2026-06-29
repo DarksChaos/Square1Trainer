@@ -1108,6 +1108,19 @@ export function escapeHtml(s) {
     return s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 }
 
+// True when the event target is a text-editable element (input/textarea/
+// contenteditable), so global keyboard shortcuts can defer to it.
+function isEditableTarget(el) {
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === 'TEXTAREA') return true;
+    if (tag === 'INPUT') {
+        const t = (el.type || 'text').toLowerCase();
+        return !['checkbox', 'radio', 'button', 'submit', 'range', 'color'].includes(t);
+    }
+    return el.isContentEditable === true;
+}
+
 document.addEventListener('click', function(e) {
     if (e.target.tagName === 'BUTTON') {
         e.target.blur(); // Removes focus so key + spacebar cannot trigger a click
@@ -1131,7 +1144,9 @@ window.addEventListener("keydown", (e) => {
         return;
     }
 
-    // Undo/redo for the alg editor (only while editing; doesn't touch selection undo).
+    // Undo/redo/save for the alg editor (only while editing; doesn't touch
+    // selection undo). Handled before the editable-target guard below so these
+    // intentional shortcuts still fire inside the contenteditable editor.
     if (algReference?.algEditActive()) {
         const ctrl = isMac() ? e.metaKey : e.ctrlKey;
         if (ctrl && !e.altKey) {
@@ -1141,6 +1156,13 @@ window.addEventListener("keydown", (e) => {
             if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); algReference.algEditRedo(); return; }
         }
     }
+
+    // When typing in an editable field other than the filter input (e.g. the
+    // hint/comment editor, alg-reference text fields, or any dialog input), the
+    // page's select/deselect shortcuts must not fire — let the field own every
+    // key so backspace, arrows, etc. behave normally. The filter input keeps its
+    // dedicated handling below via `inInput`.
+    if (!inInput && isEditableTarget(e.target)) return;
 
     // While the search bar is open, let its own input handler own the keyboard.
     if (searchIsOpen()) return;

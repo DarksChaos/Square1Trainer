@@ -92,7 +92,7 @@ function clusterCommentHtml(title) {
 export async function editClusterComment(title) {
     if (!title) return false;
     const current = getClusterComment(title);
-    const next = await appTextareaPrompt('Comment shown in the alg reference and hint modal:', {
+    const next = await appTextareaPrompt('Comments are shown in alg references and hints.', {
         title: `Edit comment — ${displayClusterTitle(title)}`,
         value: current,
         placeholder: 'Write a hint/comment for this cluster…',
