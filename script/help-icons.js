@@ -25,3 +25,31 @@ export const HELP_EQ_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="current
     <rect x="2" y="5" width="7.41" height="14" rx="1"/>
     <rect x="9.41" y="5" width="12.59" height="14" rx="1"/>
 </svg>`;
+
+// Shared tag glyph geometry — used both by the help-nav Tags icon and by the
+// inline tag chips (UNIT_TAG_SVG) so the path data lives in exactly one place.
+const TAG_PATH = `<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none"/>`;
+
+// Inline tag chip icon (fixed 15px) used throughout the tag UI. Re-exported by
+// tag-assignments.js for its existing consumers.
+export const UNIT_TAG_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TAG_PATH}</svg>`;
+
+// Search and Data Sync reuse the sidebar rail's <symbol>s (defined in index.html)
+// via <use>, so their path data is never duplicated.
+export const HELP_SEARCH_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><use href="#rail-icon-search"/></svg>`;
+export const HELP_SYNC_SVG   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><use href="#rail-icon-upload"/></svg>`;
+
+export const HELP_TAG_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">${TAG_PATH}</svg>`;
+
+// Lists: three bullets with three lines.
+export const HELP_LIST_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="4" cy="6"  r="1.1" fill="currentColor" stroke="none"/>
+    <line x1="8" y1="6"  x2="20" y2="6"/>
+    <circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+    <line x1="8" y1="12" x2="20" y2="12"/>
+    <circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/>
+    <line x1="8" y1="18" x2="20" y2="18"/>
+</svg>`;
+
+// Learn: a closed book.
+export const HELP_LEARN_SVG = `<svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M 9 4 C 7.355469 4 6 5.355469 6 7 L 6 25 C 6 26.644531 7.355469 28 9 28 L 26 28 L 26 4 Z M 9 6 L 24 6 L 24 22 L 9 22 C 8.648438 22 8.316406 22.074219 8 22.1875 L 8 7 C 8 6.433594 8.433594 6 9 6 Z M 11 9 L 11 11 L 22 11 L 22 9 Z M 9 24 L 24 24 L 24 26 L 9 26 C 8.433594 26 8 25.566406 8 25 C 8 24.433594 8.433594 24 9 24 Z"/></svg>`;

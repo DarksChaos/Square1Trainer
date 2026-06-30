@@ -1483,7 +1483,7 @@ newListEl.addEventListener("click", async () => {
 
 overwriteListEl.addEventListener("click", async () => {
     const tagMod = await ensureTags();
-    if (tagMod.highlightedTagId() != null) { showError("Tags can't be overwritten here — edit them in the Tags menu."); return; }
+    if (tagMod.highlightedTagId() != null) { showError("Tags can't be overwritten. Edit in alg references"); return; }
     if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { obl.oblOverwriteList(); return; }
     if (usingTimer()) return;

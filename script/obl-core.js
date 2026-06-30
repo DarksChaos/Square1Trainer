@@ -1,5 +1,5 @@
 import { OBL_DEFAULT_LISTS_RAW, OBL_MATT_LABELS, OBLtranslation, possibleOBL } from '../data/obl-data.js';
-import { HELP_CTRL_SVG, HELP_HOME_SVG } from './help-icons.js';
+import { HELP_CTRL_SVG, HELP_HOME_SVG, HELP_LEARN_SVG, HELP_LIST_SVG, HELP_SEARCH_SVG, HELP_SYNC_SVG, HELP_TAG_SVG } from './help-icons.js';
 import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { tagCaseBases } from './tag-assignments.js';
@@ -652,6 +652,36 @@ export const oblHelpSections = [
             { keys: ['Ctrl', 'Z'],      desc: 'Undo last selection change' },
             { keys: ['Ctrl', 'Y'],      desc: 'Redo last selection change' },
         ])
+    },
+    {
+        id: 'obl-search',
+        title: 'Search',
+        svg: HELP_SEARCH_SVG,
+        html: ``
+    },
+    {
+        id: 'obl-lists',
+        title: 'Lists',
+        svg: HELP_LIST_SVG,
+        html: ``
+    },
+    {
+        id: 'obl-tags',
+        title: 'Tags',
+        svg: HELP_TAG_SVG,
+        html: ``
+    },
+    {
+        id: 'obl-learn',
+        title: 'Learn',
+        svg: HELP_LEARN_SVG,
+        html: ``
+    },
+    {
+        id: 'obl-sync',
+        title: 'Data Sync',
+        svg: HELP_SYNC_SVG,
+        html: ``
     }
     // Add future OBL-specific sections here.
 ];
