@@ -29,7 +29,12 @@
         <div class="nav-left">
             <span class="squango" id="squango-home" data-tip="Return to SquanGo home page"><span class="squango-sq">Squan</span><span class="squango-go">Go</span></span>
         </div>
-        <div class="nav-center" id="mode-title" data-tip="Switch to OBL Trainer" style="cursor:pointer;user-select:none;"></div>
+        <div class="nav-center" id="mode-title" data-tip="Switch to OBL Trainer" style="cursor:pointer;user-select:none;">
+            <button class="mode-arrow" id="mode-arrow" type="button" aria-label="Switch trainer" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span class="mode-title-text" id="mode-title-text"></span>
+        </div>
         <div class="nav-spacer"></div>
     </div>
     <input type="file" id="fileinput" style="display: none" accept=".json" />

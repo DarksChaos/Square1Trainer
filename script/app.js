@@ -1573,8 +1573,11 @@ async function switchMode() {
 export function applyMode() {
     const isPBL = trainerMode === 'pbl';
     const modeTitleEl = document.getElementById('mode-title');
-    modeTitleEl.textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
+    document.getElementById('mode-title-text').textContent = isPBL ? 'PBL TRAINER' : 'OBL TRAINER';
     modeTitleEl.setAttribute('data-tip', isPBL ? 'Switch to OBL Trainer' : 'Switch to PBL Trainer');
+    // PBL shows the arrow on the left, OBL on the right (chevron flips to match).
+    modeTitleEl.classList.toggle('mode-pbl', isPBL);
+    modeTitleEl.classList.toggle('mode-obl', !isPBL);
 
     // Show only the settings rows relevant to the active trainer; PBL-only and
     // OBL-only rows are hidden in the other mode.

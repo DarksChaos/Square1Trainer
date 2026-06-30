@@ -148,7 +148,45 @@ html {
     pointer-events: auto;
     cursor: pointer;
     user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
 }
+/* OBL puts the arrow on the right of the title; PBL on the left. */
+.nav-center.mode-obl { flex-direction: row-reverse; }
+
+.mode-title-text {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-strong);
+}
+
+/* Trainer-switch affordance: an unobtrusive but visible chevron button that
+   matches the app's panel styling and nudges in its pointing direction on hover. */
+.mode-arrow {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    padding: 0;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease, transform 0.12s ease;
+}
+.mode-arrow > svg { width: 1.05rem; height: 1.05rem; display: block; }
+/* Chevron points left by default (PBL); flip it for OBL (points right). */
+.nav-center.mode-obl .mode-arrow > svg { transform: rotate(180deg); }
+
+.nav-center:hover .mode-arrow { color: var(--text-strong); }
+.nav-center.mode-pbl:hover .mode-arrow { transform: translateX(-2px); }
+.nav-center.mode-obl:hover .mode-arrow { transform: translateX(2px); }
+.nav-center:active .mode-arrow { transform: scale(0.92); }
 
 /* Main container */
 .main {
