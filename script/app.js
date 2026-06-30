@@ -1030,7 +1030,7 @@ filterInputEl.addEventListener("input", () => {
 });
 
 selectAllEl.addEventListener("click", () => {
-    if (trainerMode === 'obl') { obl.oblSelectAll(); return; } // already operates on visible cases
+    if (trainerMode === 'obl') { isShowingSubset() ? obl.oblSelectThese() : obl.oblSelectAll(); return; }
     if (isShowingSubset()) pbl.pblSelectThese(false);
     else pbl.pblSelectAll(false);
 });
@@ -1216,7 +1216,7 @@ window.addEventListener("keydown", (e) => {
                     if (trainerMode === 'pbl') pbl.pblDeselectAll(); else obl.oblDeselectAll();
                     return;
                 case "s": e.preventDefault(); if (!canShortcut) return;
-                    if (trainerMode === 'pbl') pbl.pblDeselectThese();
+                    if (trainerMode === 'pbl') pbl.pblDeselectThese(); else obl.oblDeselectThese();
                     return;
             }
         } else {
@@ -1225,7 +1225,7 @@ window.addEventListener("keydown", (e) => {
                     if (trainerMode === 'pbl') pbl.pblSelectAll(); else obl.oblSelectAll();
                 } return;
                 case "s": e.preventDefault(); if (!canShortcut) return;
-                    if (trainerMode === 'pbl') pbl.pblSelectThese();
+                    if (trainerMode === 'pbl') pbl.pblSelectThese(); else obl.oblSelectThese();
                     return;
                 case "f": e.preventDefault(); if (!canShortcut) return;
                     if (!casesPopupEl.classList.contains('open')) openCasesPopup();

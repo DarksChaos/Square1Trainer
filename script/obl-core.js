@@ -383,12 +383,12 @@ export function oblLoadSelected() {
 
 // ─── OBL BULK SELECT ─────────────────────────────────────────────────────────
 
+// Select every case (Ctrl+A) — ignores the filter/subset, so hidden cases are
+// selected too.
 export function oblSelectAll() {
     if (usingTimer()) return;
 
-    document.querySelectorAll('.case').forEach(caseEl => {
-        if (!caseEl.classList.contains('hidden')) oblSelect(caseEl.id);
-    });
+    document.querySelectorAll('.case').forEach(caseEl => oblSelect(caseEl.id));
     oblSaveSelected();
 }
 
@@ -405,8 +405,18 @@ export function oblDeselectAll() {
     updateRemainingCount();
 }
 
-// Deselect only the currently visible cases (counterpart to oblSelectAll, which
-// likewise operates on visible cases). Used when a subset is being shown.
+// Select only the currently visible cases (Ctrl+S) — the counterpart to
+// oblSelectAll that respects the active filter/subset.
+export function oblSelectThese() {
+    if (usingTimer()) return;
+    document.querySelectorAll('.case').forEach(caseEl => {
+        if (!caseEl.classList.contains('hidden')) oblSelect(caseEl.id);
+    });
+    oblSaveSelected();
+}
+
+// Deselect only the currently visible cases (counterpart to oblSelectThese).
+// Used when a subset is being shown.
 export function oblDeselectThese() {
     if (usingTimer()) return;
     document.querySelectorAll('.case').forEach(caseEl => {
