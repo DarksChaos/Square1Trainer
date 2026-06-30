@@ -1146,6 +1146,7 @@ export const pblHelpSections = [
             { keys: ['H'],         desc: 'Hide hint button' },
             null,
             { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
+            { keys: ['Ctrl', 'Space'],  desc: 'Toggle search bar' },
             { keys: ['Ctrl', 'A'],      desc: 'Select ALL cases' },
             { keys: ['Ctrl', 'S'],      desc: 'Select all visible cases',
                 info:   "Select all cases currently shown in the case selector." },
@@ -1242,8 +1243,12 @@ export const pblHelpSections = [
 
         <h1>Still one case</h1>
         <p>
-            <b>"Train each case (E)"</b>, <b>"Use realistic weights (R)"</b>, and "selected: xxx" still treat both barflips of the case as a single case.
+            <b>"Train each case once (E)"</b>, <b>"Use realistic weights (R)"</b>, and "selected: xxx" still treat both barflips of the case as a single case.
             This means you can safely select both barflips and use Train each case, and it will not Train both + and - separately.
+        </p>
+        <p>
+            <b>EXCEPTION</b>: With <b>"Count + and - as 2 cases (C)"</b>, the two barflips are treated as two cases.
+            This affects lists/tags case counts, and makes both-barflip cases 2x as likely to show up.
         </p>
 
         <h1>Global Override</h1>

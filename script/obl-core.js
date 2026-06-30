@@ -629,6 +629,7 @@ export const oblHelpSections = [
             { keys: ['H'],         desc: 'Hide hint button' },
             null,
             { keys: ['Ctrl', 'F'],      desc: 'Focus search box' },
+            { keys: ['Ctrl', 'Space'],  desc: 'Toggle search bar' },
             { keys: ['Ctrl', 'A'],      desc: 'Select ALL cases' },
             { keys: ['Ctrl', 'S'],      desc: 'Select all visible cases',
                 info:   "Select all cases currently shown in the case selector." },
