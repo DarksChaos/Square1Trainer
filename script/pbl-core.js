@@ -1373,6 +1373,8 @@ export const pblHelpSections = [
         <p>
             <b>Matt's view</b> is solution group based.
             Each solution group can be tagged, and has learning notes as well as algs.
+            If you want to <b>add your own solutions</b>, always add them as a solution group in this view.
+            You just need to fill in your solutions, as well as the <b>slice count</b> for them.
         </p>
         <p>
             <b>Derpy</b> and <b>JLMinx</b> is alg based.
@@ -1382,14 +1384,45 @@ export const pblHelpSections = [
 
         <h1>Heatmap</h1>
         <p>
-            
+            Click on the search icon in the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}, and the heatmap would show up.
+        </p>
+        <p>
+            The colors are a spectrum of <b>green to red</b>.
+            The greener a cell is, the better you are at that case.
+            To show what case a cell is, hover over it, or tap.
+            To go to the cluster reference for the cell, click it, or double tap.
+        </p>
+        <p>
+            To change what solutions the heatmap takes into account, change which tags are selected on top.
+            Only solution groups are considered.
+            This means if you want to <b>add your own solutions</b>, always add them as a solution group in Matt's view.
+            You just need to fill in your solutions, as well as the <b>slice count</b> for them.
+            Then, you can tag that solution group.
+        </p>
+
+        <h1>Hints</h1>
+        <p>
+            You can edit your hints for a cluster in the cluster reference for it.
+            To see the hints for the current scramble, click on the light bulb icon to the right of the scramble.
+        </p>
         `
     },
     {
         id: 'pbl-sync',
         title: 'Data Sync',
         svg: HELP_SYNC_SVG,
-        html: ``
+        html: `
+        <h1>Export data</h1>
+        <p>
+            To export your data, click on the download icon in the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}.
+            This will download <b>a JSON file</b>.
+        </p>
+
+        <h1>Import data</h1>
+        <p>
+            To import the data from a specific export, click on the upload icon in the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}.
+            Everything will be imported: your settings, your selection, your lists and tags.
+        </p>`
     }
     // Add future PBL-specific sections here.
 ];

@@ -1538,7 +1538,7 @@ button:active:not(:disabled) {
 
 /* Bolded text stands out a touch brighter than surrounding prose */
 .help-popup-inner b {
-    color: rgba(255,255,255,0.75);
+    color: rgba(255,255,255,0.8);
 }
 
 /* Help sub-section headers (replaces bold paragraphs with inline margin-top) */
