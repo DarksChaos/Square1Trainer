@@ -242,8 +242,13 @@ export function pblRestoreSettings({ restoreShared = true } = {}) {
     pblShowBarflipUI = globalBarflipEl.checked;
     pblCountBarflip  = countBarflipEl.checked;
     setPblCountBarflip(pblCountsSeparately());
-    globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
-    document.getElementById('countbarflip-row').style.display = pblUseBarflip ? '' : 'none';
+    // Only adjust PBL-only row visibility while PBL is the active trainer —
+    // otherwise (settings opened from OBL) applyMode has already hidden these
+    // rows and we'd wrongly reveal them.
+    if (trainerMode === 'pbl') {
+        globalBarflipRow.style.display = pblUseBarflip ? '' : 'none';
+        document.getElementById('countbarflip-row').style.display = pblUseBarflip ? '' : 'none';
+    }
 
     const storedScrMode = pblStorage.getItem("scrambleMode");
     if (storedScrMode) {
