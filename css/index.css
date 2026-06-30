@@ -1426,12 +1426,12 @@ button:active:not(:disabled) {
 .help-shortcut-row.has-info { padding-right: 24px; }
 
 .help-info {
+    /* No transform here — it would create a stacking context and trap the
+       popover below later rows. Centered via top/bottom + flex instead. */
     position: absolute;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
+    top: 0;
+    bottom: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1441,7 +1441,7 @@ button:active:not(:disabled) {
     -webkit-tap-highlight-color: transparent;
     transition: color 0.12s ease;
 }
-.help-info > svg { width: 100%; height: 100%; display: block; }
+.help-info > svg { width: 16px; height: 16px; display: block; }
 .help-info:hover,
 .help-info:focus,
 .help-info:focus-within { color: var(--text-strong); }
@@ -1450,7 +1450,7 @@ button:active:not(:disabled) {
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
-    z-index: 6;
+    z-index: 20;
     width: max-content;
     max-width: 230px;
     padding: 8px 10px;
