@@ -1270,8 +1270,8 @@ export const pblHelpSections = [
 
         <h1>Search clusters</h1>
         <p>
-            From within the search bar, simply enter the name of any case or cluster and hit Enter, and you will be sent to the <b>alg reference</b> for it.
-            For help within alg reference, go the Learn section (book icon).
+            From within the search bar, simply enter the name of any case or cluster and hit Enter, and you will be sent to the <b>cluster reference</b> for it.
+            For help within cluster reference, go the Learn section (book icon).
         </p>
 
         <h1>Search actions</h1>
@@ -1303,11 +1303,11 @@ export const pblHelpSections = [
         <p><code>Overwrite</code> — Overwrite the content of the selected list with the cases that are currently selected.</p>
         <p><code>View</code> — Display, in the case selector, the cases belonging to the selected list. Great for when you want to see what the list has without losing your current selection.</p>
         <p><code>Select</code> — Replace whatever cases you have selected with the cases in the list.</p>
-        <p><code>New</code> — Create a new list containing the cases you have selected. The name is up to you!</p>
+        <p><code>New List</code> — Create a new list containing the cases you have selected. The name is up to you!</p>
 
         <h1>List tricks</h1>
         <p>Here's some additional things you can accomplish with those 5 buttons:</p>
-        <p>Rename a list: <code>select</code> it, <code>delete</code> it, and <code>new</code>.</p>
+        <p>Rename a list: <code>select</code> it, <code>delete</code> it, and <code>new list</code>.</p>
         <p>Edit a list: <code>select</code> it, make the edits to your current selection in the case selector, and <code>overwrite</code> your original list.</p>
 
         <h1>Tags</h1>
@@ -1317,13 +1317,73 @@ export const pblHelpSections = [
         id: 'pbl-tags',
         title: 'Tags',
         svg: HELP_TAG_SVG,
-        html: ``
+        html: `
+        <h1>What are tags?</h1>
+        <p><b>1. cluster-based</b></p>
+        <p>
+            Often, your lists will be in clusters.
+            For example, if your "learning" list contains Cl/Q, it probably also contains Cr/Q, Q/Cl, and Q/Cr.
+            Hence, you can simply tag the entire cluster of C/Q, Q/C as "learning". This will tag all 4 cases.
+        </p>
+        <p><b>2. solution-based</b></p>
+        <p>
+            You can tag a solution group in Matt's cluster reference view.
+            This allows you to, for example, mark one solution as "learning" and another as "perfected".
+        </p>
+
+        <h1>Managing tags</h1>
+        <p>
+            Open up the search bar and type "tags".
+            This opens up the window where you add, delete, and reorder tags.
+        </p>
+
+        <h1>Training tags</h1>
+        <p>
+            Open up the lists window (see the previous section for instructions).
+            Here you will be able to view and select a tag just like you would with a list.
+        </p>
+        <p>
+            The solution groups you tag will determine which of the barflips will be selected when you select the tag.
+        </p>
+
+        <h1>Tags → Lists</h1>
+        <p>
+            If you want to export a tag to a list, simply <code>select</code> the tag, and <code>new list</code>.
+        </p>
+        `
     },
     {
         id: 'pbl-learn',
         title: 'Learn',
         svg: HELP_LEARN_SVG,
-        html: ``
+        html: `
+        <h1>Cluster references</h1>
+        <p>Cluster reference is the window that pops up when you click on a scramble.</p>
+        <p>
+            You can leave a <b>hint</b> for yourself in the cluster reference.
+            To see what that does, scroll down.
+        </p>
+        <p>
+            You can <b>edit</b> the content of the cluster reference to suit your solutions by simply clicking on the edit icon.
+        </p>
+        <p>
+            There are 3 <b>views</b> as of now: Matt, Derpy, and JLMinx.
+            These correspond to each of our PBL sheets.
+        <p>
+        <p>
+            <b>Matt's view</b> is solution group based.
+            Each solution group can be tagged, and has learning notes as well as algs.
+        </p>
+        <p>
+            <b>Derpy</b> and <b>JLMinx</b> is alg based.
+            That means it's just a list of algs.
+            If you tag either of those views, the tag won't be able to tell if it's + or -.
+        </p>
+
+        <h1>Heatmap</h1>
+        <p>
+            
+        `
     },
     {
         id: 'pbl-sync',
