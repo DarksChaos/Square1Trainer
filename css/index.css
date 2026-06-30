@@ -2258,7 +2258,7 @@ button:active:not(:disabled) {
 
 .hm-tip {
     position: absolute;
-    transform: translate(-50%, calc(-100% - 6px));
+    /* Position is computed in JS (hmShowTip) and clamped inside the heatmap. */
     z-index: 10;
     pointer-events: none;
     background: #061320;

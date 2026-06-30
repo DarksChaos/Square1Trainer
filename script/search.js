@@ -220,10 +220,31 @@ function hmShowTip(cell, cn) {
         `<div class="hm-tip-cluster">${cluster ? escapeHtml(cluster) : '<span class="hm-tip-dim">not a PBL case</span>'}</div>` +
         (s ? `<div class="hm-tip-sol">${escapeHtml(s.overview)} (${s.slice})</div>` : '');
     hmTipEl.style.display = 'block';
-    const cr = cell.getBoundingClientRect();
-    const er = hmEl.getBoundingClientRect();
-    hmTipEl.style.left = (cr.left - er.left + cell.offsetWidth / 2) + 'px';
-    hmTipEl.style.top  = (cr.top  - er.top) + 'px';
+
+    // Position the tip's top-left directly (no CSS centering transform) so we can
+    // clamp it inside the heatmap's visible box and never let an edge cell push it
+    // out of view. Coordinates are in the scroll container's content space.
+    hmTipEl.style.transform = 'none';
+    const cr  = cell.getBoundingClientRect();
+    const er  = hmEl.getBoundingClientRect();
+    const tw  = hmTipEl.offsetWidth;
+    const th  = hmTipEl.offsetHeight;
+    const pad = 8;
+    const sL  = hmEl.scrollLeft, sT = hmEl.scrollTop;
+    const cw  = hmEl.clientWidth, ch = hmEl.clientHeight;
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(v, hi));
+
+    // Default: horizontally centred over the cell, sitting just above it.
+    let left = (cr.left - er.left) + sL + cell.offsetWidth / 2 - tw / 2;
+    let top  = (cr.top  - er.top)  + sT - th - pad;
+
+    left = clamp(left, sL + pad, sL + cw - tw - pad);
+    // If it would clip the top of the heatmap, flip below the cell instead.
+    if (top < sT + pad) top = (cr.bottom - er.top) + sT + pad;
+    top = clamp(top, sT + pad, sT + ch - th - pad);
+
+    hmTipEl.style.left = left + 'px';
+    hmTipEl.style.top  = top + 'px';
 }
 
 function hmHideTip() { if (hmTipEl) hmTipEl.style.display = 'none'; }
