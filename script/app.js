@@ -804,6 +804,19 @@ export function setHighlighted(id) {
     }
 }
 
+// Re-render the Manage-lists modal's PBL list + tag counts in place (when it's
+// open) so a live settings change like C is reflected immediately. The
+// highlighted row is reapplied since re-rendering replaces the DOM nodes.
+export function refreshOpenListCounts() {
+    if (!listPopupEl.classList.contains('open')) return;
+    const reapplyHighlight = () => {
+        if (highlightedList != null) document.getElementById(highlightedList)?.classList.add('highlighted');
+    };
+    if (trainerMode === 'pbl') { pbl.pblAddDefaultLists(); pbl.pblAddUserLists(); }
+    reapplyHighlight();
+    ensureTags().then(t => { t.renderTagMenu(); reapplyHighlight(); });
+}
+
 // addListItemEvent: generic toggle-highlight click. Used by both trainers' list UIs.
 export function addListItemEvent(item) {
     item.addEventListener("click", () => {
