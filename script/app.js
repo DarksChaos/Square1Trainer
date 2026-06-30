@@ -443,9 +443,13 @@ function openCasesPopup()    {
     });
 }
 
+const HELP_INFO_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>`;
+
 /**
- * buildHelpShortcuts — turns an array of {keys, desc} (or null for a spacer)
- * into the HTML for a shortcut list.
+ * buildHelpShortcuts — turns an array of {keys, desc, info?} (or null for a
+ * spacer) into the HTML for a shortcut list. When a row has an `info` field, an
+ * info circle is shown at the far right; its popover opens on hover (desktop) or
+ * tap (mobile, via focus on the tabbable trigger).
  */
 export function buildHelpShortcuts(rows) {
     return '<div class="help-shortcut-group">' + rows.map(row => {
@@ -454,9 +458,16 @@ export function buildHelpShortcuts(rows) {
             (i > 0 ? '<span class="help-plus">+</span>' : '') +
             `<span class="help-kbd">${k}</span>`
         ).join('');
-        return `<div class="help-shortcut-row">
+        // A focusable span (not a <button>) so the global button-blur handler
+        // doesn't dismiss the popover the instant it's tapped on mobile.
+        const info = row.info
+            ? `<span class="help-info" tabindex="0" role="button" aria-label="More info">${HELP_INFO_SVG}` +
+                `<span class="help-info-pop">${row.info}</span></span>`
+            : '';
+        return `<div class="help-shortcut-row${row.info ? ' has-info' : ''}">
             <span class="help-key-combo">${combo}</span>
             <span class="help-desc">${row.desc}</span>
+            ${info}
         </div>`;
     }).join('') + '</div>';
 }

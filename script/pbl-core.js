@@ -1115,7 +1115,7 @@ export const pblHelpSections = [
         title: 'Shortcuts',
         svg: HELP_CTRL_SVG,
         html: buildHelpShortcuts([
-            { keys: ['←'],              desc: 'Previous scramble' },
+            { keys: ['←'],              desc: 'Previous scramble', info: "test" },
             { keys: ['→'],              desc: 'Next scramble' },
             { keys: ['Space'],          desc: 'Start / stop timer' },
             { keys: ['Backspace'],      desc: 'Remove last case' },

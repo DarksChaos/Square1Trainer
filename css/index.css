@@ -1421,6 +1421,75 @@ button:active:not(:disabled) {
     line-height: 1.4;
 }
 
+/* Optional per-row info circle + popover (far right of the row). */
+.help-shortcut-row { position: relative; }
+.help-shortcut-row.has-info { padding-right: 24px; }
+
+.help-info {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.12s ease;
+}
+.help-info > svg { width: 100%; height: 100%; display: block; }
+.help-info:hover,
+.help-info:focus,
+.help-info:focus-within { color: var(--text-strong); }
+
+.help-info-pop {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 6;
+    width: max-content;
+    max-width: 230px;
+    padding: 8px 10px;
+    border: 1px solid var(--divider-strong);
+    border-radius: 8px;
+    background: var(--field-focus-bg, #030b17);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+    color: var(--text-soft);
+    font-size: 0.78em;
+    font-weight: normal;
+    line-height: 1.5;
+    text-align: left;
+    white-space: normal;
+    /* Hidden until hover/focus; keep transitions for a soft fade. */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-3px);
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s linear 0.12s;
+}
+.help-info:hover .help-info-pop,
+.help-info:focus .help-info-pop,
+.help-info:focus-within .help-info-pop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+/* Small caret pointing up at the info circle. */
+.help-info-pop::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    right: 5px;
+    border: 5px solid transparent;
+    border-bottom-color: var(--divider-strong);
+}
+
 /* General prose */
 .help-content p {
     font-size: 0.88em;
