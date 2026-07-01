@@ -657,13 +657,55 @@ export const oblHelpSections = [
         id: 'obl-search',
         title: 'Search',
         svg: HELP_SEARCH_SVG,
-        html: ``
+        html: `
+        <p>
+            The search bar can be opened from the <b>${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}</b> (or with Ctrl/Cmd + Space).
+        </p>
+
+        <h1>Search clusters</h1>
+        <p>
+            From within the search bar, simply enter the name of any case or cluster and hit Enter, and you will be sent to the <b>cluster reference</b> for it.
+            For help within cluster reference, go the Learn section (book icon).
+        </p>
+
+        <h1>Search actions</h1>
+        <p>
+            Within the search bar, you can also type <b>keywords</b> to access certain actions.
+            Actions are listed below:
+        </p>
+        <p><code>lists</code> — Add, delete, and overwrite your lists.</p>
+        <p><code>tags</code> — Add, delete, and rename your tags.</p>
+        <p><code>random</code> — Open a random cluster, reflecting realistic weights.</p>
+        <p><code>random untagged</code> — Open a random cluster that has no tagged solutions. Great for getting a random case that you haven't learned yet.</p>`
     },
     {
         id: 'obl-lists',
         title: 'Lists',
         svg: HELP_LIST_SVG,
-        html: ``
+        html: `
+        <p>
+            To see and manage your lists, enter <b>"lists"</b> in the search bar.
+            Or, open the case selector from the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}, and ${window.matchMedia("(max-width: 600px)").matches ? "tap" : "click"} on <b>"Select list"</b>.
+        </p>
+
+        <h1>List actions</h1>
+        <p>
+            At the bottom of the window, you should see 5 buttons.
+            Here's what each of them does:
+        </p>
+        <p><code>Delete</code> — Delete the selected list.</p>
+        <p><code>Overwrite</code> — Overwrite the content of the selected list with the cases that are currently selected.</p>
+        <p><code>View</code> — Display, in the case selector, the cases belonging to the selected list. Great for when you want to see what the list has without losing your current selection.</p>
+        <p><code>Select</code> — Replace whatever cases you have selected with the cases in the list. </p>
+        <p><code>New List</code> — Create a new list containing the cases you have selected. The name is up to you!</p>
+
+        <h1>List tricks</h1>
+        <p>Here's some additional things you can accomplish with those 5 buttons:</p>
+        <p>Rename a list: <code>select</code> it, <code>delete</code> it, and <code>new list</code>.</p>
+        <p>Edit a list: <code>select</code> it, make the edits to your current selection in the case selector, and <code>overwrite</code> your original list.</p>
+
+        <h1>Tags</h1>
+        <p>You will also see your tags in the list window. For help with these, see the next section.</p>`
     },
     {
         id: 'obl-tags',
