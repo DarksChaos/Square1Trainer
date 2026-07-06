@@ -711,19 +711,82 @@ export const oblHelpSections = [
         id: 'obl-tags',
         title: 'Tags',
         svg: HELP_TAG_SVG,
-        html: ``
+        html: `
+        <h1>What are tags?</h1>
+        <p>
+            Tags are <b>cluster-based</b>. Often, your lists will be in clusters.
+            For example, if your "learning" list contains T/left N (T/Nw), it probably also contains Nw/T, T/Nc, and Nc/T.
+            Hence, you can simply tag the entire cluster of "T/N, N/T" as "learning". This will tag all 4 cases.
+        </p>
+
+        <h1>Managing tags</h1>
+        <p>
+            Open up the search bar and type "tags".
+            This opens up the window where you add, delete, and reorder tags.
+        </p>
+
+        <h1>Training tags</h1>
+        <p>
+            Open up the lists window (see the previous section for instructions).
+            Here you will be able to view and select a tag just like you would with a list.
+        </p>
+
+        <h1>Tags → Lists</h1>
+        <p>
+            If you want to export a tag to a list, simply <code>select</code> the tag, and <code>new list</code>.
+        </p>`
     },
     {
         id: 'obl-learn',
         title: 'Learn',
         svg: HELP_LEARN_SVG,
-        html: ``
+        html: `<h1>Cluster references</h1>
+        <p>Cluster reference is the window that pops up when you click on a scramble.</p>
+        <p>
+            You can leave a <b>hint</b> for yourself in the cluster reference.
+            To see what that does, scroll down.
+        </p>
+        <p>
+            You can <b>edit</b> the content of the cluster reference to suit your solutions by simply clicking on the edit icon.
+        </p>
+        <p>
+            There are 3 <b>views</b> as of now: Matt, Derpy, and JLMinx.
+            These correspond to each of our PBL sheets.
+        <p>
+        <p>
+            <b>Matt's view</b> is solution group based.
+            Each solution group can be tagged, and has learning notes as well as algs.
+            If you want to <b>add your own solutions</b>, always add them as a solution group in this view.
+            You just need to fill in your solutions, as well as the <b>slice count</b> for them.
+        </p>
+        <p>
+            <b>Derpy</b> and <b>JLMinx</b> is alg based.
+            That means it's just a list of algs.
+            If you tag either of those views, the tag won't be able to tell if it's + or -.
+        </p>
+
+        <h1>Hints</h1>
+        <p>
+            You can edit your hints for a cluster in the cluster reference for it.
+            To see the hints for the current scramble, click on the light bulb icon to the right of the scramble.
+        </p>`
     },
     {
         id: 'obl-sync',
         title: 'Data Sync',
         svg: HELP_SYNC_SVG,
-        html: ``
+        html: `
+        <h1>Export data</h1>
+        <p>
+            To export your data, click on the download icon in the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}.
+            This will download <b>a JSON file</b>.
+        </p>
+
+        <h1>Import data</h1>
+        <p>
+            To import the data from a specific export, click on the upload icon in the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}.
+            Everything will be imported: your settings, your selection, your lists and tags.
+        </p>`
     }
     // Add future OBL-specific sections here.
 ];

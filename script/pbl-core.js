@@ -1176,15 +1176,15 @@ export const pblHelpSections = [
                 Example: <code>freq 4</code>
             </i>
 
-            <h1>Suffix tags</h1>
+            <h1>Suffixes</h1>
             <p>
-                Append <code>&lt;tag&gt;</code> after the base filter to narrow results further.
+                Append <code>&lt;suffix&gt;</code> after the base filter to narrow results further.
             </p>
             <i>
                 <code>&lt;o&gt;</code> — order-sensitive: only matches cases where the first name in your filter is the <em>top</em> layer.
             </i>
             <i>
-                CP-pair tags filter by the corner permutation type of each layer (<b>a</b>&thinsp;=&thinsp;adjacent, <b>o</b>&thinsp;=&thinsp;opposite, <b>s</b>&thinsp;=&thinsp;skip/solved). The first letter is the top layer, the second is the bottom:
+                CP-pair suffixes filter by the corner permutation type of each layer (<b>a</b>&thinsp;=&thinsp;adjacent, <b>o</b>&thinsp;=&thinsp;opposite, <b>s</b>&thinsp;=&thinsp;skip/solved). The first letter is the top layer, the second is the bottom:
             </i>
             <i>
                 <code>&lt;aa&gt;</code>
@@ -1200,7 +1200,7 @@ export const pblHelpSections = [
 
             <h1 style="margin-top:10px;">Operators</h1>
             <p>
-                Tags can be combined with boolean operators (precedence: <code>!</code> &gt; <code>*</code> &gt; <code>&amp;</code>):
+                Suffixes can be combined with boolean operators (precedence: <code>!</code> &gt; <code>*</code> &gt; <code>&amp;</code>):
             </p>
             <i style="padding-left:12px;">
                 <code>&amp;</code> AND &nbsp;
@@ -1323,7 +1323,7 @@ export const pblHelpSections = [
         <p>
             Often, your lists will be in clusters.
             For example, if your "learning" list contains Cl/Q, it probably also contains Cr/Q, Q/Cl, and Q/Cr.
-            Hence, you can simply tag the entire cluster of C/Q, Q/C as "learning". This will tag all 4 cases.
+            Hence, you can simply tag the entire cluster of "C/Q, Q/C" as "learning". This will tag all 4 cases.
         </p>
         <p><b>2. solution-based</b></p>
         <p>
