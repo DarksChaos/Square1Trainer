@@ -318,7 +318,7 @@ class Search {
                 top = bottom = 0;
             }
         }
-        if (top == 0 && bottom == 0) { } else {
+        if (top != 0 || bottom != 0) {
             s += " (" + top + "," + bottom + ") ";
         }
         return s;
@@ -380,7 +380,6 @@ class Search {
         }
 
         let statePath = [initialState, ...middlePath];
-        // console.log(`State path: ${statePath.join(' -> ')}`);
 
         for (let depth = 0; depth < statePath.length - 1; depth++) {
             const fromState = statePath[depth];
@@ -419,7 +418,6 @@ class Search {
             this.Search_move.push(bottomMove);
             this.Search_move.push(0);
         }
-        //console.log(`\nGenerated moves array: [${this.Search_move.join(', ')}]`);
         return this.init2();
     }
 
@@ -717,93 +715,12 @@ function getScramble(caseName, mlMode, scrambleMode = 'long', allowBottom56 = fa
     }
 }
 
-// Export for browser use
-if (typeof self !== 'undefined') {
-    self.scrambler = {
-        getScramble: getScramble
-    };
-}
-
-// For Node.js/module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        getScramble,
-        scrambleFromState,
-        parseHexFormat,
-        generateRandomCase,
-        SqCubie,
-        NonParityCases,
-        ParityCases
-    };
-}
-
-// ============================================================================
-// TEST CODE
-// ============================================================================
-
-// function testRepetitions(mlMode="random", iterations=1000) {
-//     console.log('=== ALL SCRAMBLES ===\n');
-
-//     const scrambles = [];
-//     const startTime = Date.now();
-//     let maxTime = 0;
-
-//     for (let i = 0; i < iterations; i++) {
-//         let NOP = Math.random() < 0.5;
-//         let caseName = NOP ? Object.keys(NonParityCases)[Math.floor(Math.random() * Object.keys(NonParityCases).length)] +
-//             "/" + Object.keys(NonParityCases)[Math.floor(Math.random() * Object.keys(NonParityCases).length)] :
-//             Object.keys(ParityCases)[Math.floor(Math.random() * Object.keys(ParityCases).length)] + "/" +
-//             Object.keys(ParityCases)[Math.floor(Math.random() * Object.keys(ParityCases).length)];
-
-//         const iterStart = Date.now();
-
-//         let equatorMode;
-//         if (mlMode === 'flipped') {
-//             equatorMode = 'slash';
-//         } else if (mlMode === 'solved') {
-//             equatorMode = 'bar';
-//         } else {
-//             equatorMode = 'random';
-//         }
-
-//         const result = generateRandomCase([caseName], equatorMode).finalHex;
-//         const solution = scrambleFromState(parseHexFormat(result));
-
-//         const iterTime = Date.now() - iterStart;
-//         maxTime = iterTime > maxTime ? iterTime : maxTime;
-
-//         if (solution && solution !== '(solved)') {
-//             scrambles.push({
-//                 full: solution,
-//                 hex: result.finalHex,
-//                 time: iterTime
-//             });
-
-//             console.log(`${i + 1}. ${solution}`);
-//         } else {
-//             console.log(`${i + 1}. (No solution or already solved)`);
-//         }
-//     }
-
-//     const totalTime = Date.now() - startTime;
-//     const avgTime = totalTime / iterations;
-
-//     console.log('\n=== FINAL STATISTICS ===');
-//     console.log(`\nAverage time per case: ${avgTime.toFixed(2)}ms`);
-//     console.log(`\nMax time: ${maxTime.toFixed(2)}ms`)
-//     console.log(`Total time: ${(totalTime / 1000).toFixed(2)}s`);
-
-//     if (scrambles.length > 0) {
-//         const lengths = scrambles.map(s => s.full.split("/").length-1);
-//         const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-//         const minLength = Math.min(...lengths);
-//         const maxLength = Math.max(...lengths);
-
-//         console.log(`\n=== SCRAMBLE LENGTH STATISTICS ===`);
-//         console.log(`Average length: ${avgLength.toFixed(1)} slices`);
-//         console.log(`Min length: ${minLength} slices`);
-//         console.log(`Max length: ${maxLength} slices`);
-//     }
-// }
-
-// testRepetitions();
+export {
+    getScramble,
+    scrambleFromState,
+    parseHexFormat,
+    generateRandomCase,
+    SqCubie,
+    NonParityCases,
+    ParityCases
+};

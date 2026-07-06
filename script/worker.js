@@ -1,9 +1,7 @@
-importScripts(
-    '../data/pbl-data.js',
-    './pbl-scrambler.js',
-    './karn.js',
-    './optimizer.js'
-);
+import SquanLib from './squanlib.js';
+import { getScramble } from './pbl-scrambler.js';
+
+const squan = new SquanLib();
 
 self.onmessage = function (e) {
     const { caseName, equatorMode, scrambleMode, allowBottom56 } = e.data;
@@ -13,11 +11,11 @@ self.onmessage = function (e) {
         else if (equatorMode === 'slash') barflip = '+';
         else barflip = "-+"[Math.floor(Math.random() * 2)];
 
-        const scramble = optimize(getScramble(caseName, barflip, scrambleMode, allowBottom56));
+        const scramble = squan.optimize(getScramble(caseName, barflip, scrambleMode, allowBottom56));
         const fullCase = caseName + barflip;
         self.postMessage({
             scramble: scramble.replaceAll("/", " / "),
-            karn: karnify(scramble),
+            karn: squan.karnify(scramble),
             caseName: fullCase
         });
     } catch (err) {

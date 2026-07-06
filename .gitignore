@@ -4,3 +4,5 @@ unused/
 *.bat
 old.json
 sq1opt-master
+node_modules/
+public/
