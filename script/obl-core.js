@@ -1,8 +1,8 @@
 import { OBL_DEFAULT_LISTS_RAW, OBL_MATT_LABELS, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG, HELP_LEARN_SVG, HELP_LIST_SVG, HELP_SEARCH_SVG, HELP_SYNC_SVG, HELP_TAG_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, previousScrambleEl, randInt, randrange, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, previousScrambleEl, randInt, randrange, refreshOpenListCounts, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
-import { tagCaseBases } from './tag-assignments.js';
+import { setOblTagCaseCounter, tagClusterTitles } from './tag-assignments.js';
 
 // ─── OBL STATE ────────────────────────────────────────────────────────────────
 
@@ -252,29 +252,22 @@ export function oblSelectList(listName, setSelection) {
     oblSaveUserLists();
 }
 
-// Maps a cluster case-list short code ("Uw/THw") to the grid's English id
-// ("right bunny/left thumb"), using the same reverse NAMING map as the search
-// index. Returns null if either half has no legacy name.
-function oblCodeToGridId(code) {
-    const [a, b] = code.split('/');
-    const la = SquanLib.NAMING_REV?.[a] ?? _oblRevName(a);
-    const lb = SquanLib.NAMING_REV?.[b] ?? _oblRevName(b);
-    return (la && lb) ? la + '/' + lb : null;
+// Base (non-specific) and, when oblUsingSpe, specific-mode ids for every case
+// belonging to a tag's clusters. A cluster's title is its base case id once
+// converted out of matt format; specific-mode ids are expanded from that base
+// set, the same way oblSelectList consumes list[oblUsingSpe]. (A cluster's
+// case-list entries are per-variant sub-codes, not usable as grid ids here —
+// unlike PBL, where case-list entries match grid ids directly.) Shared by
+// oblSelectTag and the tag-count mirror registered below.
+function oblTagCaseIds(tagId) {
+    const baseIds = [...new Set(tagClusterTitles(tagId).map(oblTitleToBaseId).filter(Boolean))];
+    return oblUsingSpe ? getSpeList(baseIds) : baseIds;
 }
-
-let _oblRevCache = null;
-function _oblRevName(short) {
-    if (!_oblRevCache) {
-        _oblRevCache = {};
-        for (const [legacy, s] of Object.entries(SquanLib.NAMING)) _oblRevCache[s] = legacy;
-    }
-    return _oblRevCache[short];
-}
+setOblTagCaseCounter(tagId => oblTagCaseIds(tagId).length);
 
 // Show (and optionally select) every case belonging to a tag's clusters.
 export function oblSelectTag(tagId, setSelection) {
-    let ids = tagCaseBases(tagId).map(oblCodeToGridId).filter(Boolean);
-    if (oblUsingSpe) ids = getSpeList(ids);
+    const ids = oblTagCaseIds(tagId);
 
     document.querySelectorAll('.case').forEach(el => el.classList.add('hidden'));
     for (const id of ids) document.getElementById(id)?.classList.remove('hidden');
@@ -584,6 +577,7 @@ export function oblOnSpe() {
     // else: showMode === 'all' — if the grid exists, oblRestoreGrid already
     // re-synced it. Hidden list menus are rendered lazily when opened.
     oblSaveSettings();
+    refreshOpenListCounts(); // update Manage-lists counts live if that modal is open
 }
 
 export function oblOnMemo() {
@@ -893,6 +887,15 @@ export function OBLname(obl) {
 const OBL_MATT_TO_TRADITIONAL = Object.fromEntries(
     Object.entries(OBL_MATT_LABELS).map(([traditional, matt]) => [matt, traditional])
 );
+
+// A cluster's title is its matt-format base (non-specific) case id. A couple
+// of clusters store their pair in the opposite order from OBL_MATT_LABELS
+// (e.g. "V/J" vs "J/V"); retry swapped before giving up.
+function oblTitleToBaseId(title) {
+    if (OBL_MATT_TO_TRADITIONAL[title]) return OBL_MATT_TO_TRADITIONAL[title];
+    const [a, b] = title.split('/');
+    return OBL_MATT_TO_TRADITIONAL[b + '/' + a] || null;
+}
 
 const OBL_MATT_BASE_NAMES = {
     O: 'solved',

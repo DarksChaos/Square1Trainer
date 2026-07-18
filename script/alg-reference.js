@@ -4,21 +4,21 @@ import { appTextareaPrompt, defaultReferenceFor, escapeHtml, trainerMode, usingK
 import { getSpe, oblDisplayAlgCaseName, oblDisplayClusterTitle } from './obl-core.js';
 import { searchClusterContentEl, searchEditMode, syncSearchClusterToolbar } from './search.js';
 import { SquanLib, squan } from './squan.js';
-import { _algClusters, UNIT_TAG_SVG, defaultGroupId, effectiveCluster, getClusterComment, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, setClusterComment, tagsForUnit, unitRef } from './tag-assignments.js';
+import { _algClusters, UNIT_TAG_SVG, defaultGroupById, effectiveCluster, getClusterComment, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, saveTagAssignments, setClusterComment, tagsForUnit, unitRef } from './tag-assignments.js';
 import { getTags } from './tags.js';
 
 export { UNIT_TAG_SVG, effectiveCluster, effectiveMattGroups, getClusterComment, loadTagAssignments, mattUnitOrder, saveTagAssignments, setClusterComment, tagCaseBases, tagCaseCount, tagCaseModes, tagUnitState, taggedClusterTitles, toggleUnitTag, unitRef } from './tag-assignments.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  ALG REFERENCE
-//  Everything behind the alg-reference shown in the search overlay, in four
+//  CLUSTER REFERENCE
+//  Everything behind the cluster reference shown in the search overlay, in four
 //  sections below:
 //    1. Override + tag-assignment store (this section)
-//    2. The alg-reference editor (edit mode)
-//    3. Cluster alg-reference rendering (case→cluster lookup, formatters,
+//    2. The cluster reference editor (edit mode)
+//    3. Cluster reference rendering (case→cluster lookup, formatters,
 //       renderClusterInto)
 //
-//  User edits to alg-reference content and tag attachments are stored per trainer
+//  User edits to cluster-reference content and tag attachments are stored per trainer
 //  in localStorage. The shipped cluster data (pblClusters / oblClusters) is never
 //  mutated — effectiveCluster() merges overrides on top at render time.
 //
@@ -83,7 +83,7 @@ export function displayClusterTitle(title) {
 
 // Inline, auto-saving comment editor shown in the read view of a cluster. The
 // label marks it as the comment box; edits persist on every keystroke. This is
-// not rendered in the alg-reference editor (edit mode) — comments live outside
+// not rendered in the cluster reference editor (edit mode) — comments live outside
 // the edit transaction.
 function clusterCommentHtml(title) {
     const comment = getClusterComment(title);
@@ -97,7 +97,7 @@ function clusterCommentHtml(title) {
 export async function editClusterComment(title) {
     if (!title) return false;
     const current = getClusterComment(title);
-    const next = await appTextareaPrompt('Comments are shown in alg references and hints.', {
+    const next = await appTextareaPrompt('Comments are shown in cluster references and hints.', {
         title: `Edit comment — ${displayClusterTitle(title)}`,
         value: current,
         placeholder: 'Write a hint/comment for this cluster…',
@@ -126,7 +126,6 @@ function _canon(x) {
 }
 function _deepEqual(a, b) { return JSON.stringify(_canon(a)) === JSON.stringify(_canon(b)); }
 
-function defaultMattGroups(title)        { return _algClusters()[title]?.matt?.['solution-groups'] || []; }
 function defaultSheetSource(title, src)  { return _algClusters()[title]?.[src] || []; }
 function clusterCaseList(title)          { return _algClusters()[title]?.['case-list'] || []; }
 
@@ -193,10 +192,14 @@ function _algSerializer(source) {
 }
 
 function mattGroupToDraft(group) {
+    // Header groups (overview + slicecount, no alg-blocks) still need an editable
+    // block so the user can add explanations and algs — otherwise the card renders
+    // with nothing to type into and stays stuck as a header.
+    const blocks = group['alg-blocks']?.length ? group['alg-blocks'] : [{}];
     return {
         overview: group['solution-overview'] || '',
         slices:   group['solution-slicecount'] ?? '',
-        blocks: (group['alg-blocks'] || []).map(ab => ({
+        blocks: blocks.map(ab => ({
             angleExp: ab['angle-explanation'] || '',
             algExp:   ab['alg-explanation'] || '',
             rows:     _algBlockToRows(ab),
@@ -224,13 +227,11 @@ function draftToMattGroup(draft) {
 // Build the full editable draft for a cluster's matt section.
 //   { distinction, groups: [{ id, ...mattGroupToDraft }] }
 function buildMattDraft(title) {
-    const defGroups = defaultMattGroups(title);
-    const ov        = loadContentOverrides()[title]?.matt;
-    const order     = ov?.order || defGroups.map((_, i) => defaultGroupId(i));
+    const defById = defaultGroupById(title);
+    const ov      = loadContentOverrides()[title]?.matt;
+    const order   = ov?.order || [...defById.keys()];
     const groups = order.map(id => {
-        let group;
-        if (ov?.groups && id in ov.groups) group = ov.groups[id];
-        else { const m = /^sg(\d+)$/.exec(id); group = m ? defGroups[+m[1]] : null; }
+        const group = (ov?.groups && id in ov.groups) ? ov.groups[id] : defById.get(id);
         return group ? { id, ...mattGroupToDraft(_clone(group)) } : null;
     }).filter(Boolean);
     return {
@@ -243,16 +244,16 @@ function buildMattDraft(title) {
 
 // Persist a matt draft as a minimal override (unchanged default groups omitted).
 function commitMattDraft(title, draft) {
-    const all       = loadContentOverrides();
-    const defGroups = defaultMattGroups(title);
+    const all     = loadContentOverrides();
+    const defById = defaultGroupById(title);
     const groups = {};
     for (const d of draft.groups) {
-        const g = draftToMattGroup(d);
-        const m = /^sg(\d+)$/.exec(d.id);
-        if (m && _deepEqual(g, defGroups[+m[1]])) continue; // unchanged default
+        const g   = draftToMattGroup(d);
+        const def = defById.get(d.id);
+        if (def && _deepEqual(g, def)) continue; // unchanged default
         groups[d.id] = g;
     }
-    const defaultOrder = defGroups.map((_, i) => defaultGroupId(i));
+    const defaultOrder = [...defById.keys()];
     const order        = draft.groups.map(d => d.id);
     const defDist      = _algClusters()[title]?.matt?.['distinction-help'] || '';
 
@@ -327,7 +328,7 @@ function blankMattGroup() {
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  ALG-REFERENCE EDITOR
-//  Edit-mode rendering + interactions for the alg reference shown in the search
+//  Edit-mode rendering + interactions for the cluster reference shown in the search
 //  extension. Reads/writes overrides via the override store above; the shipped
 //  data is never touched. matt is edited as solution-group cards; sheet sources (derpy,
 //  jlminx) are a single explanation-less alg-block.
@@ -647,11 +648,10 @@ function _aeReset(btn) {
     } else {
         const gi = +btn.dataset.gi;
         const g  = aeDraft.groups[gi];
-        if (/^new\d+$/.test(g.id)) {
-            aeDraft.groups.splice(gi, 1); // delete user-added group
+        const def = defaultGroupById(aeTitle).get(g.id);
+        if (!def) {
+            aeDraft.groups.splice(gi, 1); // user-added group (no shipped default)
         } else {
-            const m = /^sg(\d+)$/.exec(g.id);
-            const def = defaultMattGroups(aeTitle)[+m[1]];
             aeDraft.groups[gi] = { id: g.id, ...mattGroupToDraft(_clone(def)) };
         }
     }
@@ -761,7 +761,7 @@ function _aeOnPointerUp() {
 //  CLUSTER ALG-REFERENCE RENDERING
 //  Case → cluster lookup, the per-source HTML formatters, and the cluster
 //  renderers for both trainers. renderClusterInto() is the shared entry point
-//  used by the search overlay to draw a cluster's alg reference.
+//  used by the search overlay to draw a cluster's reference.
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ─── CLUSTER DATA (PBL) ──────────────────────────────────────────────────────
@@ -788,8 +788,8 @@ function pblHasAlgData(algs) {
     return algs && algs.some(a => a.angle?.trim() || a.notation?.trim());
 }
 
-function pblNab(text) { // normalize angle brackets for safe HTML insertion
-    return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+function pblNab(text) { // normalize angle brackets and newlines
+    return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>");
 }
 
 function pblTextWidth(text, font) {
@@ -826,14 +826,19 @@ function pblFormatMatt(cluster, key, meta, title) {
         // (matt's smallest unit).
         const slices  = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
         const ovText  = sg["solution-overview"]?.trim() ? `<b>${pblNab(sg["solution-overview"])}${slices}</b>` : "";
-        const tagsRef = unitRef(title, 'matt', order[gi] ?? 'sg' + gi);
+        const tagsRef = unitRef(title, 'matt', order[gi]);
         lines.push(`<span class="sol-overview unit-head">${ovText}${unitTagsHtml(tagsRef)}</span>`);
 
         let lastAngleExplanation;
         for (const ab of sg["alg-blocks"] || []) {
             let angleExplanation = ab["angle-explanation"];
             if (angleExplanation?.trim() && angleExplanation !== lastAngleExplanation) {
-                lines.push(`<span class="explanations">${pblNab(angleExplanation)}</span>`);
+                // Multiple \n-separated paragraphs (see parse_matt.py) each get
+                // their own <span class="explanations"> so they render as
+                // separate indented paragraphs instead of one run-together block.
+                for (const para of angleExplanation.split('\n')) {
+                    if (para.trim()) lines.push(`<span class="explanations">${pblNab(para)}</span>`);
+                }
                 lastAngleExplanation = angleExplanation.trim();
             }
             if (ab["alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
@@ -922,8 +927,10 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
           }</div>`
         : '';
 
+    const headerTitle = cluster.matt?.title
+        || `${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}`;
     content.innerHTML =
-        `<span class="cluster-title">${title}${cluster["optimal-slicecount"] ? " (" + cluster["optimal-slicecount"] + ")" : ""}</span>` +
+        `<span class="cluster-title">${headerTitle}</span>` +
         `<div id="cluster-source-content"></div>`;
 
     function showSource(src) {
@@ -1116,12 +1123,54 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
 
 
 
-// Renders a cluster's alg reference for `title` into an arbitrary `content`
+// Drops matt tag attachments for `title` that no longer resolve to a live
+// solution group — i.e. the group was removed or its overview/slicecount was
+// reworded in a data update, so its content-slug id changed out from under the
+// stored ref. Returns the number of attachments dropped, so the view can warn
+// the user their tags were lost. (PBL matt only; OBL matt is a flat "*" unit.)
+function pruneOrphanMattTags(title) {
+    const valid = new Set(mattUnitOrder(title));
+    const a = loadTagAssignments();
+    let dropped = 0, changed = false;
+    for (const tid of Object.keys(a)) {
+        const kept = a[tid].filter(ref => {
+            const [t, source, unitId] = ref.split('|');
+            if (t !== title || source !== 'matt' || valid.has(unitId)) return true;
+            dropped++; return false;
+        });
+        if (kept.length !== a[tid].length) {
+            changed = true;
+            if (kept.length) a[tid] = kept; else delete a[tid];
+        }
+    }
+    if (changed) saveTagAssignments(a);
+    return dropped;
+}
+
+// Shows or clears the "tags lost" warning banner above the cluster body.
+function _setClusterTagBanner(dropped) {
+    const banner = document.getElementById('search-cluster-banner');
+    if (!banner) return;
+    if (dropped > 0) {
+        banner.textContent = `${dropped} tag${dropped === 1 ? '' : 's'} lost due to a data update.`;
+        banner.style.display = '';
+    } else {
+        banner.textContent = '';
+        banner.style.display = 'none';
+    }
+}
+
+// Renders a cluster's reference for `title` into an arbitrary `content`
 // element. `onResize` is the callback the source tabs use to re-fit.
 // Returns true if the cluster existed and was rendered.
 export function renderClusterInto(content, title, onResize = () => {}) {
     const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
     if (!clusters || !clusters[title]) return false;
+
+    // Reconcile stored tags against the current data before rendering, so a group
+    // that was reworded/removed upstream drops its now-dangling tags and warns.
+    _setClusterTagBanner(trainerMode === 'pbl' ? pruneOrphanMattTags(title) : 0);
+
     const cluster  = effectiveCluster(title); // shipped data merged with user overrides
 
     const SKIP       = new Set(['case-list', 'optimal-slicecount']);

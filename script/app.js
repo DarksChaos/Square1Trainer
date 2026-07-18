@@ -388,9 +388,30 @@ export function abandonTransition() {
 }
 
 let _overlayPopPending = false;
+// Set only around the veto-recovery history.go() below, so we can recognize
+// its own resulting popstate as an expected no-op (see next comment) rather
+// than mistaking it for the stale-state case we self-heal below.
+let _overlayForwardPending = false;
 window.addEventListener('popstate', async (e) => {
+    if (_overlayForwardPending) { _overlayForwardPending = false; return; }
+
     const target = e.state?.overlayDepth ?? 0;
-    if (_overlayPopPending || overlayStack.length <= target) return;
+    if (_overlayPopPending) return;
+
+    if (overlayStack.length <= target) {
+        // Seen in the wild: a real back-navigation lands on an entry whose
+        // overlayDepth matches (or exceeds) what's still open, instead of being
+        // one less — cause not fully pinned down, but the effect is that a
+        // genuine back step is silently treated as a no-op, leaving the top
+        // overlay open and desyncing every close after it. Since popstate only
+        // fires on an actual navigation, and the veto-forward case above is
+        // already excluded, self-heal by closing exactly one layer — the only
+        // thing a bare back navigation on this stack ever means.
+        if (overlayStack.length) popOverlayRaw();
+        if (history.state?.overlayDepth !== overlayStack.length)
+            history.replaceState({ overlayDepth: overlayStack.length }, '');
+        return;
+    }
 
     // A layer may veto navigation while it waits for a custom confirmation
     // modal (the alg editor uses this for unsaved changes). History has already
@@ -401,11 +422,14 @@ window.addEventListener('popstate', async (e) => {
         const allow = await top.beforeClose();
         _overlayPopPending = false;
         if (!allow) {
+            _overlayForwardPending = true;
             history.go(overlayStack.length - target);
             return;
         }
     }
     while (overlayStack.length > target) popOverlayRaw();
+    if (history.state?.overlayDepth !== overlayStack.length)
+        history.replaceState({ overlayDepth: overlayStack.length }, '');
 });
 
 // Back-compat alias kept for existing call sites.
@@ -813,6 +837,7 @@ export function refreshOpenListCounts() {
         if (highlightedList != null) document.getElementById(highlightedList)?.classList.add('highlighted');
     };
     if (trainerMode === 'pbl') { pbl.pblAddDefaultLists(); pbl.pblAddUserLists(); }
+    else if (trainerMode === 'obl') { obl.oblAddDefaultLists(); obl.oblAddUserLists(); }
     reapplyHighlight();
     ensureTags().then(t => { t.renderTagMenu(); reapplyHighlight(); });
 }
@@ -956,7 +981,7 @@ function oblRestoreSelection(snap) {
     updateSelCount();
 }
 
-// Open alg reference (in the search bar) on scramble click — PBL and OBL.
+// Open cluster reference (in the search bar) on scramble click — PBL and OBL.
 currentScrambleEl.addEventListener("click", async () => {
     if (usingTimer()) return;
     const [searchMod, algMod] = await Promise.all([ensureSearchModules(), ensureAlgReference()]);
@@ -970,7 +995,7 @@ currentScrambleEl.addEventListener("click", async () => {
     }
 });
 
-// Open alg reference (in the search bar) on previous scramble click — PBL and OBL.
+// Open cluster reference (in the search bar) on previous scramble click — PBL and OBL.
 previousScrambleEl.style.cursor = "pointer";
 previousScrambleEl.addEventListener("click", async () => {
     if (usingTimer()) return;
@@ -1183,7 +1208,7 @@ window.addEventListener("keydown", (e) => {
     }
 
     // When typing in an editable field other than the filter input (e.g. the
-    // hint/comment editor, alg-reference text fields, or any dialog input), the
+    // hint/comment editor, cluster reference text fields, or any dialog input), the
     // page's select/deselect shortcuts must not fire — let the field own every
     // key so backspace, arrows, etc. behave normally. The filter input keeps its
     // dedicated handling below via `inInput`.
@@ -1483,7 +1508,7 @@ newListEl.addEventListener("click", async () => {
 
 overwriteListEl.addEventListener("click", async () => {
     const tagMod = await ensureTags();
-    if (tagMod.highlightedTagId() != null) { showError("Tags can't be overwritten. Edit in alg references"); return; }
+    if (tagMod.highlightedTagId() != null) { showError("Tags can't be overwritten. Edit in cluster references"); return; }
     if (highlightedList == null) { showError("Please click on a list."); return; }
     if (trainerMode === 'obl') { obl.oblOverwriteList(); return; }
     if (usingTimer()) return;

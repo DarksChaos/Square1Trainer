@@ -14,9 +14,36 @@ const oblStorage = {
 export function _algStore()   { return trainerMode === 'obl' ? oblStorage  : pblStorage; }
 export function _algClusters() { return trainerMode === 'obl' ? oblClusters : pblClusters; }
 
+// Rewrites a legacy positional "sg<n>" matt unit id to the current content slug
+// of the group at index n. Ids that aren't sg<n> (already slugs, or user-added
+// "new<n>") pass through. Used by the loaders below to self-heal stored refs.
+function remapLegacyUnitId(title, unitId) {
+    const m = /^sg(\d+)$/.exec(unitId);
+    return m ? (defaultGroupIds(title)[+m[1]] ?? unitId) : unitId;
+}
+
 export function loadContentOverrides() {
-    try { return JSON.parse(_algStore().getItem('algOverrides')) || {}; }
-    catch (e) { return {}; }
+    const raw = _algStore().getItem('algOverrides');
+    let ov;
+    try { ov = JSON.parse(raw) || {}; } catch (e) { return {}; }
+    // Self-heal legacy sg<n> group ids in stored overrides. Cheap fast-path
+    // skips the walk when the serialized form has no "sg<n>" token.
+    if (raw && /"sg\d+"/.test(raw)) {
+        let changed = false;
+        for (const title of Object.keys(ov)) {
+            const matt = ov[title]?.matt;
+            if (!matt) continue;
+            if (Array.isArray(matt.order))
+                matt.order = matt.order.map(id => { const n = remapLegacyUnitId(title, id); if (n !== id) changed = true; return n; });
+            if (matt.groups) {
+                const g = {};
+                for (const id of Object.keys(matt.groups)) { const n = remapLegacyUnitId(title, id); if (n !== id) changed = true; g[n] = matt.groups[id]; }
+                matt.groups = g;
+            }
+        }
+        if (changed) saveContentOverrides(ov);
+    }
+    return ov;
 }
 
 export function saveContentOverrides(overrides) {
@@ -45,8 +72,25 @@ export function setClusterComment(title, comment) {
 }
 
 export function loadTagAssignments() {
-    try { return JSON.parse(_algStore().getItem('tagAssignments')) || {}; }
-    catch (e) { return {}; }
+    const raw = _algStore().getItem('tagAssignments');
+    let a;
+    try { a = JSON.parse(raw) || {}; } catch (e) { return {}; }
+    // Self-heal legacy sg<n> refs → content slugs (fast-path when none present).
+    if (raw && raw.includes('|matt|sg')) {
+        let changed = false;
+        for (const tid of Object.keys(a)) {
+            a[tid] = a[tid].map(ref => {
+                const p = ref.split('|');
+                if (p[1] !== 'matt') return ref;
+                const nid = remapLegacyUnitId(p[0], p[2]);
+                if (nid === p[2]) return ref;
+                changed = true;
+                return `${p[0]}|matt|${nid}`;
+            });
+        }
+        if (changed) saveTagAssignments(a);
+    }
+    return a;
 }
 
 export function saveTagAssignments(assignments) {
@@ -63,8 +107,44 @@ export function purgeTagFromAssignments(tagId) {
     }
 }
 
-// Stable id for the n-th shipped (default) solution group.
-export function defaultGroupId(index) { return 'sg' + index; }
+// Stable, content-derived id for a shipped solution group: the slug of its
+// solution-overview with its slicecount appended (so + and − barflips of the
+// same solution stay distinct). Because the id is a pure function of content,
+// reordering or inserting groups in the generated data doesn't move a group's
+// identity — only rewording its overview or changing its slicecount does. Ids
+// are unique within a cluster; an exact collision gets an appearance-order
+// suffix. The generated JSON may carry an explicit `id` per group, which is
+// authoritative; we compute the same slug when it's absent.
+export function slugifyOverview(s) {
+    return String(s ?? '').trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function computeGroupIds(groups) {
+    const seen = new Map();
+    return groups.map(g => {
+        if (g.id) return g.id;
+        let id = slugifyOverview(g['solution-overview']) || 'group';
+        const slice = g['solution-slicecount'];
+        if (slice != null && slice !== '') id += '-' + slice;
+        const n = (seen.get(id) || 0) + 1;
+        seen.set(id, n);
+        return n === 1 ? id : id + '-' + n;
+    });
+}
+
+// Ids of a cluster's shipped (default) solution groups, aligned with the
+// defaultMattGroups() order.
+export function defaultGroupIds(title) {
+    return computeGroupIds(_algClusters()[title]?.matt?.['solution-groups'] || []);
+}
+
+// Map from a cluster's default-group id → its shipped group object.
+export function defaultGroupById(title) {
+    const groups = _algClusters()[title]?.matt?.['solution-groups'] || [];
+    return new Map(defaultGroupIds(title).map((id, i) => [id, groups[i]]));
+}
+
 
 // Next free "new<n>" id for a cluster's matt override.
 export function nextNewGroupId(mattOverride) {
@@ -112,7 +192,7 @@ export function taggedClusterTitles() {
 }
 
 // Distinct cluster titles that have at least one unit tagged with `tagId`.
-function tagClusterTitles(tagId) {
+export function tagClusterTitles(tagId) {
     const refs = loadTagAssignments()[tagId] || [];
     const titles = [];
     for (const ref of refs) {
@@ -129,11 +209,11 @@ export function effectiveMattGroups(title) {
     const ov        = loadContentOverrides()[title]?.matt;
     if (!ov) return defGroups;
 
-    const order = ov.order || defGroups.map((_, i) => defaultGroupId(i));
+    const defById = defaultGroupById(title);
+    const order   = ov.order || [...defById.keys()];
     return order.map(id => {
         if (ov.groups && id in ov.groups) return ov.groups[id];
-        const m = /^sg(\d+)$/.exec(id);
-        return m ? defGroups[+m[1]] : null;
+        return defById.get(id) || null;
     }).filter(Boolean);
 }
 
@@ -168,10 +248,8 @@ export function effectiveCluster(title) {
 // matching the order effectiveMattGroups() renders them in. Used by the editor
 // and tag display to address units.
 export function mattUnitOrder(title) {
-    const cluster   = _algClusters()[title];
-    const defGroups = cluster?.matt?.['solution-groups'] || [];
-    const ov        = loadContentOverrides()[title]?.matt;
-    return ov?.order || defGroups.map((_, i) => defaultGroupId(i));
+    const ov = loadContentOverrides()[title]?.matt;
+    return ov?.order || defaultGroupIds(title);
 }
 
 // Union of the case-list cases of every cluster a tag touches. These match the
@@ -193,6 +271,12 @@ export function tagCaseBases(tagId) {
 let _pblCountBarflip = false;
 export function setPblCountBarflip(on) { _pblCountBarflip = !!on; }
 
+// OBL tag-case counter, mirrored here by obl-core for the same reason: it
+// needs oblUsingSpe (base vs. specific granularity) and getSpeList, both of
+// which would create a circular import if pulled in directly.
+let _oblTagCaseCounter = null;
+export function setOblTagCaseCounter(fn) { _oblTagCaseCounter = fn; }
+
 // Number of cases a tag represents. With the PBL count-barflip setting on, a
 // case selected as 'both' (mixed-parity matt groups, or a sheet view) counts as
 // two; '+'-only or '-'-only cases count as one. Otherwise (and always in OBL)
@@ -201,6 +285,7 @@ export function tagCaseCount(tagId) {
     if (trainerMode === 'pbl' && _pblCountBarflip) {
         return tagCaseModes(tagId).reduce((n, { mode }) => n + (mode === 'both' ? 2 : 1), 0);
     }
+    if (trainerMode === 'obl' && _oblTagCaseCounter) return _oblTagCaseCounter(tagId);
     return tagCaseBases(tagId).length;
 }
 

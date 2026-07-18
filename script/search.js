@@ -1,5 +1,5 @@
 import { oblClusters, pblClusters } from '../data/alg-data.js';
-import { OBLtranslation, possibleOBL } from '../data/obl-data.js';
+import { possibleOBL } from '../data/obl-data.js';
 import { pblDefaultLists } from '../data/pbl-data.js';
 import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseCount, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
 import { abandonTransition, appConfirm, closeOverlayForTransition, dismissTopOverlay, escapeHtml, pushOverlay, randInt, showError, showInfo, showSuccess, trainerMode, usingTimer } from './app.js';
@@ -77,6 +77,16 @@ function hmCanonCase(c) {
     return c.replace(/:/g, '-');
 }
 
+// The heatmap cells a matt case-name covers. Most name a case in the cluster's
+// case-list directly. A few (J/J, J/N, N/N) use the family shorthand — "J/J"
+// stands for every J-family pairing (Ja/Ja, Ja/Jm, Jm/Ja, Jm/Jm) — which matches
+// no cell on its own, so expand it to the case-list entries of that family.
+function hmResolveCaseName(cn, caseList) {
+    if (caseList.includes(cn)) return [cn];
+    return caseList.filter(e => squan.getPBLFamily(e) === cn);
+}
+
+
 // caseName → { slice, overview }: the shortest slicecount among the matt
 // solution groups whose tag is in the current selection (a group is included if
 // it carries any selected tag; its slicecount applies to all its case-names).
@@ -91,13 +101,21 @@ function hmComputeCaseSlices() {
         const groups = effectiveMattGroups(title);
         const order  = mattUnitOrder(title);
         for (let i = 0; i < groups.length; i++) {
-            if (!included.has(unitRef(title, 'matt', order[i] ?? 'sg' + i))) continue;
+            if (!included.has(unitRef(title, 'matt', order[i]))) continue;
             const slice = groups[i]['solution-slicecount'];
             if (slice == null) continue;
             const overview = groups[i]['solution-overview'] || '';
+            const caseList = effectiveCluster(title)?.['case-list'] || [];
             const names = new Set();
             for (const ab of groups[i]['alg-blocks'] || [])
-                for (const c of ab.cases || []) if (c['case-name']) names.add(hmCanonCase(c['case-name']));
+                for (const c of ab.cases || []) {
+                    if (!c['case-name']) continue;
+                    for (const n of hmResolveCaseName(hmCanonCase(c['case-name']), caseList)) names.add(n);
+                }
+            // Header groups (slicecount but no algs) name no cases of their own;
+            // their slicecount describes the whole cluster, so apply it across the
+            // cluster's case-list (already in heatmap-cell form).
+            if (!names.size) for (const c of caseList) names.add(hmCanonCase(c));
             for (const cn of names)
                 if (!result[cn] || slice < result[cn].slice) result[cn] = { slice, overview };
         }
@@ -106,15 +124,19 @@ function hmComputeCaseSlices() {
 }
 
 // Final cell value, or null (→ gray) when there's no tagged slicecount/optimal.
-function hmCellValue(caseName, row, col, slices) {
+// The cluster's case-list length scales the per-solve cost by how many cases the
+// cluster covers. (getPBLCaseCount is not used here: the grid is drawn at member
+// granularity, so it would double-count multi-member PLL families like Ga.)
+function hmCellValue(caseName, slices) {
     const s = slices[caseName];
     if (!s) return null;
     const optimal = pblGetOptimal(caseName);
     if (optimal == null) return null;
-    return (s.slice - optimal) * squan.getPBLWeight(caseName) * squan.getPBLCaseCount([row, col]);
+    const caseCount = pblClusters[hmCaseCluster[caseName]]?.['case-list']?.length || 1;
+    return (s.slice - optimal) * squan.getPBLWeight(caseName) * caseCount;
 }
 
-// ── Colour (rank-based: ~even cells per band, green→yellow→orange→red) ───────
+// ── Colour (log2 value scale: green→yellow→orange→red) ───────────────────────
 
 function hmGradient(t) {
     const stops = [[0, 200, 0], [230, 230, 0], [255, 140, 0], [228, 30, 30]];
@@ -125,28 +147,48 @@ function hmGradient(t) {
     return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
 
+// Maps a cell value to a colour by (v / max) ** HM_GAMMA: the largest value
+// anchors red and 0 anchors green. The gamma bends the ramp between the two bad
+// extremes — a linear scale (gamma 1) crowds the small values into green, a log2
+// scale crowds the large ones into red. Lower gamma spreads the small values at
+// the cost of separation between the large ones.
+const HM_GAMMA = 0.5;
+
 function hmColorFn(values) {
-    const sorted = [...values].sort((a, b) => a - b);
-    const n = sorted.length;
+    const max = values.length ? Math.max(...values) : 0;
     return v => {
-        if (n <= 1) return hmGradient(0);
-        let lo = 0, hi = n;            // rank = count strictly less than v
-        while (lo < hi) { const m = (lo + hi) >> 1; if (sorted[m] < v) lo = m + 1; else hi = m; }
-        return hmGradient(Math.min(1, lo / (n - 1)));
+        if (v <= 0 || max <= 0) return hmGradient(0);
+        return hmGradient(Math.min(1, (v / max) ** HM_GAMMA));
     };
 }
 
 // ── Rendering ────────────────────────────────────────────────────────────────
 
-function hmGridHtml(plls, slices) {
-    const vals = {};
-    const list = [];
+// One pass per grid: gathers non-null cell values (for the shared colour scale)
+// and the colored/total case weight (for the "colored: xx%" readout), so we
+// don't walk every cell twice for two unrelated purposes.
+function hmGridStats(plls, slices) {
+    const values = [];
+    let total = 0, colored = 0;
     for (const r of plls) for (const c of plls) {
-        const v = hmCellValue(r + '/' + c, r, c, slices);
-        vals[r + '/' + c] = v;
-        if (v != null) list.push(v);
+        const cn = r + '/' + c;
+        const optimal = pblGetOptimal(cn);
+        if (optimal == null) continue; // not a colorable case either way
+        const w = squan.getPBLWeight(cn);
+        total += w;
+        const s = slices[cn];
+        if (!s) continue; // colorable but not currently colored
+        colored += w;
+        const caseCount = pblClusters[hmCaseCluster[cn]]?.['case-list']?.length || 1;
+        values.push((s.slice - optimal) * w * caseCount);
     }
-    const color = hmColorFn(list);
+    return { values, total, colored };
+}
+
+function hmGridHtml(plls, slices, color) {
+    const vals = {};
+    for (const r of plls) for (const c of plls)
+        vals[r + '/' + c] = hmCellValue(r + '/' + c, slices);
     const fams = hmFamilyGroups(plls);
 
     // Every PLL is one case, so every body column gets exactly one fraction. The
@@ -185,17 +227,28 @@ function hmGridHtml(plls, slices) {
 }
 
 function hmTagBarHtml() {
-    return `<button class="hm-tag-btn" data-tip="Filter by tags">${UNIT_TAG_SVG}<span>Tags</span></button>`;
+    return `<button class="hm-tag-btn" data-tip="Filter by tags">${UNIT_TAG_SVG}<span>Tags</span></button>` +
+        `<span class="hm-colored-pct"></span>`;
 }
 
 // Fills only the grids (used on first render and on tag-filter changes).
 function hmRenderGrids() {
     hmBuildCaseCluster();
     hmLastSlices = hmComputeCaseSlices();
+    // One colour scale across both grids, so red means the same value in each.
+    const evenStats = hmGridStats(SquanLib.evenPLL, hmLastSlices);
+    const oddStats   = hmGridStats(SquanLib.oddPLL, hmLastSlices);
+    const color = hmColorFn([...evenStats.values, ...oddStats.values]);
     const grids = hmEl.querySelector('.hm-grids');
     grids.innerHTML =
-        `<div class="hm-grid">${hmGridHtml(SquanLib.evenPLL, hmLastSlices)}</div>` +
-        `<div class="hm-grid">${hmGridHtml(SquanLib.oddPLL, hmLastSlices)}</div>`;
+        `<div class="hm-grid">${hmGridHtml(SquanLib.evenPLL, hmLastSlices, color)}</div>` +
+        `<div class="hm-grid">${hmGridHtml(SquanLib.oddPLL, hmLastSlices, color)}</div>`;
+
+    const totalWeight   = evenStats.total + oddStats.total;
+    const coloredWeight = evenStats.colored + oddStats.colored;
+    const pct = totalWeight > 0 ? (coloredWeight / totalWeight) * 100 : 0;
+    const pctEl = hmEl.querySelector('.hm-colored-pct');
+    if (pctEl) pctEl.textContent = `(colored: ${pct.toFixed(0)}%)`;
 }
 
 function renderHeatmaps() {
@@ -426,7 +479,7 @@ hmEl.addEventListener('click', e => {
 // Ctrl/Cmd+Space (or the navbar search button) opens a centered search bar.
 // It searches the active trainer's clusters by title, case name, and OBL legacy
 // name; the extension below the bar lists matches. ↑/↓ move the selection and
-// Enter opens the selected cluster's alg reference inline in the extension.
+// Enter opens the selected cluster's reference inline in the extension.
 // The "?" button opens a per-trainer help modal.
 
 const searchOverlayEl    = document.getElementById("search-overlay");
@@ -444,9 +497,9 @@ const searchHelpModalEl  = document.getElementById("search-help-modal");
 export let isSearchOpen      = false;
 let searchMatches     = [];     // array of cluster titles currently shown
 let searchActiveIx    = -1;     // index into searchMatches of the highlighted row
-let searchInClusterView = false; // true while the extension shows an alg reference
+let searchInClusterView = false; // true while the extension shows a cluster reference
 let searchClusterTitle  = null;  // cluster currently shown in the extension
-export let searchEditMode      = false; // true while the alg reference is being edited
+export let searchEditMode      = false; // true while the cluster reference is being edited
 let searchClusterWidth  = '';    // cached panel width (px) for the open cluster
 let searchClusterReturn = { kind: 'trainer' };
 
@@ -487,17 +540,6 @@ function buildSearchIndex(mode) {
         byTitle[title] = { displayTitle: oblDisplayClusterTitle(title), aliases: set };
     }
 
-    for (const nonSpe of Object.keys(OBLtranslation)) {
-        const title = oblFindCluster(nonSpe);
-        if (!title || !byTitle[title]) continue;
-        byTitle[title].aliases.add(oblDisplayName(nonSpe));
-        for (const spe of OBLtranslation[nonSpe]) {
-            const [a, b] = spe.split('/');
-            byTitle[title].aliases.add(oblDisplayName(spe));
-            byTitle[title].aliases.add(oblDisplayName(b + '/' + a)); // mirrored specific name
-        }
-    }
-
     for (const [title, entry] of Object.entries(byTitle))
         out.push({ title, displayTitle: entry.displayTitle, aliases: [...entry.aliases] });
     return out;
@@ -513,8 +555,8 @@ function getSearchIndex() {
 }
 
 
-// Opens the alg reference for a cluster title in the search bar (the only place
-// alg references are shown — there is no separate modal). Used by scramble clicks
+// Opens the cluster reference for a cluster title in the search bar (the only place
+// cluster references are shown — there is no separate modal). Used by scramble clicks
 // and search-result selection.
 export function openAlgReference(title) {
     if (!title) return;
@@ -684,8 +726,8 @@ function openSearchResult(ix) {
     if (!match) return;
     if (match.kind === 'action') {
         closeOverlayForTransition();
-        SEARCH_ACTIONS[match.action]?.run();
-        abandonTransition();   // no-op if the action opened a replacement overlay
+        try { SEARCH_ACTIONS[match.action]?.run(); }
+        finally { abandonTransition(); }   // no-op if the action opened a replacement overlay
         return;
     }
     if (match.kind === 'tag')    { showTagInSearch(match.tagId); return; }
@@ -710,7 +752,7 @@ function listCaseCount(name) {
     return l ? pblCaseCount(l) : 0;
 }
 
-// Shows a cluster's alg reference inside the search extension and sets the search
+// Shows a cluster's reference inside the search extension and sets the search
 // bar to the cluster title. Setting .value programmatically does not fire `input`,
 // so the user editing the bar (which does) reverts to plain search.
 function currentSearchReturnTarget() {
@@ -746,7 +788,7 @@ export function syncSearchClusterToolbar() {
     const save    = tb.querySelector('.sct-save');
     navBack.style.display = searchEditMode ? 'none' : '';
     edit.classList.toggle('active', searchEditMode);
-    edit.dataset.tip = searchEditMode ? 'Back to reference' : 'Edit alg reference';
+    edit.dataset.tip = searchEditMode ? 'Back to reference' : 'Edit cluster reference';
     edit.setAttribute('aria-label', searchEditMode ? 'Back to reference' : 'Edit');
     edit.querySelector('.sct-pencil-icon').style.display = searchEditMode ? 'none' : '';
     edit.querySelector('.sct-edit-back-icon').style.display = searchEditMode ? '' : 'none';
@@ -762,6 +804,7 @@ function renderSearchClusterBody() {
 
     if (searchEditMode) {
         // Keep the current read-mode width so entering edit doesn't shrink the panel.
+        document.getElementById('search-cluster-banner').style.display = 'none';
         algEditRender(searchClusterContentEl, searchClusterTitle);
     } else {
         applySearchClusterWidth(searchClusterTitle);
@@ -1054,7 +1097,7 @@ searchInputEl.addEventListener("keydown", (e) => {
         dismissTopOverlay();
         return;
     }
-    // While an alg reference is shown in the extension, leave the keys alone so
+    // While an cluster reference is shown in the extension, leave the keys alone so
     // the caret can move and the content can be scrolled — no result navigation.
     if (searchInClusterView) return;
     switch (e.key) {
@@ -1074,6 +1117,8 @@ window.addEventListener("keydown", (e) => {
     const ae = document.activeElement;
     if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.isContentEditable)) return;
     if (e.key === "Escape" || e.key === "Tab") return; // leave navigation/close keys alone
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed) return; // a text selection is active — don't steal focus (e.g. mid-copy)
     searchInputEl.focus();
     // Place the caret at the end rather than selecting/starting at the beginning.
     const end = searchInputEl.value.length;
@@ -1088,11 +1133,11 @@ window.addEventListener("keydown", (e) => {
 //  way the cluster view does, driven by openSearchResult().
 //
 //   • Tag view  (#search-tagview):  a tag's tagged solution overviews grouped by
-//     cluster, each linking to its alg reference, with a tag selector on top for
+//     cluster, each linking to its cluster reference, with a tag selector on top for
 //     bulk re-tagging (mark all / none of this tag's units as another tag).
 //   • List view (#search-listview): a list shown as a case grid with a
 //     Select / Reference mode toggle — Select edits the list's cases (and their
-//     barflips, for PBL), Reference opens a case's alg reference.
+//     barflips, for PBL), Reference opens a case's cluster reference.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const GO_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>`;
@@ -1290,7 +1335,7 @@ function _slvGridHtml() {
 function renderListView() {
     const ref = _slvMode === 'reference';
     const hint = ref
-        ? 'Tap a case to open its alg reference.'
+        ? 'Tap a case to open its cluster reference.'
         : _slvDefault
             ? 'Default lists can’t be edited. Switch to your own list to change its cases.'
             : (trainerMode === 'pbl'
@@ -1350,7 +1395,7 @@ function _slvPersist() {
     }
 }
 
-// Navigate to a case's alg reference (Reference mode).
+// Navigate to a case's cluster reference (Reference mode).
 function _slvGoReference(cell) {
     const title = trainerMode === 'obl'
         ? oblFindCluster(cell.dataset.id)
