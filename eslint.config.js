@@ -33,6 +33,9 @@ export default [
         requestIdleCallback: 'readonly',
         Event: 'readonly',
         CustomEvent: 'readonly',
+        caches: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
       },
     },
     rules: {

@@ -12,6 +12,7 @@
 
 
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="./manifest.webmanifest">
 </head>
 
 <body>
@@ -318,6 +319,11 @@
             <span class="success-message" id="success-message">Done!</span>
         </div>
     </div>
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+        }
+    </script>
 </body>
 
     <script type="module" src="script/main.js"></script>

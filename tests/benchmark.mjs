@@ -1,4 +1,4 @@
-/* global process, fetch, WebSocket */
+/* global process, WebSocket */
 
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
