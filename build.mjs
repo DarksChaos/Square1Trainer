@@ -1,8 +1,11 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
+import process from 'node:process';
 import { build } from 'esbuild';
 
-const outputDirectory = 'public';
+const outputDirectory = process.env.BUILD_OUT_DIR
+  ? resolve(process.env.BUILD_OUT_DIR)
+  : 'public';
 
 const CACHE_FILE_TYPES = ['html', 'htm', 'css', 'js', 'mjs', 'json', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'woff', 'woff2', 'ttf', 'webmanifest'];
 
