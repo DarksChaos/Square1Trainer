@@ -1,15 +1,12 @@
 # Unified Trainer
 
-OBL and PBL trainers for Square-1.
+The best resource out there to train (and learn) OBL and PBL for squan.
+https://squan-go.web.app/oblpbl/
 
-## Development
+# Features
+- Go through each case once, or use realistic weights
+- Integrated written tutorials for cases
+- Tag clusters and train them
+- PBL heatmap: direct visual to see what cases you are bad at
 
-```sh
-npm install
-npm run lint
-npm run build
-```
-
-`npm run build` recreates `public/` with bundled, minified, and identifier-mangled ES modules. Algorithm-reference data is emitted as deferred chunks and loaded after the initial UI paint.
-
-Live site: https://squan-trainers.web.app/
+To report issues, email us at squango.support@gmail.com. Alternatively, say something in the squan Discord server.
