@@ -78,7 +78,6 @@ let isRunning       = false;
 let timerStoppedAt  = null;
 let readyToStart    = false;
 let otherKeyPressed = 0;
-const startDelay    = 200;
 
 // ── Shared display state ──────────────────────────────────────────────────────
 // Both trainers share showMode, preSearchMode, and highlightedList.
@@ -135,9 +134,11 @@ export const useBarflipEl     = document.getElementById("usebarflip");
 export const countBarflipEl   = document.getElementById("countbarflip");
 export const bottom56El       = document.getElementById("allow-bottom56");
 export const bottom56Row      = document.getElementById('bottom56-row');
-const hideHintButtonEl = document.getElementById('hide-hint-btn');
-const pblRefToggleEl   = document.getElementById('pbl-ref-toggle');
-const oblRefToggleEl   = document.getElementById('obl-ref-toggle');
+const hideHintButtonEl   = document.getElementById('hide-hint-btn');
+const pblRefToggleEl     = document.getElementById('pbl-ref-toggle');
+const oblRefToggleEl     = document.getElementById('obl-ref-toggle');
+const startDelaySliderEl = document.getElementById('start-delay-slider');
+const startDelayNumberEl = document.getElementById('start-delay-number');
 
 const removeLastEl    = document.getElementById("unselprev");
 const selectAllEl     = document.getElementById("sela");
@@ -182,6 +183,7 @@ const APP_SETTINGS = {
     hideHintButton: 'hideHintButton',
     defaultPblReference: 'defaultPblReference',
     defaultOblReference: 'defaultOblReference',
+    startDelay: 'startDelay',
 };
 
 const PBL_REFERENCE_OPTIONS = [
@@ -197,6 +199,16 @@ const OBL_REFERENCE_OPTIONS = [
 export let hideHintButton = localStorage.getItem(APP_SETTINGS.hideHintButton) === '1';
 export let defaultPblReference = localStorage.getItem(APP_SETTINGS.defaultPblReference) || 'matt';
 export let defaultOblReference = localStorage.getItem(APP_SETTINGS.defaultOblReference) || 'matt';
+
+const START_DELAY_MIN = 0;
+const START_DELAY_MAX = 1000;
+
+function clampStartDelay(value) {
+    if (!Number.isFinite(value)) return 200;
+    return Math.min(START_DELAY_MAX, Math.max(START_DELAY_MIN, value));
+}
+
+let startDelay = clampStartDelay(parseInt(localStorage.getItem(APP_SETTINGS.startDelay), 10));
 
 function normalizeReference(value, options) {
     return options.some(([key]) => key === value) ? value : options[0][0];
@@ -228,14 +240,27 @@ function updateHintButtonVisibility() {
     if (hintButtonEl) hintButtonEl.classList.toggle('hidden', hideHintButton);
 }
 
+function updateStartDelayInputs() {
+    if (startDelaySliderEl) startDelaySliderEl.value = startDelay;
+    if (startDelayNumberEl) startDelayNumberEl.value = startDelay;
+}
+
+function setStartDelay(value) {
+    startDelay = clampStartDelay(value);
+    updateStartDelayInputs();
+    saveAppSettings();
+}
+
 function saveAppSettings() {
     localStorage.setItem(APP_SETTINGS.hideHintButton, hideHintButton ? '1' : '0');
     localStorage.setItem(APP_SETTINGS.defaultPblReference, defaultPblReference);
     localStorage.setItem(APP_SETTINGS.defaultOblReference, defaultOblReference);
+    localStorage.setItem(APP_SETTINGS.startDelay, String(startDelay));
 }
 
 updateReferenceToggleText();
 updateHintButtonVisibility();
+updateStartDelayInputs();
 
 // ─── SHARED HELPERS ───────────────────────────────────────────────────────────
 
@@ -1106,6 +1131,14 @@ hideHintButtonEl.addEventListener('change', () => {
     hideHintButton = hideHintButtonEl.checked;
     saveAppSettings();
     updateHintButtonVisibility();
+});
+
+startDelaySliderEl.addEventListener('input', () => {
+    setStartDelay(parseInt(startDelaySliderEl.value, 10));
+});
+
+startDelayNumberEl.addEventListener('change', () => {
+    setStartDelay(parseInt(startDelayNumberEl.value, 10));
 });
 
 pblRefToggleEl.addEventListener('click', () => {

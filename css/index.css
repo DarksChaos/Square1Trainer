@@ -883,6 +883,39 @@ button:active:not(:disabled) {
     border-color: var(--border-col);
 }
 
+.settings-slider-row {
+    cursor: default;
+}
+
+.settings-slider-row:hover {
+    background-color: transparent;
+}
+
+.settings-slider-row input[type="range"] {
+    flex: 1 1 auto;
+    accent-color: var(--border-col);
+}
+
+.settings-slider-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+.settings-slider-value input[type="number"] {
+    width: 56px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--divider-strong);
+    background: var(--field-bg);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
 /* Switch to full width display*/
 .visible-mobile {
     display: none;
