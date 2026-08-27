@@ -13,16 +13,14 @@ import { purgeTagFromAssignments, tagCaseCount } from './tag-assignments.js';
 
 const TAG_STORAGE_KEY = 'userTags';
 
-// Default tags. Colors are chosen to sit well on the dark theme.
 const TAG_DEFAULTS = [
-    { id: 'learning',  name: 'learning',  color: '#48cae4' }, // cyan (matches brand)
-    { id: 'shaky',     name: 'shaky',     color: '#f0883e' }, // orange
     { id: 'perfected', name: 'perfected', color: '#57d97f' }, // green
     { id: 'review',    name: 'review',    color: '#e9c46a' }, // yellow
+    { id: 'shaky',     name: 'shaky',     color: '#f0883e' }, // orange
+    { id: 'learning',  name: 'learning',  color: '#48cae4' }, // cyan
 ];
 
-// Curated palette offered in the color picker — one swatch per hue, ordered
-// around the colour wheel (warm → cool) with a neutral grey to finish.
+// Curated palette offered in the color picker
 const TAG_PALETTE = [
     '#e05c5c', // red
     '#f0883e', // orange
