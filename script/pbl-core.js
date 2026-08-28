@@ -1387,10 +1387,15 @@ export const pblHelpSections = [
             Click on the search icon in the ${window.matchMedia("(max-width: 600px)").matches ? "bottom bar" : "sidebar"}, and the heatmap would show up.
         </p>
         <p>
-            The colors are a spectrum of <b>green to red</b>.
-            The greener a cell is, the better you are at that case.
+            Each cell represent a PBL case.
             To show what case a cell is, hover over it, or tap.
             To go to the cluster reference for the cell, click it, or double tap.
+        </p>
+        <p>There are several modes regarding how the heatmap can be colored:</p>
+        <p><b>1. By slicecount from optimal:</b></p>
+        <p>
+            Here the colors are a spectrum of <b>green to red</b>.
+            The greener a cell is, the better you are at that case.
         </p>
         <p>
             To change what solutions the heatmap takes into account, change which tags are selected on top.
@@ -1398,6 +1403,17 @@ export const pblHelpSections = [
             This means if you want to <b>add your own solutions</b>, always add them as a solution group in Matt's view.
             You just need to fill in your solutions, as well as the <b>slice count</b> for them.
             Then, you can tag that solution group.
+        </p>
+        <p><b>2. By tags:</b></p>
+        <p>
+            Here each cell will be colored by the colors of all the tags it has.
+            If it has cyan, yellow, and green tags, then its color will have all 3.
+        </p>
+        <p><b>3. By highest tag:</b></p>
+        <p>
+            Here each cell will be colored by the color of the <b>first</b> tag it has.
+            If it has cyan, yellow, and green tags, and the green tag is above the other
+            two in the tags modal, then it will be colored green.
         </p>
 
         <h1>Hints</h1>
