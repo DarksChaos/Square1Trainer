@@ -23,7 +23,7 @@ import { getTags, openTagModal, renderTagMenu } from './tags.js';
 //  extension when the query is empty (PBL trainer only). Each cell is a case
 //  (row = top PLL, col = bottom PLL). A tag picker on top selects which tagged
 //  matt solution groups count; per case we take the shortest tagged slicecount,
-//  and colour the cell by (slicecount − optimal) × weight × caseCount.
+//  and color the cell by (slicecount − optimal) × weight × caseCount.
 //
 //  Uses pblGetOptimal(caseName) from pbl-core.js.
 // ═══════════════════════════════════════════════════════════════════════════
@@ -35,6 +35,14 @@ let hmSelectedTags  = null;  // Set of selected tag ids; null = "all tags"
 let hmLastSlices    = {};    // caseName → { slice, overview } from last compute
 let hmTipEl         = null;
 let hmTapCase       = null;  // touch: the case whose tooltip is currently shown
+const HM_COLOR_MODE_KEY = 'hmColorMode';
+// 'slicecount' | 'tags' | 'highest'
+let hmColorMode = localStorage.getItem(HM_COLOR_MODE_KEY) || 'slicecount';
+const HM_COLOR_MODE_LABELS = {
+    slicecount: 'colored by slicecount from opt',
+    tags: 'colored by tags',
+    highest: 'colored by highest tag',
+};
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -136,7 +144,108 @@ function hmCellValue(caseName, slices) {
     return (s.slice - optimal) * squan.getPBLWeight(caseName) * caseCount;
 }
 
-// ── Colour (log2 value scale: green→yellow→orange→red) ───────────────────────
+// title → ordered array of tag objects that apply to any unit (matt group or
+// sheet) in that cluster. Order follows the Tags menu order.
+function hmComputeClusterTags() {
+    const tags        = getTags();
+    const assignments = loadTagAssignments();
+    const map = {};
+    for (const t of tags) {
+        const seen = new Set();
+        for (const ref of (assignments[t.id] || [])) {
+            const title = ref.split('|')[0];
+            if (!pblClusters[title] || seen.has(title)) continue;
+            seen.add(title);
+            (map[title] || (map[title] = [])).push(t);
+        }
+    }
+    return map;
+}
+
+function hmCellTags(caseName, clusterTags) {
+    const title = hmCaseCluster[caseName];
+    return title ? (clusterTags[title] || []) : [];
+}
+
+// Row/col index lookup plus, per grid position, the bounding box of its
+// connected component: the block of adjacent cells sharing the same cluster.
+function hmComputeClusterBBox(plls) {
+    const n   = plls.length;
+    const idx = new Map(plls.map((p, i) => [p, i]));
+    const grid = [];
+    for (let ri = 0; ri < n; ri++) {
+        const row = [];
+        for (let ci = 0; ci < n; ci++) row.push(hmCaseCluster[plls[ri] + '/' + plls[ci]] || null);
+        grid.push(row);
+    }
+
+    const seen   = Array.from({ length: n }, () => new Array(n).fill(false));
+    const compOf = {}; // "ri,ci" -> { minR, maxR, minC, maxC } of its component
+    for (let ri = 0; ri < n; ri++) for (let ci = 0; ci < n; ci++) {
+        if (seen[ri][ci] || !grid[ri][ci]) continue;
+        const title = grid[ri][ci];
+        const stack = [[ri, ci]];
+        seen[ri][ci] = true;
+        const cells = [];
+        let minR = ri, maxR = ri, minC = ci, maxC = ci;
+        while (stack.length) {
+            const [r, c] = stack.pop();
+            cells.push([r, c]);
+            if (r < minR) minR = r; if (r > maxR) maxR = r;
+            if (c < minC) minC = c; if (c > maxC) maxC = c;
+            for (const [nr, nc] of [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]]) {
+                if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+                if (seen[nr][nc] || grid[nr][nc] !== title) continue;
+                seen[nr][nc] = true;
+                stack.push([nr, nc]);
+            }
+        }
+        const bbox = { minR, maxR, minC, maxC };
+        for (const [r, c] of cells) compOf[r + ',' + c] = bbox;
+    }
+    return { idx, compOf };
+}
+
+// Equal-angle conic-gradient wedges (pie slices) for a cluster's tag colors,
+// in tag-list order, starting at 12 o'clock and going clockwise.
+function hmWedgeGradient(colors) {
+    if (colors.length === 1) return colors[0];
+    if (colors.length === 2) {
+        // top right to bottom left diagonal
+        return `conic-gradient(from 45deg, ${colors[0]} 0deg 180deg, ${colors[1]} 180deg 360deg)`;
+    }
+    const step = 360 / colors.length;
+    const stops = colors.map((c, i) => `${c} ${(i * step).toFixed(3)}deg ${((i + 1) * step).toFixed(3)}deg`);
+    return `conic-gradient(${stops.join(', ')})`;
+}
+
+// Cell background under the current color mode, or null (→ gray) when there's
+// nothing to show. Returns a full CSS declaration string (not just a color).
+function hmCellBackground(cn, mode, slices, clusterTags, color, gridInfo) {
+    if (mode === 'slicecount') {
+        const v = hmCellValue(cn, slices);
+        return v == null ? null : `background:${color(v)}`;
+    }
+    const tags = hmCellTags(cn, clusterTags);
+    if (!tags.length) return null;
+    if (mode === 'highest' || tags.length === 1) return `background:${tags[0].color}`;
+
+    // 2+ tags: one pie spans this cell's connected component (its orthogonally-
+    // adjacent same-cluster block). Sizing the shared gradient as a multiple of
+    // the cell (percentages are relative to each cell's own box) and shifting
+    // it by this cell's offset within the block makes every cell show just its
+    // slice of the same pie, with no pixel math needed either way.
+    const [r, c] = cn.split('/');
+    const { idx, compOf } = gridInfo;
+    const ri = idx.get(r), ci = idx.get(c);
+    const b = compOf[ri + ',' + ci];
+    const w = b.maxC - b.minC + 1, h = b.maxR - b.minR + 1;
+    const offC = ci - b.minC, offR = ri - b.minR;
+    const gradient = hmWedgeGradient(tags.map(t => t.color));
+    return `background-image:${gradient};background-size:${w * 100}% ${h * 100}%;background-position:${-offC * 100}% ${-offR * 100}%`;
+}
+
+// ── color (log2 value scale: green→yellow→orange→red) ───────────────────────
 
 function hmGradient(t) {
     const stops = [[0, 200, 0], [230, 230, 0], [255, 140, 0], [228, 30, 30]];
@@ -147,7 +256,7 @@ function hmGradient(t) {
     return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
 
-// Maps a cell value to a colour by (v / max) ** HM_GAMMA: the largest value
+// Maps a cell value to a color by (v / max) ** HM_GAMMA: the largest value
 // anchors red and 0 anchors green. The gamma bends the ramp between the two bad
 // extremes — a linear scale (gamma 1) crowds the small values into green, a log2
 // scale crowds the large ones into red. Lower gamma spreads the small values at
@@ -164,10 +273,10 @@ function hmColorFn(values) {
 
 // ── Rendering ────────────────────────────────────────────────────────────────
 
-// One pass per grid: gathers non-null cell values (for the shared colour scale)
+// One pass per grid: gathers non-null cell values (for the shared color scale)
 // and the colored/total case weight (for the "colored: xx%" readout), so we
 // don't walk every cell twice for two unrelated purposes.
-function hmGridStats(plls, slices) {
+function hmGridStats(plls, slices, mode, clusterTags) {
     const values = [];
     let total = 0, colored = 0;
     for (const r of plls) for (const c of plls) {
@@ -176,19 +285,25 @@ function hmGridStats(plls, slices) {
         if (optimal == null) continue; // not a colorable case either way
         const w = squan.getPBLWeight(cn);
         total += w;
-        const s = slices[cn];
-        if (!s) continue; // colorable but not currently colored
-        colored += w;
-        const caseCount = pblClusters[hmCaseCluster[cn]]?.['case-list']?.length || 1;
-        values.push((s.slice - optimal) * w * caseCount);
+        if (mode === 'slicecount') {
+            const s = slices[cn];
+            if (!s) continue; // colorable but not currently colored
+            colored += w;
+            const caseCount = pblClusters[hmCaseCluster[cn]]?.['case-list']?.length || 1;
+            values.push((s.slice - optimal) * w * caseCount);
+        } else {
+            if (!hmCellTags(cn, clusterTags).length) continue; // cluster has no tags
+            colored += w;
+        }
     }
     return { values, total, colored };
 }
 
-function hmGridHtml(plls, slices, color) {
-    const vals = {};
+function hmGridHtml(plls, slices, mode, clusterTags, color) {
+    const gridInfo = mode === 'tags' ? hmComputeClusterBBox(plls) : null;
+    const bgs = {};
     for (const r of plls) for (const c of plls)
-        vals[r + '/' + c] = hmCellValue(r + '/' + c, slices);
+        bgs[r + '/' + c] = hmCellBackground(r + '/' + c, mode, slices, clusterTags, color, gridInfo);
     const fams = hmFamilyGroups(plls);
 
     // Every PLL is one case, so every body column gets exactly one fraction. The
@@ -214,12 +329,12 @@ function hmGridHtml(plls, slices, color) {
             if (idx === 0)
                 html += `<div class="hm-head hm-rowhead" style="grid-row:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
             for (const c of plls) {
-                const cn = r + '/' + c, v = vals[cn];
+                const cn = r + '/' + c, bg = bgs[cn];
                 let cls = 'hm-cell';
                 if (famFirst.has(c)) cls += ' hm-fam-left';
                 if (idx === 0)       cls += ' hm-fam-top';
-                if (v == null)       cls += ' hm-gray';
-                html += `<div class="${cls}" data-case="${escapeHtml(cn)}"${v == null ? '' : ` style="background:${color(v)}"`}></div>`;
+                if (bg == null)      cls += ' hm-gray';
+                html += `<div class="${cls}" data-case="${escapeHtml(cn)}"${bg == null ? '' : ` style="${bg}"`}></div>`;
             }
         });
     }
@@ -228,6 +343,10 @@ function hmGridHtml(plls, slices, color) {
 
 function hmTagBarHtml() {
     return `<button class="hm-tag-btn" data-tip="Filter by tags">${UNIT_TAG_SVG}<span>Tags</span></button>` +
+        `<button class="hm-color-mode-btn" data-tip="Cell coloring">` +
+        `<span>${escapeHtml(HM_COLOR_MODE_LABELS[hmColorMode])}</span>` +
+        `<svg class="hm-color-mode-caret" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+        `</button>` +
         `<span class="hm-colored-pct"></span>`;
 }
 
@@ -235,14 +354,16 @@ function hmTagBarHtml() {
 function hmRenderGrids() {
     hmBuildCaseCluster();
     hmLastSlices = hmComputeCaseSlices();
-    // One colour scale across both grids, so red means the same value in each.
-    const evenStats = hmGridStats(SquanLib.evenPLL, hmLastSlices);
-    const oddStats   = hmGridStats(SquanLib.oddPLL, hmLastSlices);
+    const clusterTags = hmComputeClusterTags();
+    // One color scale across both grids, so red means the same value in each
+    // (only used in 'slicecount' mode; tag modes color directly).
+    const evenStats = hmGridStats(SquanLib.evenPLL, hmLastSlices, hmColorMode, clusterTags);
+    const oddStats   = hmGridStats(SquanLib.oddPLL, hmLastSlices, hmColorMode, clusterTags);
     const color = hmColorFn([...evenStats.values, ...oddStats.values]);
     const grids = hmEl.querySelector('.hm-grids');
     grids.innerHTML =
-        `<div class="hm-grid">${hmGridHtml(SquanLib.evenPLL, hmLastSlices, color)}</div>` +
-        `<div class="hm-grid">${hmGridHtml(SquanLib.oddPLL, hmLastSlices, color)}</div>`;
+        `<div class="hm-grid">${hmGridHtml(SquanLib.evenPLL, hmLastSlices, hmColorMode, clusterTags, color)}</div>` +
+        `<div class="hm-grid">${hmGridHtml(SquanLib.oddPLL, hmLastSlices, hmColorMode, clusterTags, color)}</div>`;
 
     const totalWeight   = evenStats.total + oddStats.total;
     const coloredWeight = evenStats.colored + oddStats.colored;
@@ -410,6 +531,7 @@ document.addEventListener('pointerdown', e => {
 // ── Tag-filter popover ───────────────────────────────────────────────────────
 
 let _hmFilterPop = null;
+let _hmColorPop  = null;
 
 function hmFilterInner() {
     const tags = getTags();
@@ -463,11 +585,62 @@ function _hmFilterOutside(e) {
 function hmCloseFilter() {
     document.removeEventListener('pointerdown', _hmFilterOutside);
     if (_hmFilterPop) { _hmFilterPop.remove(); _hmFilterPop = null; }
+    hmCloseColorMenu();
+}
+
+function hmColorMenuInner() {
+    return Object.entries(HM_COLOR_MODE_LABELS).map(([mode, label]) =>
+        `<button class="hm-color-opt${mode === hmColorMode ? ' selected' : ''}" data-mode="${mode}">${escapeHtml(label)}</button>`
+    ).join('');
+}
+
+function hmOpenColorMenu(btn) {
+    hmCloseFilter(); // mutually exclusive with the tag filter + any existing color menu
+    const pop = document.createElement('div');
+    pop.className = 'unit-tag-popover hm-color-popover';
+    pop.innerHTML = hmColorMenuInner();
+    document.body.appendChild(pop);
+    _hmColorPop = pop;
+    btn.classList.add('active');
+    _hmPositionColorMenu(btn);
+
+    pop.addEventListener('click', e => {
+        const opt = e.target.closest('.hm-color-opt');
+        if (!opt) return;
+        hmColorMode = opt.dataset.mode;
+        localStorage.setItem(HM_COLOR_MODE_KEY, hmColorMode);
+        hmRenderGrids();
+        hmCloseColorMenu();
+    });
+    setTimeout(() => document.addEventListener('pointerdown', _hmColorMenuOutside), 0);
+}
+
+function _hmPositionColorMenu(btn) {
+    if (!_hmColorPop) return;
+    const r = btn.getBoundingClientRect();
+    _hmColorPop.style.top  = (r.bottom + 6) + 'px';
+    _hmColorPop.style.left = r.left + 'px';
+    const pr = _hmColorPop.getBoundingClientRect();
+    if (pr.right  > window.innerWidth  - 8) _hmColorPop.style.left = Math.max(8, window.innerWidth  - 8 - pr.width) + 'px';
+    if (pr.bottom > window.innerHeight - 8) _hmColorPop.style.top  = Math.max(8, r.top - pr.height - 6) + 'px';
+}
+
+function _hmColorMenuOutside(e) {
+    if (!e.target.closest('.hm-color-popover') && !e.target.closest('.hm-color-mode-btn')) hmCloseColorMenu();
+}
+
+function hmCloseColorMenu() {
+    document.removeEventListener('pointerdown', _hmColorMenuOutside);
+    if (_hmColorPop) { _hmColorPop.remove(); _hmColorPop = null; }
+    const btn = hmEl.querySelector('.hm-color-mode-btn');
+    if (btn) btn.classList.remove('active');
 }
 
 hmEl.addEventListener('click', e => {
-    const btn = e.target.closest('.hm-tag-btn');
-    if (btn) hmOpenFilter(btn);
+    const tagBtn = e.target.closest('.hm-tag-btn');
+    if (tagBtn) hmOpenFilter(tagBtn);
+    const colorBtn = e.target.closest('.hm-color-mode-btn');
+    if (colorBtn) hmOpenColorMenu(colorBtn);
 });
 
 

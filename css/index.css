@@ -2219,7 +2219,7 @@ button:active:not(:disabled) {
     scrollbar-color: var(--divider-soft) transparent;
 }
 
-.hm-tagbar { display: flex; justify-content: center; align-items: center; }
+.hm-tagbar { display: flex; justify-content: center; align-items: center; gap: 10px; }
 
 .hm-tag-btn {
     display: inline-flex;
@@ -2233,6 +2233,55 @@ button:active:not(:disabled) {
     font-size: 0.9rem;
 }
 .hm-tag-btn:hover { border-color: var(--border-col); background: var(--button-col); color: var(--text-strong); }
+
+.hm-color-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--divider-soft);
+    border-radius: 9px;
+    background: var(--panel-raised);
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.hm-color-mode-btn:hover,
+.hm-color-mode-btn.active { border-color: var(--border-col); background: var(--button-col); color: var(--text-strong); }
+.hm-color-mode-btn:focus { outline: none; }
+.hm-color-mode-btn:focus-visible { outline: none; border-color: var(--border-col); box-shadow: 0 0 0 2px var(--button-col); }
+
+.hm-color-mode-caret { flex: 0 0 auto; }
+
+.hm-color-popover { display: flex; flex-direction: column; }
+
+.hm-color-popover .hm-color-opt {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 7px 9px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: normal;
+    text-align: left;
+    cursor: pointer;
+}
+.hm-color-popover .hm-color-opt:hover { background: rgba(255, 255, 255, 0.07); border-color: transparent; transform: none; }
+.hm-color-popover .hm-color-opt.selected { color: var(--text-strong); font-weight: 700; }
+.hm-color-popover .hm-color-opt::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 5px; height: 9px;
+    border: solid transparent; /* reserves the check mark's space on every row */
+    border-width: 0 2px 2px 0;
+    transform: translateY(-1px) rotate(45deg);
+}
+.hm-color-popover .hm-color-opt.selected::before { border-color: var(--border-col); }
 
 .hm-colored-pct {
     margin-left: 10px;
