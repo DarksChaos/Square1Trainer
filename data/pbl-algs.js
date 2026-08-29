@@ -43,6 +43,39 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "pj-p-8",
+          "solution-overview": "pJ pÑ",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "bad UU dual. both @ same end.",
+              "alg-explanation": "pJ on headlights to diag → U° on the nosliced layer → pÑ",
+              "cases": [
+                {
+                  "case-name": "Al/Al",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "10/fpJ U' pÑ -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Ar/Ar",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "10/fpJ D' pÑ -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "jj-jj-8",
           "solution-overview": "JJ JJ",
           "solution-slicecount": 8,
@@ -57,7 +90,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R R",
-                      "notation": "1-1/bJJ 2-2 /bJJ"
+                      "notation": "1-1/bJJ 2-2 bJJ"
                     }
                   ]
                 },
@@ -382,12 +415,12 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L FB",
-                      "notation": "0-1 (b' B') u' fAdj -10"
+                      "notation": "0-1\\(b' B') u' fAdj -10"
                     },
                     {
                       "sign": "+",
                       "angle": "L LR",
-                      "notation": "10 (B b) U bAdj -10"
+                      "notation": "10/(B b) U bAdj -10"
                     }
                   ]
                 },
@@ -397,7 +430,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L FB",
-                      "notation": "10 (b B) D' bAdj -10"
+                      "notation": "10/(b B) D' bAdj -10"
                     }
                   ]
                 },
@@ -407,7 +440,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FB L",
-                      "notation": "10 (w W) U' fAdj -10"
+                      "notation": "10/(w W) U' fAdj -10"
                     }
                   ]
                 },
@@ -417,12 +450,12 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FB L",
-                      "notation": "0-1 (w' W') d' bAdj -10"
+                      "notation": "0-1\\(w' W') d' bAdj -10"
                     },
                     {
                       "sign": "+",
                       "angle": "LR L",
-                      "notation": "10 (W w) D fAdj -10"
+                      "notation": "10/(W w) D fAdj -10"
                     }
                   ]
                 }
@@ -1005,6 +1038,11 @@ export const pblClusters = {
                       "sign": "-",
                       "angle": "L F",
                       "notation": "0-1\\u3' W' m D' 01"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "R B",
+                      "notation": "0-1\\d' u d' U' D m U' 01"
                     }
                   ]
                 }
@@ -1113,6 +1151,10 @@ export const pblClusters = {
           {
             "angle": "B R",
             "notation": "10 u d' u D U' m' D -10"
+          },
+          {
+            "angle": "F L",
+            "notation": "10 d3 B m' U -10"
           }
         ]
       },
@@ -1132,6 +1174,10 @@ export const pblClusters = {
             "notation": "10 u3 W m' D -10"
           },
           {
+            "angle": "R B",
+            "notation": "0-1\\W b' M 30Adj -10"
+          },
+          {
             "angle": "B B",
             "notation": "0-1 bJj+E2 u' u2 u' M' u' -10"
           }
@@ -1145,7 +1191,7 @@ export const pblClusters = {
             "notation": "10 T M d u' B' -10"
           },
           {
-            "angle": "L B",
+            "angle": "B L",
             "notation": "10 W E u U' T' -10"
           },
           {
@@ -1427,10 +1473,6 @@ export const pblClusters = {
           {
             "angle": "B R",
             "notation": "10 u2 M U2D' D w -10"
-          },
-          {
-            "angle": "R B",
-            "notation": "0-1\\W b' M 30Adj -10"
           }
         ]
       },
@@ -1661,10 +1703,6 @@ export const pblClusters = {
             "notation": "10 D' m Ɇ u' d u' -10"
           },
           {
-            "angle": "F L",
-            "notation": "10 d3 B m' U -10"
-          },
-          {
             "angle": "R B",
             "notation": "0-1\\W b' m' u2 u2' -10"
           }
@@ -1869,6 +1907,10 @@ export const pblClusters = {
             "notation": "0-1 b' U F u2 01"
           },
           {
+            "angle": "B R",
+            "notation": "0-1 b' U u' u2 M -10"
+          },
+          {
             "angle": "F L",
             "notation": "0-1\\w' E' U' F T 01"
           },
@@ -1888,6 +1930,10 @@ export const pblClusters = {
           {
             "angle": "B L",
             "notation": "10 w E U F' T' -10"
+          },
+          {
+            "angle": "B L",
+            "notation": "10 u T' UU u u2' -10"
           }
         ]
       },
@@ -1905,6 +1951,10 @@ export const pblClusters = {
           {
             "angle": "L B",
             "notation": "0-1\\d' u U D M u2 01"
+          },
+          {
+            "angle": "R F",
+            "notation": "0-1\\w' D d' U2' M' 01"
           }
         ]
       },
@@ -1914,6 +1964,10 @@ export const pblClusters = {
           {
             "angle": "R B",
             "notation": "10 w D' K u2' -10"
+          },
+          {
+            "angle": "R B",
+            "notation": "10 w D' d U2 M -10"
           },
           {
             "angle": "R B",
@@ -1990,8 +2044,8 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
-          "id": "fv-big-pk-pn-fv-jt-9",
-          "solution-overview": "FV // big PK // pN, FV // JT",
+          "id": "fv-big-pk-pn-fv-jt-pjpn-pn-9",
+          "solution-overview": "FV // big PK // pN, FV // JT, pJpN // pN",
           "solution-slicecount": 9,
           "alg-blocks": [
             {
@@ -2035,6 +2089,59 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "R",
                       "notation": "0-1 d3' m U' d' U t' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "small-pk-fv-pn-small-pk-kadj-pjpn-pn-9",
+          "solution-overview": "small PK // FV // pN, small PK // KAdj, pJpN // pN",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "noslice A @ <R>.",
+              "alg-explanation": "w° D° (small PK on H) → m* to FV→ w° opposite direction → same D° to pN → T° back",
+              "cases": [
+                {
+                  "case-name": "Al/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "0-1 w' D m' w D T 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Ar/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "10 w D' m w' D' T' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "H/Al",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "10/b U' m b' U' t -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "H/Ar",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "0-1 b' U m' b U t' 01"
                     }
                   ]
                 }
@@ -2295,7 +2402,7 @@ export const pblClusters = {
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "slice A 2x2 in back (with headlights next to slice). preserve J @ sides.",
+              "angle-explanation": "slice A 2x2 in back with headlights next to slice. preserve J @ sides.",
               "alg-explanation": "bJJ → 2 move on A, U° on J, bringing both headlights to <F> → bJJ",
               "cases": [
                 {
@@ -2657,6 +2764,10 @@ export const pblClusters = {
           {
             "angle": "R B",
             "notation": "0-1 W d' U2D u2 01"
+          },
+          {
+            "angle": "R B",
+            "notation": "0-1 W d' D u2 M -10"
           },
           {
             "angle": "B R",
@@ -3308,6 +3419,10 @@ export const pblClusters = {
             "notation": "10\\e w f' u3' -10"
           },
           {
+            "angle": "L B",
+            "notation": "10 f' U' d' DD U' M' 01"
+          },
+          {
             "angle": "B B",
             "notation": "10 bJJ+E2 U' u2 U' M U' -10"
           }
@@ -3526,10 +3641,6 @@ export const pblClusters = {
         "case-name": "Al/Rr",
         "algs": [
           {
-            "angle": "L B",
-            "notation": "10 f' U' d' DD U' M' 01"
-          },
-          {
             "angle": "F F",
             "notation": "10 u3 f w e' -10"
           },
@@ -3683,7 +3794,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B B",
-                      "notation": "0-1/D' e d' U' M' D 01"
+                      "notation": "0-1/U e' F U' M' D 01"
                     }
                   ]
                 }
@@ -3699,7 +3810,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B B",
-                      "notation": "0-1/D' e d' D' M' U'D2 01"
+                      "notation": "0-1/U e' F D' M' U'D2 01"
                     },
                     {
                       "sign": "+",
@@ -3781,7 +3892,7 @@ export const pblClusters = {
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "slice A 2x2 in back (with headlights next to slice). T @ sides. preserve the T block in front.",
+              "angle-explanation": "slice A 2x2 in back with headlights next to slice. T @ sides. preserve the T block in front.",
               "alg-explanation": "bJJ → T move on A → bJJ",
               "cases": [
                 {
@@ -3904,7 +4015,7 @@ export const pblClusters = {
           },
           {
             "angle": "R R",
-            "notation": "0-1 bJj T' bjJ -10"
+            "notation": "0-1 bJj t bjJ -10"
           }
         ]
       },
@@ -4157,7 +4268,7 @@ export const pblClusters = {
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "slice next to U opposite with U @ <B>. slice A 2x2 in back (with headlights next to slice).",
+              "angle-explanation": "slice next to U opposite with U @ <B>. slice A 2x2 in back with headlights next to slice.",
               "alg-explanation": "bJJ → u° to move A to <F> → bJJ",
               "cases": [
                 {
@@ -4412,7 +4523,7 @@ export const pblClusters = {
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "slice next to U opposite with U @ <B>. slice A 2x2 in back (with headlights next to slice).",
+              "angle-explanation": "slice next to U opposite with U @ <B>. slice A 2x2 in back with headlights next to slice.",
               "alg-explanation": "bJJ → 2 move on A to move A to <F>, 1 move on U (in the opposite direction) → bJJ",
               "cases": [
                 {
@@ -4771,9 +4882,9 @@ export const pblClusters = {
                     },
                     {
                       "sign": "-",
-                      "angle": "L BL",
+                      "angle": "L FL",
                       "notation": "10/U2D' U' D u U' M U' -10",
-                      "alternate-solution-overview": "Adj // Opp // y2JN, UU // y2JN"
+                      "alternate-solution-overview": "y2JN // Opp // Adj, y2JN // UU"
                     }
                   ]
                 },
@@ -5037,7 +5148,7 @@ export const pblClusters = {
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "slice A 2x2 in back (with headlights next to slice). the loose end of a Y block next to slice in front.",
+              "angle-explanation": "slice A 2x2 in back with headlights next to slice. the loose end of a Y block next to slice in front.",
               "alg-explanation": "bJJ → change alignment on Y and 4 move on A (F° if the initial JJ is in CS) → fJJ",
               "cases": [
                 {
@@ -5174,7 +5285,7 @@ export const pblClusters = {
             "notation": "10\\D M' t U' w -10"
           },
           {
-            "angle": "FB R",
+            "angle": "FR R",
             "notation": "JJ 1-4 bjj -11"
           }
         ]
@@ -5312,7 +5423,7 @@ export const pblClusters = {
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "slice A 2x2 in back (with headlights next to slice). noslice Z with single misalign.",
+              "angle-explanation": "slice A 2x2 in back with headlights next to slice. noslice Z with single misalign.",
               "alg-explanation": "JR on Z → 2 move on A to bring A to <F>, U° on Z same direction → bJJ",
               "cases": [
                 {
@@ -5446,7 +5557,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "FR F",
+                      "angle": "FR R",
                       "notation": "0-1\\(W' w') D fSS 01"
                     }
                   ]
@@ -5550,7 +5661,7 @@ export const pblClusters = {
             "notation": "10 D' U' F' f2 U' d' E' -10"
           },
           {
-            "angle": "R FL",
+            "angle": "R FR",
             "notation": "0-1\\d' f' D3' d' u E' 01"
           },
           {
@@ -5719,12 +5830,71 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "pj-pj-8",
+          "solution-overview": "pJ pJ",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. U: dual (view A as a pJ and a pJ).",
+              "alg-explanation": "fpJ → U° to move the remaining swap into the back → fpJ",
+              "cases": [
+                {
+                  "case-name": "Al:",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "L",
+                      "notation": "10/fpJ U fpJ -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Ar:",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10/fpJ U' fpJ -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": ":Al",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "L",
+                      "notation": "10/fpJ D' fpJ -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": ":Ar",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10/fpJ D fpJ -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "barflip-9",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 9,
+          "alg-blocks": []
+        },
+        {
           "id": "jj-jj-8",
           "solution-overview": "JJ JJ",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "slice A 2x2 in back (with headlights next to slice). align solved layer.",
+              "angle-explanation": "slice A 2x2 in back with headlights next to slice. align solved layer.",
               "alg-explanation": "bJJ → 2 move on A → bJJ",
               "cases": [
                 {
@@ -5970,6 +6140,10 @@ export const pblClusters = {
           {
             "angle": "FB FB",
             "notation": "10 U' m E m' D -10"
+          },
+          {
+            "angle": "FB FB",
+            "notation": "10\\D M'  t M' d' E' -10"
           }
         ]
       }
@@ -6588,13 +6762,46 @@ export const pblClusters = {
           "alg-blocks": []
         },
         {
+          "id": "pn-opn-9",
+          "solution-overview": "pN OpN",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. <LR>.",
+              "alg-explanation": "t' t (pN) → M* → OpN on E",
+              "cases": [
+                {
+                  "case-name": "E/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "LR",
+                      "notation": "10\\pN M' (m' U' m U' m') -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "H/E",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "LR",
+                      "notation": "10\\pN M' (m' D' m D' m') -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "aa-aa-10",
           "solution-overview": "AA AA",
           "solution-slicecount": 10,
           "alg-blocks": [
             {
               "angle-explanation": "10. <LR>.",
-              "alg-explanation": "AA → e* moving the front edge across the slice → same AA",
+              "alg-explanation": "AA → e* moving the right E swap into the front → same AA",
               "cases": [
                 {
                   "case-name": "E/H",
@@ -6748,7 +6955,7 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "R LR",
                       "notation": "0-1\\F d u' d U' u2' -10",
-                      "alternate-solution-overview": "y2PX // Opp"
+                      "alternate-solution-overview": "y2"
                     }
                   ]
                 },
@@ -6764,7 +6971,7 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "R LR",
                       "notation": "10/F' d' u d' U u2 01",
-                      "alternate-solution-overview": "y2PX // Opp"
+                      "alternate-solution-overview": "y2"
                     }
                   ]
                 }
@@ -6886,8 +7093,8 @@ export const pblClusters = {
             "notation": "10 u2 M 5-4 d3' f' 01"
           },
           {
-            "angle": "F LR",
-            "notation": "10 u U' U' d' D t' U 01"
+            "angle": "L FB",
+            "notation": "10 u UU' d' D t' U 01"
           },
           {
             "angle": "F LR",
@@ -7427,8 +7634,8 @@ export const pblClusters = {
             "notation": "10\\b e jJ t' d' -10"
           },
           {
-            "angle": "FB L",
-            "notation": "10\\W' F' U m' U M' U' 01"
+            "angle": "FB R",
+            "notation": "0-1 u' m U3' u' 5-4 01"
           }
         ]
       },
@@ -7448,8 +7655,8 @@ export const pblClusters = {
             "notation": "0-1\\b' e' bJj T' u 01"
           },
           {
-            "angle": "LR L",
-            "notation": "0-1 B f D' e u e F -10"
+            "angle": "LR F",
+            "notation": "0-1\\B f D' e u e F -10"
           }
         ]
       },
@@ -7482,7 +7689,7 @@ export const pblClusters = {
             "notation": "10 d T' u2 u' B' Ɇ' -10"
           },
           {
-            "angle": "L LR",
+            "angle": "F LR",
             "notation": "10 D' U B' u u2' T d' -10"
           }
         ]
@@ -7577,7 +7784,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L LR",
+                      "angle": "LR L",
                       "notation": "0-1\\RJ -34 bJJ"
                     }
                   ]
@@ -7718,7 +7925,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L",
+                      "angle": "LR L",
                       "notation": "0-1\\u3' T U d' D t' 01"
                     }
                   ]
@@ -7728,7 +7935,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L",
+                      "angle": "L LR",
                       "notation": "10 d3 t D' u U' T' -10"
                     }
                   ]
@@ -7738,7 +7945,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L",
+                      "angle": "LR L",
                       "notation": "10/u3 t D' d U' T' -10"
                     }
                   ]
@@ -7748,7 +7955,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L",
+                      "angle": "L LR",
                       "notation": "0-1\\d3' T U u' D t' 01"
                     }
                   ]
@@ -7818,7 +8025,7 @@ export const pblClusters = {
                     },
                     {
                       "sign": "+",
-                      "angle": "FB L",
+                      "angle": "LR B",
                       "notation": "10/D' e w D U' F' u' -10"
                     }
                   ]
@@ -8069,7 +8276,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "FL LR",
+                      "angle": "BL FB",
                       "notation": "0-1 bSS u' fAdj -10"
                     }
                   ]
@@ -8079,7 +8286,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "LR FL",
+                      "angle": "FB BL",
                       "notation": "10\\bSS U' fAdj -10"
                     }
                   ]
@@ -8342,32 +8549,31 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
-          "id": "jr-rj-6",
-          "solution-overview": "JR // RJ",
+          "id": "jr-rj-nn-6",
+          "solution-overview": "JR // RJ (// NN-)",
           "solution-slicecount": 6,
           "alg-blocks": [
             {
-              "angle-explanation": "10. slice Z (@ Adj angles). (noslice) E @ <LR>.",
-              "alg-explanation": "e' u e' → u° → e*",
+              "angle-explanation": "10. slice the top face. noslice the bottom face. (i.e. Z @ <FR>)",
+              "alg-explanation": "e' u e' → E @ <FB> = F (it needs an F move to “go to” <LR>); E @ <LR> = u'→ e*",
               "cases": [
                 {
                   "case-name": "E/Z",
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "LR FL",
-                      "notation": "10/e' d e' d' e' -10"
+                      "angle": "FB FR",
+                      "notation": "10/e' u e' F e' -10"
                     },
                     {
                       "sign": "-",
-                      "angle": "LR FL",
+                      "angle": "FB FR",
                       "notation": "10/e' u e' d' e -10"
                     },
                     {
                       "sign": "-",
                       "angle": "LR FL",
-                      "notation": "10/e' u e' F e' -10",
-                      "alternate-solution-overview": "JR // RJ // NN-"
+                      "notation": "10/e' d e' d' e' -10"
                     }
                   ]
                 },
@@ -8520,7 +8726,7 @@ export const pblClusters = {
                   "case-name": "E:",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "FB",
                       "notation": "0-1\\d' m W m' d 01"
                     }
@@ -8530,7 +8736,7 @@ export const pblClusters = {
                   "case-name": ":E",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "FB",
                       "notation": "10/u m' B' m u' -10"
                     }
@@ -8667,12 +8873,12 @@ export const pblClusters = {
                   "case-name": "F/F",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B B",
                       "notation": "10/bpJ E' Opp -10"
                     },
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "F F",
                       "notation": "10/fpJ E Opp -10"
                     }
@@ -8695,6 +8901,10 @@ export const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m U' M T 01"
+          },
+          {
+            "angle": "B B",
+            "notation": "10 U' m d' E' u2 u2' -10"
           }
         ]
       }
@@ -8909,11 +9119,11 @@ export const pblClusters = {
         "case-name": "F/Gal",
         "algs": [
           {
-            "angle": "L B",
+            "angle": "R B",
             "notation": "10 u2 m' d -54 W' -10"
           },
           {
-            "angle": "R B",
+            "angle": "L B",
             "notation": "0-1\\u2' f' D' u' d E' 01"
           },
           {
@@ -8951,7 +9161,7 @@ export const pblClusters = {
         "case-name": "Gal/F",
         "algs": [
           {
-            "angle": "L B",
+            "angle": "B L",
             "notation": "10 u2 K' D u d' E' -10"
           },
           {
@@ -9402,7 +9612,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "misalign F @ <L>.",
-              "alg-explanation": "right NN → bAdj → F° on F → right big PS",
+              "alg-explanation": "right NN → left U^ to bAdj → F° on F → right big PS",
               "cases": [
                 {
                   "case-name": "F/H",
@@ -9633,7 +9843,7 @@ export const pblClusters = {
             "notation": "10 T m' DD w -10"
           },
           {
-            "angle": "R F",
+            "angle": "L F",
             "notation": "10 u t ɇ f' T' -10"
           },
           {
@@ -9899,19 +10109,6 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L",
-            "notation": "0-1\\d' f' DD u2' u 01"
-          },
-          {
-            "angle": "L",
-            "notation": "0-1 u' U d t W' F' 01"
-          }
-        ]
-      },
-      {
-        "case-name": "F/Nm",
-        "algs": [
-          {
-            "angle": "L",
             "notation": "10 d f DD' u2 u' -10"
           },
           {
@@ -9921,6 +10118,19 @@ export const pblClusters = {
           {
             "angle": "R",
             "notation": "10 F' W T' u U d' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "F/Nm",
+        "algs": [
+          {
+            "angle": "L",
+            "notation": "0-1\\d' f' DD u2' u 01"
+          },
+          {
+            "angle": "L",
+            "notation": "0-1 u' U d t W' F' 01"
           }
         ]
       },
@@ -10023,8 +10233,8 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
-          "id": "pj-with-inserted-adj-8",
-          "solution-overview": "pJ with inserted Adj",
+          "id": "pj-with-inserted-adj-y2-jj-wb-type-y2-fv-8",
+          "solution-overview": "pJ with inserted Adj, (y2)JJ+ [WB type] // (y2)FV",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
@@ -10637,7 +10847,8 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "R FR",
-                      "notation": "10/u d' u -54 -10"
+                      "notation": "10/u d' u -54 -10",
+                      "alternate-solution-overview": "y2"
                     },
                     {
                       "sign": "+",
@@ -10679,8 +10890,9 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "FL L",
-                      "notation": "10/u3 F U2 -10"
+                      "angle": "R FR",
+                      "notation": "10/u d' u f U2 -10",
+                      "alternate-solution-overview": "this is the one you can learn"
                     }
                   ]
                 },
@@ -10689,9 +10901,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "R FR",
-                      "notation": "10/u d' u f U2 -10",
-                      "alternate-solution-overview": "this is the one you can learn"
+                      "angle": "FL L",
+                      "notation": "10/u3 F U2 -10"
                     }
                   ]
                 }
@@ -10792,6 +11003,12 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "FR L",
                       "notation": "10 u2 U' w' U u2' -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "BR L",
+                      "notation": "10 u u2' W' u2 u' -10",
+                      "alternate-solution-overview": "same as F/Y"
                     }
                   ]
                 }
@@ -11197,7 +11414,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "1-1\\-nn -44 bJJ"
+            "notation": "1-1\\-nn 2-2 JJ"
           }
         ]
       }
@@ -11295,12 +11512,12 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L L",
-                      "notation": "10 (E E') M' bJJ 01"
+                      "notation": "0-1 (E E') M bJJ -10"
                     },
                     {
                       "sign": "+",
                       "angle": "R R",
-                      "notation": "10\\(E' E) M' bJJ 01"
+                      "notation": "0-1\\(E' E) M bJJ -10"
                     }
                   ]
                 },
@@ -11310,12 +11527,12 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L L",
-                      "notation": "0-1 (E E') M bJJ -10"
+                      "notation": "10 (E E') M' bJJ 01"
                     },
                     {
                       "sign": "+",
                       "angle": "R R",
-                      "notation": "0-1\\(E' E) M bJJ -10"
+                      "notation": "10\\(E' E) M' bJJ 01"
                     }
                   ]
                 }
@@ -11961,6 +12178,10 @@ export const pblClusters = {
             "notation": "e' u' t d' e'"
           },
           {
+            "angle": "L B",
+            "notation": "10\\D' F' d' M' d' f' D' 01"
+          },
+          {
             "angle": "B B",
             "notation": "1-1 bjj+E2 04 u2 U' M U' -10"
           }
@@ -12183,8 +12404,8 @@ export const pblClusters = {
         "case-name": "Gar/H",
         "algs": [
           {
-            "angle": "R",
-            "notation": "0-1\\D3' d' e t' 01"
+            "angle": "B",
+            "notation": "0-1 t e' d D3 01"
           },
           {
             "angle": "F",
@@ -12413,8 +12634,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B L",
-                      "notation": "/e' D t u e"
+                      "angle": "R F",
+                      "notation": "\\e U' 4-2 F' e"
                     }
                   ]
                 },
@@ -12424,7 +12645,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B R",
-                      "notation": "1-1/e D' t' d' e -11"
+                      "notation": "1-1/e D' -42 d' e -11"
                     }
                   ]
                 },
@@ -12443,7 +12664,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "L F",
+                      "angle": "F L",
                       "notation": "10/u u2' D' w -10"
                     }
                   ]
@@ -12454,7 +12675,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B L",
-                      "notation": "/e' D T d' e'"
+                      "notation": "/e' D 2-4 d' e'"
                     }
                   ]
                 },
@@ -12464,7 +12685,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B R",
-                      "notation": "1-1/e D' T' u e' -11"
+                      "notation": "1-1/e D' -24 u e' -11"
                     }
                   ]
                 },
@@ -12493,7 +12714,7 @@ export const pblClusters = {
             "notation": "10 e' D u2 u' e' -10"
           },
           {
-            "angle": "L L",
+            "angle": "R R",
             "notation": "\\-NN 10 bjJ -10"
           }
         ]
@@ -12512,7 +12733,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B L",
-            "notation": "\\e' D t u e"
+            "notation": "\\e' D T' d e'"
           },
           {
             "angle": "L L",
@@ -12541,7 +12762,7 @@ export const pblClusters = {
             "notation": "\\-NN -32 bJj 01"
           },
           {
-            "angle": "L F",
+            "angle": "F L",
             "notation": "10 u u2' D' w -10"
           }
         ]
@@ -12622,7 +12843,7 @@ export const pblClusters = {
           },
           {
             "angle": "",
-            "notation": "10 E2 A' U' e D'"
+            "notation": "10 E2 -10 U' e D'"
           }
         ]
       },
@@ -12885,7 +13106,7 @@ export const pblClusters = {
         "case-name": "Nm/Gar",
         "algs": [
           {
-            "angle": "B",
+            "angle": "L",
             "notation": "10 D e U' w e -10"
           },
           {
@@ -14063,7 +14284,7 @@ export const pblClusters = {
           "solution-slicecount": 6,
           "alg-blocks": [
             {
-              "angle-explanation": "preserve G block @ <R>. U opposite @ <L>.",
+              "angle-explanation": "break G block @ <R>. U opposite @ <L>.",
               "alg-explanation": "T° on U (to move G away from U opposite) → f° U° to cancel all movement → w° same direction as T°",
               "cases": [
                 {
@@ -14388,7 +14609,7 @@ export const pblClusters = {
                   "case-name": "Gal/Ur",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B L",
                       "notation": "10/(T T') M' (b' B') 01"
                     }
@@ -14398,7 +14619,7 @@ export const pblClusters = {
                   "case-name": "Ur/Gal",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L B",
                       "notation": "0-1\\(t t') M (w W) -10"
                     }
@@ -14408,7 +14629,7 @@ export const pblClusters = {
                   "case-name": "Gar/Ul",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B R",
                       "notation": "0-1\\(t t') M (b B) -10"
                     }
@@ -14418,7 +14639,7 @@ export const pblClusters = {
                   "case-name": "Ul/Gar",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "R B",
                       "notation": "10/(T T') M' (w' W') 01"
                     }
@@ -14536,7 +14757,7 @@ export const pblClusters = {
             "notation": "0-1\\E' m' U u W' 01"
           },
           {
-            "angle": "R R",
+            "angle": "L L",
             "notation": "0-1\\T' T d' W w -10"
           },
           {
@@ -14660,6 +14881,12 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "L BL",
                       "notation": "10/t' M u d' B -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "L BL",
+                      "notation": "10/T M w D U' -10",
+                      "alternate-solution-overview": "y2"
                     }
                   ]
                 },
@@ -14733,7 +14960,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "FR F",
-                      "notation": "10/Opp E' (w W) -10"
+                      "notation": "10/Opp e' (w W) -10"
                     }
                   ]
                 },
@@ -15510,7 +15737,7 @@ export const pblClusters = {
           },
           {
             "angle": "B",
-            "notation": "\\JN -23 jJ -10"
+            "notation": "\\NJ -23 jJ -10"
           }
         ]
       },
@@ -15531,7 +15758,7 @@ export const pblClusters = {
           },
           {
             "angle": "L",
-            "notation": "10\\-jN -13 JJ"
+            "notation": "10\\-nJ -13 JJ"
           }
         ]
       }
@@ -15716,7 +15943,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B B",
-                      "notation": "0-1/D' e d' e u2 01"
+                      "notation": "0-1/U e' F e u2 01"
                     }
                   ]
                 },
@@ -15788,7 +16015,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "10 D' e f' e u2' -10"
+            "notation": "10 D' e u e' T' -10"
           },
           {
             "angle": "B B",
@@ -15906,7 +16133,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "10 JN M' NN 01"
+                      "notation": "0-1 JN M NN -10"
                     }
                   ]
                 },
@@ -15916,7 +16143,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "0-1 JN M NN -10"
+                      "notation": "10 JN M' NN 01"
                     }
                   ]
                 },
@@ -15926,7 +16153,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "0-1 NJ M NN -10"
+                      "notation": "10 NJ M' NN 01"
                     }
                   ]
                 },
@@ -15936,7 +16163,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R",
-                      "notation": "10 NJ M' NN 01"
+                      "notation": "0-1 NJ M NN -10"
                     }
                   ]
                 }
@@ -15951,8 +16178,8 @@ export const pblClusters = {
         "case-name": "Gol/H",
         "algs": [
           {
-            "angle": "B",
-            "notation": "0-1 t e' d D3 01"
+            "angle": "R",
+            "notation": "0-1\\D3' d' e t' 01"
           },
           {
             "angle": "R",
@@ -16185,7 +16412,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "F L",
-                      "notation": "/e' u' t' U e'"
+                      "notation": "/e' u' -42 U e'"
                     }
                   ]
                 },
@@ -16214,8 +16441,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B R",
-                      "notation": "1-1/e' d t D e' -11"
+                      "angle": "F R",
+                      "notation": "1-1/e' d 4-2 D e' -11"
                     }
                   ]
                 },
@@ -16225,7 +16452,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "L F",
-                      "notation": "/e d T' U e'"
+                      "notation": "/e d -24 U e'"
                     }
                   ]
                 },
@@ -16255,7 +16482,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R F",
-                      "notation": "1-1/e u' T D e' -11"
+                      "notation": "1-1/e u' 2-4 D e' -11"
                     }
                   ]
                 }
@@ -16505,7 +16732,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L",
-                      "notation": "10 fAdj M' (W' w') 01"
+                      "notation": "0-1/fAdj M (B b) -10"
                     }
                   ]
                 },
@@ -16515,7 +16742,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L",
-                      "notation": "0-1 bAdj M (W w) -10"
+                      "notation": "10\\bAdj M' (B' b') 01"
                     }
                   ]
                 },
@@ -16525,7 +16752,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L",
-                      "notation": "0-1 fAdj M (B b) -10"
+                      "notation": "10\\fAdj M' (W' w') 01"
                     }
                   ]
                 },
@@ -16535,7 +16762,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L",
-                      "notation": "10 bAdj M' (B' b') 01"
+                      "notation": "0-1/bAdj M (W w) -10"
                     }
                   ]
                 }
@@ -16562,7 +16789,7 @@ export const pblClusters = {
                   "case-name": "Gol/Na",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "\\e b' D' e U"
                     }
@@ -16572,7 +16799,7 @@ export const pblClusters = {
                   "case-name": "Gor/Nm",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "1-1/e w D' e' D -11"
                     }
@@ -16582,7 +16809,7 @@ export const pblClusters = {
                   "case-name": "Na/Gol",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "\\e' w U e U'"
                     }
@@ -16592,7 +16819,7 @@ export const pblClusters = {
                   "case-name": "Nm/Gor",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "1-1/e' b' U e U' -11"
                     }
@@ -16801,7 +17028,7 @@ export const pblClusters = {
                   "case-name": "Gol/Nm",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "0-1/e b' D' e' D 01"
                     }
@@ -16811,7 +17038,7 @@ export const pblClusters = {
                   "case-name": "Gor/Na",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "10\\e w D' e U -10"
                     }
@@ -16821,7 +17048,7 @@ export const pblClusters = {
                   "case-name": "Na/Gor",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "0-1/e' b' U e U' 01"
                     }
@@ -16831,7 +17058,7 @@ export const pblClusters = {
                   "case-name": "Nm/Gol",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B",
                       "notation": "10\\e' w U e' D' -10"
                     }
@@ -16907,7 +17134,7 @@ export const pblClusters = {
             "notation": "10 e' w U e' D' -10"
           },
           {
-            "angle": "L",
+            "angle": "R",
             "notation": "10\\D e' D' F' t D e -10"
           },
           {
@@ -17141,7 +17368,7 @@ export const pblClusters = {
           },
           {
             "angle": "B B",
-            "notation": "0-1 d' f' D\\F u E' 01"
+            "notation": "0-1 d' f' D F u E' 01"
           },
           {
             "angle": "B B",
@@ -17152,7 +17379,7 @@ export const pblClusters = {
             "notation": "10 u m' D d B' b' 01"
           },
           {
-            "angle": "L B",
+            "angle": "B B",
             "notation": "0-1 U' M T M d 10 bjj -11"
           }
         ]
@@ -17186,7 +17413,7 @@ export const pblClusters = {
             "notation": "10 u F U' f' d' E' -10"
           },
           {
-            "angle": "R F",
+            "angle": "F R",
             "notation": "10 u f UU e' t' d' -10"
           },
           {
@@ -17850,8 +18077,8 @@ export const pblClusters = {
           ]
         },
         {
-          "id": "barflip-7",
-          "solution-overview": "// barflip",
+          "id": "pn-trick-7",
+          "solution-overview": "pN trick",
           "solution-slicecount": 7,
           "alg-blocks": []
         },
@@ -18119,7 +18346,7 @@ export const pblClusters = {
                   "case-name": "Gol/Ur",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "R L",
                       "notation": "10 (B b) M' pN 01"
                     }
@@ -18129,7 +18356,7 @@ export const pblClusters = {
                   "case-name": "Gor/Ul",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "R L",
                       "notation": "0-1/(B' b') M pN -10"
                     }
@@ -18139,7 +18366,7 @@ export const pblClusters = {
                   "case-name": "Ul/Gor",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L R",
                       "notation": "10/(W w) M' pN 01"
                     }
@@ -18149,7 +18376,7 @@ export const pblClusters = {
                   "case-name": "Ur/Gol",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L R",
                       "notation": "0-1\\(W' w') M pN -10"
                     }
@@ -18165,7 +18392,7 @@ export const pblClusters = {
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "<F B>. break G with single misalign.",
+              "angle-explanation": "<B F>. break G with single misalign.",
               "alg-explanation": "JJ away from U block & G block → J @ U on U, misalign G for N",
               "cases": [
                 {
@@ -18173,7 +18400,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "F B",
+                      "angle": "B F",
                       "notation": "0-1/fJJ d' NJ -10"
                     }
                   ]
@@ -18183,7 +18410,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "F B",
+                      "angle": "B F",
                       "notation": "10/fJJ f' NJ 01"
                     }
                   ]
@@ -18193,7 +18420,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "F B",
+                      "angle": "B F",
                       "notation": "0-1/bJJ u' JN -10"
                     }
                   ]
@@ -18203,7 +18430,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "F B",
+                      "angle": "B F",
                       "notation": "10/bJJ F' JN 01"
                     }
                   ]
@@ -19974,8 +20201,8 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
-          "id": "rh-nn-8",
-          "solution-overview": "RH+ // NN",
+          "id": "rn-nn-8",
+          "solution-overview": "RN+ // NN",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
@@ -20019,6 +20246,59 @@ export const pblClusters = {
                       "sign": "-",
                       "angle": "R",
                       "notation": "10/f' D e' M u F E' -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sopp-jn-p-9",
+          "solution-overview": "sOpp // JN // pÑ",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "preserve R @ <R>.",
+              "alg-explanation": "T* M* (sOpp) → U° back on R → W° back on H → U° out on R to NN → m* → u2* back",
+              "cases": [
+                {
+                  "case-name": "H/Rl",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "0-1\\T' M' D' W D m' u2 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "H/Rr",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "10/T M D W' D' m u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Rl/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "10/T M U' B U m u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Rr/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "0-1\\T' M' U B' U' m' u2 01"
                     }
                   ]
                 }
@@ -20071,7 +20351,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L",
-                      "notation": "10/W u E' d' U' D E -10"
+                      "notation": "10 W u E' d' U' D E -10"
                     }
                   ]
                 }
@@ -20294,7 +20574,7 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 9,
     "matt": {
-      "title": "H/T, T/H (10)",
+      "title": "H/T, T/H (10, 9 opt)",
       "distinction-help": "",
       "solution-groups": [
         {
@@ -20329,6 +20609,12 @@ export const pblClusters = {
               ]
             }
           ]
+        },
+        {
+          "id": "barflip-11",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 11,
+          "alg-blocks": []
         },
         {
           "id": "big-ps-ss-10",
@@ -20369,6 +20655,12 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "barflip-11-2",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 11,
+          "alg-blocks": []
+        },
+        {
           "id": "jn-jn-10",
           "solution-overview": "JN JN",
           "solution-slicecount": 10,
@@ -20402,10 +20694,43 @@ export const pblClusters = {
           ]
         },
         {
-          "id": "barflip-11",
+          "id": "barflip-11-3",
           "solution-overview": "// barflip",
           "solution-slicecount": 11,
           "alg-blocks": []
+        },
+        {
+          "id": "abstract-9",
+          "solution-overview": "abstract",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. <R>.",
+              "alg-explanation": "alg.",
+              "cases": [
+                {
+                  "case-name": "H/T",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "0-1/U f E D F' UU' M -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "T/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "0-1\\f F' d' M' u' u2 F D -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -20700,7 +21025,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "R",
-            "notation": "0-1 D' F f' u2' f' F D' -10"
+            "notation": "10\\D F' f u2 f F' D 01"
           },
           {
             "angle": "L",
@@ -20713,7 +21038,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "R",
-            "notation": "10\\D F' f u2 f F' D 01"
+            "notation": "0-1 D' F f' u2' f' F D' -10"
           },
           {
             "angle": "L",
@@ -21091,26 +21416,21 @@ export const pblClusters = {
           "alg-blocks": []
         },
         {
-          "id": "jj-goj-jj-gg-11",
-          "solution-overview": "JJ GoJ; JJ GG+",
+          "id": "pn-adjpn-11",
+          "solution-overview": "pN AdjpN",
           "solution-slicecount": 11,
           "alg-blocks": [
             {
-              "angle-explanation": "",
-              "alg-explanation": "idk",
+              "angle-explanation": "noslice Y @ <FR>.",
+              "alg-explanation": "left pN → M* to AdjpN with Adj on Y",
               "cases": [
                 {
                   "case-name": "H/Y",
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "FL",
-                      "notation": "0-1/fJJ 61 fJJ 10 NN -10"
-                    },
-                    {
-                      "sign": "+",
-                      "angle": "BL",
-                      "notation": "/fJJ -50 (u m' U D M' u') -10"
+                      "angle": "FR",
+                      "notation": "0-1\\(T' T) M (B' u f B' e') -10"
                     }
                   ]
                 },
@@ -21119,13 +21439,41 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "BR",
-                      "notation": "10/bJJ 50 fJJ 0-1 NN 01"
-                    },
+                      "angle": "FR",
+                      "notation": "10/(t' t) M' (W d' F' W e) 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "abstract-9",
+          "solution-overview": "abstract",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "slice Y @ <BL> with single misalign.",
+              "alg-explanation": "alg.",
+              "cases": [
+                {
+                  "case-name": "H/Y",
+                  "algs": [
                     {
                       "sign": "+",
-                      "angle": "FR",
-                      "notation": "/bJJ 6-1 (U m' w M' D) 01"
+                      "angle": "BL",
+                      "notation": "10\\e F2' T -5-2 D w -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Y/H",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BL",
+                      "notation": "0-1\\f F' u' m d' T f D' -10"
                     }
                   ]
                 }
@@ -23934,6 +24282,12 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "R FR",
                       "notation": "10/f' d3' U' T 01"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "L FR",
+                      "notation": "10/F' d' u d' D' t' 01",
+                      "alternate-solution-overview": "y2"
                     }
                   ]
                 },
@@ -24054,7 +24408,7 @@ export const pblClusters = {
             "notation": "10 F' d' u d' D' t' 01"
           },
           {
-            "angle": "R FL",
+            "angle": "R FR",
             "notation": "10 f' d3' U' T 01"
           },
           {
@@ -24062,7 +24416,7 @@ export const pblClusters = {
             "notation": "10 D' U DD' d f e' -10"
           },
           {
-            "angle": "R FL",
+            "angle": "R FR",
             "notation": "10 U3' D' w e -10"
           }
         ]
@@ -24742,7 +25096,7 @@ export const pblClusters = {
                   "case-name": "Rl/Na",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L",
                       "notation": "0-1/W d' E' u W' 01"
                     }
@@ -24752,7 +25106,7 @@ export const pblClusters = {
                   "case-name": "Rr/Nm",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L",
                       "notation": "10 W' d E u' W -10"
                     }
@@ -24762,7 +25116,7 @@ export const pblClusters = {
                   "case-name": "Na/Rl",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L",
                       "notation": "10/B' u E' d' B -10"
                     }
@@ -24772,7 +25126,7 @@ export const pblClusters = {
                   "case-name": "Nm/Rr",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L",
                       "notation": "0-1\\B u' E d B' 01"
                     }
@@ -26577,11 +26931,11 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "",
-            "notation": "0-1 e' D e' D e' 01"
+            "notation": "10 e' D e' D e' -10"
           },
           {
             "angle": "",
-            "notation": "0-1\\B' UU' B 01"
+            "notation": "10 B' UU' B -10"
           }
         ]
       },
@@ -26590,11 +26944,11 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "",
-            "notation": "10 e' D e' D e' -10"
+            "notation": "0-1 e' D e' D e' 01"
           },
           {
             "angle": "",
-            "notation": "10 B' UU' B -10"
+            "notation": "0-1\\B' UU' B 01"
           }
         ]
       },
@@ -27019,7 +27373,7 @@ export const pblClusters = {
                     },
                     {
                       "sign": "-",
-                      "angle": "R B",
+                      "angle": "L B",
                       "notation": "10/u2 d' M' F d u' e' -10"
                     }
                   ]
@@ -27293,7 +27647,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "F B",
-                      "notation": "/bJJ 40 VF -10"
+                      "notation": "/bJJ 43 VF -10"
                     }
                   ]
                 },
@@ -27880,12 +28234,12 @@ export const pblClusters = {
         "case-name": "V/Rl",
         "algs": [
           {
-            "angle": "FR L",
+            "angle": "FL L",
             "notation": "0-1 B' d' m U' b' 01"
           },
           {
-            "angle": "FR L",
-            "notation": "0-1\\b' b' U' bJj 01"
+            "angle": "FL L",
+            "notation": "0-1\\d4' U' bJj 01"
           }
         ]
       },
@@ -27902,7 +28256,7 @@ export const pblClusters = {
           },
           {
             "angle": "BL L",
-            "notation": "10\\b b U jJ -10"
+            "notation": "10\\d4 U jJ -10"
           }
         ]
       }
@@ -28289,8 +28643,8 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
-          "id": "y2-fadj-adj-8",
-          "solution-overview": "(y2)fAdj // Adj",
+          "id": "y2-dadj-adj-8",
+          "solution-overview": "(y2)DAdj // Adj",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
@@ -28528,12 +28882,8 @@ export const pblClusters = {
             "notation": "0-1 U' M d Ɇ' d' 5-4 01"
           },
           {
-            "angle": "FL R",
+            "angle": "FR R",
             "notation": "10 W u t M' D e' T' -10"
-          },
-          {
-            "angle": "FL R",
-            "notation": "10 W u T' M' U' e' u2' -10"
           }
         ]
       },
@@ -28627,8 +28977,8 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
-          "id": "alt-jr-jn-8",
-          "solution-overview": "alt JR+ // JN",
+          "id": "jn-alt-jr-8",
+          "solution-overview": "JN // alt JR+",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
@@ -28851,7 +29201,7 @@ export const pblClusters = {
             "notation": "10 U3 D F2' e' -10"
           },
           {
-            "angle": "R",
+            "angle": "B",
             "notation": "10 w D W' e' w -10"
           }
         ]
@@ -29027,7 +29377,7 @@ export const pblClusters = {
                     },
                     {
                       "sign": "-",
-                      "angle": "L B",
+                      "angle": "R B",
                       "notation": "/bJJ 4-1 bJJ -11"
                     }
                   ]
@@ -29269,7 +29619,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FL F",
-                      "notation": "10 T D w' D' T' -10"
+                      "notation": "10/T D w' D' T' -10"
                     }
                   ]
                 }
@@ -29285,7 +29635,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L FR",
-                      "notation": "10 u T' W T u' -10"
+                      "notation": "10/u T' W T u' -10"
                     }
                   ]
                 }
@@ -29298,6 +29648,45 @@ export const pblClusters = {
           "solution-overview": "// barflip",
           "solution-slicecount": 8,
           "alg-blocks": []
+        },
+        {
+          "id": "au-nn-sopp-spj-8",
+          "solution-overview": "AU+ // NN; sOpp // SpJ",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. T @ <L>. V @ <FR>.",
+              "alg-explanation": "inconsistent algs, but straightforward cancel.",
+              "cases": [
+                {
+                  "case-name": "V/T",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FR L",
+                      "notation": "10/T M d w' U u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "T/V",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "L FR",
+                      "notation": "10/w U' D' u d' E' -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "R FL",
+                      "notation": "10/T M b u D u2' -10",
+                      "alternate-solution-overview": "sOpp // SpJ"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -29335,7 +29724,7 @@ export const pblClusters = {
             "notation": "10 T D w' D' T' -10"
           },
           {
-            "angle": "FL F",
+            "angle": "FR L",
             "notation": "10 T M d w' U u2' -10"
           },
           {
@@ -29455,7 +29844,7 @@ export const pblClusters = {
                     },
                     {
                       "sign": "-",
-                      "angle": "R BL",
+                      "angle": "BL R",
                       "notation": "/bJJ 12 fJJ -11"
                     }
                   ]
@@ -29936,8 +30325,8 @@ export const pblClusters = {
         "case-name": "Ul/Ul",
         "algs": [
           {
-            "angle": "R R",
-            "notation": "10 u2 u2' Ɇ' M' d' -10"
+            "angle": "L L",
+            "notation": "10 u2 u2' D U M' u' -10"
           }
         ]
       },
@@ -29946,7 +30335,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L L",
-            "notation": "10 u2 u2' D U M' u' -10"
+            "notation": "10 u2 u2' UU M' u' -10"
           }
         ]
       }
@@ -30246,7 +30635,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B FR",
-                      "notation": "10\\RJ u bJJ 01"
+                      "notation": "0-1/JR d' bJJ -10"
                     }
                   ]
                 },
@@ -30256,7 +30645,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FR B",
-                      "notation": "0-1/JR d' bJJ -10"
+                      "notation": "10\\RJ u bJJ 01"
                     }
                   ]
                 },
@@ -30266,7 +30655,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B FL",
-                      "notation": "0-1\\RJ u' bJJ -10"
+                      "notation": "10/JR d bJJ 01"
                     }
                   ]
                 },
@@ -30276,7 +30665,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FL B",
-                      "notation": "10/JR d bJJ 01"
+                      "notation": "0-1\\RJ u' bJJ -10"
                     }
                   ]
                 }
@@ -30481,7 +30870,7 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 7,
     "matt": {
-      "title": "U/Y, Y/U",
+      "title": "U/Y, Y/U (8, 7 opt)",
       "distinction-help": "",
       "solution-groups": [
         {
@@ -30544,10 +30933,68 @@ export const pblClusters = {
           "alg-blocks": []
         },
         {
-          "id": "group-7",
-          "solution-overview": "???",
+          "id": "pj-opp-jj-tt-jj-pj-bb-inv-7",
+          "solution-overview": "pJ // Opp // JJ, TT // JJ, pJ // BB + inv.",
           "solution-slicecount": 7,
-          "alg-blocks": []
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. U @ <L>.\n(U opposite broken, pJ // Opp // JJ) slice Y on right.",
+              "alg-explanation": "U° m* (pJ on U opposite) → D° to Opp → u° back to JJ → e' U°",
+              "cases": [
+                {
+                  "case-name": "Ul/Y",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L FR",
+                      "notation": "10/U' m D d' e' U -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Y/Ur",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BR L",
+                      "notation": "10/D' m U u' e' D -10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "angle-explanation": "(U opposite preserved, JJ // Opp // pJ) noslice Y on left.",
+              "alg-explanation": "U° e* (JJ away from U opposite)→ u° to Opp → U° back to pJ → m' U°",
+              "cases": [
+                {
+                  "case-name": "Ur/Y",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L FL",
+                      "notation": "10/U' e d D' m' U -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "L FL",
+                      "notation": "10/D e' F' U' m' D -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Y/Ul",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BL L",
+                      "notation": "10/D' e u U' m' D -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -30701,12 +31148,12 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B FR",
+                      "angle": "B FL",
                       "notation": "10 fAdj U bAdj -10"
                     },
                     {
                       "sign": "-",
-                      "angle": "F FR",
+                      "angle": "F FL",
                       "notation": "10 bAdj U fAdj -10"
                     }
                   ]
@@ -30716,12 +31163,12 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B FR",
+                      "angle": "FR B",
                       "notation": "10 fAdj D bAdj -10"
                     },
                     {
                       "sign": "-",
-                      "angle": "F FR",
+                      "angle": "FR F",
                       "notation": "10 bAdj D fAdj -10"
                     }
                   ]
@@ -30731,12 +31178,12 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "R FR",
+                      "angle": "FR R",
                       "notation": "10 fAdj D' bAdj -10"
                     },
                     {
                       "sign": "-",
-                      "angle": "L FR",
+                      "angle": "FR L",
                       "notation": "10 bAdj D' fAdj -10"
                     }
                   ]
@@ -31045,7 +31492,7 @@ export const pblClusters = {
             "notation": "U 10 D' -10 U' 10 D -10"
           },
           {
-            "angle": "B",
+            "angle": "L",
             "notation": "10\\D M' d' ɇ M' d' -10"
           }
         ]
@@ -31221,7 +31668,7 @@ export const pblClusters = {
                   "case-name": "V/Y",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "FL BL",
                       "notation": "10/u M B' M' u' -10"
                     }
@@ -31231,7 +31678,7 @@ export const pblClusters = {
                   "case-name": "Y/V",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "FL BL",
                       "notation": "10\\D M' w' M D' -10"
                     }
@@ -31851,7 +32298,7 @@ export const pblClusters = {
             "notation": "10 W u m' U' D F' d' -10"
           },
           {
-            "angle": "FL BR",
+            "angle": "FR BR",
             "notation": "0-1\\e b' e' -31 JJ"
           }
         ]
@@ -32479,6 +32926,11 @@ export const pblClusters = {
                       "sign": "-",
                       "angle": "F FL",
                       "notation": "10/E' U D' b -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "B BR",
+                      "notation": "10 E W d u' -10"
                     }
                   ]
                 }
@@ -32841,8 +33293,12 @@ export const pblClusters = {
             "notation": "10 e' w D m d' -10"
           },
           {
+            "angle": "BR R",
+            "notation": "10\\u U' f2 d' F' d' -10"
+          },
+          {
             "angle": "FR F",
-            "notation": "0-1 T' f' U u' d M T 01"
+            "notation": "0-1\\T' f' U u' d M T 01"
           },
           {
             "angle": "BR R",
@@ -32868,10 +33324,6 @@ export const pblClusters = {
           {
             "angle": "BR B",
             "notation": "10 T f U' u D' M E' -10"
-          },
-          {
-            "angle": "BR R",
-            "notation": "10\\u U' f2 d' F' d' -10"
           }
         ]
       },
@@ -33011,6 +33463,11 @@ export const pblClusters = {
                       "sign": "-",
                       "angle": "R FL",
                       "notation": "10/b D U' E -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "L BR",
+                      "notation": "10/u d' W E' -10"
                     }
                   ]
                 }
@@ -33049,11 +33506,19 @@ export const pblClusters = {
           },
           {
             "angle": "FL R",
+            "notation": "0-1 w' UU' e' E' 01"
+          },
+          {
+            "angle": "FL R",
             "notation": "0-1\\u' F' B D' U' 01"
           },
           {
             "angle": "FL R",
             "notation": "0-1\\u' F' W D' E' 01"
+          },
+          {
+            "angle": "FL R",
+            "notation": "0-1 U e t d W 01"
           }
         ]
       },
@@ -33082,8 +33547,16 @@ export const pblClusters = {
             "notation": "10 w E' W' -10"
           },
           {
+            "angle": "R FL",
+            "notation": "10 b D U' E -10"
+          },
+          {
             "angle": "L BR",
             "notation": "10 u m' E' U B -10"
+          },
+          {
+            "angle": "R FL",
+            "notation": "10 d f B' U E' -10"
           }
         ]
       }
@@ -33759,6 +34232,11 @@ export const pblClusters = {
                       "sign": "-",
                       "angle": "LR FR",
                       "notation": "10/B fAdj B -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "FB BR",
+                      "notation": "0-1/w' fAdj w' 01"
                     }
                   ]
                 }
@@ -33872,7 +34350,7 @@ export const pblClusters = {
             "notation": "10 0-1 D' 50 -50 D 01 -10"
           },
           {
-            "angle": "LR FL",
+            "angle": "LR FR",
             "notation": "10 B d M D3' -10"
           },
           {
@@ -34009,6 +34487,10 @@ export const pblClusters = {
           {
             "angle": "FR R",
             "notation": "10\\b D' U' B -10"
+          },
+          {
+            "angle": "BL L",
+            "notation": "10 u T' B' ɇ' -10"
           }
         ]
       },
@@ -34029,7 +34511,11 @@ export const pblClusters = {
           },
           {
             "angle": "BR L",
-            "notation": "10 B U D b -10"
+            "notation": "10 B ɇ b -10"
+          },
+          {
+            "angle": "FR L",
+            "notation": "10 D U B' T u' -10"
           }
         ]
       },
@@ -34237,7 +34723,7 @@ export const pblClusters = {
             "notation": "0-1 bJj e W b' 01"
           },
           {
-            "angle": "FR F",
+            "angle": "FR B",
             "notation": "10\\b W' e jJ -10"
           },
           {
@@ -34457,6 +34943,45 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
+          "id": "vz-pn-9",
+          "solution-overview": "VZ // pN",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "Adj 2x2 as V block. (i.e. misalign Adj @ <BR>.)",
+              "alg-explanation": "VZ, V on Adj → midabf = U° same direction to pN",
+              "cases": [
+                {
+                  "case-name": "Adj/Q",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BR",
+                      "notation": "10/w D3 F' U' t -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Q/Adj",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BR",
+                      "notation": "0-1/b' U3' f D T 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "barflip-10",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 10,
+          "alg-blocks": []
+        },
+        {
           "id": "jj-bb-9",
           "solution-overview": "JJ BB",
           "solution-slicecount": 9,
@@ -34490,7 +35015,7 @@ export const pblClusters = {
           ]
         },
         {
-          "id": "barflip-10",
+          "id": "barflip-10-2",
           "solution-overview": "// barflip",
           "solution-slicecount": 10,
           "alg-blocks": []
@@ -34698,16 +35223,6 @@ export const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Adj/Sm",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "FR F",
-                      "notation": "1-1/bJJ 61 fpJ -10"
-                    }
-                  ]
-                },
-                {
                   "case-name": "Sa/Adj",
                   "algs": [
                     {
@@ -34718,11 +35233,21 @@ export const pblClusters = {
                   ]
                 },
                 {
+                  "case-name": "Adj/Sm",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FR F",
+                      "notation": "1-1/bJJ 61 fpJ -10"
+                    }
+                  ]
+                },
+                {
                   "case-name": "Sm/Adj",
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B FL",
+                      "angle": "F FR",
                       "notation": "1-1/bJJ 61 bpJ -10"
                     }
                   ]
@@ -35234,7 +35759,7 @@ export const pblClusters = {
           },
           {
             "angle": "B B",
-            "notation": "bJJ 13 30Adj -10"
+            "notation": "bJJ 1-3 30Adj -10"
           }
         ]
       },
@@ -35390,9 +35915,68 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 8,
     "matt": {
-      "title": "bad B/C, C/B (9)",
+      "title": "bad B/C, C/B (8)",
       "distinction-help": "<B B>. B loose block and C 2x2 should be on different sides.",
       "solution-groups": [
+        {
+          "id": "big-y2-ps-y2-jr-8",
+          "solution-overview": "big (y2)PS // (y2)JR",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "<B B>. preserve B.",
+              "alg-explanation": "(Ba, big PS // y2JR) W° u° (big PS on C) → F° to JR → right u° d° → e* back",
+              "cases": [
+                {
+                  "case-name": "Ba/Cl",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "0-1\\B' d' F' d' u e' 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Cl/Ba",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "10/W u f u d' e -10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "angle-explanation": "<B B>. preserve B.",
+              "alg-explanation": "(Bm, big y2 PS // JR) U° on B → D° on C → u° out → F° to JR → right w° → e* back",
+              "cases": [
+                {
+                  "case-name": "Bm/Cr",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "10/U D' u F w e -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Cr/Bm",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "0-1\\D' U d' f' b' e' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
         {
           "id": "pj-uu-9",
           "solution-overview": "pJ UU",
@@ -35658,7 +36242,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "R B",
-                      "notation": "0-1\\u2' t' b' e' 01"
+                      "notation": "0-1 u2' t' b' e' 01"
                     }
                   ]
                 },
@@ -35689,7 +36273,7 @@ export const pblClusters = {
                   "case-name": "Ba/Cr",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "B L",
                       "notation": "10/M' u2' m w' e' 01"
                     }
@@ -35699,7 +36283,7 @@ export const pblClusters = {
                   "case-name": "Cl/Bm",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "R B",
                       "notation": "10/M' u2' m b' e' 01"
                     }
@@ -35709,8 +36293,8 @@ export const pblClusters = {
                   "case-name": "Bm/Cl",
                   "algs": [
                     {
-                      "sign": "-",
-                      "angle": "F L",
+                      "sign": "+",
+                      "angle": "B R",
                       "notation": "0-1\\M u2 44 b e' -10"
                     }
                   ]
@@ -35719,7 +36303,7 @@ export const pblClusters = {
                   "case-name": "Cr/Ba",
                   "algs": [
                     {
-                      "sign": "-",
+                      "sign": "+",
                       "angle": "L B",
                       "notation": "0-1\\M u2 44 w e' -10"
                     }
@@ -35810,6 +36394,10 @@ export const pblClusters = {
           },
           {
             "angle": "B L",
+            "notation": "10 M' u2' m w' e' 01"
+          },
+          {
+            "angle": "B L",
             "notation": "10 M' E' m' D f' e 01"
           }
         ]
@@ -35824,6 +36412,10 @@ export const pblClusters = {
           {
             "angle": "B R",
             "notation": "10 u2 t u d' e' -10"
+          },
+          {
+            "angle": "L B",
+            "notation": "10 T u2' w e -10"
           },
           {
             "angle": "B R",
@@ -35851,6 +36443,10 @@ export const pblClusters = {
       {
         "case-name": "Cr/Ba",
         "algs": [
+          {
+            "angle": "L B",
+            "notation": "10 u2 T' w e' -10"
+          },
           {
             "angle": "L B",
             "notation": "10 u2 t d u' e' -10"
@@ -36606,8 +37202,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B R",
-                      "notation": "/bJJ -20 bAdj -10"
+                      "angle": "B B",
+                      "notation": "/bJJ 10 bAdj -10"
                     }
                   ]
                 },
@@ -36616,7 +37212,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "F R",
+                      "angle": "B B",
                       "notation": "1-1/bJJ -3-2 bAdj -10"
                     }
                   ]
@@ -36626,7 +37222,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "R F",
+                      "angle": "B B",
                       "notation": "/bJJ -2-3 bAdj -10"
                     }
                   ]
@@ -36636,8 +37232,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "R B",
-                      "notation": "1-1/bJJ 0-2 bAdj -10"
+                      "angle": "B B",
+                      "notation": "1-1/bJJ 01 bAdj -10"
                     }
                   ]
                 }
@@ -36893,8 +37489,8 @@ export const pblClusters = {
                   "case-name": "Ba/Km",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "B R",
+                      "sign": "-",
+                      "angle": "B B",
                       "notation": "0-1/bJJ d' bAdj -10"
                     }
                   ]
@@ -36903,8 +37499,8 @@ export const pblClusters = {
                   "case-name": "Bm/Ka",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "F R",
+                      "sign": "-",
+                      "angle": "B B",
                       "notation": "10/bJJ U' bAdj -10"
                     }
                   ]
@@ -36913,9 +37509,9 @@ export const pblClusters = {
                   "case-name": "Ka/Bm",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "R F",
-                      "notation": "0-1/bJJ m' bAdj -10"
+                      "sign": "-",
+                      "angle": "B B",
+                      "notation": "0-1/bJJ u' bAdj -10"
                     }
                   ]
                 },
@@ -36923,8 +37519,8 @@ export const pblClusters = {
                   "case-name": "Km/Ba",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "R B",
+                      "sign": "-",
+                      "angle": "B B",
                       "notation": "10/bJJ D' bAdj -10"
                     }
                   ]
@@ -37206,7 +37802,7 @@ export const pblClusters = {
             "notation": "0-1 T' e' U u B 01"
           },
           {
-            "angle": "L F",
+            "angle": "B L",
             "notation": "10 E' E M' w' B 01"
           }
         ]
@@ -37466,6 +38062,10 @@ export const pblClusters = {
             "notation": "0-1 W' u' E M' F t' 01"
           },
           {
+            "angle": "L",
+            "notation": "0-1 Jj u' T f e' D -10"
+          },
+          {
             "angle": "B",
             "notation": "10 E E' M' F u3 F -10"
           }
@@ -37563,7 +38163,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "preserve B loose block @ <L>.",
-              "alg-explanation": "T° to move B loose block to <B> → f° U° u° (GaU) → E^ across to Adj → M* U^ back",
+              "alg-explanation": "T° to move B loose block to <F> → f° U° u° (GaU) → E^ across to Adj → M* U^ back",
               "cases": [
                 {
                   "case-name": "Ba/Or",
@@ -37720,10 +38320,6 @@ export const pblClusters = {
           {
             "angle": "B",
             "notation": "10 T f U' u E' M D' -10"
-          },
-          {
-            "angle": "L",
-            "notation": "0-1 Jj u' T f e' D -10"
           },
           {
             "angle": "B",
@@ -37980,7 +38576,7 @@ export const pblClusters = {
             "notation": "0-1 u2' m D' U3 01"
           },
           {
-            "angle": "LR F",
+            "angle": "LR B",
             "notation": "10 M' u2' T D U3' 01"
           }
         ]
@@ -38262,7 +38858,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B B",
-                      "notation": "0-1/bJJ u2' fAdj -10"
+                      "notation": "0-1/bJJ u2' bAdj -10"
                     }
                   ]
                 }
@@ -38287,6 +38883,10 @@ export const pblClusters = {
           {
             "angle": "R B",
             "notation": "0-1\\T' u2 UU' e' 01"
+          },
+          {
+            "angle": "B B",
+            "notation": "0-1 D' e D' u' M' D 01"
           }
         ]
       },
@@ -38304,6 +38904,10 @@ export const pblClusters = {
           {
             "angle": "L B",
             "notation": "0-1 e' u' F' T' u2 01"
+          },
+          {
+            "angle": "B B",
+            "notation": "10 D' e D' U M' -54 -10"
           }
         ]
       },
@@ -38402,41 +39006,21 @@ export const pblClusters = {
       "distinction-help": "<B B>. B loose block and P 2x2 should be on different sides.",
       "solution-groups": [
         {
-          "id": "opp-jj-7",
-          "solution-overview": "Opp JJ",
+          "id": "pn-jj-7",
+          "solution-overview": "pN JJ",
           "solution-slicecount": 7,
           "alg-blocks": [
             {
-              "angle-explanation": "preserve B @ ends so Opp sends it to <B>. P @ sides.",
-              "alg-explanation": "Opp → JJ to solve CP",
+              "angle-explanation": "<B B>. noslice P with single misalign.",
+              "alg-explanation": "left pN → left E^ to double align/misalign, preserving B → bJJ",
               "cases": [
                 {
                   "case-name": "Ba/Pr",
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "F L",
-                      "notation": "10/Opp -1-3/bJJ"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Bm/Pl",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "F L",
-                      "notation": "10/Opp 0-4/bJJ -11"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Pl/Bm",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "L B",
-                      "notation": "10/Opp -3-4/bJJ -11"
+                      "angle": "B B",
+                      "notation": "10\\(t' t) -43 bJJ"
                     }
                   ]
                 },
@@ -38445,8 +39029,28 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L B",
-                      "notation": "10/Opp 20/bJJ"
+                      "angle": "B B",
+                      "notation": "0-1\\(T' T) -34 bJJ"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Bm/Pl",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "B B",
+                      "notation": "0-1\\(T' T) -23 bJJ -11"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Pl/Bm",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "B B",
+                      "notation": "10\\(t' t) -32 bJJ -11"
                     }
                   ]
                 }
@@ -38531,7 +39135,7 @@ export const pblClusters = {
             "notation": "1-1 bjj 31 03Adj -10"
           },
           {
-            "angle": "F F",
+            "angle": "B B",
             "notation": "0-1\\T' T -23 bjj -11"
           }
         ]
@@ -38887,6 +39491,10 @@ export const pblClusters = {
             "notation": "0-1 W ɇ' b' 01"
           },
           {
+            "angle": "B L",
+            "notation": "0-1\\W E' U T' u 01"
+          },
+          {
             "angle": "L B",
             "notation": "0-1 E' Ɇ w' 01"
           },
@@ -38906,6 +39514,10 @@ export const pblClusters = {
           {
             "angle": "R B",
             "notation": "10\\e W F' M D' -10"
+          },
+          {
+            "angle": "B R",
+            "notation": "10 B' U E' M' d' -10"
           },
           {
             "angle": "L F",
@@ -39089,7 +39701,7 @@ export const pblClusters = {
                   "case-name": "Ba/pN",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B FR",
                       "notation": "10/Opp 20 JN"
                     }
@@ -39099,7 +39711,7 @@ export const pblClusters = {
                   "case-name": "Bm/pN",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B FR",
                       "notation": "10/Opp U JN -10"
                     }
@@ -39109,7 +39721,7 @@ export const pblClusters = {
                   "case-name": "pN/Bm",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "FR B",
                       "notation": "10/Opp d NJ 01"
                     }
@@ -39119,7 +39731,7 @@ export const pblClusters = {
                   "case-name": "pN/Ba",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "FR B",
                       "notation": "10/Opp -13 NJ"
                     }
@@ -39172,8 +39784,8 @@ export const pblClusters = {
             "notation": "10 T M D U3' -10"
           },
           {
-            "angle": "FR L",
-            "notation": "0-1\\u2' u2 04 W W"
+            "angle": "FR B",
+            "notation": "0-1\\u2' u2 04 U4"
           },
           {
             "angle": "FR L",
@@ -39190,7 +39802,7 @@ export const pblClusters = {
           },
           {
             "angle": "FR B",
-            "notation": "0-1\\u2' u2 D W W 01"
+            "notation": "0-1\\u2' u2 D U4 01"
           }
         ]
       }
@@ -39600,7 +40212,7 @@ export const pblClusters = {
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "preserve B @ <L>. preserve S @ <R>.",
+              "angle-explanation": "preserve both @ <L L>.",
               "alg-explanation": "JN on S with first move bringing S to B loose block → (same direction) 20° to 10 → Adj",
               "cases": [
                 {
@@ -39608,8 +40220,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L R",
-                      "notation": "/D4' -20 fAdj -10"
+                      "angle": "L L",
+                      "notation": "\\D4 -20 fAdj -10"
                     }
                   ]
                 },
@@ -39618,8 +40230,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R L",
-                      "notation": "\\U4 -20 fAdj -10"
+                      "angle": "L L",
+                      "notation": "/U4' -20 fAdj -10"
                     }
                   ]
                 },
@@ -39628,8 +40240,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L R",
-                      "notation": "1-1\\D4 0-2 bAdj -10"
+                      "angle": "L L",
+                      "notation": "1-1/D4' 0-2 bAdj -10"
                     }
                   ]
                 },
@@ -39638,8 +40250,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R L",
-                      "notation": "1-1\\U4' 0-2 bAdj -10"
+                      "angle": "L L",
+                      "notation": "1-1/U4 0-2 bAdj -10"
                     }
                   ]
                 }
@@ -39796,16 +40408,16 @@ export const pblClusters = {
           "solution-slicecount": 7,
           "alg-blocks": [
             {
-              "angle-explanation": "preserve B @ <L>. preserve S @ <R>.",
-              "alg-explanation": "U3° (JN on S with first move bringing S to B loose block) → E^ to the other side → M* → U^ back",
+              "angle-explanation": "preserve both @ <L L>.",
+              "alg-explanation": "U3° (JN on S with first move bringing S to B loose block) → e^ cancel movement→ M* → U^ back",
               "cases": [
                 {
                   "case-name": "Ba/Sm",
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L R",
-                      "notation": "0-1/D3' T' M' U 01"
+                      "angle": "L L",
+                      "notation": "0-1\\D3 e' M u 01"
                     }
                   ]
                 },
@@ -39814,8 +40426,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L R",
-                      "notation": "10\\D3 T M U' -10"
+                      "angle": "L L",
+                      "notation": "10/D3' e M' u' -10"
                     }
                   ]
                 },
@@ -39824,8 +40436,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R L",
-                      "notation": "0-1\\U3' E M d 01"
+                      "angle": "L L",
+                      "notation": "0-1/U3 m' M' D 01"
                     }
                   ]
                 },
@@ -39834,8 +40446,8 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R L",
-                      "notation": "10/U3 E' M' d' -10"
+                      "angle": "L L",
+                      "notation": "10\\U3' m M D' -10"
                     }
                   ]
                 }
@@ -39928,7 +40540,7 @@ export const pblClusters = {
             "notation": "10 D3' e M' u' -10"
           },
           {
-            "angle": "L F",
+            "angle": "L L",
             "notation": "10\\U3 e' D w -10"
           }
         ]
@@ -40840,8 +41452,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B B",
-                      "notation": "10 d m' d M U2D' M' u' -10",
-                      "alternate-solution-overview": "FF will just cancel into Adj"
+                      "notation": "10 FF M' bAdj 01"
                     }
                   ]
                 },
@@ -40851,7 +41462,8 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B B",
-                      "notation": "10 FF M' bAdj 01"
+                      "notation": "10 d m' d M U2D' M' u' -10",
+                      "alternate-solution-overview": "FF will just cancel into Adj"
                     }
                   ]
                 }
@@ -41476,12 +42088,12 @@ export const pblClusters = {
         "case-name": "Cl/Ka",
         "algs": [
           {
-            "angle": "L F",
-            "notation": "10 u3 E' m' U -10"
+            "angle": "B R",
+            "notation": "0-1\\U m' E' u3 01"
           },
           {
-            "angle": "L F",
-            "notation": "10 w U' t' E M U' -10"
+            "angle": "B R",
+            "notation": "0-1 U' M E t' U' w' 01"
           }
         ]
       },
@@ -41489,12 +42101,12 @@ export const pblClusters = {
         "case-name": "Cr/Km",
         "algs": [
           {
-            "angle": "L B",
-            "notation": "0-1\\u3' E m U' 01"
+            "angle": "F R",
+            "notation": "10 U' m E u3' -10"
           },
           {
-            "angle": "L B",
-            "notation": "0-1 w' U t t' M u 01"
+            "angle": "F R",
+            "notation": "10\\U M' E' t U w -10"
           }
         ]
       },
@@ -41725,12 +42337,12 @@ export const pblClusters = {
         "case-name": "Cl/Km",
         "algs": [
           {
-            "angle": "B R",
-            "notation": "0-1\\U m' E' u3 01"
+            "angle": "L F",
+            "notation": "10 u3 E' m' U -10"
           },
           {
-            "angle": "R B",
-            "notation": "0-1 U' M E t' U' w' 01"
+            "angle": "L F",
+            "notation": "10 w U' t' E M U' -10"
           }
         ]
       },
@@ -41738,12 +42350,12 @@ export const pblClusters = {
         "case-name": "Cr/Ka",
         "algs": [
           {
-            "angle": "F R",
-            "notation": "10 U' m E u3' -10"
+            "angle": "L B",
+            "notation": "0-1\\u3' E m U' 01"
           },
           {
-            "angle": "F R",
-            "notation": "10\\U M' E' t U w -10"
+            "angle": "L B",
+            "notation": "0-1 w' U t t' M u 01"
           }
         ]
       },
@@ -41927,7 +42539,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B B",
-                      "notation": "10/fJJ d bSS 01"
+                      "notation": "0-1\\fJJ d' bSS -10"
                     }
                   ]
                 },
@@ -41937,7 +42549,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B B",
-                      "notation": "0-1\\fJJ u' bSS -10"
+                      "notation": "10/fJJ u bSS 01"
                     }
                   ]
                 },
@@ -41947,7 +42559,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B B",
-                      "notation": "0-1\\fJJ d' bSS -10"
+                      "notation": "10/fJJ d bSS 01"
                     }
                   ]
                 },
@@ -41957,7 +42569,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B B",
-                      "notation": "10/fJJ u bSS 01"
+                      "notation": "0-1\\fJJ u' bSS -10"
                     }
                   ]
                 }
@@ -42133,7 +42745,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "0-1\\VF 44 (W w) -10"
+                      "notation": "10/VF -4-4 (W' w') 01"
                     }
                   ]
                 },
@@ -42143,7 +42755,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "F",
-                      "notation": "10/VF -4-4 (W' w') 01"
+                      "notation": "0-1\\VF 44 (W w) -10"
                     }
                   ]
                 }
@@ -42248,7 +42860,7 @@ export const pblClusters = {
         "case-name": "Cr/Or",
         "algs": [
           {
-            "angle": "B",
+            "angle": "L",
             "notation": "10 w E' U' F' u' M' u' -10"
           },
           {
@@ -42288,10 +42900,6 @@ export const pblClusters = {
           {
             "angle": "B",
             "notation": "10 Ɇ u3 T' u2 d' -10"
-          },
-          {
-            "angle": "B",
-            "notation": "10\\D M' D m' b Ɇ -10"
           },
           {
             "angle": "B",
@@ -42575,6 +43183,10 @@ export const pblClusters = {
           {
             "angle": "R",
             "notation": "10 u3 d' u M U2D -10"
+          },
+          {
+            "angle": "B",
+            "notation": "10\\D M' D m' b Ɇ -10"
           },
           {
             "angle": "L",
@@ -42900,7 +43512,7 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 7,
     "matt": {
-      "title": "good C/P, P/C (8)",
+      "title": "good C/P, P/C (8, 7 opt)",
       "distinction-help": "2x2s on different sides.",
       "solution-groups": [
         {
@@ -43022,7 +43634,7 @@ export const pblClusters = {
                   "case-name": "Cl/Pl",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/FF E fAdj -10"
                     }
@@ -43032,7 +43644,7 @@ export const pblClusters = {
                   "case-name": "Cr/Pr",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/FF U2 fAdj -10"
                     }
@@ -43042,7 +43654,7 @@ export const pblClusters = {
                   "case-name": "Pl/Cl",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/FF U2 bAdj -10"
                     }
@@ -43052,9 +43664,62 @@ export const pblClusters = {
                   "case-name": "Pr/Cr",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/FF E' fAdj -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gj-opp-inv-7",
+          "solution-overview": "GJ- // Opp + inv.",
+          "solution-slicecount": 7,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. noslice P 2x2 on right. slice C 2x2 on left.",
+              "alg-explanation": "alg.",
+              "cases": [
+                {
+                  "case-name": "Cl/Pl",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F L",
+                      "notation": "10/u2 U' d' D u2 d' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Cr/Pr",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L B",
+                      "notation": "10/d u2' D' d U u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Pl/Cl",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F L",
+                      "notation": "10/u u2' D' u U u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Pr/Cr",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L B",
+                      "notation": "10/u2 U' u' D u2 u' -10"
                     }
                   ]
                 }
@@ -43453,7 +44118,7 @@ export const pblClusters = {
           },
           {
             "angle": "B R",
-            "notation": "10 w U U F' d' u -54 -10"
+            "notation": "10 u3 W d' u -54 -10"
           },
           {
             "angle": "B B",
@@ -43470,7 +44135,7 @@ export const pblClusters = {
           },
           {
             "angle": "B R",
-            "notation": "10 u3 W d' u -54 -10"
+            "notation": "10 w UU F' d' u -54 -10"
           },
           {
             "angle": "B B",
@@ -43561,7 +44226,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "R B",
-                      "notation": "10 D M' F w e' -10"
+                      "notation": "10\\D M' F w e' -10"
                     }
                   ]
                 },
@@ -43571,7 +44236,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B R",
-                      "notation": "0-1 U' M f' b' e 01"
+                      "notation": "0-1/U' M f' b' e 01"
                     }
                   ]
                 }
@@ -43587,7 +44252,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "R B",
-                      "notation": "10 e w f' M U' -10"
+                      "notation": "10\\e w F' M D' -10"
                     }
                   ]
                 },
@@ -43597,7 +44262,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B R",
-                      "notation": "0-1 e' b' f M' U 01"
+                      "notation": "0-1/e' b' f M' U 01"
                     }
                   ]
                 }
@@ -43641,7 +44306,7 @@ export const pblClusters = {
           },
           {
             "angle": "B R",
-            "notation": "10 B' u E/ M U2D -10"
+            "notation": "10 B' u Ɇ M U2D -10"
           }
         ]
       },
@@ -43761,7 +44426,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FR L",
-                      "notation": "10/u4 M' fAdj 01"
+                      "notation": "10/u4 M' bAdj 01"
                     }
                   ]
                 },
@@ -44130,7 +44795,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L",
-            "notation": "10\\b B E u M u u2' -10"
+            "notation": "0-1\\b' B' 44 u2 u' M' u' -10"
           },
           {
             "angle": "L",
@@ -44143,7 +44808,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L",
-            "notation": "0-1\\b' B' 44 u2 u' M' u' -10"
+            "notation": "10\\b B E u M u u2' -10"
           },
           {
             "angle": "L",
@@ -45158,7 +45823,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "1-1 bjj 0-2 u2 u2' -10"
+            "notation": "1-1 bjj 01 u2 u2' -10"
           }
         ]
       }
@@ -45209,11 +45874,16 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "preserve both @ <B B>.",
-              "alg-explanation": "U° e* (fJJ on the misaligned layer) → right u° → left T° back",
+              "alg-explanation": "U e' (fJJ on the misaligned layer) → right U^ to pN → left T° back",
               "cases": [
                 {
                   "case-name": "Da/Dm",
                   "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "B B",
+                      "notation": "0-1/U e' F t' 01"
+                    },
                     {
                       "sign": "+",
                       "angle": "B B",
@@ -45364,7 +46034,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "D @ <R>. preserve K @ D no block zone.",
-              "alg-explanation": "(Ka, good JR) e* (JR start on K) → right w° → F° opposite layer → M* U° (Adj)",
+              "alg-explanation": "(Ka, good JR) 10 = e; 0-1 = e' → right w° → F° opposite layer → M* U° (Adj)",
               "cases": [
                 {
                   "case-name": "Da/Ka",
@@ -45390,7 +46060,7 @@ export const pblClusters = {
             },
             {
               "angle-explanation": "D @ <R>. preserve K @ D no block zone.",
-              "alg-explanation": "(Km, bad JR) e* (JR start on K) → left w° → F° opposite layer → M* U° (Adj)",
+              "alg-explanation": "(Km, bad JR) 10 = e; 0-1 = e' → left w° → F° opposite layer → M* U° (Adj)",
               "cases": [
                 {
                   "case-name": "Dm/Km",
@@ -45507,7 +46177,7 @@ export const pblClusters = {
             "notation": "0-1 e' w' f M' U 01"
           },
           {
-            "angle": "LR",
+            "angle": "L R",
             "notation": "10 30Adj 32 bjj -11"
           }
         ]
@@ -45520,7 +46190,7 @@ export const pblClusters = {
             "notation": "0-1\\e u' d D M u 01"
           },
           {
-            "angle": "B R",
+            "angle": "L R",
             "notation": "10 30Adj 23 bJJ"
           }
         ]
@@ -45733,7 +46403,7 @@ export const pblClusters = {
             "notation": "0-1 d' m e' D3 01"
           },
           {
-            "angle": "B B",
+            "angle": "B R",
             "notation": "10 30Adj d bJj 01"
           }
         ]
@@ -45763,7 +46433,7 @@ export const pblClusters = {
             "notation": "0-1 u' m e' U3 01"
           },
           {
-            "angle": "B B",
+            "angle": "L B",
             "notation": "10 30Adj u bjJ 01"
           }
         ]
@@ -45962,12 +46632,12 @@ export const pblClusters = {
         "case-name": "Da/M",
         "algs": [
           {
-            "angle": "B L",
-            "notation": "0-1 B u' U' e T 01"
+            "angle": "F L",
+            "notation": "10 B' u U e' T' -10"
           },
           {
-            "angle": "B L",
-            "notation": "0-1\\B w' M E E' -10"
+            "angle": "F L",
+            "notation": "10 B' w M' E' E 01"
           }
         ]
       },
@@ -45975,12 +46645,12 @@ export const pblClusters = {
         "case-name": "Dm/M",
         "algs": [
           {
-            "angle": "F L",
-            "notation": "10 B' u U e' T' -10"
+            "angle": "B L",
+            "notation": "0-1 B u' U' e T 01"
           },
           {
-            "angle": "F L",
-            "notation": "10 B' w M' E' E 01"
+            "angle": "B L",
+            "notation": "0-1\\B w' M E E' -10"
           }
         ]
       },
@@ -46673,12 +47343,12 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R",
+                      "angle": "R LR",
                       "notation": "0-1/D3' U 44 u2 01"
                     },
                     {
                       "sign": "+",
-                      "angle": "R",
+                      "angle": "R LR",
                       "notation": "0-1\\D3 U' m' u2 01"
                     }
                   ]
@@ -46688,7 +47358,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R",
+                      "angle": "R LR",
                       "notation": "10/D3' U m u2' -10"
                     }
                   ]
@@ -46698,7 +47368,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R",
+                      "angle": "LR R",
                       "notation": "10/U3 D' m u2' -10"
                     }
                   ]
@@ -46708,12 +47378,12 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "R",
+                      "angle": "LR R",
                       "notation": "0-1/U3 D' 44 u2 01"
                     },
                     {
                       "sign": "+",
-                      "angle": "R",
+                      "angle": "LR R",
                       "notation": "0-1/U3' D m' u2 01"
                     }
                   ]
@@ -46735,8 +47405,8 @@ export const pblClusters = {
                   "case-name": "Da/Opp",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "R",
+                      "sign": "-",
+                      "angle": "R LR",
                       "notation": "0-1\\JN M pN -10"
                     }
                   ]
@@ -46745,8 +47415,8 @@ export const pblClusters = {
                   "case-name": "Dm/Opp",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "R",
+                      "sign": "-",
+                      "angle": "R LR",
                       "notation": "10/JN M' pN 01"
                     }
                   ]
@@ -46755,8 +47425,8 @@ export const pblClusters = {
                   "case-name": "Opp/Da",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "R",
+                      "sign": "-",
+                      "angle": "LR R",
                       "notation": "10/NJ M' pN 01"
                     }
                   ]
@@ -46765,8 +47435,8 @@ export const pblClusters = {
                   "case-name": "Opp/Dm",
                   "algs": [
                     {
-                      "sign": "+",
-                      "angle": "R",
+                      "sign": "-",
+                      "angle": "LR R",
                       "notation": "0-1/NJ M pN -10"
                     }
                   ]
@@ -47293,7 +47963,11 @@ export const pblClusters = {
         "case-name": "Da/Pr",
         "algs": [
           {
-            "angle": "L F",
+            "angle": "R B",
+            "notation": "0-1 W D' -54 u2 01"
+          },
+          {
+            "angle": "R F",
             "notation": "0-1 D' UU u' t' 01"
           },
           {
@@ -47406,9 +48080,83 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 6,
     "matt": {
-      "title": "D/pJ, pJ/D (7, 6 opt)",
+      "title": "D/pJ, pJ/D (6)",
       "distinction-help": "",
       "solution-groups": [
+        {
+          "id": "small-pk-nn-ps-w-y2-inserted-jn-6",
+          "solution-overview": "small PK // NN; PS w/ y2 inserted // JN",
+          "solution-slicecount": 6,
+          "alg-blocks": [
+            {
+              "angle-explanation": "pJ @ <B>. D Adj @ fAdj angle (preserve D fixed block @ <B>).",
+              "alg-explanation": "(Da) w° D° (left small PK on pJ) → U° to NN → E'",
+              "cases": [
+                {
+                  "case-name": "Da/pJ",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "L B",
+                      "notation": "0-1\\w' D U' E 01"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "R F",
+                      "notation": "0-1\\b' E' W' 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pJ/Da",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B L",
+                      "notation": "10/b U' D E -10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "angle-explanation": "pJ @ <B>. D Adj @ fAdj angle (preserve D fixed block @ <B>).",
+              "alg-explanation": "(Dm) b* on pJ → E* across → W* back",
+              "cases": [
+                {
+                  "case-name": "Dm/pJ",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R B",
+                      "notation": "10/b E W -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "L F",
+                      "notation": "10/w D' U E' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pJ/Dm",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "B R",
+                      "notation": "0-1\\w' E B' 01"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "F L",
+                      "notation": "0-1\\b' U D' E' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
         {
           "id": "adj-jj-wb-type-7",
           "solution-overview": "Adj // JJ+ [WB type]",
@@ -47425,12 +48173,6 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "R F",
                       "notation": "0-1/D' M t' U B 01"
-                    },
-                    {
-                      "sign": "+",
-                      "angle": "R F",
-                      "notation": "0-1\\b' D U W 01",
-                      "alternate-solution-overview": "y2AU+ // pJ"
                     }
                   ]
                 },
@@ -47475,12 +48217,71 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "small-ps-jj-7",
+          "solution-overview": "small PS // JJ",
+          "solution-slicecount": 7,
+          "alg-blocks": [
+            {
+              "angle-explanation": "preserve D @ <L>. pJ @ D blocks.",
+              "alg-explanation": "w° U° (small PS on D) → E* across → e* U° back",
+              "cases": [
+                {
+                  "case-name": "Da/pJ",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L B",
+                      "notation": "0-1\\w' U' E e U' 01"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "R F",
+                      "notation": "0-1\\b' D U W 01",
+                      "alternate-solution-overview": "y2AU+ // pJ"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pJ/Da",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "B L",
+                      "notation": "10/b D E e' D -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Dm/pJ",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L F",
+                      "notation": "10/w U E' e' U -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pJ/Dm",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F L",
+                      "notation": "0-1\\b' D' E' e D' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "adj-jj-8",
           "solution-overview": "Adj JJ",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "D Adj @ Adj angle (preserve D fixed block @ <B>). pJ @ <B>.",
+              "angle-explanation": "pJ @ <B>. D Adj @ Adj angle (preserve D fixed block @ <B>).",
               "alg-explanation": "Adj on D Adj → U° moving D to <B> → bJJ",
               "cases": [
                 {
@@ -47532,65 +48333,6 @@ export const pblClusters = {
           "solution-overview": "Adj JJ+",
           "solution-slicecount": 9,
           "alg-blocks": []
-        },
-        {
-          "id": "small-y2-pk-nn-ps-w-y2-inserted-jn-6",
-          "solution-overview": "small (y2)PK // NN, PS w/ y2 inserted // JN",
-          "solution-slicecount": 6,
-          "alg-blocks": [
-            {
-              "angle-explanation": "(D/pJ) preserve D @ <R>. pJ @ D fixed block.",
-              "alg-explanation": "b* → E* back → W* opposite direction",
-              "cases": [
-                {
-                  "case-name": "Da/pJ",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "R F",
-                      "notation": "0-1\\b' E' W' 01"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Dm/pJ",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "R B",
-                      "notation": "10/b E W -10"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "angle-explanation": "(pJ/D) pJ @ <F>. preserve D fixed block @ pJ.",
-              "alg-explanation": "w° D° (small PK on D) → U° to NN → E'",
-              "cases": [
-                {
-                  "case-name": "pJ/Da",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "F R",
-                      "notation": "10/w D' U E' -10"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "pJ/Dm",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "F L",
-                      "notation": "0-1\\b' U D' E' 01"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
         }
       ]
     },
@@ -48341,7 +49083,7 @@ export const pblClusters = {
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "no block zones @ Adj angles.",
+              "angle-explanation": "<L L> (no block zones @ Adj angles).",
               "alg-explanation": "Adj on no block zones → JN to solve CP",
               "cases": [
                 {
@@ -48349,7 +49091,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L B",
+                      "angle": "L L",
                       "notation": "0-1/fAdj 01 JN"
                     }
                   ]
@@ -48359,7 +49101,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "B L",
+                      "angle": "L L",
                       "notation": "10/fAdj -10 NJ"
                     }
                   ]
@@ -48369,7 +49111,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L F",
+                      "angle": "L L",
                       "notation": "10/bAdj 0-1 JN -11"
                     }
                   ]
@@ -48379,7 +49121,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "F L",
+                      "angle": "L L",
                       "notation": "0-1/bAdj 10 NJ -11"
                     }
                   ]
@@ -48594,7 +49336,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B L",
-                      "notation": "10/bpJ D fJJ -10"
+                      "notation": "10/bpJ D' fJJ -10"
                     }
                   ]
                 },
@@ -48815,7 +49557,7 @@ export const pblClusters = {
                   "case-name": "Da/W",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "R BL",
                       "notation": "10 (B b) M' NN 01"
                     }
@@ -48825,7 +49567,7 @@ export const pblClusters = {
                   "case-name": "Dm/W",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "R FL",
                       "notation": "0-1 (B' b') M NN -10"
                     }
@@ -48835,7 +49577,7 @@ export const pblClusters = {
                   "case-name": "W/Da",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "BL R",
                       "notation": "0-1 (W' w') M NN -10"
                     }
@@ -48845,7 +49587,7 @@ export const pblClusters = {
                   "case-name": "W/Dm",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "FL R",
                       "notation": "10 (W w) M' NN 01"
                     }
@@ -49045,11 +49787,15 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L",
-            "notation": "10\\U M' E' d' D 5-4 u2' -10"
+            "notation": "0-1 U' M E d D' -54 u2 01"
+          },
+          {
+            "angle": "B",
+            "notation": "10 u u2' T b' u' W -10"
           },
           {
             "angle": "L",
-            "notation": "10 U3' D' w u2 T' -10"
+            "notation": "0-1 U' M E d D' f u2 M -10"
           }
         ]
       },
@@ -49058,15 +49804,11 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L",
-            "notation": "0-1 U' M E d D' -54 u2 01"
+            "notation": "10\\U M' E' d' D 5-4 u2' -10"
           },
           {
             "angle": "L",
-            "notation": "10 u u2' T b' u' W -10"
-          },
-          {
-            "angle": "L",
-            "notation": "0-1 U' M E d D' f u2 M -10"
+            "notation": "10 U3' D' w u2 T' -10"
           }
         ]
       },
@@ -49236,11 +49978,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "0-1 d' m D' E' 01"
-          },
-          {
-            "angle": "B B",
-            "notation": "0-1 D' M t' e D' 01"
+            "notation": "10 u m' D -10 NN"
           }
         ]
       },
@@ -49249,11 +49987,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "10 D' m d' E' -10"
-          },
-          {
-            "angle": "B B",
-            "notation": "10 U' e T M U' -10"
+            "notation": "10 u m' D 0-1 nn -11"
           }
         ]
       }
@@ -49377,7 +50111,11 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "10 u m' D 0-1 nn -11"
+            "notation": "0-1 d' m D' E' 01"
+          },
+          {
+            "angle": "B B",
+            "notation": "0-1 D' M t' e D' 01"
           }
         ]
       },
@@ -49386,7 +50124,11 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "10 u m' D -10 NN"
+            "notation": "10 D' m d' E' -10"
+          },
+          {
+            "angle": "B B",
+            "notation": "10 U' e T M U' -10"
           }
         ]
       }
@@ -49457,7 +50199,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B B",
-                      "notation": "0-1/D' e d' U' M' d' d2 01"
+                      "notation": "0-1/U e' F U' M' d' d2 01"
                     },
                     {
                       "sign": "-",
@@ -49473,7 +50215,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B B",
-                      "notation": "0-1/D' e d' D' M' u' d2 01"
+                      "notation": "0-1/U e' F D' M' u' d2 01"
                     },
                     {
                       "sign": "-",
@@ -49490,6 +50232,59 @@ export const pblClusters = {
                       "sign": "-",
                       "angle": "B B",
                       "notation": "10/U e' u F M' D u2' -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "jj-small-ps-9",
+          "solution-overview": "JJ small PS",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "preserve K @ <R>. M @ K fixed block with single misalign.",
+              "alg-explanation": "JJ on K fixed block → u3° on M → extend into small PS",
+              "cases": [
+                {
+                  "case-name": "Ka/M",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R B",
+                      "notation": "0-1/fJJ d' (b B) -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "M/Ka",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "B R",
+                      "notation": "10\\fJJ u (w' W') 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Km/M",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R F",
+                      "notation": "10\\bJJ d (b' B') 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "M/Km",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F R",
+                      "notation": "0-1/bJJ u' (w W) -10"
                     }
                   ]
                 }
@@ -49633,23 +50428,6 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "B B",
-            "notation": "10 D' e f' F M' D u2' -10"
-          },
-          {
-            "angle": "B B",
-            "notation": "10 jJ t' D' M u E' 01"
-          },
-          {
-            "angle": "B B",
-            "notation": "1-1 jj -40 D' M u E' 01"
-          }
-        ]
-      },
-      {
-        "case-name": "M/Km",
-        "algs": [
-          {
-            "angle": "B B",
             "notation": "10 u m' Ɇ' M' u' e' -10"
           },
           {
@@ -49659,6 +50437,23 @@ export const pblClusters = {
           {
             "angle": "B B",
             "notation": "JJ 40 u M D' E' -10"
+          }
+        ]
+      },
+      {
+        "case-name": "M/Km",
+        "algs": [
+          {
+            "angle": "B B",
+            "notation": "10 D' e f' F M' D u2' -10"
+          },
+          {
+            "angle": "B B",
+            "notation": "10 jJ t' D' M u E' 01"
+          },
+          {
+            "angle": "B B",
+            "notation": "1-1 jj -40 D' M u E' 01"
           }
         ]
       }
@@ -49737,7 +50532,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "break O. preserve K @ <L> (slicing out of CS).",
-              "alg-explanation": "JJ with starting move moving K loose block to K fixed block → 2 move on O → BB",
+              "alg-explanation": "JJ on K loose block→ 2 move on O → BB",
               "cases": [
                 {
                   "case-name": "Ka/Ol",
@@ -49877,7 +50672,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "B",
-                      "notation": "0-1\\XP 02 NJ -11"
+                      "notation": "10/XP 0-2 NJ"
                     }
                   ]
                 },
@@ -49887,7 +50682,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "F",
-                      "notation": "10/XP 0-2 NJ"
+                      "notation": "0-1\\XP 02 NJ -11"
                     }
                   ]
                 }
@@ -50100,7 +50895,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "break O. preserve K @ <L> (with single misalign).",
-              "alg-explanation": "DD with starting move moving K loose block to K fixed block → 2 move on O → JJ same direction",
+              "alg-explanation": "DD with starting JJ on K loose block → 2 move on O → JJ same direction",
               "cases": [
                 {
                   "case-name": "Ka/Or",
@@ -50505,12 +51300,71 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "pj-tt-a-opp-9",
+          "solution-overview": "pJ TT, A: // Opp",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. K fixed block @ <B>. Opp @ <LR>.",
+              "alg-explanation": "bpJ → U° to move K headlights to the front → TT",
+              "cases": [
+                {
+                  "case-name": "Ka/Opp",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R LR",
+                      "notation": "10/bpJ U TT -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Km/Opp",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L LR",
+                      "notation": "10/bpJ U' TT -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Opp/Ka",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "LR R",
+                      "notation": "10/bpJ D' TT -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Opp/Km",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "LR L",
+                      "notation": "10/bpJ D TT -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "barflip-opp-trick-10",
+          "solution-overview": "// barflip, Opp trick",
+          "solution-slicecount": 10,
+          "alg-blocks": []
+        },
+        {
           "id": "big-ps-jj-9",
           "solution-overview": "big PS JJ",
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "ditto.",
+              "angle-explanation": "ditto as \"big PS // JJ+ [JR type]\".",
               "alg-explanation": "big PS on K → U° on Opp with non-PS hand (i.e. if right PS then U° with left hand) → Ka = bJJ; Km = fJJ",
               "cases": [
                 {
@@ -50582,7 +51436,7 @@ export const pblClusters = {
             "notation": "0-1\\d' t' W f U' u2 01"
           },
           {
-            "angle": "L FB",
+            "angle": "L LR",
             "notation": "10 u3 M E' U w -10"
           },
           {
@@ -50617,6 +51471,27 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "LR R",
+            "notation": "10 B d F B' e' -10"
+          },
+          {
+            "angle": "LR L",
+            "notation": "10 u t Ɇ' f' D u2' -10"
+          },
+          {
+            "angle": "LR R",
+            "notation": "10\\B b U bjJ -10"
+          },
+          {
+            "angle": "FB F",
+            "notation": "0-1 bJj u' B b -10"
+          }
+        ]
+      },
+      {
+        "case-name": "Opp/Km",
+        "algs": [
+          {
+            "angle": "LR R",
             "notation": "0-1\\B' d' F' B e 01"
           },
           {
@@ -50634,27 +51509,6 @@ export const pblClusters = {
           {
             "angle": "FB B",
             "notation": "0-1 Jj U b' B' 01"
-          }
-        ]
-      },
-      {
-        "case-name": "Opp/Km",
-        "algs": [
-          {
-            "angle": "LR R",
-            "notation": "10 B d F B' e' -10"
-          },
-          {
-            "angle": "LR L",
-            "notation": "10 u t Ɇ' f' D u2' -10"
-          },
-          {
-            "angle": "LR R",
-            "notation": "10\\B b U bjJ -10"
-          },
-          {
-            "angle": "FB F",
-            "notation": "0-1 bJj u' B b -10"
           }
         ]
       }
@@ -50848,7 +51702,7 @@ export const pblClusters = {
                   "case-name": "Ka/Pl",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "0-1/bJJ F fAdj -10"
                     }
@@ -50858,7 +51712,7 @@ export const pblClusters = {
                   "case-name": "Ka/Pr",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "/bJJ 4-3 fAdj -10"
                     }
@@ -50868,7 +51722,7 @@ export const pblClusters = {
                   "case-name": "Km/Pl",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "1-1/bJJ 61 fAdj -10"
                     }
@@ -50878,7 +51732,7 @@ export const pblClusters = {
                   "case-name": "Km/Pr",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/bJJ D bAdj -10"
                     }
@@ -50888,7 +51742,7 @@ export const pblClusters = {
                   "case-name": "Pl/Ka",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/bJJ U bAdj -10"
                     }
@@ -50898,7 +51752,7 @@ export const pblClusters = {
                   "case-name": "Pr/Ka",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "/bJJ -50 bAdj -10"
                     }
@@ -50908,7 +51762,7 @@ export const pblClusters = {
                   "case-name": "Pl/Km",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "1-1/bJJ -34 fAdj -10"
                     }
@@ -50918,7 +51772,7 @@ export const pblClusters = {
                   "case-name": "Pr/Km",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "0-1/bJJ f fAdj -10"
                     }
@@ -50963,6 +51817,10 @@ export const pblClusters = {
           {
             "angle": "F R",
             "notation": "10 b W' -10"
+          },
+          {
+            "angle": "B L",
+            "notation": "10 u d' D' U'D2 -10"
           },
           {
             "angle": "F R",
@@ -51014,6 +51872,10 @@ export const pblClusters = {
           {
             "angle": "R F",
             "notation": "0-1\\u' T D' B' 01"
+          },
+          {
+            "angle": "R B",
+            "notation": "0-1 U2 f 5-4 D U' 01"
           }
         ]
       },
@@ -51850,7 +52712,7 @@ export const pblClusters = {
           },
           {
             "angle": "R",
-            "notation": "10 (D' m U u2') U' (d m' U) -10"
+            "notation": "10 D' m U u2' U' d m' U -10"
           },
           {
             "angle": "R",
@@ -52861,7 +53723,7 @@ export const pblClusters = {
           },
           {
             "angle": "R",
-            "notation": "10 u f D' E' F' U' e' u2' -10"
+            "notation": "10 u f D' E' F' u' -4-4 u2' -10"
           }
         ]
       },
@@ -52879,19 +53741,6 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "R",
-            "notation": "0-1\\B' d' F' w' e 01"
-          },
-          {
-            "angle": "L",
-            "notation": "10 u f E D F' U m' E' -10"
-          }
-        ]
-      },
-      {
-        "case-name": "X/Km",
-        "algs": [
-          {
-            "angle": "R",
             "notation": "10 B d F w e' -10"
           },
           {
@@ -52905,6 +53754,19 @@ export const pblClusters = {
           {
             "angle": "F",
             "notation": "10\\e w F' f B' D -10"
+          }
+        ]
+      },
+      {
+        "case-name": "X/Km",
+        "algs": [
+          {
+            "angle": "R",
+            "notation": "0-1\\B' d' F' w' e 01"
+          },
+          {
+            "angle": "L",
+            "notation": "10 u f E D F' U m' E' -10"
           }
         ]
       }
@@ -53014,7 +53876,7 @@ export const pblClusters = {
                   "case-name": "M/M",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B B",
                       "notation": "10/t' M u m' u u2' M' 01"
                     }
@@ -53543,7 +54405,7 @@ export const pblClusters = {
                   "case-name": "M/Pl",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "B L",
                       "notation": "10/(b W') M' NN 01"
                     }
@@ -53553,7 +54415,7 @@ export const pblClusters = {
                   "case-name": "M/Pr",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "F L",
                       "notation": "0-1\\(b' W) M NN -10"
                     }
@@ -53563,7 +54425,7 @@ export const pblClusters = {
                   "case-name": "Pl/M",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L B",
                       "notation": "0-1/(w' B) M NN -10"
                     }
@@ -53573,7 +54435,7 @@ export const pblClusters = {
                   "case-name": "Pr/M",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "L F",
                       "notation": "10/(w B') M' NN 01"
                     }
@@ -53635,11 +54497,11 @@ export const pblClusters = {
           },
           {
             "angle": "R B",
-            "notation": "0-1\\E' E M B' w -10"
+            "notation": "0-1\\-Nn M B' w -10"
           },
           {
-            "angle": "R B",
-            "notation": "0-1\\w' B M E' E -10"
+            "angle": "L B",
+            "notation": "0-1\\w' B M -nN -10"
           },
           {
             "angle": "B R",
@@ -53754,6 +54616,11 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "L L",
                       "notation": "10/U' m W' m' U -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "L L",
+                      "notation": "0-1 U m' W m U' 01"
                     }
                   ]
                 }
@@ -53819,6 +54686,10 @@ export const pblClusters = {
           {
             "angle": "L L",
             "notation": "10 U' m W' m' U -10"
+          },
+          {
+            "angle": "L F",
+            "notation": "0-1\\u2' u2 u' u2 U' m' D -10"
           }
         ]
       },
@@ -53832,10 +54703,6 @@ export const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1\\D m' D T u' T T' -10"
-          },
-          {
-            "angle": "L F",
-            "notation": "0-1\\u2' u2 u' u2 U' m' D -10"
           }
         ]
       }
@@ -53938,6 +54805,39 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "FR R",
                       "notation": "10/fpJ D' AA -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "jj-big-ps-9",
+          "solution-overview": "JJ big PS",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "M @ <F>. break (and misalign) pN @ <FL>.",
+              "alg-explanation": "bJJ → right U° → right big PS on M",
+              "cases": [
+                {
+                  "case-name": "M/pN",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F FL",
+                      "notation": "0-1/bJJ d' (W w) -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pN/M",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL F",
+                      "notation": "10/bJJ u (B' b') 01"
                     }
                   ]
                 }
@@ -54076,8 +54976,8 @@ export const pblClusters = {
           "alg-blocks": []
         },
         {
-          "id": "fpj-y2-dd-d-dd-adj-dd-jr-dd-small-ibpk-adj-big-ps-gj-ps-9",
-          "solution-overview": "fpJ // y2[DD' D' DD'] // Adj // DD, JR- // DD; small ibPK // Adj // big PS, GJ- // PS",
+          "id": "small-ibpk-adj-big-ps-gj-ps-9",
+          "solution-overview": "small ibPK // Adj // big PS, GJ- // PS",
           "solution-slicecount": 9,
           "alg-blocks": [
             {
@@ -54090,7 +54990,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "L",
-                      "notation": "10/u F U' f' D' f e' D -10"
+                      "notation": "10/w D u2 t U2D u d' -10"
                     }
                   ]
                 },
@@ -54303,7 +55203,7 @@ export const pblClusters = {
           },
           {
             "angle": "L L",
-            "notation": "10\\b b E' u2 u2' -10"
+            "notation": "10\\d4 E' u2 u2' -10"
           }
         ]
       },
@@ -54315,8 +55215,8 @@ export const pblClusters = {
             "notation": "0-1 d3' U M' E' 01"
           },
           {
-            "angle": "L L",
-            "notation": "10\\b b U' u2 u2' -10"
+            "angle": "L B",
+            "notation": "10\\d4 U' u2 u2' -10"
           }
         ]
       },
@@ -54422,22 +55322,22 @@ export const pblClusters = {
               "alg-explanation": "w° U° (small PS on W) → E* opposite direction to AdjAdj → U° to pNpN → T° back",
               "cases": [
                 {
-                  "case-name": "W/M",
-                  "algs": [
-                    {
-                      "sign": "-",
-                      "angle": "BR R",
-                      "notation": "10/w U E' M' U' t -10"
-                    }
-                  ]
-                },
-                {
                   "case-name": "M/W",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "R FR",
                       "notation": "10/b D E M' D' T' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "W/M",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "BR R",
+                      "notation": "10/w U E' M' U' t -10"
                     }
                   ]
                 }
@@ -54452,6 +55352,44 @@ export const pblClusters = {
           "alg-blocks": []
         },
         {
+          "id": "jj-dd-9",
+          "solution-overview": "JJ DD",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "M @ <R>. noslice W @ <BR>.",
+              "alg-explanation": "bJJ → F° on M → bDD",
+              "cases": [
+                {
+                  "case-name": "M/W",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R BR",
+                      "notation": "0-1/bJJ F bDD -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "W/M",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BR R",
+                      "notation": "10/bJJ f' bDD 01"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "BL L",
+                      "notation": "0-1/bJJ f bDD -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "small-ps-barflip-pn-adj-small-ps-barflip-yy-9",
           "solution-overview": "small PS // barflip // pN // Adj, small PS // barflip // YY",
           "solution-slicecount": 9,
@@ -54461,22 +55399,22 @@ export const pblClusters = {
               "alg-explanation": "w° U° (small PS on W) → form a UU° → m to pN → U^ back → M' U^ back",
               "cases": [
                 {
-                  "case-name": "W/M",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "BR R",
-                      "notation": "10/w UU m F M' d' -10"
-                    }
-                  ]
-                },
-                {
                   "case-name": "M/W",
                   "algs": [
                     {
                       "sign": "+",
                       "angle": "R FR",
                       "notation": "10/b DD m f M' u' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "W/M",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "BR R",
+                      "notation": "10/w UU m F M' d' -10"
                     }
                   ]
                 }
@@ -55386,9 +56324,62 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 8,
     "matt": {
-      "title": "bad O/P, P/O (9)",
+      "title": "bad O/P, P/O (8)",
       "distinction-help": "O and P goes in different directions.",
       "solution-groups": [
+        {
+          "id": "pq-nn-8",
+          "solution-overview": "PQ // NN",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "noslice P @ <R>.",
+              "alg-explanation": "PQ, P on P → midabf = F°",
+              "cases": [
+                {
+                  "case-name": "Ol/Pr",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "0-1/D' T' U' T D' F E' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Or/Pl",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10/D T U T' D F' E 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Pl/Or",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "0-1/U' T' U' T U' f E -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Pr/Ol",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "R",
+                      "notation": "10/U T U T' U f' E' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
         {
           "id": "px-nn-9",
           "solution-overview": "PX NN",
@@ -55399,17 +56390,7 @@ export const pblClusters = {
               "alg-explanation": "PX on O → change O alignment → NN",
               "cases": [
                 {
-                  "case-name": "Ol/Pl",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "R",
-                      "notation": "10/XP 10 NN -11"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Or/Pr",
+                  "case-name": "Ol/Pr",
                   "algs": [
                     {
                       "sign": "+",
@@ -55419,7 +56400,17 @@ export const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Pl/Ol",
+                  "case-name": "Or/Pl",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "R",
+                      "notation": "10/XP 10 NN -11"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Pl/Or",
                   "algs": [
                     {
                       "sign": "+",
@@ -55429,7 +56420,7 @@ export const pblClusters = {
                   ]
                 },
                 {
-                  "case-name": "Pr/Or",
+                  "case-name": "Pr/Ol",
                   "algs": [
                     {
                       "sign": "+",
@@ -55452,42 +56443,42 @@ export const pblClusters = {
               "alg-explanation": "E D° W° u^ (J: // M2) → finish the OOpp on O with M2s",
               "cases": [
                 {
-                  "case-name": "Ol/Pl",
+                  "case-name": "Ol/Pr",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "10/E D W' F' u' M' u' M' 01"
+                      "notation": "0-1/E D W' u' U' M' u' M' 01"
                     }
                   ]
                 },
                 {
-                  "case-name": "Or/Pr",
+                  "case-name": "Or/Pl",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "0-1\\E D W' u' u M u M -10"
+                      "notation": "10/E D W' F' F M' F M' 01"
                     }
                   ]
                 },
                 {
-                  "case-name": "Pl/Ol",
+                  "case-name": "Pl/Or",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "0-1/E U' B f D M' f M' 01"
+                      "notation": "0-1/E U' B f D' M' d' M' 01"
                     }
                   ]
                 },
                 {
-                  "case-name": "Pr/Or",
+                  "case-name": "Pr/Ol",
                   "algs": [
                     {
                       "sign": "-",
                       "angle": "B",
-                      "notation": "10/E U' B d d' M' d' M' 01"
+                      "notation": "10/E U' B d f M' f M' 01"
                     }
                   ]
                 }
@@ -55688,7 +56679,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "R",
+                      "angle": "L",
                       "notation": "0-1\\W' u' f' d' u e' 01"
                     }
                   ]
@@ -55794,7 +56785,7 @@ export const pblClusters = {
         "algs": [
           {
             "angle": "L",
-            "notation": "0-1 U' f u2 u' F' u' f' 01"
+            "notation": "0-1 e' f d f u W' 01"
           },
           {
             "angle": "L",
@@ -55815,7 +56806,7 @@ export const pblClusters = {
           },
           {
             "angle": "L",
-            "notation": "0-1 e' f d f u W' 01"
+            "notation": "0-1 U' f u2 u' F' u' f' 01"
           },
           {
             "angle": "R",
@@ -56139,6 +57130,12 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "barflip-10",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 10,
+          "alg-blocks": []
+        },
+        {
           "id": "ez-opp-7",
           "solution-overview": "EZ // Opp",
           "solution-slicecount": 7,
@@ -56190,6 +57187,12 @@ export const pblClusters = {
               ]
             }
           ]
+        },
+        {
+          "id": "barflip-8",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 8,
+          "alg-blocks": []
         }
       ]
     },
@@ -56446,7 +57449,7 @@ export const pblClusters = {
             "notation": "1-1 bjj -10 u2' F' e' D 01"
           },
           {
-            "angle": "R",
+            "angle": "L",
             "notation": "0-1 -54 d D' T' d u' d 01"
           }
         ]
@@ -56672,8 +57675,8 @@ export const pblClusters = {
             "notation": "0-1\\D e' u' u2 10 jj -11"
           },
           {
-            "angle": "R",
-            "notation": "10 w U T b' -54 -10"
+            "angle": "L",
+            "notation": "0-1\\u3' T U d' -45 01"
           }
         ]
       },
@@ -57091,6 +58094,12 @@ export const pblClusters = {
           ]
         },
         {
+          "id": "barflip-10",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 10,
+          "alg-blocks": []
+        },
+        {
           "id": "ez-opp-ez-pn-7",
           "solution-overview": "EZ // Opp; EZ // pN",
           "solution-slicecount": 7,
@@ -57142,6 +58151,12 @@ export const pblClusters = {
               ]
             }
           ]
+        },
+        {
+          "id": "barflip-8",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 8,
+          "alg-blocks": []
         }
       ]
     },
@@ -57439,7 +58454,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "FB B",
+                      "angle": "B FB",
                       "notation": "10/T u' D3 -10"
                     }
                   ]
@@ -57469,11 +58484,11 @@ export const pblClusters = {
             "notation": "10 D' U D' d T' -10"
           },
           {
-            "angle": "LR B",
+            "angle": "FB B",
             "notation": "0-1 t d U3' 01"
           },
           {
-            "angle": "FB B",
+            "angle": "LR B",
             "notation": "10 E D W' u u2' -10"
           }
         ]
@@ -57614,12 +58629,12 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "LR L",
-                      "notation": "10/B d -2-5 B e -10"
+                      "notation": "10\\B d -2-5 B e -10"
                     },
                     {
                       "sign": "-",
                       "angle": "LR L",
-                      "notation": "10/B d F UU e' -10",
+                      "notation": "10 B d F UU e' -10",
                       "alternate-solution-overview": "big PS // y2JJ+"
                     },
                     {
@@ -57833,7 +58848,7 @@ export const pblClusters = {
             "notation": "10 u2 t bjJ e -10"
           },
           {
-            "angle": "FL LR",
+            "angle": "FR LR",
             "notation": "10 e' bjJ t' u2' -10"
           },
           {
@@ -57892,8 +58907,8 @@ export const pblClusters = {
           "solution-slicecount": 7,
           "alg-blocks": [
             {
-              "angle-explanation": "10. <LR>.",
-              "alg-explanation": "U° m* (pJ in the same direction as a u2* on Q) → W° to Opp and back → m* U°",
+              "angle-explanation": "align Opp @ <LR>.",
+              "alg-explanation": "right U° m* (fpJ) → W° to Opp and back → m* U° back",
               "cases": [
                 {
                   "case-name": "Opp/Q",
@@ -57901,7 +58916,12 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "LR",
-                      "notation": "10/U' m B m' U -10"
+                      "notation": "0-1/U m' B' m U' 01"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "LR",
+                      "notation": "10/d m' F' U' m' D -10"
                     }
                   ]
                 },
@@ -58119,7 +59139,7 @@ export const pblClusters = {
                     },
                     {
                       "sign": "-",
-                      "angle": "L FR",
+                      "angle": "L FB",
                       "notation": "0-1/D' UU u2' d W 01",
                       "alternate-solution-overview": "y2JJ+ [WB type] // small PK"
                     }
@@ -59060,7 +60080,7 @@ export const pblClusters = {
             "notation": "0-1 W d' u E' 01"
           },
           {
-            "angle": "B R",
+            "angle": "F L",
             "notation": "10 u T' e D W' -10"
           },
           {
@@ -59486,7 +60506,7 @@ export const pblClusters = {
             "notation": "10\\U T U T' U F' 01"
           },
           {
-            "angle": "R",
+            "angle": "B",
             "notation": "10\\e f2' U' e u T' -10"
           }
         ]
@@ -59728,6 +60748,10 @@ export const pblClusters = {
           {
             "angle": "L F",
             "notation": "0-1\\d' f' B D' 01"
+          },
+          {
+            "angle": "L F",
+            "notation": "0-1 d' u2 ɇ U' 01"
           }
         ]
       },
@@ -60255,7 +61279,7 @@ export const pblClusters = {
           },
           {
             "angle": "L",
-            "notation": "0-1 b' b' M 03Adj -10"
+            "notation": "0-1\\d4' F 03Adj -10"
           }
         ]
       },
@@ -60268,7 +61292,7 @@ export const pblClusters = {
           },
           {
             "angle": "L",
-            "notation": "10 b b D 03Adj -10"
+            "notation": "10 d4 D 03Adj -10"
           }
         ]
       },
@@ -60440,6 +61464,14 @@ export const pblClusters = {
           {
             "angle": "B B",
             "notation": "0-1 u' m D' 01"
+          },
+          {
+            "angle": "B B",
+            "notation": "10 d m' U -10"
+          },
+          {
+            "angle": "F F",
+            "notation": "10 u m' D -10"
           }
         ]
       }
@@ -60467,9 +61499,42 @@ export const pblClusters = {
     ],
     "optimal-slicecount": 7,
     "matt": {
-      "title": "pJ/pN, pN/pJ (7)",
+      "title": "pJ/pN, pN/pJ (9, 7 opt)",
       "distinction-help": "",
       "solution-groups": [
+        {
+          "id": "jn-pn-jn-9",
+          "solution-overview": "JN // pN // JN",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "(noslice) pN @ <FL>. misalign pJ @ <F>.",
+              "alg-explanation": "right U3° on pN → right w° out → undo U3° on pN",
+              "cases": [
+                {
+                  "case-name": "pJ/pN",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "F FL",
+                      "notation": "10/D3' w D3 -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pN/pJ",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL F",
+                      "notation": "0-1/U3 b' U3' 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
         {
           "id": "20-30-0-4-7",
           "solution-overview": "[/20/30/0-4: /]",
@@ -60485,7 +61550,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "F FL",
-                      "notation": "10 20 30 0-4 04 -30 -20 -10"
+                      "notation": "10/20 30 0-4 04 -30 -20 -10"
                     }
                   ]
                 },
@@ -60504,21 +61569,21 @@ export const pblClusters = {
           ]
         },
         {
-          "id": "w-pj-8",
-          "solution-overview": "[W°: pJ]",
+          "id": "w-pj-big-pk-jn-8",
+          "solution-overview": "[W°: pJ], big PK // JN",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "10. pJ @ <L>. pN @ <FL>.",
-              "alg-explanation": "W° on pJ to move the right pN corner next to the left one → bpJ → undo",
+              "angle-explanation": "10. pJ @ <L>. pN @ <FR>.",
+              "alg-explanation": "W° on pJ to move the right pN corner next to the left one → fpJ → undo",
               "cases": [
                 {
                   "case-name": "pJ/pN",
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "L FL",
-                      "notation": "10 W' bpJ W' -10"
+                      "angle": "L FR",
+                      "notation": "10 W fpJ W -10"
                     }
                   ]
                 },
@@ -60527,8 +61592,47 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "FL L",
-                      "notation": "10 B bpJ B -10"
+                      "angle": "FR L",
+                      "notation": "10 B' fpJ B' -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "FR L",
+                      "notation": "10/B' u T' D3' -10",
+                      "alternate-solution-overview": "big PK // JN"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fn-opp-8",
+          "solution-overview": "FN+ // Opp",
+          "solution-slicecount": 8,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. pJ @ <L>. noslice pN.",
+              "alg-explanation": "FN, N on pN → midabf = U* out",
+              "cases": [
+                {
+                  "case-name": "pJ/pN",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "L FL",
+                      "notation": "10/d f DD' u2 U u2' -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "pN/pJ",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FR L",
+                      "notation": "10/u F UU' u2 U u2' -10"
                     }
                   ]
                 }
@@ -60570,7 +61674,7 @@ export const pblClusters = {
             "notation": "10 02 D -40 40 D' 0-2 -10"
           },
           {
-            "angle": "FR FL",
+            "angle": "FR L",
             "notation": "10 B' u T' D3' -10"
           },
           {
@@ -60816,7 +61920,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "L F",
-                      "notation": "10/u3 U u2' -10"
+                      "notation": "0-1\\d3' D' d2 01"
                     }
                   ]
                 },
@@ -60826,7 +61930,12 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "L B",
-                      "notation": "0-1\\u3' U' u2 01"
+                      "notation": "10/d3 D d2' -10"
+                    },
+                    {
+                      "sign": "-",
+                      "angle": "R F",
+                      "notation": "10/u d' u D u2' -10"
                     }
                   ]
                 },
@@ -60836,7 +61945,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "F L",
-                      "notation": "0-1\\d3' D' d2 01"
+                      "notation": "10/u3 U u2' -10"
                     }
                   ]
                 },
@@ -60846,7 +61955,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "B L",
-                      "notation": "10/d3 D d2' -10"
+                      "notation": "0-1\\u3' U' u2 01"
                     }
                   ]
                 }
@@ -60917,22 +62026,22 @@ export const pblClusters = {
             "notation": "0-1 d3' U2D u2 01"
           },
           {
-            "angle": "F F",
-            "notation": "0-1\\d' F' D' e' B 01"
-          },
-          {
-            "angle": "R R",
-            "notation": "10 u d' u f M' u2' -10"
+            "angle": "L R",
+            "notation": "10 B' e' D' F' d' -10"
           },
           {
             "angle": "L L",
-            "notation": "0-1\\B B U -30Adj 01"
+            "notation": "10 D4' U' 30Adj -10"
           }
         ]
       },
       {
         "case-name": "pJ/Sm",
         "algs": [
+          {
+            "angle": "R F",
+            "notation": "10 u d' u D u2' -10"
+          },
           {
             "angle": "L B",
             "notation": "10\\d3 U2D' u2' -10"
@@ -60942,16 +62051,16 @@ export const pblClusters = {
             "notation": "10\\d3 D d2' -10"
           },
           {
-            "angle": "L R",
-            "notation": "10 B' e' D' F' d' -10"
+            "angle": "F F",
+            "notation": "0-1\\d' F' D' e' B 01"
           },
           {
-            "angle": "R R",
-            "notation": "10 u d' u f U2' D u2 u2' -10"
+            "angle": "R F",
+            "notation": "10 u d' u f M' u2' -10"
           },
           {
             "angle": "L L",
-            "notation": "10 B' B' U' 30Adj -10"
+            "notation": "0-1\\D4 U -30Adj 01"
           }
         ]
       }
@@ -61069,7 +62178,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "R FL",
-                      "notation": "/bJJ 43 (W' b) -10"
+                      "notation": "/bJJ -3-4 (B w') 01"
                     }
                   ]
                 },
@@ -61079,7 +62188,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FL R",
-                      "notation": "/bJJ -3-4 (B w') 01"
+                      "notation": "/bJJ 43 (W' b) -10"
                     }
                   ]
                 }
@@ -61428,7 +62537,7 @@ export const pblClusters = {
           "solution-slicecount": 7,
           "alg-blocks": [
             {
-              "angle-explanation": "10. preserve pN.",
+              "angle-explanation": "10. noslice pN.",
               "alg-explanation": "U^ M* U^ (YY) → back to Adj at the start",
               "cases": [
                 {
@@ -61437,7 +62546,7 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FR",
-                      "notation": "10 u M f2' M' u' -10"
+                      "notation": "10/u M f2' M' u' -10"
                     }
                   ]
                 },
@@ -61447,7 +62556,12 @@ export const pblClusters = {
                     {
                       "sign": "+",
                       "angle": "FL",
-                      "notation": "10 D M' U' F M' d' -10"
+                      "notation": "10\\D M' W' M D' -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/d M F2' M' d' -10"
                     }
                   ]
                 }
@@ -61462,12 +62576,50 @@ export const pblClusters = {
           "alg-blocks": []
         },
         {
+          "id": "pn-z-7",
+          "solution-overview": "pN // Z:",
+          "solution-slicecount": 7,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. noslice pN.",
+              "alg-explanation": "T E' (pN // M2) → clockwise U° on Q → M* → U^ back → M*",
+              "cases": [
+                {
+                  "case-name": "pN/Q",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FR",
+                      "notation": "10/T E' D M f' M -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "0-1\\T' E D' M' f M' 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Q/pN",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/T E' U M F' M -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "adj-pn-adj-8",
           "solution-overview": "Adj // pN- // Adj",
           "solution-slicecount": 8,
           "alg-blocks": [
             {
-              "angle-explanation": "10. noslice both. (Opp @ <LR>)",
+              "angle-explanation": "10. noslice pN. (Opp @ <LR>)",
               "alg-explanation": "u M d (bAdj // M2) → T° so that the 4 move is on Q → u M d",
               "cases": [
                 {
@@ -61476,7 +62628,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "FR",
-                      "notation": "10/(u M d) t (u M d) 01"
+                      "notation": "10/(u M d) T' (u M d) 01"
                     }
                   ]
                 },
@@ -61486,7 +62638,7 @@ export const pblClusters = {
                     {
                       "sign": "-",
                       "angle": "FL",
-                      "notation": "10/(u M d) T' (u M d) 01"
+                      "notation": "10/(u M d) t (u M d) 01"
                     }
                   ]
                 }
@@ -61587,7 +62739,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "FL L",
+                      "angle": "FR L",
                       "notation": "10/B' u K' B e -10"
                     }
                   ]
@@ -61597,7 +62749,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "FR L",
+                      "angle": "FL L",
                       "notation": "0-1/B u' K B' e' 01"
                     }
                   ]
@@ -61607,7 +62759,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "L FL",
+                      "angle": "L FR",
                       "notation": "0-1/W d' k W' e' 01"
                     }
                   ]
@@ -61617,7 +62769,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "L FR",
+                      "angle": "L FL",
                       "notation": "10/W' d k' W e -10"
                     }
                   ]
@@ -61640,7 +62792,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "FL L",
+                      "angle": "FR L",
                       "notation": "10/(B' w) U' fJJ -10"
                     }
                   ]
@@ -61650,7 +62802,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L FL",
+                      "angle": "L FR",
                       "notation": "0-1\\(W b') D fJJ 01"
                     }
                   ]
@@ -61660,7 +62812,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "FR L",
+                      "angle": "FL L",
                       "notation": "0-1\\(B w') U bJJ 01"
                     }
                   ]
@@ -61670,7 +62822,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L FR",
+                      "angle": "L FL",
                       "notation": "10\\(W' b) D' bJJ -10"
                     }
                   ]
@@ -61865,7 +63017,7 @@ export const pblClusters = {
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "preserve both @ <FL FL>.",
+              "angle-explanation": "noslice both @ <FL FL>.",
               "alg-explanation": "small start PK on W → F° on W → bJJ",
               "cases": [
                 {
@@ -61897,6 +63049,72 @@ export const pblClusters = {
           "solution-overview": "small PK JJ+",
           "solution-slicecount": 10,
           "alg-blocks": []
+        },
+        {
+          "id": "jj-small-pk-9",
+          "solution-overview": "JJ small PK",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "1-1. slice both.",
+              "alg-explanation": "bJJ → align W, left U° on pN → right small PK",
+              "cases": [
+                {
+                  "case-name": "pN/W",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL FR",
+                      "notation": "1-1/bJJ -31 (w B') -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "W/pN",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FR FL",
+                      "notation": "1-1/bJJ -13 (b' W) 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "jj-small-pk-10",
+          "solution-overview": "JJ small PK-",
+          "solution-slicecount": 10,
+          "alg-blocks": [
+            {
+              "angle-explanation": "",
+              "alg-explanation": "",
+              "cases": [
+                {
+                  "case-name": "pN/W",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FL FR",
+                      "notation": "1-1/bJJ -31 (u T' D B) -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "W/pN",
+                  "algs": [
+                    {
+                      "sign": "-",
+                      "angle": "FR FL",
+                      "notation": "1-1/bJJ -13 (d' t' U' W') 01"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -61966,7 +63184,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "10. slice pN.",
-              "alg-explanation": "E t' (right NN cancel into M2) → the spammier OOpp on X",
+              "alg-explanation": "E t' (right NN // M2) → the spammier OOpp on X",
               "cases": [
                 {
                   "case-name": "pN/X",
@@ -61994,6 +63212,50 @@ export const pblClusters = {
         },
         {
           "id": "barflip-8",
+          "solution-overview": "// barflip",
+          "solution-slicecount": 8,
+          "alg-blocks": []
+        },
+        {
+          "id": "pn-z-7",
+          "solution-overview": "pN // Z:",
+          "solution-slicecount": 7,
+          "alg-blocks": [
+            {
+              "angle-explanation": "10. noslice pN.",
+              "alg-explanation": "T E' (pN // M2) → counterclockwise U° on X → M* → U^ back → M*",
+              "cases": [
+                {
+                  "case-name": "pN/X",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FR",
+                      "notation": "10/T E' D' M d M -10"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "0-1\\T' E D M' d' M' 01"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "X/pN",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "FL",
+                      "notation": "10/T E' U' M u M -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "barflip-8-2",
           "solution-overview": "// barflip",
           "solution-slicecount": 8,
           "alg-blocks": []
@@ -62081,7 +63343,7 @@ export const pblClusters = {
           "alg-blocks": [
             {
               "angle-explanation": "hehe",
-              "alg-explanation": "straightforward",
+              "alg-explanation": "midabf = F°",
               "cases": [
                 {
                   "case-name": "Q/Q",
@@ -62154,12 +63416,75 @@ export const pblClusters = {
       "distinction-help": "",
       "solution-groups": [
         {
+          "id": "adj-yy-9",
+          "solution-overview": "Adj YY",
+          "solution-slicecount": 9,
+          "alg-blocks": [
+            {
+              "angle-explanation": "preserve S @ <L>.",
+              "alg-explanation": "Adj on S fixed block → u° opposite direction → YY opposite direction",
+              "cases": [
+                {
+                  "case-name": "Q/Sa",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L",
+                      "notation": "10/bAdj u (U' M D T) 01"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "L",
+                      "notation": "10\\bAdj D' (D M' U' t) -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Q/Sm",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L",
+                      "notation": "0-1/fAdj u' (u M f' T') -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Sa/Q",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L",
+                      "notation": "0-1 bAdj d' (D M' U' t) -10"
+                    }
+                  ]
+                },
+                {
+                  "case-name": "Sm/Q",
+                  "algs": [
+                    {
+                      "sign": "+",
+                      "angle": "L",
+                      "notation": "10/fAdj d (D' M U t') 01"
+                    },
+                    {
+                      "sign": "+",
+                      "angle": "L",
+                      "notation": "10/fAdj U' (u M f' T') -10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "yy-adj-9",
           "solution-overview": "YY Adj",
           "solution-slicecount": 9,
           "alg-blocks": [
             {
-              "angle-explanation": "10. S loose block @ fAdj angle (i.e. Q/S = @ <FL>; S/Q = @ <FR>).",
+              "angle-explanation": "10. S loose block @ fAdj angle.",
               "alg-explanation": "fAdj start YY → U° to move S loose block to S fixed block → Q/S = fAdj; S/Q = bAdj.",
               "cases": [
                 {
@@ -62177,7 +63502,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "L",
+                      "angle": "F",
                       "notation": "10\\(D M' U' t) D fAdj -10"
                     }
                   ]
@@ -62199,59 +63524,6 @@ export const pblClusters = {
                       "sign": "+",
                       "angle": "R",
                       "notation": "10\\(D M' U' t) U' bAdj -10"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "adj-yy-9",
-          "solution-overview": "Adj YY",
-          "solution-slicecount": 9,
-          "alg-blocks": [
-            {
-              "angle-explanation": "preserve S @ <L>.",
-              "alg-explanation": "Adj on S fixed block → u° opposite direction → YY opposite direction",
-              "cases": [
-                {
-                  "case-name": "Q/Sa",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "L",
-                      "notation": "10/bAdj u (U' M D T) 01"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Q/Sm",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "L",
-                      "notation": "0-1/fAdj u' (u M f' T') -10"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Sa/Q",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "L",
-                      "notation": "0-1/bAdj d' (D M' U' t) -10"
-                    }
-                  ]
-                },
-                {
-                  "case-name": "Sm/Q",
-                  "algs": [
-                    {
-                      "sign": "+",
-                      "angle": "L",
-                      "notation": "10/fAdj d (D' M U t') 01"
                     }
                   ]
                 }
@@ -62710,7 +63982,7 @@ export const pblClusters = {
                   "case-name": "Q/X",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "",
                       "notation": "10/(E m u2') U ZZ -10"
                     }
@@ -62720,7 +63992,7 @@ export const pblClusters = {
                   "case-name": "X/Q",
                   "algs": [
                     {
-                      "sign": "+",
+                      "sign": "-",
                       "angle": "",
                       "notation": "10/(E m u2') D' ZZ -10"
                     }
@@ -63154,7 +64426,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "B BR",
+                      "angle": "B FL",
                       "notation": "10/d M U d m' D e -10"
                     }
                   ]
@@ -63444,7 +64716,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "L",
+                      "angle": "F",
                       "notation": "10/fAdj U' VV -10"
                     }
                   ]
@@ -63454,7 +64726,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "F",
+                      "angle": "R",
                       "notation": "10/fAdj U VV -10"
                     }
                   ]
@@ -63513,7 +64785,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "F",
+                      "angle": "L",
                       "notation": "10/W' d k' w e -10"
                     }
                   ]
@@ -63533,7 +64805,7 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "-",
-                      "angle": "F",
+                      "angle": "L",
                       "notation": "0-1\\B u' K b' e' 01"
                     }
                   ]
@@ -63690,12 +64962,12 @@ export const pblClusters = {
                   "algs": [
                     {
                       "sign": "+",
-                      "angle": "FR FR",
+                      "angle": "FR FL",
                       "notation": "10/u M u m' M' T' -10"
                     },
                     {
                       "sign": "+",
-                      "angle": "BL BL",
+                      "angle": "BL BR",
                       "notation": "10\\D M' u' M' e' u2' -10"
                     }
                   ]
