@@ -205,8 +205,15 @@ function pblMigrateLegacyStorage() {
 export function pblSaveSelected() {
     pblStorage.setItem("selected", JSON.stringify(pblSelected));
     // Regenerate scramble if: nothing active, selection gone, or current case was removed.
+    // Under a global override the current case's sign is forced, so only base
+    // membership is meaningful there (the override sign may not be in pblSelected).
+    const removed = pblCurrentCase !== "" && (
+        pblEffectiveOverride() !== null
+            ? !pblSelected.some(s => s.slice(0, -1) === pblCurrentCase.slice(0, -1))
+            : !pblSelected.includes(pblCurrentCase)
+    );
     if (!pblHasActive || pblSelected.length === 0) pblGenerateScramble();
-    else if (pblCurrentCase !== "" && !pblSelected.includes(pblCurrentCase)) pblGenerateScramble(true);
+    else if (removed) pblGenerateScramble(true);
     pblSyncSettingsDisabled();
 }
 
@@ -388,6 +395,7 @@ export function pblRequestScramble(choice) {
     const override   = pblEffectiveOverride();
     const suffix     = override ?? choice.at(-1);
     if (!['+', '-'].includes(suffix)) throw new Error(`pblRequestScramble: invalid suffix "${suffix}"`);
+    pblPendingFor = choice.slice(0, -1) + suffix; // effective case (override applied), for match validation
     pblWorker.postMessage({
         caseName:     choice.slice(0, -1),
         equatorMode:  suffix === '+' ? 'slash' : 'bar',
@@ -433,8 +441,12 @@ export function pblGenerateScramble(regen = false) {
     }
 
     pblCaseSpliced = true; // set synchronously before splice
-    const idx    = randInt(0, pblRemaining.length - 1);
-    const choice = pblRemaining.splice(idx, 1)[0];
+    const idx      = randInt(0, pblRemaining.length - 1);
+    let choice     = pblRemaining.splice(idx, 1)[0];
+    // A global barflip override forces the generated scramble, and the recorded
+    // case name, to that sign regardless of which slot was picked.
+    const override = pblEffectiveOverride();
+    if (override !== null) choice = choice.slice(0, -1) + override;
     updateRemainingCount();
 
     if (regen) {
@@ -456,11 +468,12 @@ export function pblGenerateScramble(regen = false) {
     }
 
     // Normal generate — use a pre-generated pending scramble only if it matches choice.
-    // pblPendingFor tracks which choice was used for the speculative pre-gen request.
+    // pblPendingFor records the effective case (override applied) of the speculative
+    // pre-gen request, so a base + suffix match fully revalidates the cached result.
     const pendingValid = pblPending && pblPending !== 'waiting' &&
         pblPendingFor !== null &&
         pblPendingFor.slice(0, -1) === choice.slice(0, -1) &&
-        (pblEffectiveOverride() !== null || pblPendingFor.at(-1) === choice.at(-1));
+        pblPendingFor.at(-1) === choice.at(-1);
     if (pendingValid) {
         const data = pblPending;
         pblPending    = null;
@@ -483,7 +496,6 @@ export function pblGenerateScramble(regen = false) {
         // Kick off pre-generation of the next scramble.
         if (pblRemaining.length > 0) {
             const pregenChoice = pblRemaining[randInt(0, pblRemaining.length - 1)];
-            pblPendingFor = pregenChoice;
             pblRequestScramble(pregenChoice);
         }
     } else {
@@ -520,7 +532,6 @@ export function pblGenerateScramble(regen = false) {
             // Kick off pre-generation of the next scramble.
             if (pblRemaining.length > 0) {
                 const pregenChoice = pblRemaining[randInt(0, pblRemaining.length - 1)];
-                pblPendingFor = pregenChoice;
                 pblRequestScramble(pregenChoice);
             } else {
                 pblPendingFor = null;
@@ -1031,7 +1042,6 @@ export function pblApplyBarflipUI() {
 }
 
 function pblSetBarflipOverride(value) {
-    const prev          = pblBarflipOverride;
     const prevEffective = pblEffectiveOverride();
     pblBarflipOverride = value;
     pblApplyBarflipUI();
@@ -1041,8 +1051,17 @@ function pblSetBarflipOverride(value) {
     // Turning the override on or off (not switching + ↔ -) flips whether + and -
     // collapse to one case — re-sync counts/pool when that changes.
     if ((prevEffective === null) !== (pblEffectiveOverride() === null)) pblResyncCountBarflip();
-    if (pblHasActive && prev && pblBarflipOverride && prev !== pblBarflipOverride) {
-        pblPending = null;
+    // Re-roll the active scramble only if the override change leaves the shown
+    // barflip unpermissible: under an override only its forced sign is allowed;
+    // without one the current sign must still be a selected barflip of the
+    // current base. The base+suffix pending validation rejects stale pregens on
+    // its own.
+    const newEffective = pblEffectiveOverride();
+    const compatible = newEffective !== null
+        ? pblCurrentCase.at(-1) === newEffective
+        : pblSelected.includes(pblCurrentCase);
+    if (pblHasActive && prevEffective !== newEffective && !compatible) {
+        if (pblWorkerBusy) pblRestartWorker();
         pblGenerateScramble(true);
     }
 }
