@@ -609,6 +609,8 @@ function hmOpenColorMenu(btn) {
         if (!opt) return;
         hmColorMode = opt.dataset.mode;
         localStorage.setItem(HM_COLOR_MODE_KEY, hmColorMode);
+        const btnSpan = btn.querySelector('span');
+        if (btnSpan) btnSpan.textContent = HM_COLOR_MODE_LABELS[hmColorMode];
         hmRenderGrids();
         hmCloseColorMenu();
     });
