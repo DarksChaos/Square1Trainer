@@ -695,6 +695,7 @@ export const oblHelpSections = [
 
         <h1>List tricks</h1>
         <p>Here's some additional things you can accomplish with those 5 buttons:</p>
+        <p>Select multiple lists: <code>select</code> the first list, and for subsequent lists, <code>view</code> them, and <code>select these</code> in the case selector.</p>
         <p>Rename a list: <code>select</code> it, <code>delete</code> it, and <code>new list</code>.</p>
         <p>Edit a list: <code>select</code> it, make the edits to your current selection in the case selector, and <code>overwrite</code> your original list.</p>
 
