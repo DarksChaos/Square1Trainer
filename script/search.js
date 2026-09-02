@@ -397,7 +397,7 @@ function hmShowTip(cell, cn) {
         `<div class="hm-tip-case">${escapeHtml(cn)}</div>` +
         `<div class="hm-tip-cluster">${cluster ? escapeHtml(cluster) : '<span class="hm-tip-dim">not a PBL case</span>'}</div>` +
         (s ? `<div class="hm-tip-sol">${escapeHtml(s.overview)} (${s.slice})</div>` : '') +
-        (cluster && hmOrphanTitles.has(cluster) ? `<div class="hm-tip-warn">! tags lost — open the cluster to review</div>` : '');
+        (cluster && hmOrphanTitles.has(cluster) ? `<div class="hm-tip-warn">tags lost! open the cluster to review.</div>` : '');
     hmTipEl.style.display = 'block';
 
     // Position the tip's top-left directly (no CSS centering transform) so we can

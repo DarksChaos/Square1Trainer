@@ -7,7 +7,7 @@
 //               is closed (no forced skipWaiting), so open tabs are never yanked
 //               onto a half-loaded new version mid-session.
 
-const VERSION = '1.1.4';
+const VERSION = '1.1.5';
 const CACHE = 'oblpbl-' + VERSION;
 
 const CACHE_FILE_TYPES = [

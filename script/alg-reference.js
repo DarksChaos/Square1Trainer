@@ -99,7 +99,7 @@ export async function editClusterComment(title) {
     if (!title) return false;
     const current = getClusterComment(title);
     const next = await appTextareaPrompt('Comments are shown in cluster references and hints.', {
-        title: `Edit comment — ${displayClusterTitle(title)}`,
+        title: `Edit comment: ${displayClusterTitle(title)}`,
         value: current,
         placeholder: 'Write a hint/comment for this cluster…',
         okText: 'Save',
@@ -1182,7 +1182,7 @@ function _setClusterTagBanner(orphans) {
             const tagLabel = tag ? escapeHtml(tag.name) : 'deleted tag';
             const unitLabel = escapeHtml(_reconstructOrphanLabel(unitId));
             return `<div class="sct-banner-row" data-tagid="${escapeHtml(tagId)}" data-ref="${escapeHtml(ref)}">` +
-                `<span class="sct-banner-label">${tagLabel} — ${unitLabel}</span>` +
+                `<span class="sct-banner-label">"${unitLabel}": ${tagLabel}</span>` +
                 `<button class="sct-banner-del" data-tip="Delete this lost tag">${ORPHAN_TAG_DEL_SVG}</button>` +
                 `</div>`;
         }).join('');
