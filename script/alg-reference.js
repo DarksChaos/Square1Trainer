@@ -4,8 +4,9 @@ import { appTextareaPrompt, defaultReferenceFor, escapeHtml, trainerMode, usingK
 import { getSpe, oblDisplayAlgCaseName, oblDisplayClusterTitle } from './obl-core.js';
 import { searchClusterContentEl, searchEditMode, syncSearchClusterToolbar } from './search.js';
 import { SquanLib, squan } from './squan.js';
-import { _algClusters, UNIT_TAG_SVG, defaultGroupById, effectiveCluster, getClusterComment, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, saveTagAssignments, setClusterComment, tagsForUnit, unitRef } from './tag-assignments.js';
+import { _algClusters, UNIT_TAG_SVG, defaultGroupById, effectiveCluster, getClusterComment, loadContentOverrides, loadTagAssignments, mattGroupById, mattUnitOrder, nextNewGroupId, saveContentOverrides, saveTagAssignments, setClusterComment, tagsForUnit, toggleUnitTag, unitRef } from './tag-assignments.js';
 import { getTags } from './tags.js';
+import { ORPHAN_TAG_DEL_SVG } from './help-icons.js';
 
 export { UNIT_TAG_SVG, effectiveCluster, effectiveMattGroups, getClusterComment, loadTagAssignments, mattUnitOrder, saveTagAssignments, setClusterComment, tagCaseBases, tagCaseCount, tagCaseModes, tagUnitState, taggedClusterTitles, toggleUnitTag, unitRef } from './tag-assignments.js';
 
@@ -90,7 +91,7 @@ function clusterCommentHtml(title) {
     return `<div class="cluster-comment-box">` +
         `<span class="cluster-comment-label">Comment</span>` +
         `<textarea class="cluster-comment-input" data-title="${escapeHtml(title)}" rows="1" ` +
-            `placeholder="Write a hint/comment for this cluster…">${escapeHtml(comment)}</textarea>` +
+        `placeholder="Write a hint/comment for this cluster…">${escapeHtml(comment)}</textarea>` +
         `</div>`;
 }
 
@@ -126,8 +127,8 @@ function _canon(x) {
 }
 function _deepEqual(a, b) { return JSON.stringify(_canon(a)) === JSON.stringify(_canon(b)); }
 
-function defaultSheetSource(title, src)  { return _algClusters()[title]?.[src] || []; }
-function clusterCaseList(title)          { return _algClusters()[title]?.['case-list'] || []; }
+function defaultSheetSource(title, src) { return _algClusters()[title]?.[src] || []; }
+function clusterCaseList(title) { return _algClusters()[title]?.['case-list'] || []; }
 
 // case-name field (e.g. "Al/Al+") must end with +/- and its base must be a
 // case in the cluster's case-list. Returns an error string, or null if valid.
@@ -136,7 +137,7 @@ function clusterCaseList(title)          { return _algClusters()[title]?.['case-
 function _caseFormCandidates(base) {
     const out = [base, base.replace(/:/g, '-')];
     if (base.startsWith(':')) out.push('-/' + base.slice(1));
-    if (base.endsWith(':'))   out.push(base.slice(0, -1) + '/-');
+    if (base.endsWith(':')) out.push(base.slice(0, -1) + '/-');
     return out;
 }
 
@@ -164,7 +165,7 @@ function _algBlockToRows(ab) {
     return (ab.cases || []).flatMap(c =>
         (c.algs || []).map(a => ({
             caseName: c['case-name'] || '', sign: a.sign || '',
-            angle:    a.angle || '',        notation: a.notation || ''
+            angle: a.angle || '', notation: a.notation || ''
         }))
     );
 }
@@ -176,7 +177,7 @@ function _rowsToCases(rows, serialize) {
     const cases = [];
     for (const r of rows) {
         const last = cases[cases.length - 1];
-        const alg  = serialize(r);
+        const alg = serialize(r);
         if (last && last['case-name'] === r.caseName) last.algs.push(alg);
         else cases.push({ 'case-name': r.caseName, algs: [alg] });
     }
@@ -187,7 +188,7 @@ function _rowsToCases(rows, serialize) {
 // OBL matt drops sign; OBL sheet sources are plain notation strings.
 function _algSerializer(source) {
     if (trainerMode === 'obl' && source !== 'matt') return r => r.notation;
-    if (trainerMode === 'obl')                      return r => ({ angle: r.angle, notation: r.notation });
+    if (trainerMode === 'obl') return r => ({ angle: r.angle, notation: r.notation });
     return r => ({ sign: r.sign, angle: r.angle, notation: r.notation });
 }
 
@@ -198,11 +199,11 @@ function mattGroupToDraft(group) {
     const blocks = group['alg-blocks']?.length ? group['alg-blocks'] : [{}];
     return {
         overview: group['solution-overview'] || '',
-        slices:   group['solution-slicecount'] ?? '',
+        slices: group['solution-slicecount'] ?? '',
         blocks: blocks.map(ab => ({
             angleExp: ab['angle-explanation'] || '',
-            algExp:   ab['alg-explanation'] || '',
-            rows:     _algBlockToRows(ab),
+            algExp: ab['alg-explanation'] || '',
+            rows: _algBlockToRows(ab),
         })),
     };
 }
@@ -212,7 +213,7 @@ function draftToMattGroup(draft) {
         'solution-overview': draft.overview,
         'alg-blocks': draft.blocks.map(b => ({
             'angle-explanation': b.angleExp,
-            'alg-explanation':   b.algExp,
+            'alg-explanation': b.algExp,
             cases: _rowsToCases(b.rows, _algSerializer('matt')),
         })),
     };
@@ -228,8 +229,8 @@ function draftToMattGroup(draft) {
 //   { distinction, groups: [{ id, ...mattGroupToDraft }] }
 function buildMattDraft(title) {
     const defById = defaultGroupById(title);
-    const ov      = loadContentOverrides()[title]?.matt;
-    const order   = ov?.order || [...defById.keys()];
+    const ov = loadContentOverrides()[title]?.matt;
+    const order = ov?.order || [...defById.keys()];
     const groups = order.map(id => {
         const group = (ov?.groups && id in ov.groups) ? ov.groups[id] : defById.get(id);
         return group ? { id, ...mattGroupToDraft(_clone(group)) } : null;
@@ -244,23 +245,23 @@ function buildMattDraft(title) {
 
 // Persist a matt draft as a minimal override (unchanged default groups omitted).
 function commitMattDraft(title, draft) {
-    const all     = loadContentOverrides();
+    const all = loadContentOverrides();
     const defById = defaultGroupById(title);
     const groups = {};
     for (const d of draft.groups) {
-        const g   = draftToMattGroup(d);
+        const g = draftToMattGroup(d);
         const def = defById.get(d.id);
         if (def && _deepEqual(g, def)) continue; // unchanged default
         groups[d.id] = g;
     }
     const defaultOrder = [...defById.keys()];
-    const order        = draft.groups.map(d => d.id);
-    const defDist      = _algClusters()[title]?.matt?.['distinction-help'] || '';
+    const order = draft.groups.map(d => d.id);
+    const defDist = _algClusters()[title]?.matt?.['distinction-help'] || '';
 
     const matt = {};
     if (!_deepEqual(order, defaultOrder)) matt.order = order;
-    if (Object.keys(groups).length)       matt.groups = groups;
-    if (draft.distinction !== defDist)     matt['distinction-help'] = draft.distinction;
+    if (Object.keys(groups).length) matt.groups = groups;
+    if (draft.distinction !== defDist) matt['distinction-help'] = draft.distinction;
 
     if (!all[title]) all[title] = {};
     if (Object.keys(matt).length) all[title].matt = matt;
@@ -278,8 +279,8 @@ function buildSingleBlockDraft(title, source) {
         const matt = loadContentOverrides()[title]?.matt || _algClusters()[title]?.matt || {};
         return {
             distinction: matt['distinction-help'] || '',
-            angleExp:    matt['angle-explanation'] || '',
-            algExp:      matt['alg-explanation'] || '',
+            angleExp: matt['angle-explanation'] || '',
+            algExp: matt['alg-explanation'] || '',
             rows: (matt.cases || []).flatMap(c => (c.algs || []).map(a => ({
                 caseName: c['case-name'] || '', sign: '', angle: a.angle || '', notation: a.notation || ''
             }))),
@@ -291,8 +292,8 @@ function buildSingleBlockDraft(title, source) {
         distinction: '', angleExp: '', algExp: '',
         rows: (arr || []).flatMap(c => (c.algs || []).map(a => ({
             caseName: c['case-name'] || '',
-            sign:     obl ? '' : (a.sign || ''),
-            angle:    obl ? '' : (a.angle || ''),
+            sign: obl ? '' : (a.sign || ''),
+            angle: obl ? '' : (a.angle || ''),
             notation: typeof a === 'string' ? a : (a?.notation || ''),
         }))),
     };
@@ -302,9 +303,9 @@ function commitSingleBlockDraft(title, source, draft) {
     const all = loadContentOverrides();
     if (source === 'matt') { // OBL flat matt — store/clear the whole matt object
         const matt = {
-            'distinction-help':  draft.distinction,
+            'distinction-help': draft.distinction,
             'angle-explanation': draft.angleExp,
-            'alg-explanation':   draft.algExp,
+            'alg-explanation': draft.algExp,
             cases: _rowsToCases(draft.rows, _algSerializer('matt')),
         };
         if (_deepEqual(matt, _algClusters()[title]?.matt)) {
@@ -339,15 +340,15 @@ function blankMattGroup() {
 //    block: { angleExp, algExp, rows: [ {caseName, sign, angle, notation} ] }
 // ═══════════════════════════════════════════════════════════════════════════
 
-const AE_GRIP_SVG  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
-const AE_X_SVG     = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
-const AE_PLUS_SVG  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+const AE_GRIP_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
+const AE_X_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
+const AE_PLUS_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 const AE_RESET_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg>`;
 const AE_TRASH_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
-let aeTitle  = null;
+let aeTitle = null;
 let aeSource = null;
-let aeDraft  = null;
+let aeDraft = null;
 
 let aeUndo = [], aeRedo = [];
 let aeEnterSnapshot = null;      // cluster override JSON captured on entering edit mode
@@ -363,14 +364,14 @@ function _aeSources(title) {
 // Shape of the active source. Only PBL's matt is grouped (solution groups);
 // OBL matt is flat, and sheet sources are a single block. OBL has no signs, and
 // only matt sources carry an angle.
-function _aeGrouped()  { return trainerMode === 'pbl' && aeSource === 'matt'; }
-function _aeHasSign()  { return trainerMode === 'pbl'; }
+function _aeGrouped() { return trainerMode === 'pbl' && aeSource === 'matt'; }
+function _aeHasSign() { return trainerMode === 'pbl'; }
 function _aeHasAngle() { return trainerMode === 'pbl' || aeSource === 'matt'; }
 
 // ── Session lifecycle ────────────────────────────────────────────────────────
 
 export function algEditBegin(title) {
-    aeTitle  = title;
+    aeTitle = title;
     const sources = _aeSources(title);
     const last = trainerMode === 'obl' ? oblLastClusterSource : pblLastClusterSource;
     aeSource = (last && sources.includes(last)) ? last : sources[0];
@@ -386,7 +387,7 @@ function _aeLoadDraft() {
 
 function _aeCommit() {
     if (_aeGrouped()) commitMattDraft(aeTitle, aeDraft);
-    else              commitSingleBlockDraft(aeTitle, aeSource, aeDraft);
+    else commitSingleBlockDraft(aeTitle, aeSource, aeDraft);
 }
 
 function _aeSyncDirtyState() {
@@ -404,7 +405,7 @@ function _aeAutosave() {
 export function algEditDirty() {
     if (!aeDraft || !aeTitle) return false;
     const current = loadContentOverrides()[aeTitle] ?? null;
-    const saved   = JSON.parse(aeEnterSnapshot);
+    const saved = JSON.parse(aeEnterSnapshot);
     return !_deepEqual(current, saved);
 }
 
@@ -436,7 +437,7 @@ export function algEditCancel() {
         const all = loadContentOverrides();
         const saved = JSON.parse(aeEnterSnapshot);
         if (saved == null) delete all[aeTitle];
-        else               all[aeTitle] = saved;
+        else all[aeTitle] = saved;
         saveContentOverrides(all);
     }
     _aeTearDown();
@@ -507,7 +508,7 @@ function _aeMountTabBar(window_, tabBar) {
 export function algEditRender(content, title) {
     aeTitle = title;
     const sources = _aeSources(title);
-    const meta    = _aeSourceMeta();
+    const meta = _aeSourceMeta();
 
     // Source tabs (same markup as read mode) live in the shared tab bar.
     const window_ = content.parentElement;
@@ -528,9 +529,9 @@ export function algEditRender(content, title) {
         // PBL matt — distinction + solution-group cards + add-group.
         html += `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />`;
         html += aeDraft.groups.map((g, gi) => {
-            const isNew   = /^new\d+$/.test(g.id);
+            const isNew = /^new\d+$/.test(g.id);
             const resetBtn = `<button class="ae-reset" data-gi="${gi}" data-tip="${isNew ? 'Delete group' : 'Reset to default'}">${isNew ? AE_TRASH_SVG : AE_RESET_SVG}</button>`;
-            const blocks  = g.blocks.map((b, bi) => _aeBlockHtml(bi, b, true)).join('');
+            const blocks = g.blocks.map((b, bi) => _aeBlockHtml(bi, b, true)).join('');
             return `<div class="ae-group" data-gi="${gi}">
                 <div class="ae-group-head">
                     <span class="ae-grip" data-drag="group" data-gi="${gi}" data-tip="Drag to reorder">${AE_GRIP_SVG}</span>
@@ -546,7 +547,7 @@ export function algEditRender(content, title) {
         // Single-block source: OBL flat matt (distinction + explanations) or a
         // sheet source. The whole source has one Reset.
         const isMatt = aeSource === 'matt';
-        const reset  = `<button class="ae-reset" data-reset-source="1" data-tip="Reset to default">${AE_RESET_SVG}</button>`;
+        const reset = `<button class="ae-reset" data-reset-source="1" data-tip="Reset to default">${AE_RESET_SVG}</button>`;
         const distinction = isMatt
             ? `<input class="ae-f ae-distinction" data-f="distinction" value="${_aeEsc(aeDraft.distinction)}" placeholder="Distinction help" />` : '';
         html += distinction +
@@ -583,8 +584,8 @@ function _aeOnInput(e) {
     const field = f.dataset.f;
 
     if (field === 'distinction') { aeDraft.distinction = f.value; _aeAutosave(); return; }
-    if (field === 'overview')    { aeDraft.groups[+f.dataset.gi].overview = f.value; _aeAutosave(); return; }
-    if (field === 'slices')      { aeDraft.groups[+f.dataset.gi].slices = f.value; _aeAutosave(); return; }
+    if (field === 'overview') { aeDraft.groups[+f.dataset.gi].overview = f.value; _aeAutosave(); return; }
+    if (field === 'slices') { aeDraft.groups[+f.dataset.gi].slices = f.value; _aeAutosave(); return; }
     if (field === 'angleExp' || field === 'algExp') {
         const block = _aeFindBlock(f);
         block[field] = f.value; _aeAutosave(); return;
@@ -592,7 +593,7 @@ function _aeOnInput(e) {
 
     // alg row fields
     const block = _aeFindBlock(f);
-    const row   = block.rows[+f.dataset.ri];
+    const row = block.rows[+f.dataset.ri];
     if (field === 'angle') {
         if (/[<>]/.test(f.value)) f.value = f.value.replace(/[<>]/g, ''); // forbid brackets
         row.angle = f.value;
@@ -618,9 +619,9 @@ function _aeOnClick(e) {
 function _aeInsertAlg(gap) {
     _aeStructuralUndo();
     const block = _aeFindBlock(gap);
-    const at    = +gap.dataset.at;
+    const at = +gap.dataset.at;
     // inherit the case from the row below, else the row above; blank if neither
-    const ref   = block.rows[at] || block.rows[at - 1];
+    const ref = block.rows[at] || block.rows[at - 1];
     block.rows.splice(at, 0, {
         caseName: ref ? ref.caseName : '', sign: ref ? ref.sign : '',
         angle: '', notation: ''
@@ -647,7 +648,7 @@ function _aeReset(btn) {
         _aeLoadDraft();
     } else {
         const gi = +btn.dataset.gi;
-        const g  = aeDraft.groups[gi];
+        const g = aeDraft.groups[gi];
         const def = defaultGroupById(aeTitle).get(g.id);
         if (!def) {
             aeDraft.groups.splice(gi, 1); // user-added group (no shipped default)
@@ -693,7 +694,7 @@ function _aeOnPointerDown(e) {
     let block = null, row = null;
     if (kind === 'row') {
         block = _aeFindBlock(item);
-        row   = block.rows[+item.dataset.ri];
+        row = block.rows[+item.dataset.ri];
     }
     _aeDrag = { kind, item, container: item.parentElement, block, row };
     item.classList.add('ae-dragging');
@@ -707,7 +708,7 @@ function _aeOnPointerMove(e) {
     const others = [..._aeDrag.container.querySelectorAll(sel)];
     const after = others.find(r => { const b = r.getBoundingClientRect(); return e.clientY < b.top + b.height / 2; });
     if (after) _aeDrag.container.insertBefore(_aeDrag.item, after);
-    else       _aeDrag.container.appendChild(_aeDrag.item);
+    else _aeDrag.container.appendChild(_aeDrag.item);
 }
 
 function _aeOnPointerUp() {
@@ -751,7 +752,7 @@ function _aeOnPointerUp() {
                 window.dispatchEvent(new CustomEvent('cluster-comment-change', { detail: { title: box.dataset.title } }));
             }
         });
-        aeContentEl.addEventListener('click',       e => { if (algEditActive()) _aeOnClick(e); });
+        aeContentEl.addEventListener('click', e => { if (algEditActive()) _aeOnClick(e); });
         aeContentEl.addEventListener('pointerdown', e => { if (algEditActive()) _aeOnPointerDown(e); });
     }
 }
@@ -794,8 +795,8 @@ function pblNab(text) { // normalize angle brackets and newlines
 
 function pblTextWidth(text, font) {
     const canvas = document.createElement('canvas');
-    const ctx    = canvas.getContext('2d');
-    ctx.font     = font || getComputedStyle(document.body).font;
+    const ctx = canvas.getContext('2d');
+    ctx.font = font || getComputedStyle(document.body).font;
     return ctx.measureText(text).width;
 }
 
@@ -824,8 +825,8 @@ function pblFormatMatt(cluster, key, meta, title) {
         lines.push("");
         // Solution-overview line with the per-group tag control at its end
         // (matt's smallest unit).
-        const slices  = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
-        const ovText  = sg["solution-overview"]?.trim() ? `<b>${pblNab(sg["solution-overview"])}${slices}</b>` : "";
+        const slices = sg["solution-slicecount"] ? ` (${sg["solution-slicecount"]})` : "";
+        const ovText = sg["solution-overview"]?.trim() ? `<b>${pblNab(sg["solution-overview"])}${slices}</b>` : "";
         const tagsRef = unitRef(title, 'matt', order[gi]);
         lines.push(`<span class="sol-overview unit-head">${ovText}${unitTagsHtml(tagsRef)}</span>`);
 
@@ -841,15 +842,15 @@ function pblFormatMatt(cluster, key, meta, title) {
                 }
                 lastAngleExplanation = angleExplanation.trim();
             }
-            if (ab["alg-explanation"]?.trim())   lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
+            if (ab["alg-explanation"]?.trim()) lines.push(`<span class="explanations">${pblNab(ab["alg-explanation"])}</span>`);
             for (const c of ab.cases || []) {
                 if (!pblHasAlgData(c.algs)) continue;
                 for (let i = 0; i < c.algs.length; i++) {
                     const alg = c.algs[i];
                     if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-                    const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+                    const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
                     const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
-                    const indent   = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
+                    const indent = i > 0 ? pblTextWidth(c["case-name"] + alg.sign + " ", "11pt Arial") : 0;
                     lines.push(
                         `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
                         `${i === 0 ? c["case-name"] + alg.sign + " " : ""}${angle}` +
@@ -882,9 +883,9 @@ export function pblFormatSheet(cluster, key, meta, title) {
         for (let i = 0; i < c.algs.length; i++) {
             const alg = c.algs[i];
             if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
             const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
-            const indent   = i > 0 ? pblTextWidth(c["case-name"] + (alg.sign || "") + " ", "11pt Arial") : 0;
+            const indent = i > 0 ? pblTextWidth(c["case-name"] + (alg.sign || "") + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
                 `${i === 0 ? c["case-name"] + (alg.sign || "") + " " : ""}${angle}` +
@@ -898,7 +899,7 @@ export function pblFormatSheet(cluster, key, meta, title) {
 let pblLastClusterSource = null;
 
 export const PBL_SOURCE_META = {
-    matt:  { label: 'Matt',  linkText: "Matt's PBL Doc",    url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt  },
+    matt: { label: 'Matt', linkText: "Matt's PBL Doc", url: 'https://docs.google.com/document/d/1bLCZGcQn4Or9uZZWK8Z4cdg8AkP2l7Ljm5xwEGH97BI/edit', formatter: pblFormatMatt },
     derpy: { label: 'Derpy', linkText: "Derpy's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1VQNYNwdOLqqBkacHcfYtEBst22FOVhH9EAhTOYOZTgo/edit', formatter: pblFormatSheet },
     jlminx: { label: 'JLMinx', linkText: "JL Minx's PBL Sheet", url: 'https://docs.google.com/spreadsheets/d/10yJdudCtT-zIt7YVjhgPv4VfOuqXHa3u1fxYhaBPP8s/edit', formatter: pblFormatSheet },
 };
@@ -907,7 +908,7 @@ export const PBL_SOURCE_META = {
 // Renders title + source tabs + body into the given `content` element.
 // Called on open (activeSource = sources[0]) and on tab switch.
 
-function pblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
+function pblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => { }) {
     const window_ = content.parentElement;
 
     // Build or reuse the tab bar that sits outside the scroll container.
@@ -919,12 +920,11 @@ function pblRenderCluster(cluster, title, sources, activeSource, content, onResi
     }
     tabBar.style.display = sources.length > 1 ? '' : 'none';
     tabBar.innerHTML = sources.length > 1
-        ? `<div class="cluster-tabs">${
-              sources.map(src =>
-                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
-                  `<label for="ctab-${src}" class="cluster-tab-label">${PBL_SOURCE_META[src]?.label ?? src}</label>`
-              ).join('')
-          }</div>`
+        ? `<div class="cluster-tabs">${sources.map(src =>
+            `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+            `<label for="ctab-${src}" class="cluster-tab-label">${PBL_SOURCE_META[src]?.label ?? src}</label>`
+        ).join('')
+        }</div>`
         : '';
 
     const headerTitle = cluster.matt?.title
@@ -962,7 +962,7 @@ export function oblFindCluster(caseName) {
     if (mappedTitle && oblClusters[mappedTitle]) return mappedTitle;
     try {
         caseName = getSpe(caseName)[0];
-    } catch (e) {}
+    } catch (e) { }
     // specific name
     let [u, d] = caseName.split("/");
     caseName = [SquanLib.NAMING[u] || u, SquanLib.NAMING[d] || d].join("/");
@@ -1023,9 +1023,9 @@ function oblFormatMatt(cluster, key, meta, title) {
         for (let i = 0; i < c.algs.length; i++) {
             const alg = c.algs[i];
             if (!alg.angle?.trim() && !alg.notation?.trim()) continue;
-            const angle    = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
+            const angle = alg.angle?.trim() ? `&lt;${alg.angle}&gt; ` : "";
             const notation = usingKarn ? alg.notation : squan.unkarnify(alg.notation);
-            const indent   = i > 0 ? pblTextWidth(displayCase + " ", "11pt Arial") : 0;
+            const indent = i > 0 ? pblTextWidth(displayCase + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="matt-algs" style="margin-left:calc(5em + ${indent}px);">` +
                 `${i === 0 ? displayCase + " " : ""}${angle}` +
@@ -1058,7 +1058,7 @@ export function oblFormatSheet(cluster, key, meta, title) {
             const algStr = c.algs[i];
             if (!algStr?.trim()) continue;
             const notation = usingKarn ? algStr : squan.unkarnify(algStr);
-            const indent   = i > 0 ? pblTextWidth(displayCase + " ", "11pt Arial") : 0;
+            const indent = i > 0 ? pblTextWidth(displayCase + " ", "11pt Arial") : 0;
             lines.push(
                 `<span class="pure-algs" style="margin-left:calc(2.5em + ${indent}px);">` +
                 `${i === 0 ? displayCase + " " : ""}` +
@@ -1072,14 +1072,14 @@ export function oblFormatSheet(cluster, key, meta, title) {
 let oblLastClusterSource = null;
 
 export const OBL_SOURCE_META = {
-    matt:  { label: 'Matt',  linkText: "Matt's OBL Doc",    url: 'https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit', formatter: oblFormatMatt  },
+    matt: { label: 'Matt', linkText: "Matt's OBL Doc", url: 'https://docs.google.com/spreadsheets/d/172Vy9q4WNEvmI2FHkH96XzfXJHdTqeSWBMiANhWbXYA/edit', formatter: oblFormatMatt },
     derpy: { label: 'Derpy', linkText: "Derpy's OBL Sheet", url: 'https://docs.google.com/spreadsheets/d/1BZQxg11RD829O0tKagGVC65b3s57Hd7Y0GplDCR7--w/edit', formatter: oblFormatSheet },
 };
 
 // ── oblRenderCluster ──────────────────────────────────────────────────────
 // Renders title + source tabs + body into the given `content` element.
 
-function oblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => {}) {
+function oblRenderCluster(cluster, title, sources, activeSource, content, onResize = () => { }) {
     const window_ = content.parentElement;
 
     // Build or reuse the tab bar that sits outside the scroll container.
@@ -1091,12 +1091,11 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
     }
     tabBar.style.display = sources.length > 1 ? '' : 'none';
     tabBar.innerHTML = sources.length > 1
-        ? `<div class="cluster-tabs">${
-              sources.map(src =>
-                  `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
-                  `<label for="ctab-${src}" class="cluster-tab-label">${OBL_SOURCE_META[src]?.label ?? src}</label>`
-              ).join('')
-          }</div>`
+        ? `<div class="cluster-tabs">${sources.map(src =>
+            `<input type="radio" class="cluster-tab-radio" name="cluster-src" id="ctab-${src}" value="${src}"${src === activeSource ? ' checked' : ''}>` +
+            `<label for="ctab-${src}" class="cluster-tab-label">${OBL_SOURCE_META[src]?.label ?? src}</label>`
+        ).join('')
+        }</div>`
         : '';
 
     const displayTitle = oblDisplayClusterTitle(title);
@@ -1123,63 +1122,114 @@ function oblRenderCluster(cluster, title, sources, activeSource, content, onResi
 
 
 
-// Drops matt tag attachments for `title` that no longer resolve to a live
-// solution group — i.e. the group was removed or its overview/slicecount was
-// reworded in a data update, so its content-slug id changed out from under the
-// stored ref. Returns the number of attachments dropped, so the view can warn
-// the user their tags were lost. (PBL matt only; OBL matt is a flat "*" unit.)
-function pruneOrphanMattTags(title) {
+// Finds matt tags that no longer resolve to a solution group.
+// (either a solution overview or slicecount update)
+// does NOT delete
+function findOrphanMattTags(title) {
     const valid = new Set(mattUnitOrder(title));
     const a = loadTagAssignments();
-    let dropped = 0, changed = false;
+    const orphans = [];
     for (const tid of Object.keys(a)) {
-        const kept = a[tid].filter(ref => {
+        for (const ref of a[tid]) {
             const [t, source, unitId] = ref.split('|');
-            if (t !== title || source !== 'matt' || valid.has(unitId)) return true;
-            dropped++; return false;
-        });
-        if (kept.length !== a[tid].length) {
-            changed = true;
-            if (kept.length) a[tid] = kept; else delete a[tid];
+            if (t === title && source === 'matt' && !valid.has(unitId)) {
+                orphans.push({ tagId: tid, ref, unitId });
+            }
         }
     }
-    if (changed) saveTagAssignments(a);
-    return dropped;
+    return orphans;
+}
+
+// Find cluster titles that have orphaned tag assignments.
+export function orphanMattTagClusters() {
+    const a = loadTagAssignments();
+    const validCache = new Map();
+    const titles = new Set();
+    for (const refs of Object.values(a)) {
+        for (const ref of refs) {
+            const [title, source, unitId] = ref.split('|');
+            if (source !== 'matt' || titles.has(title) || !_algClusters()[title]) continue;
+            let valid = validCache.get(title);
+            if (!valid) { valid = new Set(mattUnitOrder(title)); validCache.set(title, valid); }
+            if (!valid.has(unitId)) titles.add(title);
+        }
+    }
+    return titles;
+}
+
+// Best-effort human-readable label for an orphaned matt unitId.
+function _reconstructOrphanLabel(unitId) {
+    if (/^new\d+$/.test(unitId)) return 'a removed added group';
+    const words = String(unitId).replace(/-\d+$/, '').split('-').filter(Boolean);
+    return words.length ? words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : unitId;
 }
 
 // Shows or clears the "tags lost" warning banner above the cluster body.
-function _setClusterTagBanner(dropped) {
+// Each orphaned tag assignment gets a row with a reconstructed label and a trash button.
+function _setClusterTagBanner(orphans) {
     const banner = document.getElementById('search-cluster-banner');
     if (!banner) return;
-    if (dropped > 0) {
-        banner.textContent = `${dropped} tag${dropped === 1 ? '' : 's'} lost due to a data update.`;
-        banner.style.display = '';
-    } else {
-        banner.textContent = '';
+    if (!orphans.length) {
+        banner.innerHTML = '';
         banner.style.display = 'none';
+        return;
     }
+    const tags = getTags();
+    banner.innerHTML =
+        `<div class="sct-banner-head">${orphans.length} tag${orphans.length === 1 ? '' : 's'} lost due to a data update.</div>` +
+        orphans.map(({ tagId, ref, unitId }) => {
+            const tag = tags.find(t => t.id === tagId);
+            const tagLabel = tag ? escapeHtml(tag.name) : 'deleted tag';
+            const unitLabel = escapeHtml(_reconstructOrphanLabel(unitId));
+            return `<div class="sct-banner-row" data-tagid="${escapeHtml(tagId)}" data-ref="${escapeHtml(ref)}">` +
+                `<span class="sct-banner-label">${tagLabel} — ${unitLabel}</span>` +
+                `<button class="sct-banner-del" data-tip="Delete this lost tag">${ORPHAN_TAG_DEL_SVG}</button>` +
+                `</div>`;
+        }).join('');
+    banner.style.display = '';
 }
+
+// Deletes a single orphaned tag assignment (a row's trash button) and updates
+// the banner in place without a full re-render.
+document.getElementById('search-cluster-banner')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.sct-banner-del');
+    if (!btn) return;
+    const row = btn.closest('.sct-banner-row');
+    if (!row) return;
+    toggleUnitTag(row.dataset.ref, row.dataset.tagid); // ref is present, so this removes it
+    row.remove();
+
+    const banner = document.getElementById('search-cluster-banner');
+    const remaining = banner.querySelectorAll('.sct-banner-row');
+    if (!remaining.length) {
+        banner.innerHTML = '';
+        banner.style.display = 'none';
+        return;
+    }
+    const head = banner.querySelector('.sct-banner-head');
+    if (head) head.textContent = `${remaining.length} tag${remaining.length === 1 ? '' : 's'} lost due to a data update.`;
+});
 
 // Renders a cluster's reference for `title` into an arbitrary `content`
 // element. `onResize` is the callback the source tabs use to re-fit.
 // Returns true if the cluster existed and was rendered.
-export function renderClusterInto(content, title, onResize = () => {}) {
+export function renderClusterInto(content, title, onResize = () => { }) {
     const clusters = trainerMode === 'pbl' ? pblClusters : oblClusters;
     if (!clusters || !clusters[title]) return false;
 
     // Reconcile stored tags against the current data before rendering, so a group
     // that was reworded/removed upstream drops its now-dangling tags and warns.
-    _setClusterTagBanner(trainerMode === 'pbl' ? pruneOrphanMattTags(title) : 0);
+    _setClusterTagBanner(trainerMode === 'pbl' ? findOrphanMattTags(title) : []);
 
-    const cluster  = effectiveCluster(title); // shipped data merged with user overrides
+    const cluster = effectiveCluster(title); // shipped data merged with user overrides
 
-    const SKIP       = new Set(['case-list', 'optimal-slicecount']);
-    const sources    = Object.keys(cluster).filter(k => !SKIP.has(k));
-    const preferred  = defaultReferenceFor(trainerMode);
-    const active     = sources.includes(preferred) ? preferred : sources[0] ?? 'matt';
+    const SKIP = new Set(['case-list', 'optimal-slicecount']);
+    const sources = Object.keys(cluster).filter(k => !SKIP.has(k));
+    const preferred = defaultReferenceFor(trainerMode);
+    const active = sources.includes(preferred) ? preferred : sources[0] ?? 'matt';
 
     content.scrollTop = 0;
     if (trainerMode === 'pbl') pblRenderCluster(cluster, title, sources, active, content, onResize);
-    else                       oblRenderCluster(cluster, title, sources, active, content, onResize);
+    else oblRenderCluster(cluster, title, sources, active, content, onResize);
     return true;
 }

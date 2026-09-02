@@ -2046,12 +2046,49 @@ button:active:not(:disabled) {
 /* Warning shown above the cluster body when a data update dropped stale tags. */
 .sct-banner {
     flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     padding: 7px 12px;
     font-size: 0.82rem;
     color: #ffb3b3;
     background: var(--danger-bg);
     border-bottom: 1px solid rgba(224, 92, 92, 0.28);
 }
+
+.sct-banner-head { font-weight: 600; }
+
+.sct-banner-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sct-banner-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sct-banner-del {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: #fc7171;
+    cursor: pointer;
+    opacity: 0.8;
+}
+.sct-banner-del:hover { opacity: 1; background: rgba(224, 92, 92, 0.15); }
 
 .sct-btn {
     display: inline-flex;
@@ -2362,6 +2399,22 @@ button:active:not(:disabled) {
 .hm-cell.hm-fam-top::after   { inset: 0 0 auto 0; height: 1px; }
 .hm-gray { background: var(--hm-empty); }
 
+/* Overlay badge on cells belonging to a cluster with lost tags. */
+.hm-lost-mark {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1;
+    color: #ff1a1a;
+    text-shadow: 0 0 1px #fff, 0 1px 1px #fff;
+    pointer-events: none;
+}
+
 .hm-tip {
     position: absolute;
     /* Position is computed in JS (hmShowTip) and clamped inside the heatmap. */
@@ -2380,6 +2433,7 @@ button:active:not(:disabled) {
 .hm-tip-cluster { color: var(--border-col); }
 .hm-tip-sol     { color: #92acce; font-family: monospace; }
 .hm-tip-dim     { color: #6f87a8; font-style: italic; }
+.hm-tip-warn    { color: #ffb3b3; font-weight: 600; margin-top: 2px; }
 
 @media screen and (max-width: 1080px) {
     .hm-grids { flex-direction: column; align-items: center; }

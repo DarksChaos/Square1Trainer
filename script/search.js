@@ -1,7 +1,7 @@
 import { oblClusters, pblClusters } from '../data/alg-data.js';
 import { possibleOBL } from '../data/obl-data.js';
 import { pblDefaultLists } from '../data/pbl-data.js';
-import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseCount, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
+import { OBL_SOURCE_META, PBL_SOURCE_META, UNIT_TAG_SVG, algEditBegin, algEditCancel, algEditDirty, algEditRedo, algEditRender, algEditSave, algEditUndo, effectiveCluster, effectiveMattGroups, loadTagAssignments, mattUnitOrder, oblFindCluster, oblFormatSheet, orphanMattTagClusters, pblFindCluster, pblFormatSheet, renderClusterInto, saveTagAssignments, tagCaseCount, tagUnitState, tagUnitsByCluster, taggedClusterTitles, toggleUnitTag, unitRef, unitTagsInner } from './alg-reference.js';
 import { abandonTransition, appConfirm, closeOverlayForTransition, dismissTopOverlay, escapeHtml, pushOverlay, randInt, showError, showInfo, showSuccess, trainerMode, usingTimer } from './app.js';
 import { OBLname, getNonSpeList, getSpe, getSpeList, oblAddUserLists, oblDefaultLists, oblDisplayClusterTitle, oblDisplayName, oblNamingMode, oblSaveUserLists, oblUserLists, oblUsingSpe } from './obl-core.js';
 import { pblAddUserLists, pblCaseCount, pblGetOptimal, pblPossible, pblSaveUserLists, pblUseBarflip, pblUserLists } from './pbl-core.js';
@@ -33,6 +33,7 @@ const hmEl = document.getElementById('search-heatmaps');
 let hmCaseCluster   = null;  // caseName → cluster title (built once)
 let hmSelectedTags  = null;  // Set of selected tag ids; null = "all tags"
 let hmLastSlices    = {};    // caseName → { slice, overview } from last compute
+let hmOrphanTitles  = new Set(); // cluster titles with lost tags, from last compute
 let hmTipEl         = null;
 let hmTapCase       = null;  // touch: the case whose tooltip is currently shown
 const HM_COLOR_MODE_KEY = 'hmColorMode';
@@ -330,11 +331,13 @@ function hmGridHtml(plls, slices, mode, clusterTags, color) {
                 html += `<div class="hm-head hm-rowhead" style="grid-row:span ${g.members.length}">${escapeHtml(g.fam)}</div>`;
             for (const c of plls) {
                 const cn = r + '/' + c, bg = bgs[cn];
+                const lost = hmOrphanTitles.has(hmCaseCluster[cn]);
                 let cls = 'hm-cell';
                 if (famFirst.has(c)) cls += ' hm-fam-left';
                 if (idx === 0)       cls += ' hm-fam-top';
                 if (bg == null)      cls += ' hm-gray';
-                html += `<div class="${cls}" data-case="${escapeHtml(cn)}"${bg == null ? '' : ` style="${bg}"`}></div>`;
+                if (lost)            cls += ' hm-lost';
+                html += `<div class="${cls}" data-case="${escapeHtml(cn)}"${bg == null ? '' : ` style="${bg}"`}>${lost ? '<span class="hm-lost-mark">!</span>' : ''}</div>`;
             }
         });
     }
@@ -354,6 +357,7 @@ function hmTagBarHtml() {
 function hmRenderGrids() {
     hmBuildCaseCluster();
     hmLastSlices = hmComputeCaseSlices();
+    hmOrphanTitles = orphanMattTagClusters();
     const clusterTags = hmComputeClusterTags();
     // One color scale across both grids, so red means the same value in each
     // (only used in 'slicecount' mode; tag modes color directly).
@@ -392,7 +396,8 @@ function hmShowTip(cell, cn) {
     hmTipEl.innerHTML =
         `<div class="hm-tip-case">${escapeHtml(cn)}</div>` +
         `<div class="hm-tip-cluster">${cluster ? escapeHtml(cluster) : '<span class="hm-tip-dim">not a PBL case</span>'}</div>` +
-        (s ? `<div class="hm-tip-sol">${escapeHtml(s.overview)} (${s.slice})</div>` : '');
+        (s ? `<div class="hm-tip-sol">${escapeHtml(s.overview)} (${s.slice})</div>` : '') +
+        (cluster && hmOrphanTitles.has(cluster) ? `<div class="hm-tip-warn">! tags lost — open the cluster to review</div>` : '');
     hmTipEl.style.display = 'block';
 
     // Position the tip's top-left directly (no CSS centering transform) so we can
