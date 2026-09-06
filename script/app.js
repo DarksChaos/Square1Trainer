@@ -28,6 +28,13 @@ async function ensureAlgReference() {
     return algReference;
 }
 
+// Resolves a .case cell's id to its cluster and opens the alg reference for it.
+export async function openCaseAlgReference(caseId) {
+    const [searchMod, algMod] = await Promise.all([ensureSearchModules(), ensureAlgReference()]);
+    const title = trainerMode === 'pbl' ? algMod.pblFindCluster(caseId) : algMod.oblFindCluster(caseId);
+    if (title) searchMod.openAlgReference(title);
+}
+
 async function ensureTags() {
     if (!tags) tags = await import('./tags.js');
     return tags;
@@ -493,6 +500,8 @@ function openCasesPopup()    {
 }
 
 const HELP_INFO_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>`;
+
+export const CASE_REF_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.3" y1="15.3" x2="20" y2="20"/></svg>`;
 
 /**
  * buildHelpShortcuts — turns an array of {keys, desc, info?} (or null for a

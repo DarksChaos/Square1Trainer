@@ -1,6 +1,6 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG, HELP_LEARN_SVG, HELP_LIST_SVG, HELP_SEARCH_SVG, HELP_SYNC_SVG, HELP_TAG_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, countBarflipEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, pblSnapSelection, previousScrambleEl, randInt, refreshOpenListCounts, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { CASE_REF_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, countBarflipEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, openCaseAlgReference, pblSnapSelection, previousScrambleEl, randInt, refreshOpenListCounts, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { setPblCountBarflip, tagCaseModes } from './tag-assignments.js';
 
@@ -582,8 +582,17 @@ export function pblRestoreGrid(buildGrid = false) {
     caseListEl.dataset.trainerGrid = 'pbl';
     caseListEl.style.gridTemplateColumns = '';
     caseListEl.innerHTML = pblPossible
-        .map(([t, b]) => `<div class="case" id="${t}/${b}">${t} / ${b}</div>`)
+        .map(([t, b]) => `<div class="case" id="${t}/${b}">${t} / ${b}<span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`)
         .join('');
+
+    document.querySelectorAll(".case-ref-btn").forEach(refBtn => {
+        refBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (usingTimer()) return;
+            openCaseAlgReference(refBtn.closest('.case').id);
+        });
+        refBtn.addEventListener("contextmenu", e => e.stopPropagation());
+    });
 
     document.querySelectorAll(".case").forEach(caseEl => {
         const base = caseEl.id;

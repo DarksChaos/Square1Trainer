@@ -741,7 +741,7 @@ function getSearchIndex() {
 export function openAlgReference(title) {
     if (!title) return;
     const returnTo = isSearchOpen ? currentSearchReturnTarget() : { kind: 'trainer' };
-    if (!isSearchOpen) openSearch();
+    if (!isSearchOpen) openSearch(!hasOnscreenKeyboard());
     showClusterInSearch(title, returnTo);
 }
 
@@ -1105,14 +1105,18 @@ function applySearchClusterWidth(title) {
     searchPanelEl.style.width = searchClusterWidth;
 }
 
-function openSearch() {
+function hasOnscreenKeyboard() {
+    return matchMedia('(pointer: coarse)').matches;
+}
+
+function openSearch(focusInput = true) {
     if (usingTimer()) return;
     if (isSearchOpen) return;
     isSearchOpen = true;
     searchOverlayEl.style.display = "flex";
     searchInputEl.value = "";
     renderSearchResults();
-    searchInputEl.focus();
+    if (focusInput) searchInputEl.focus();
     pushOverlay({
         el: searchOverlayEl,
         isPopup: false,

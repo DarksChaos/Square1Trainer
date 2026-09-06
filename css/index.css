@@ -252,6 +252,7 @@ input[type="checkbox"] {
 
 /* Base style for label */
 .case {
+    position: relative;
     border: 3px solid var(--case-border);
     /* gray by default */
     font-weight: bold;
@@ -267,6 +268,31 @@ input[type="checkbox"] {
     color: var(--text-strong);
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.case-ref-btn {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.12s ease, color 0.12s ease;
+}
+.case-ref-btn > svg { width: 11px; height: 11px; display: block; }
+.case-ref-btn:focus { opacity: 1; color: var(--text-strong); }
+
+@media (hover: hover) and (pointer: fine) {
+    .case-ref-btn { opacity: 0; }
+    .case:hover .case-ref-btn { opacity: 0.7; }
+    .case-ref-btn:hover { opacity: 0.8; color: var(--text-strong); }
 }
 
 .hidden {

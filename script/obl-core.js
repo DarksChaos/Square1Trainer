@@ -1,6 +1,6 @@
 import { OBL_DEFAULT_LISTS_RAW, OBL_MATT_LABELS, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG, HELP_LEARN_SVG, HELP_LIST_SVG, HELP_SEARCH_SVG, HELP_SYNC_SVG, HELP_TAG_SVG } from './help-icons.js';
-import { MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, previousScrambleEl, randInt, randrange, refreshOpenListCounts, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { CASE_REF_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, openCaseAlgReference, previousScrambleEl, randInt, randrange, refreshOpenListCounts, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { setOblTagCaseCounter, tagClusterTitles } from './tag-assignments.js';
 
@@ -450,11 +450,19 @@ export function oblRestoreGrid(buildGrid = false) {
 
         caseListEl.innerHTML = oblUsingSpe
             ? possibleOBL.flatMap(obl =>
-                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${oblDisplayName(s)}</div>`)
+                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${oblDisplayName(s)}<span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`)
               ).join('')
             : possibleOBL.map(obl =>
-                `<div class="case" id="${OBLname(obl)}">${oblDisplayName(OBLname(obl))}</div>`
+                `<div class="case" id="${OBLname(obl)}">${oblDisplayName(OBLname(obl))}<span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`
               ).join('');
+
+        document.querySelectorAll('.case-ref-btn').forEach(refBtn => {
+            refBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (usingTimer()) return;
+                openCaseAlgReference(refBtn.closest('.case').id);
+            });
+        });
 
         document.querySelectorAll('.case').forEach(caseEl => {
             const id = caseEl.id;
