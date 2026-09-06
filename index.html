@@ -331,6 +331,29 @@
             navigator.serviceWorker.register("./service-worker.js").catch(console.error);
         }
     </script>
+    <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyAqHgs9F8AnilmK6UjRqjcsW1PAiCQRK0Y",
+        authDomain: "squan-go.firebaseapp.com",
+        projectId: "squan-go",
+        storageBucket: "squan-go.firebasestorage.app",
+        messagingSenderId: "82254148579",
+        appId: "1:82254148579:web:d8c173e3c7bdc351c166d6",
+        measurementId: "G-8V2YY0HXTS"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    </script>
 </body>
 
     <script type="module" src="script/main.js"></script>
