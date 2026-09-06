@@ -1035,8 +1035,8 @@ previousScrambleEl.addEventListener("click", async () => {
     if (usingTimer()) return;
     const [searchMod, algMod] = await Promise.all([ensureSearchModules(), ensureAlgReference()]);
     if (trainerMode === 'pbl') {
-        if (!pbl.pblPreviousCase) return;
-        searchMod.openAlgReference(algMod.pblFindCluster(pbl.pblPreviousCase));
+        const prev = pbl.pblScrambleList.at(-2 - pbl.pblOffset);
+        if (prev) searchMod.openAlgReference(algMod.pblFindCluster(prev[2]));
     } else {
         const prev = obl.oblScrambleList.at(-2 - obl.oblScrambleOffset);
         if (prev) searchMod.openAlgReference(algMod.oblFindCluster(prev[2]));
