@@ -450,10 +450,10 @@ export function oblRestoreGrid(buildGrid = false) {
 
         caseListEl.innerHTML = oblUsingSpe
             ? possibleOBL.flatMap(obl =>
-                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}">${oblDisplayName(s)}<span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`)
+                getSpe(OBLname(obl)).map(s => `<div class="case" id="${s}"><span class="case-label">${oblDisplayName(s)}</span><span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`)
               ).join('')
             : possibleOBL.map(obl =>
-                `<div class="case" id="${OBLname(obl)}">${oblDisplayName(OBLname(obl))}<span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`
+                `<div class="case" id="${OBLname(obl)}"><span class="case-label">${oblDisplayName(OBLname(obl))}</span><span class="case-ref-btn" tabindex="0" role="button" aria-label="Open alg reference" data-tip="Open alg reference">${CASE_REF_SVG}</span></div>`
               ).join('');
 
         document.querySelectorAll('.case-ref-btn').forEach(refBtn => {
@@ -483,7 +483,8 @@ export function oblRestoreGrid(buildGrid = false) {
             const selected = oblSelectedCases[oblUsingSpe].includes(caseEl.id);
             caseEl.classList.toggle('checked', selected);
             caseEl.classList.toggle('checked-both', selected);
-            caseEl.textContent = oblDisplayName(caseEl.id);
+            const label = caseEl.querySelector('.case-label');
+            if (label) label.textContent = oblDisplayName(caseEl.id);
         }
     }
 
