@@ -33,6 +33,7 @@ const hmEl = document.getElementById('search-heatmaps');
 let hmCaseCluster   = null;  // caseName → cluster title (built once)
 let hmSelectedTags  = null;  // Set of selected tag ids; null = "all tags"
 let hmLastSlices    = {};    // caseName → { slice, overview } from last compute
+let hmTipSolutions  = {};    // caseName → [{ slice, overview }] shown in the tooltip
 let hmOrphanTitles  = new Set(); // cluster titles with lost tags, from last compute
 let hmTipEl         = null;
 let hmTapCase       = null;  // touch: the case whose tooltip is currently shown
@@ -127,6 +128,53 @@ function hmComputeCaseSlices() {
             if (!names.size) for (const c of caseList) names.add(hmCanonCase(c));
             for (const cn of names)
                 if (!result[cn] || slice < result[cn].slice) result[cn] = { slice, overview };
+        }
+    }
+    return result;
+}
+
+/**
+ * caseName → every matching solution for the tooltip, depending on heatmap mode:
+ *   slicecount — groups carrying a currently-selected tag (≈ hmComputeCaseSlices)
+ *   tags       — every tagged group in alg-reference order
+ *   highest    — every group tagged with the highest tag
+ *
+ * clusterTags is the same title → ordered-tag-list map hmComputeClusterTags builds.
+ */
+function hmComputeCaseSolutions(clusterTags) {
+    const assignments = loadTagAssignments();
+    const selected     = hmSelectedTagIds();
+    const selectedRefs = new Set();
+    if (hmColorMode === 'slicecount')
+        for (const tid of selected) (assignments[tid] || []).forEach(r => selectedRefs.add(r));
+    const anyTaggedRefs = hmColorMode === 'tags' ? new Set(Object.values(assignments).flat()) : null;
+
+    const result = {};
+    for (const title of Object.keys(pblClusters)) {
+        const groups = effectiveMattGroups(title);
+        const order  = mattUnitOrder(title);
+        const highestTagId = hmColorMode === 'highest' ? (clusterTags[title]?.[0]?.id ?? null) : null;
+        const highestRefs  = highestTagId != null ? new Set(assignments[highestTagId] || []) : null;
+        for (let i = 0; i < groups.length; i++) {
+            const ref = unitRef(title, 'matt', order[i]);
+            const include = hmColorMode === 'slicecount' ? selectedRefs.has(ref)
+                : hmColorMode === 'highest' ? (highestRefs != null && highestRefs.has(ref))
+                : anyTaggedRefs.has(ref);
+            if (!include) continue;
+
+            const slice = groups[i]['solution-slicecount'];
+            if (slice == null) continue;
+            const overview = groups[i]['solution-overview'] || '';
+            const caseList = effectiveCluster(title)?.['case-list'] || [];
+            const names = new Set();
+            for (const ab of groups[i]['alg-blocks'] || [])
+                for (const c of ab.cases || []) {
+                    if (!c['case-name']) continue;
+                    for (const n of hmResolveCaseName(hmCanonCase(c['case-name']), caseList)) names.add(n);
+                }
+            if (!names.size) for (const c of caseList) names.add(hmCanonCase(c));
+            for (const cn of names)
+                (result[cn] || (result[cn] = [])).push({ slice, overview });
         }
     }
     return result;
@@ -359,6 +407,7 @@ function hmRenderGrids() {
     hmLastSlices = hmComputeCaseSlices();
     hmOrphanTitles = orphanMattTagClusters();
     const clusterTags = hmComputeClusterTags();
+    hmTipSolutions = hmComputeCaseSolutions(clusterTags);
     // One color scale across both grids, so red means the same value in each
     // (only used in 'slicecount' mode; tag modes color directly).
     const evenStats = hmGridStats(SquanLib.evenPLL, hmLastSlices, hmColorMode, clusterTags);
@@ -392,11 +441,12 @@ function renderHeatmaps() {
 function hmShowTip(cell, cn) {
     if (!hmTipEl) return;
     const cluster = hmCaseCluster[cn];
-    const s = hmLastSlices[cn];
+    const sols = hmTipSolutions[cn] || [];
+    const solsHtml = sols.map(s => `<div class="hm-tip-sol">${escapeHtml(s.overview)} (${s.slice})</div>`).join('');
     hmTipEl.innerHTML =
         `<div class="hm-tip-case">${escapeHtml(cn)}</div>` +
         `<div class="hm-tip-cluster">${cluster ? escapeHtml(cluster) : '<span class="hm-tip-dim">not a PBL case</span>'}</div>` +
-        (s ? `<div class="hm-tip-sol">${escapeHtml(s.overview)} (${s.slice})</div>` : '') +
+        solsHtml +
         (cluster && hmOrphanTitles.has(cluster) ? `<div class="hm-tip-warn">tags lost! open the cluster to review.</div>` : '');
     hmTipEl.style.display = 'block';
 
