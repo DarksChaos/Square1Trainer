@@ -1,6 +1,6 @@
 import { pblDefaultLists, pblOptimal } from '../data/pbl-data.js';
 import { HELP_CTRL_SVG, HELP_EQ_SVG, HELP_FILTER_SVG, HELP_HOME_SVG, HELP_LEARN_SVG, HELP_LIST_SVG, HELP_SEARCH_SVG, HELP_SYNC_SVG, HELP_TAG_SVG } from './help-icons.js';
-import { CASE_REF_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, countBarflipEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, openCaseAlgReference, pblSnapSelection, previousScrambleEl, randInt, refreshOpenListCounts, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
+import { CASE_REF_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, bottom56El, bottom56Row, buildHelpShortcuts, caseListEl, countBarflipEl, currentScrambleEl, defaultListsEl, eachCaseEl, globalBarflipEl, globalBarflipRow, karnEl, openCaseAlgReference, pblSnapSelection, pickFallbackPblScramble, previousScrambleEl, randInt, readStartupScramble, refreshOpenListCounts, saveStartupScramble, setShowMode, setUsingKarn, showAll, showMode, showSelected, showSuccess, timerEl, trainerMode, updateDeselectBtn, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateSelectBtn, updateToggle, useBarflipEl, userListsEl, usingKarn, usingTimer, weightEl } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { setPblCountBarflip, tagCaseModes } from './tag-assignments.js';
 
@@ -186,6 +186,64 @@ export const pblStorage = {
 };
 
 const pblSettingList = [eachCaseEl, karnEl, weightEl, globalBarflipEl, useBarflipEl, countBarflipEl];
+
+function pblStartupEntryIsSelectable(entry) {
+    if (!entry?.caseName) return false;
+    if (entry.scrambleMode && entry.scrambleMode !== pblScrambleMode) return false;
+    if (typeof entry.allowBottom56 === 'boolean' && entry.allowBottom56 !== pblAllowBottom56) return false;
+    const base = entry.caseName.slice(0, -1);
+    return pblSelected.includes(entry.caseName) || pblSelected.includes(base + '+') || pblSelected.includes(base + '-');
+}
+
+function pblHydrateStartupScramble(entry) {
+    if (!pblStartupEntryIsSelectable(entry)) return false;
+    pblScrambleList = [[entry.standard, entry.karn, entry.caseName]];
+    pblOffset = 0;
+    pblCurrentCase = entry.caseName;
+    pblPreviousCase = '';
+    pblHasActive = true;
+    pblCaseSpliced = true;
+    const consumed = pblEffectiveOverride() !== null
+        ? pblRemaining.findIndex(x => x.slice(0, -1) === entry.caseName.slice(0, -1))
+        : pblRemaining.indexOf(entry.caseName);
+    if (consumed !== -1) pblRemaining.splice(consumed, 1);
+    currentScrambleEl.classList.remove('generating');
+    currentScrambleEl.textContent = pblScrambleList[0][usingKarn];
+    previousScrambleEl.textContent = 'Last scramble will show up here';
+    if (timerEl.textContent === '--:--') timerEl.textContent = '0.00';
+    updateRemainingCount();
+    updateScrambleNavButtons();
+    pblSchedulePreparedScramble();
+    return true;
+}
+
+function pblRestoreStartupScramble({ allowFallback = false } = {}) {
+    return pblHydrateStartupScramble(readStartupScramble('pbl')) ||
+        (allowFallback && pblHydrateStartupScramble(pickFallbackPblScramble()));
+}
+
+function pblRememberPreparedScramble(data, choice) {
+    if (!choice || !data) return;
+    saveStartupScramble('pbl', {
+        standard: data.scramble,
+        karn: data.karn,
+        caseName: choice,
+        scrambleMode: pblScrambleMode,
+        allowBottom56: pblAllowBottom56,
+    });
+}
+
+function pblSchedulePreparedScramble() {
+    if (pblRemaining.length === 0 || pblWorkerBusy || pblPending) return;
+    const prepare = () => {
+        if (trainerMode !== 'pbl' || pblRemaining.length === 0 || pblWorkerBusy || pblPending) return;
+        pblRequestScramble(pblRemaining[randInt(0, pblRemaining.length - 1)]);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        if ('requestIdleCallback' in window) requestIdleCallback(prepare, { timeout: 1200 });
+        else setTimeout(prepare, 250);
+    }));
+}
 
 function pblMigrateLegacyStorage() {
     const keys = ['settings', 'selected', 'userLists'];
@@ -386,6 +444,7 @@ function pblNormalHandler(e) {
     pblWorkerBusy = false;
     if (e.data.error) { console.error('PBL worker error:', e.data.error); return; }
     pblPending = e.data;
+    pblRememberPreparedScramble(e.data, pblPendingFor);
 }
 
 export function pblRequestScramble(choice) {
@@ -925,13 +984,14 @@ export function pblLoadStorage() {
         pblRefillRemaining();
         // Only generate scramble immediately if PBL is the active trainer.
         // If starting in OBL mode, applyMode will handle OBL; PBL generates when switched to.
-        if (trainerMode === 'pbl') pblGenerateScramble();
+        if (trainerMode === 'pbl' && !pblRestoreStartupScramble()) pblGenerateScramble();
     } else {
         // First-ever load — select all cases in 'both' mode.
         pblSelected = pblPossible.flatMap(pbl => [pblName(pbl) + '+', pblName(pbl) + '-']);
         pblEachCase = eachCaseEl.checked ? 1 : randInt(MIN_EACHCASE, MAX_EACHCASE);
         pblRefillRemaining();
-        pblSaveSelected();
+        pblStorage.setItem("selected", JSON.stringify(pblSelected));
+        if (trainerMode === 'pbl' && !pblHasActive) pblRestoreStartupScramble({ allowFallback: true });
     }
 
     updateSelCount();

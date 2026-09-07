@@ -1,6 +1,6 @@
 import { OBL_DEFAULT_LISTS_RAW, OBL_MATT_LABELS, OBLtranslation, possibleOBL } from '../data/obl-data.js';
 import { HELP_CTRL_SVG, HELP_HOME_SVG, HELP_LEARN_SVG, HELP_LIST_SVG, HELP_SEARCH_SVG, HELP_SYNC_SVG, HELP_TAG_SVG } from './help-icons.js';
-import { CASE_REF_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, openCaseAlgReference, previousScrambleEl, randInt, randrange, refreshOpenListCounts, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
+import { CASE_REF_SVG, MAX_EACHCASE, MIN_EACHCASE, addListItemEvent, appConfirm, appPrompt, buildHelpShortcuts, caseListEl, closePopup, currentScrambleEl, defaultListsEl, eachCaseEl, filterInputEl, highlightedList, karnEl, mod, openCaseAlgReference, previousScrambleEl, randInt, randrange, readStartupScramble, refreshOpenListCounts, saveStartupScramble, setHighlighted, setHighlightedList, setShowMode, setUsingKarn, showAll, showError, showMode, showSelected, showSuccess, timerEl, trainerMode, updateRemainingCount, updateScrambleNavButtons, updateSelCount, updateToggle, userListsEl, usingKarn, usingTimer, validName } from './app.js';
 import { SquanLib, squan } from './squan.js';
 import { setOblTagCaseCounter, tagClusterTitles } from './tag-assignments.js';
 
@@ -35,11 +35,75 @@ export function oblResetSelection() {
 }
 let oblEachCase          = 0;
 export let oblCaseSpliced       = false; // true once a case has been taken from remaining for display
+let oblPrepareScheduled = false;
 
 export const oblStorage = {
     getItem:  k      => localStorage.getItem(k + 'OBL'),
     setItem:  (k, v) => localStorage.setItem(k + 'OBL', v),
 };
+
+function oblStartupEntryIsSelectable(entry) {
+    return !!entry?.caseName && oblSelectedCases[oblUsingSpe].includes(entry.caseName);
+}
+
+function oblHydrateStartupScramble(entry) {
+    if (!oblStartupEntryIsSelectable(entry)) return false;
+    oblScrambleList = [[entry.standard, entry.karn, entry.caseName, entry.memo || '']];
+    oblScrambleOffset = 0;
+    oblCurrentCase = entry.caseName;
+    oblHasActiveScramble = true;
+    oblCaseSpliced = true;
+    const consumed = oblRemainingCases[oblUsingSpe].indexOf(entry.caseName);
+    if (consumed !== -1) oblRemainingCases[oblUsingSpe].splice(consumed, 1);
+    oblDisplayCurrentScramble();
+    oblDisplayPreviousScramble();
+    if (timerEl.textContent === '--:--') timerEl.textContent = '0.00';
+    updateRemainingCount();
+    oblSchedulePreparedScramble();
+    return true;
+}
+
+function oblRestoreStartupScramble() {
+    return oblHydrateStartupScramble(readStartupScramble('obl'));
+}
+
+function oblRememberPreparedScramble(final) {
+    saveStartupScramble('obl', {
+        standard: final[0],
+        karn: final[1],
+        caseName: final[2],
+        memo: final[3] || '',
+    });
+}
+
+function oblBuildScrambleFinal(choice) {
+    const specific = oblUsingSpe
+        ? choice
+        : OBLtranslation[choice][randInt(0, OBLtranslation[choice].length - 1)];
+    const scramble = getOBLScramble(specific);
+
+    return [
+        scramble[0].replaceAll('/', ' / '),
+        scramble[1],
+        choice,
+        scramble[2],
+    ];
+}
+
+function oblSchedulePreparedScramble() {
+    if (oblPrepareScheduled || oblRemainingCases[oblUsingSpe].length === 0) return;
+    oblPrepareScheduled = true;
+    const prepare = () => {
+        oblPrepareScheduled = false;
+        if (trainerMode !== 'obl' || oblRemainingCases[oblUsingSpe].length === 0) return;
+        const choice = oblRemainingCases[oblUsingSpe][randInt(0, oblRemainingCases[oblUsingSpe].length - 1)];
+        oblRememberPreparedScramble(oblBuildScrambleFinal(choice));
+    };
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        if ('requestIdleCallback' in window) requestIdleCallback(prepare, { timeout: 1200 });
+        else setTimeout(prepare, 250);
+    }));
+}
 
 // ─── OBL SELECTION ────────────────────────────────────────────────────────────
 
@@ -106,18 +170,7 @@ export function oblGenerateScramble(regen = false) {
     const choice = oblRemainingCases[oblUsingSpe].splice(idx, 1)[0];
     updateRemainingCount();
     oblCurrentCase = choice;
-
-    const specific = oblUsingSpe
-        ? choice
-        : OBLtranslation[choice][randInt(0, OBLtranslation[choice].length - 1)];
-    const scramble = getOBLScramble(specific);
-
-    const final = [
-        scramble[0].replaceAll('/', ' / '),
-        scramble[1],
-        choice,
-        scramble[2],
-    ];
+    const final = oblBuildScrambleFinal(choice);
 
     if (regen) {
         oblScrambleList[oblScrambleList.length - 1] = final;
@@ -130,6 +183,7 @@ export function oblGenerateScramble(regen = false) {
         timerEl.textContent = '0.00';
     oblDisplayCurrentScramble();
     oblDisplayPreviousScramble();
+    oblSchedulePreparedScramble();
 }
 
 export function oblDisplayCurrentScramble() {
@@ -371,7 +425,7 @@ export function oblLoadSelected() {
     oblSelectedCases[oblUsingSpe].forEach(id => oblSelect(id));
     if (oblHasActiveScramble) return; // remaining is valid from before the trainer switch; rebuilding would double-count
     oblRefillRemaining();
-    if (oblSelectedCases[oblUsingSpe].length) oblGenerateScramble();
+    if (oblSelectedCases[oblUsingSpe].length && !oblRestoreStartupScramble()) oblGenerateScramble();
 }
 
 // ─── OBL BULK SELECT ─────────────────────────────────────────────────────────

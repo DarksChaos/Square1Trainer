@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build.mjs",
     "lint": "eslint .",
-    "benchmark": "node scripts/benchmark.mjs"
+    "benchmark": "node benchmark.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

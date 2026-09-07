@@ -179,6 +179,57 @@ const nextScrambleButton = document.getElementById("next");
 export const timerEl    = document.getElementById("timer");
 const timerBoxEl = document.getElementById("timerbox");
 
+export const STARTUP_SCRAMBLE_KEYS = {
+    pbl: 'startupScramblePBL',
+    obl: 'startupScrambleOBL',
+};
+
+export const FALLBACK_PBL_SCRAMBLES = [
+    { standard: '3,-4 / 1,1 / 3,0 / 2,2 / 0,-3 / 0,-3 / 0,-3 / -2,4 / 3,0 / 2,-1 / -3,0 / 3,1', karn: "3-4 M U m DD' D' T' U u U' 31", caseName: 'Ul/Ul+' },
+    { standard: "-5,0 / 0,-3 / 0,3 / -4,-4 / -3,-3 / 0,3 / -5,4 / -3,0 / 5,-1 / -2,4 / -3,-3 / 2,3", karn: "-50 B' -4-4 e' D -54 U' u2 T' e' 23", caseName: 'Ur/Ur+' },
+    { standard: '4,0 / 3,0 / -1,-1 / 0,-3 / -5,1 / -3,3 / -3,0 / -1,-1 / -3,0 / 1,1 / 3,-3 / -4,-3', karn: "40 U M' D' u2' E' U' M' U' M E -4-3", caseName: 'Z/Z+' },
+    { standard: '-2,0 / 2,-4 / -5,1 / -1,2 / 3,-3 / -3,3 / 1,4 / 3,-3 / 2,2 / -2,4 / 2,3', karn: "-20 T u2' d E E' f E m T' 23", caseName: 'H/H+' },
+    { standard: '0,-1 / 0,-3 / 3,-3 / -5,1 / 3,0 / 3,3 / -4,2 / -3,3 / -5,1 / 2,-4 / 0,-2', karn: "0-1 D' E u2' U e t' E' u2' T 0-2", caseName: 'T/T+' },
+    { standard: '4,0 / -1,2 / 0,-3 / -3,0 / -5,4 / 0,-3 / -1,-1 / 3,3 / 4,4 / 2,-4 / -2,1 / -4,-4 / 0,-2', karn: "40 d D' U' -54 D' M' e 44 T u' -4-4 0-2", caseName: 'Ja/Jm+' },
+];
+
+function normalizeStartupScramble(mode, value) {
+    if (!value || typeof value !== 'object') return null;
+    if (typeof value.standard !== 'string' || typeof value.karn !== 'string' || typeof value.caseName !== 'string') return null;
+    if (mode === 'obl' && value.memo != null && typeof value.memo !== 'string') return null;
+    return {
+        standard: value.standard,
+        karn: value.karn,
+        caseName: value.caseName,
+        memo: typeof value.memo === 'string' ? value.memo : '',
+    };
+}
+
+export function readStartupScramble(mode = trainerMode) {
+    try {
+        const raw = localStorage.getItem(STARTUP_SCRAMBLE_KEYS[mode]);
+        return normalizeStartupScramble(mode, JSON.parse(raw));
+    } catch {
+        return null;
+    }
+}
+
+export function pickFallbackPblScramble() {
+    const entry = FALLBACK_PBL_SCRAMBLES[randInt(0, FALLBACK_PBL_SCRAMBLES.length - 1)];
+    saveStartupScramble('pbl', entry);
+    return entry;
+}
+
+export function saveStartupScramble(mode, entry) {
+    const normalized = normalizeStartupScramble(mode, entry);
+    if (!normalized) return;
+    if (mode === 'pbl') {
+        normalized.scrambleMode = entry.scrambleMode;
+        normalized.allowBottom56 = !!entry.allowBottom56;
+    }
+    localStorage.setItem(STARTUP_SCRAMBLE_KEYS[mode], JSON.stringify(normalized));
+}
+
 export function updateScrambleNavButtons() {
     const prevEntry = trainerMode === 'obl'
         ? obl?.oblScrambleList.at(-2 - obl.oblScrambleOffset)
