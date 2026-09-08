@@ -289,36 +289,46 @@ export function tagCaseCount(tagId) {
     return tagCaseBases(tagId).length;
 }
 
-// PBL only: the barflip mode each case should be selected as when a tag is
-// applied. A tagged matt solution group implies a mode from its slicecount —
-// even → '-', odd → '+'. Within a cluster these combine: mixed parities, an
-// unknown slicecount, or any tagged sheet view (jlminx/derpy, addressed by "*")
-// force 'both'. Every case in a touched cluster shares that cluster's mode.
-// Returns [{ base, mode }] with mode ∈ '+' | '-' | 'both'.
+// true if a matt solution group carries its own algs, as opposed to e.g. "// barflip"
+export function groupHasOwnAlgs(group) {
+    return !!(group?.['alg-blocks']?.some(b => b.cases?.some(c => c.algs?.length)));
+}
+
+// PBL only: the barflip mode for each case (consistent per cluster) when a tag is applied.
+// A tagged matt solution group implies a mode from its slicecount.
+// Within a cluster these combine: mixed barflips, unknown slicecount, or
+// any tagged sheet view (jlminx/derpy, addressed by "*") force 'both'.
+// addonMixed is used to merge a +/- that just came from solution groups like "// barflip".
+// Returns [{ base, mode, addonMixed }].
 export function tagCaseModes(tagId) {
     const refs = loadTagAssignments()[tagId] || [];
-    const acc  = new Map(); // title -> { even, odd, both }
+    const acc  = new Map(); // title -> { even, odd, rawBoth, hasAddon }
     for (const ref of refs) {
         const [title, source, unitId] = ref.split('|');
         if (!_algClusters()[title]) continue; // stale ref (cluster gone)
         let a = acc.get(title);
-        if (!a) { a = { even: false, odd: false, both: false }; acc.set(title, a); }
-        if (source !== 'matt') { a.both = true; continue; } // sheet view → both
+        if (!a) { a = { even: false, odd: false, rawBoth: false, hasAddon: false }; acc.set(title, a); }
+        if (source !== 'matt') { a.rawBoth = true; continue; } // sheet view → both
         const g = mattGroupById(title, unitId);
         const n = g ? Number(g['solution-slicecount']) : NaN;
-        if (!Number.isFinite(n)) { a.both = true; continue; }
+        if (!Number.isFinite(n)) { a.rawBoth = true; continue; }
         if (n % 2 === 0) a.even = true; else a.odd = true;
+        if (g && !groupHasOwnAlgs(g)) a.hasAddon = true;
     }
 
-    const baseMode = new Map(); // base -> mode (merge to 'both' on conflict)
+    const baseInfo = new Map(); // base -> { mode, addonMixed } (merge to 'both' on conflict)
     for (const [title, a] of acc) {
-        const mode = (a.both || (a.even && a.odd)) ? 'both' : a.even ? '-' : a.odd ? '+' : 'both';
+        const mixed      = a.even && a.odd;
+        const mode       = (a.rawBoth || mixed) ? 'both' : a.even ? '-' : a.odd ? '+' : 'both';
+        const addonMixed = mixed && !a.rawBoth && a.hasAddon;
         for (const c of (effectiveCluster(title)?.['case-list'] || [])) {
-            const prev = baseMode.get(c);
-            baseMode.set(c, prev && prev !== mode ? 'both' : mode);
+            const prev = baseInfo.get(c);
+            baseInfo.set(c, prev
+                ? { mode: prev.mode !== mode ? 'both' : mode, addonMixed: prev.addonMixed || addonMixed }
+                : { mode, addonMixed });
         }
     }
-    return [...baseMode].map(([base, mode]) => ({ base, mode }));
+    return [...baseInfo].map(([base, { mode, addonMixed }]) => ({ base, mode, addonMixed }));
 }
 
 // The matt solution group addressed by `unitId` (sg<n>/new<n>). effectiveMattGroups

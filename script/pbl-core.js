@@ -12,6 +12,9 @@ export let pblPossible  = [];  // [[top, bottom], ...]
 export let pblSelected  = [];  // entries end with '+' or '-'  e.g. "Al/Ar+"
 export let pblScrambleList = []; // [[normal, karn, caseName], ...]
 export let pblRemaining = [];
+// Set by pblSelectTag for addon tag pairs;
+// cleared for a case when its selection changes anywhere else, via pblSelect/pblDeselect.
+let pblMergedBases = new Set();
 let pblEachCase  = 0;   // 0 = random, 1+ = fixed count per cycle
 let pblWeight    = false;
 export let pblUseBarflip = false;
@@ -337,6 +340,7 @@ export function pblHide(id) { document.getElementById(id)?.classList.add("hidden
 export function pblSelect(s) {
     // s must end with '+' or '-'
     const base = s.slice(0, -1);
+    pblMergedBases.delete(base);
     const el   = document.getElementById(base);
     if (!pblSelected.includes(s)) pblSelected.push(s);
     if (pblEachCase > 0) {
@@ -372,8 +376,9 @@ export function pblSelect(s) {
 
 export function pblDeselect(s) {
     // s must end with '+' or '-'
-    if (!pblSelected.includes(s)) return;
     const base = s.slice(0, -1);
+    pblMergedBases.delete(base);
+    if (!pblSelected.includes(s)) return;
     const el   = document.getElementById(base);
     pblSelected  = pblSelected.filter(a => a !== s);
     pblRemaining = pblRemaining.filter(a => a !== s);
@@ -403,12 +408,20 @@ export function pblGetOptimal(pbl) {
 function pblRefillRemaining() {
     pblEachCase = pblEachCase === 0 ? randInt(MIN_EACHCASE, MAX_EACHCASE) : pblEachCase;
     if (pblCountsSeparately()) {
-        // Each selected barflip is its own case: give every entry its own
-        // weight×eachCase slots. A 'both' case thus gets twice the slots of a
-        // single-barflip case (×2 vs ×1 under realistic weights).
+        // Each selected barflip is its own case, EXCEPT
+        // cases in pblMergedBases, which are one case with random +/-.
+        const mergedDone = new Set();
         pblRemaining = pblSelected.flatMap(s => {
-            const count = pblEachCase * (pblWeight ? squan.getPBLWeight(s.slice(0, -1)) : 1);
-            return Array.from({ length: count }, () => s);
+            const base = s.slice(0, -1);
+            if (!pblMergedBases.has(base)) {
+                const count = pblEachCase * (pblWeight ? squan.getPBLWeight(base) : 1);
+                return Array.from({ length: count }, () => s);
+            }
+            if (mergedDone.has(base)) return [];
+            mergedDone.add(base);
+            const count    = pblEachCase * (pblWeight ? squan.getPBLWeight(base) : 1);
+            const suffixes = ['+', '-'].filter(sx => pblSelected.includes(base + sx));
+            return Array.from({ length: count }, () => base + suffixes[randInt(0, suffixes.length - 1)]);
         });
         return;
     }
@@ -863,11 +876,14 @@ export function pblSelectTag(tagId, setSelection) {
         const ovr = pblEffectiveOverride(); // null | '+' | '-'
         pblSnapSelection();
         pblDeselectAll();
-        for (const { base, mode } of modes) {
+        for (const { base, mode, addonMixed } of modes) {
             const m = ovr ?? mode; // global override wins; otherwise slicecount-derived mode
             if (m === '+')      pblSelect(base + '+');
             else if (m === '-') pblSelect(base + '-');
-            else { pblSelect(base + '+'); pblSelect(base + '-'); }
+            else {
+                pblSelect(base + '+'); pblSelect(base + '-');
+                if (addonMixed) pblMergedBases.add(base);
+            }
         }
         if (pblEachCase > 0) {
             pblRefillRemaining();
